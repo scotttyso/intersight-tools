@@ -14,7 +14,7 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 * Deploy FlashStack Using Cisco Intersight Cloud Orchestrator
 * Deploy FlexPod Using Cisco Intersight Cloud Orchestrator
 
-[*README - ezci*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezci.md)
+[README - *ezci*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezci.md)
 
 ## ezimm.py
 
@@ -23,7 +23,7 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 * Build Terraform IaC (Infrastructure as Code) YAML Configuration files using a guided Wizard
 * Deploy Cisco Intersight Policies, Pools, and Profiles/Templates using Python
 
-[*README - ezimm*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezimm.md)
+[README - *ezimm*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezimm.md)
 
 ## day2tools.py
 
@@ -33,13 +33,13 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 * Export an Excel Spreadsheet with Server Identities
 * Export an Excel Spreadsheet with VMware/Intersight HCL Status
 
-[*README - ezday2tools*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezday2tools.md)
+[README - *ezday2tools*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezday2tools.md)
 
 ## Updates/News
 
 2023-11-18
 * Added New README's for Each Use Case, see above.
-* Archived intersight_iac.  See: [*Old - README*](https://github.com/scotttyso/intersight-tools/blob/master/README.day2tools.md)
+* Archived intersight_iac.  See: [*Old - README*](https://github.com/scotttyso/intersight-tools/blob/master/archive/README.md)
 
 ## Getting Started - Environment Preparation
 
