@@ -2,7 +2,7 @@
 
 - It is recommend to add the following secure variables to your environment before running the script
 
-- Linux
+#### Linux
 
 ```bash
 ## Intersight Variables
@@ -14,7 +14,7 @@ export intersight_secret_key="~/Downloads/SecretKey.txt"
 export terraform_cloud_token="<your_terraform_cloud_token>"
 ```
 
-- Windows - Plugin your API Keys and the File Location of the Intersight Secret Key.
+#### Windows
 
 ```powershell
 ## Powershell Intersight Variables
@@ -189,19 +189,17 @@ Recently I adopted the `tfenv` runner to standardize environment variables with 
 
 In the export examples below, for the Linux Example, the 'TF_VAR_' is excluded because Cloud Posse tfenv is used to insert it during the run.
 
-### Make sure you have already installed go
+### Make sure you have already installed go - Add go/bin to PATH
+
+```bash
+GOPATH="$HOME/go"
+PATH="$GOPATH/bin:$PATH"
+```
 
 ## [go](https://go.dev/doc/install)
 
 ```bash
 go install github.com/cloudposse/tfenv@latest
-```
-
-### Add go/bin to PATH
-
-```bash
-GOPATH="$HOME/go"
-PATH="$GOPATH/bin:$PATH"
 ```
 
 ### Aliases for `.bashrc`
