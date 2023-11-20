@@ -82,6 +82,7 @@ def cli_arguments():
     Parser.add_argument( '-p', '--pure-storage-password',   help='Pure Storage Login Password.' )
     Parser.add_argument( '-psa', '--pure-storage-snmp-auth', help='Pure Storage SNMP Auth Password.' )
     Parser.add_argument( '-psp', '--pure-storage-snmp-priv', help='Pure Storage SNMP Privilege Password.' )
+    Parser.add_argument( '-pxp', '--proxy-password',   help='Proxy Password.' )
     Parser.add_argument(
         '-s', '--deployment-step', default ='initial', required=True,
         help ='The steps in the proceedure to run. Options Are: '\

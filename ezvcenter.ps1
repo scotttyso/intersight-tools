@@ -30,6 +30,18 @@ Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER)
 # ignore cert errors
 #=====================================================
 #Add-PsSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
+#=============================================================================
+# Install AzureStackHCI EnvironmentChecker
+#=============================================================================
+if ($jdata.proxy) {
+    
+}
+#$proxy = ([System.Net.WebRequest]::GetSystemWebproxy()).IsBypassed("https://portal.azure.com")
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+if (!(Get-Module -ListAvailable -Name VMware.PowerCLI)) {
+    Write-Host " * Installing VMware.PowerCLI." -ForegroundColor Green
+    Install-Module VMware.PowerCLI -Confirm:$False -Force
+} else { Write-Host " * VMware.PowerCLI Already Installed." -ForegroundColor Cyan }
 
 #$ErrorActionPreference = "SilentlyContinue"
 Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false

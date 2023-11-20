@@ -5,6 +5,7 @@
 {{ $azurestack := .global.workflow.input.azurestack }}
 {{ $intersight := .global.workflow.input.intersight }}
 {{ $protocols := .global.workflow.input.protocols }}
+{{ $proxy := .global.workflow.input.proxy }}
 {{ $windows_install := .global.workflow.input.windows_install }}
 protocols:\n
 {{ if index $protocols "dhcp_servers" }}
@@ -40,6 +41,9 @@ protocols:\n
 {{ else }}
   ntp_servers: []\n
 {{ end }}
+proxy:\n
+  url: {{ if index $proxy "url" }}{{ $proxy.url }}{{ else }}''{{ end }}\n
+  username: {{ if index $proxy "username" }}{{ $proxy.username }}{{ else }}''{{ end }}\n
 windows_install:\n
   language_pack: {{ if index $windows_install "language_pack" }}{{ $windows_install.language_pack}}{{ else }}English - United States{{ end }}\n
   layered_driver: {{ if index $windows_install "layered_driver" }}{{ $windows_install.layered_driver }}{{ else }}0{{ end }}\n

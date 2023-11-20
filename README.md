@@ -107,6 +107,20 @@ sudo ln -s $(readlink -f ezpure_login.ps1) /usr/bin/ezpure_login.ps1
 sudo ln -s $(readlink -f ezvcenter.ps1) /usr/bin/ezvcenter.ps1
 ```
 
+## PowerShell Requirements
+
+- Many Features in the Modules use PowerShell 7.X Features.  Make sure you are running PowerShell 7.X
+
+#### Linux
+
+```bash
+sudo snap install powershell --classic
+```
+
+#### Windows
+
+[Download PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows)
+
 ## YAML Schema Notes for auto-completion, Help, and Error Validation:
 
 If you would like to utilize Autocompletion, Help Context, and Error Validation, `(HIGHLY RECOMMENDED)` make sure the files all utilize the `.ezi.yaml` file extension.
