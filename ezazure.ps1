@@ -50,15 +50,27 @@ param (
 #=============================================================================
 # Start Log and Configure PowerCLI
 #=============================================================================
+${env_vars} = Get-Childitem -Path Env:* | Sort-Object Name
+if ((${env_vars} | Where-Object {$_.Name -eq "OS"}).Value -eq "Windows_NT") {
+    $homePath = (${env_vars} | Where-Object {$_.Name -eq "HOMEPATH"}).Value
+    $pathSep  = "\"
+} else {
+    $homePath = (${env_vars} | Where-Object {$_.Name -eq "HOME"}).Value
+    $pathSep  = "/"
+}
+if (!( Test-Path -PathType Container $homePath + $pathSep + "Logs")) {
+    New-Item -ItemType Directory $homePath + $pathSep + "Logs" | Out-Null
+}
 Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER).log" -Append -Confirm:$false
 Get-PSSession | Remove-PSSession | Out-Null
 
 #=============================================================================
 # Setup Variables for Environment
 #=============================================================================
-$feature_list = ("Hyper-V", "Failover-Clustering", "Data-Center-Bridging", "Bitlocker" , "FS-FileServer",
-    "FS-SMBBW", "Hyper-V-PowerShell", "RSAT-AD-Powershell", "RSAT-Clustering-PowerShell", "NetworkATC",
-    "NetworkHUD", "FS-DATA-Deduplication")
+$feature_list = (
+    "Hyper-V", "Failover-Clustering", "Data-Center-Bridging", "Bitlocker" , "FS-FileServer", "FS-SMBBW", "Hyper-V-PowerShell",
+    "RSAT-AD-Powershell", "RSAT-Clustering-PowerShell", "NetworkATC", "NetworkHUD", "FS-DATA-Deduplication"
+)
 $jdata      = Get-Content -Path $j | ConvertFrom-Json
 $cluster    = $jdata.cluster
 $link_speed = $jdata.link_speed
