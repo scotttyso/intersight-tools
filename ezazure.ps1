@@ -100,7 +100,7 @@ Function NodeAndRebootCheck {
         if ($result.reboot -eq $True) { $reboot_count++ | Out-Null }
     }
     Get-PSSession | Remove-PSSession | Out-Null
-        if (!($nodes.Length -eq $node_list)) {
+    if (!($nodes.Length -eq $node_list)) {
         Write-Host "One or More Nodes Failed on Previous Task." -ForegroundColor Red
         Write-Host " * Original Node List: $node_list" -ForegroundColor Red
         Write-Host " * Completed Node List: $nodes" -ForegroundColor Red
