@@ -256,8 +256,8 @@ class imm(object):
             )
             if len(kwargs.domain) > 0: kwargs.servers[i.Serial].domain = kwargs.domain.name
             else:
-                kwargs.servers[i.Serial].pop('chassis_id')
-                kwargs.servers[i.Serial].pop('chassis_moid')
+                for e in ['chassis_id', 'chassis_moid', 'slot']:
+                    kwargs.servers[i.Serial].pop(e)
             return kwargs
         #=====================================================
         # Build Domain Dictionaries
@@ -342,12 +342,14 @@ class imm(object):
                 pcolor.Cyan(f'   - Pulling Server Inventory for the Server: {i.Serial}')
                 kwargs = server_dictionary(i, kwargs)
                 for k, v in kwargs.result.items():
+                    indx = next((index for (index, d) in enumerate(kwargs.imm.profiles) if d['cimc'] == k), None)
                     if v.serial == i.Serial:
                         kwargs.servers[i.Serial] = DotMap(dict(kwargs.servers[i.Serial].toDict(), **dict(
-                            enable_dhcp    = v.enable_dhcp, enable_dhcp_dns = v.enable_dhcp_dns,
-                            enable_ipv6    = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp,
-                            language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
-                            layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver
+                            active_directory = kwargs.imm.profiles[indx].active_directory,
+                            enable_dhcp      = v.enable_dhcp, enable_dhcp_dns = v.enable_dhcp_dns,
+                            enable_ipv6      = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp,
+                            language_pack    = kwargs.imm_dict.wizard.windows_install.language_pack,
+                            layered_driver   = kwargs.imm_dict.wizard.windows_install.layered_driver
                         )))
                 pcolor.Cyan(f'     Completed Server Inventory for Server: {i.Serial}')
             pcolor.Cyan('')
