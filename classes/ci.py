@@ -345,12 +345,12 @@ class imm(object):
                     indx = next((index for (index, d) in enumerate(kwargs.imm.profiles) if d['cimc'] == k), None)
                     if v.serial == i.Serial:
                         kwargs.servers[i.Serial] = DotMap(dict(kwargs.servers[i.Serial].toDict(), **dict(
-                            active_directory = kwargs.imm.profiles[indx].active_directory,
                             enable_dhcp      = v.enable_dhcp, enable_dhcp_dns = v.enable_dhcp_dns,
                             enable_ipv6      = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp,
                             language_pack    = kwargs.imm_dict.wizard.windows_install.language_pack,
                             layered_driver   = kwargs.imm_dict.wizard.windows_install.layered_driver
                         )))
+                    if type(indx) == int: kwargs.servers[i.Serial].active_directory = kwargs.imm.profiles[indx].active_directory
                 pcolor.Cyan(f'     Completed Server Inventory for Server: {i.Serial}')
             pcolor.Cyan('')
         #=====================================================
