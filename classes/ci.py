@@ -2645,8 +2645,8 @@ class wizard(object):
                             f"{'-'*91}\n")
                 kwargs = isight.api(self.type).calls(kwargs)
                 kwargs.server_profiles[k].os_install = DotMap(moid=kwargs.pmoid,workflow='')
-        pcolor.Cyan(f'\n{"*" * 91}\nSleeping for 240 seconds to pause for Workflow/Infos Lookup.\n{"*" * 91}\n')
-        time.sleep(240)
+        pcolor.Cyan(f'\n{"*" * 91}\nSleeping for 10 Minutes to pause for Workflow/Infos Lookup.\n{"*" * 91}\n')
+        time.sleep(600)
         #=================================================
         # Monitor OS Installation until Complete
         #=================================================
