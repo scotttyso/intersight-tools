@@ -137,6 +137,7 @@ class api(object):
             #=====================================================
             if api_results.get('Results'): kwargs.results = api_results.Results
             else: kwargs.results = api_results
+            if not kwargs.skip_dict == True: kwargs.skip_dict = False
             if 'post' in kwargs.method:
                 if api_results.get('Responses'):
                     api_results['Results'] = deepcopy(api_results['Responses'])
@@ -245,6 +246,7 @@ class api(object):
         #=====================================================
         if kwargs.get('api_filter'): kwargs.pop('api_filter')
         if kwargs.get('build_skip'): kwargs.pop('build_skip')
+        if kwargs.get('skip_dict'): kwargs.pop('skip_dict')
         if kwargs.get('top1000'): kwargs.pop('top1000')
         return kwargs
 
@@ -2045,7 +2047,7 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
 #=====================================================
 def build_pmoid_dictionary(api_results, kwargs):
     apiDict = DotMap()
-    if api_results.get('Results'):
+    if not kwargs.skip_dict == True and api_results.get('Results'):
         for i in api_results.Results:
             if i.get('Body'): i = i.Body
             if i.get('VlanId'): iname = str(i.VlanId)
@@ -2080,6 +2082,8 @@ def build_pmoid_dictionary(api_results, kwargs):
                 if i.get('SourceObjectType'): apiDict[iname].object_type = i.SourceObjectType
             if i.get('PolicyBucket'): apiDict[iname].policy_bucket = i.PolicyBucket
             if i.get('Selectors'): apiDict[iname].selectors = i.Selectors
+            if i.get('Source'):
+                if i.Source.get('LocationLink'): apiDict[iname].url = i.Source.LocationLink
             if i.get('SwitchId'): apiDict[iname].switch_id = i.SwitchId
             if i.get('Tags'): apiDict[iname].tags = i.Tags
             if i.get('UpgradeStatus'): apiDict[iname].upgrade_status = i.UpgradeStatus
