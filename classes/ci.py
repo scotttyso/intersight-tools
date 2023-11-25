@@ -189,7 +189,10 @@ class imm(object):
             else: cv = 'amd'
             storage_controllers = DotMap()
             for e in storage:
-                if len(e.Model) > 0: storage_controllers[e.Model] = e.ControllerId
+                if len(e.Model) > 0:
+                    mstring = 'Cisco Boot optimized M.2 Raid controller'
+                    if e.Model == mstring: storage_controllers['UCS-M2-HWRAID'] = e.ControllerId
+                    else: storage_controllers[e.Model] = e.ControllerId
             kwargs.api_filter= f"Ancestors/any(t:t/Moid eq '{i.Moid}')"
             kwargs.qtype     = 'adapter'
             kwargs.uri       = 'adapter/Units'
@@ -2450,7 +2453,7 @@ class wizard(object):
         kwargs.models  = []
         for i in  kwargs.imm_dict.orgs[kwargs.org].wizard.os_configuration: kwargs.models.append(i.model)
         kwargs.models   = list(numpy.unique(numpy.array(kwargs.models)))
-        kwargs.windows_languages = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r')))
+        kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
         kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
         #==========================================
         # Get Physical Server Tags to Check for
@@ -2480,8 +2483,9 @@ class wizard(object):
             # Process Variables
             #==================================
             if v.os_type == 'Windows':
-                sensitive_list = ['domain_admin_password', 'windows_admin_password']
+                sensitive_list = ['windows_admin_password', 'windows_domain_password']
                 for i in sensitive_list:
+                    kwargs.sensitive_var = i
                     kwargs = ezfunctions.sensitive_var_value(kwargs)
                     kwargs[i] = kwargs.var_value
                 kwargs = windows_languages(v, kwargs)
@@ -2512,12 +2516,16 @@ class wizard(object):
             #==================================
             # Get OS Config Files
             #==================================
-            kwargs.api_filter = f"Name in  ('shared')"
+            kwargs.api_filter = f"Name in ({kwargs.org},'shared')"
             kwargs.method     = 'get'
             kwargs.qtype      = 'os_catalog'
             kwargs.uri        = 'os/Catalogs'
             kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+            kwargs.org_catalog_moid    = kwargs.pmoids[kwargs.org].moid
+            shared_catalog_moid = kwargs.pmoids['shared'].moid
+            kwargs.os_catalog_moid = kwargs.pmoids[kwargs.org].moid
             kwargs.api_filter = f"Catalog.Moid eq '{kwargs.pmoids['shared'].moid}'"
+            kwargs.api_filter = f"Catalog.Moid in ('{kwargs.org_catalog_moid},{shared_catalog_moid}')"
             kwargs.qtype      = 'os_configuration'
             kwargs.uri        = 'os/ConfigurationFiles'
             kwargs            = isight.api(kwargs.qtype).calls(kwargs)
@@ -2561,14 +2569,15 @@ class wizard(object):
                 x = (e.Version).split(' ')
                 if 'Azure' in url and v.os_type == 'Windows':
                     version = f'{x[0]}{x[2]}'
-                    if kwargs.language.get('secondary_language'): ctemplate = 'AzureStackHCI_secondary.xml'
-                    elif not v.layered_driver == 'Unused': ctemplate = 'AzureStackHCI_secondary.xml'
+                    if not kwargs.language.secondary_language == 'None': ctemplate = 'AzureStackHCI_secondary.xml'
+                    elif not v.layered_driver == 'Unused': ctemplate = 'AzureStackHCI_jpn_korea.xml'
                     else: ctemplate = 'AzureStackHCI_all_others.xml'
                     template_name = version + ctemplate
                     kwargs.os_config_template = template_name
                     if not kwargs.os_list.get(version): kwargs.os_list[version] = deepcopy(DotMap(moid = moid, url=url))
                     if not kwargs.distributions.get(version):
                         kwargs.api_filter = f"Version eq '{e.Version}'"
+                        kwargs.method     = 'get'
                         kwargs.qtype      = 'hcl_operating_system'
                         kwargs.skip_dict  = True
                         kwargs.uri        = 'hcl/OperatingSystems'
@@ -2581,7 +2590,8 @@ class wizard(object):
                             resp.raise_for_status()
                         except requests.exceptions.HTTPError as err: print(err)
                         kwargs.file_content = resp.content.decode("utf-8")
-                        kwargs.api_body     = os_configuration_file(k, v, kwargs)
+                        kwargs.api_body     = os_configuration_file(kwargs)
+                        kwargs.method       = 'post'
                         kwargs.qtype        = 'os_configuration'
                         kwargs.uri          = 'os/ConfigurationFiles'
                         kwargs              = isight.api(kwargs.qtype).calls(kwargs)
@@ -2938,39 +2948,17 @@ def os_placeholders(name, value):
 #=============================================================================
 # Function - Build api_body for OS Configuration Item
 #=============================================================================
-def os_configuration_file(k, v, kwargs):
+def os_configuration_file(kwargs):
     api_body = {
-        "Catalog": {"Moid": kwargs.catalog_moid, "ObjectType": "os.Catalog"},
+        "Catalog": kwargs.org_catalog_moid,
         "Description": "",
         "Distributions": [{"Moid": kwargs.distribution_moid, "ObjectType": "hcl.OperatingSystem"}],
         "FileContent": kwargs.file_content,
+        "Internal": False,
         "Name": kwargs.os_config_template,
         "ObjectType": "os.ConfigurationFile",
-        "Placeholders": [],
-        "Supported": False,
-        "Tags": kwargs.ez_tags
+        "Tags": kwargs.ez_tags.toDict()
     }
-    answers_dict = {
-        ".DisableAutoDaylightTimeSet": '',
-        ".Domain": '',
-        ".DomainAdminUser": '',
-        ".Gateway": '',
-        ".HostName": '',
-        ".InputLocale": '',
-        ".IpAddress": '',
-        ".IpPrefix": '',
-        ".LayeredDriver": '',
-        ".MacAddressNic1_dash_format": '',
-        ".MacAddressNic2_dash_format": '',
-        ".NameServer": '',
-        ".secure.AdministratorPassword": '',
-        ".secure.DomainAdminPassword": '',
-        ".UILanguage": '',
-        ".UILanguageFallback": ''
-    }
-    if not '.LayeredDriver' in kwargs.file_content: answers_dict.pop('.LayeredDriver')
-    if not '.UILanguageFallback' in kwargs.file_content: answers_dict.pop('.UILanguageFallback')
-    for k,v in answers_dict.items(): api_body["AdditionalParameters"].append(os_placeholders(k, v))
     return api_body
 
 #=============================================================================
@@ -3062,7 +3050,7 @@ def windows_installation_body(k, v, kwargs):
         ".MacAddressNic2_dash_format": mac_b,
         ".NameServer": kwargs.dns_servers[0],
         ".secure.AdministratorPassword": kwargs.windows_admin_password,
-        ".secure.DomainAdminPassword": kwargs.domain_admin_password,
+        ".secure.DomainAdminPassword": kwargs.windows_domain_password,
         ".TimeZone": kwargs.windows_timezone,
         ".UILanguage": kwargs.language.ui_language,
         ".UILanguageFallback": kwargs.language.secondary_language
@@ -3077,12 +3065,12 @@ def windows_installation_body(k, v, kwargs):
 #=============================================================================
 def windows_languages(v, kwargs):
     language = [e for e in kwargs.windows_languages if (
-        e.language.replace("(", "_")).replace(")", "_") == (v.language_pack.replace("(", "_")).replace(")", "_")]
-    if len(language) == 1: language = language[0]
+        (DotMap(e)).language.replace("(", "_")).replace(")", "_") == (v.language_pack.replace("(", "_")).replace(")", "_")]
+    if len(language) == 1: language = DotMap(language[0])
     else:
         pcolor.Red(f'Failed to Map `{v.language_pack}` to a Windows Language.')
         pcolor.Red(f'Available Languages are:')
-        for e in kwargs.windows_languages: pcolor.Red(f'  * {e.language}')
+        for e in kwargs.windows_languages: pcolor.Red(f'  * {(DotMap(e)).language}')
         sys.exit(1)
     kwargs.language = DotMap(
         ui_language = language.code,
