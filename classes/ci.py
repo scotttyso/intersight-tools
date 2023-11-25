@@ -2516,16 +2516,15 @@ class wizard(object):
             #==================================
             # Get OS Config Files
             #==================================
-            kwargs.api_filter = f"Name in ({kwargs.org},'shared')"
+            kwargs.api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')"
             kwargs.method     = 'get'
             kwargs.qtype      = 'os_catalog'
             kwargs.uri        = 'os/Catalogs'
             kwargs            = isight.api(kwargs.qtype).calls(kwargs)
-            kwargs.org_catalog_moid    = kwargs.pmoids[kwargs.org].moid
+            kwargs.org_catalog_moid    = kwargs.pmoids[kwargs.org_moids[kwargs.org].moid].moid
             shared_catalog_moid = kwargs.pmoids['shared'].moid
-            kwargs.os_catalog_moid = kwargs.pmoids[kwargs.org].moid
             kwargs.api_filter = f"Catalog.Moid eq '{kwargs.pmoids['shared'].moid}'"
-            kwargs.api_filter = f"Catalog.Moid in ('{kwargs.org_catalog_moid},{shared_catalog_moid}')"
+            kwargs.api_filter = f"Catalog.Moid in ('{kwargs.org_catalog_moid}','{shared_catalog_moid}')"
             kwargs.qtype      = 'os_configuration'
             kwargs.uri        = 'os/ConfigurationFiles'
             kwargs            = isight.api(kwargs.qtype).calls(kwargs)
@@ -2572,7 +2571,7 @@ class wizard(object):
                     if not kwargs.language.secondary_language == 'None': ctemplate = 'AzureStackHCI_secondary.xml'
                     elif not v.layered_driver == 'Unused': ctemplate = 'AzureStackHCI_jpn_korea.xml'
                     else: ctemplate = 'AzureStackHCI_all_others.xml'
-                    template_name = version + ctemplate
+                    template_name = version + '-' + ctemplate.split('_')[0]
                     kwargs.os_config_template = template_name
                     if not kwargs.os_list.get(version): kwargs.os_list[version] = deepcopy(DotMap(moid = moid, url=url))
                     if not kwargs.distributions.get(version):
@@ -2584,7 +2583,7 @@ class wizard(object):
                         kwargs            = isight.api(kwargs.qtype).calls(kwargs)
                         kwargs.distributions[version] = DotMap(moid = kwargs.results[0].Moid)
                     kwargs.distribution_moid = kwargs.distributions[version].moid
-                    if not kwargs.os_cfg_moids.get(version):
+                    if not kwargs.os_cfg_moids.get(template_name):
                         try:
                             resp = requests.get(url = f"https://raw.githubusercontent.com/scotttyso/baremetal-azurestack-hci/main/{ctemplate}")
                             resp.raise_for_status()
@@ -2595,20 +2594,22 @@ class wizard(object):
                         kwargs.qtype        = 'os_configuration'
                         kwargs.uri          = 'os/ConfigurationFiles'
                         kwargs              = isight.api(kwargs.qtype).calls(kwargs)
-                        kwargs.os_cfg_moids[version] = DotMap(moid = kwargs.pmoid)
+                        kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
+                    kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
+                    vlist = sorted(list(kwargs.os_list.keys()), reverse=True)
+                    kwargs.os_sw_moid = kwargs.os_list[vlist[0]].moid
                 elif e.Vendor == v.os_type:
                     version = f'{x[0]}{x[1]}ConfigFile'
                     if not version == '':
                         if not kwargs.os_list.get(version): kwargs.os_list[version] = deepcopy(DotMap(moid = moid, url=url))
-            vlist = sorted(list(kwargs.os_list.keys()), reverse=True)
-            kwargs.os_sw_moid = kwargs.os_list[vlist[0]].moid
-            kwargs.os_cfg_moid= kwargs.os_cfg_moids[vlist[0]].moid
-            test_repo_url(kwargs.os_list[vlist[0]].url)
+                    vlist = sorted(list(kwargs.os_list.keys()), reverse=True)
+                    kwargs.os_cfg_moid = kwargs.os_cfg_moids[vlist[0]].moid
+                    kwargs.os_sw_moid  = kwargs.os_list[vlist[0]].moid
+                    test_repo_url(kwargs.os_list[vlist[0]].url)
         #==========================================
         # Install Operating System on Servers
         #==========================================
         count = 1
-        exit()
         for k,v in kwargs.server_profiles.items():
             if v.boot_volume == 'san':
                 if count % 2 == 0:
@@ -2957,7 +2958,7 @@ def os_configuration_file(kwargs):
         "Internal": False,
         "Name": kwargs.os_config_template,
         "ObjectType": "os.ConfigurationFile",
-        "Tags": kwargs.ez_tags.toDict()
+        "Tags": [kwargs.ez_tags.toDict()]
     }
     return api_body
 
@@ -3011,27 +3012,23 @@ def vmware_installation_body(k, v, kwargs):
 #=============================================================================
 def windows_installation_body(k, v, kwargs):
     api_body = {
-        "ObjectType": "bulk.RestSubRequest",
-        "Body": {
-            "AdditionalParameters": [],
-            "Answers": {"Source": "Template"},
-            "ConfigurationFile": {"Moid": kwargs.os_cfg_moid, "ObjectType": "os.ConfigurationFile"},
-            "Description": "",
-            "InstallMethod": "vMedia",
-            "InstallTarget": {
-                "ObjectType": "os.VirtualDrive",
-                "Name": "MStorBootVd",
-                "StorageControllerSlotId": "MSTOR-RAID",
-                "Id": "0"
-            },
-            "Image": {"Moid": kwargs.os_sw_moid, "ObjectType": "softwarerepository.OperatingSystemFile"},
-            "OsduImage": {"Moid": kwargs.scu_moid, "ObjectType": "firmware.ServerConfigurationUtilityDistributable"},
-            "OperatingSystemParameters": {"Edition": "DatacenterCore", "ObjectType": "os.WindowsParameters"},
-            "Organization": {"Moid": kwargs.org_moid, "ObjectType": "organization.Organization"},
-            "OverrideSecureBoot": True,
-            "Server": {'Moid': v.hardware_moid, 'ObjectType': v.object_type}
-        }
-    }
+        "AdditionalParameters": [],
+        "Answers": {"Source": "Template"},
+        "ConfigurationFile": {"Moid": kwargs.os_cfg_moid, "ObjectType": "os.ConfigurationFile"},
+        "Description": "",
+        "Image": {"Moid": kwargs.os_sw_moid, "ObjectType": "softwarerepository.OperatingSystemFile"},
+        "InstallMethod": "vMedia",
+        "InstallTarget": {
+            "ObjectType": "os.VirtualDrive",
+            "Name": "MStorBootVd",
+            "StorageControllerSlotId": "MSTOR-RAID",
+            "Id": "0"
+        },
+        "OperatingSystemParameters": {"Edition": "DatacenterCore", "ObjectType": "os.WindowsParameters"},
+        "Organization": {"Moid": kwargs.org_moid, "ObjectType": "organization.Organization"},
+        "OsduImage": {"Moid": kwargs.scu_moid, "ObjectType": "firmware.ServerConfigurationUtilityDistributable"},
+        "OverrideSecureBoot": True,
+        "Server": {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
     ip_network = ipaddress.IPv4Network(f'{v.inband.ip}/{v.inband.netmask}', strict=False)
     ip_prefix  = str(ip_network.prefixlen)
     mac_a = kwargs.mgmt_mac_a.replace(':', '-')
