@@ -344,9 +344,10 @@ class imm(object):
                 for k, v in kwargs.result.items():
                     if v.serial == i.Serial:
                         kwargs.servers[i.Serial] = DotMap(dict(kwargs.servers[i.Serial].toDict(), **dict(
-                            enable_dhcp = v.enable_dhcp, enable_dhcp_dns = v.enable_dhcp_dns,
-                            enable_ipv6 = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp,
-                            language = kwargs.imm.language, layered_driver = kwargs.imm.layered_driver
+                            enable_dhcp    = v.enable_dhcp, enable_dhcp_dns = v.enable_dhcp_dns,
+                            enable_ipv6    = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp,
+                            language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
+                            layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver
                         )))
                 pcolor.Cyan(f'     Completed Server Inventory for Server: {i.Serial}')
             pcolor.Cyan('')
@@ -2246,8 +2247,6 @@ class wizard(object):
             if re.search('azurestack|standalone', kwargs.args.deployment_type):
                 kwargs.imm.cimc_default  = item.cimc_default
                 kwargs.imm.firmware      = item.firmware
-                kwargs.imm.language      = item.windows_install.language_pack,
-                kwargs.imm.layered_driver= item.windows_install.layered_driver,
                 kwargs.imm.policies      = item.policies
                 kwargs.imm.tags          = kwargs.ezdata.tags
                 kwargs.imm.username      = item.policies.local_user
@@ -2266,8 +2265,7 @@ class wizard(object):
                                     os_type          = 'Windows',
                                     profile_start    = e.hostname,
                                     suffix_digits    = 1,
-                                    inband_start     = kwargs.inband.server[icount]
-                                ))
+                                    inband_start     = kwargs.inband.server[icount]))
                                 icount += 1
                     kwargs.imm.policies.boot_volume = 'm2'
             else:
@@ -2751,12 +2749,11 @@ class wizard(object):
                 host_nic_names = ['mgmt-a', 'mgmt-b']
                 kwargs.server_profiles[k].macs = []
                 for s in range(0, 2):
-                    s = DotMap(r[s])
                     mac_list.append(dict(
-                        mac    = r[s].MacAddress,
+                        mac    = (DotMap(r[s])).MacAddress,
                         name   = host_nic_names[s],
                         order  = s))
-
+                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda k: (k['order']))
             if kwargs.imm_dict.orgs[kwargs.org].policies.get('san_connectivity'):
                 #=====================================================
                 # Get WWPN's for vHBAs and Add to Profile Map
@@ -3078,10 +3075,10 @@ def windows_installation_body(k, v, kwargs):
 #=============================================================================
 def windows_languages(v, kwargs):
     language = [e for e in kwargs.windows_languages if (
-        e.language.replace("(", "_")).replace(")", "_") == (v.language.replace("(", "_")).replace(")", "_")]
+        e.language.replace("(", "_")).replace(")", "_") == (v.language_pack.replace("(", "_")).replace(")", "_")]
     if len(language) == 1: language = language[0]
     else:
-        pcolor.Red(f'Failed to Map `{v.language}` to a Windows Language.')
+        pcolor.Red(f'Failed to Map `{v.language_pack}` to a Windows Language.')
         pcolor.Red(f'Available Languages are:')
         for e in kwargs.windows_languages: pcolor.Red(f'  * {e.language}')
         sys.exit(1)
