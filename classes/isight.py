@@ -186,6 +186,7 @@ class api(object):
         if kwargs.method == 'get':
             def build_api_args(kwargs):
                 if not kwargs.get('api_filter'):
+                    regex1 = re.compile('registered_device|workflow_os_install')
                     if re.search('(vlans|vsans|port.port_)', kwargs.qtype): names = ", ".join(map(str, kwargs.names))
                     else: names = "', '".join(kwargs.names).strip("', '")
                     if re.search('(organization|resource_group)', kwargs.qtype): api_filter = f"Name in ('{names}')"
@@ -198,7 +199,7 @@ class api(object):
                     elif 'port.port_channel_' in kwargs.qtype:  api_filter = f"PcId in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'port.port_modes' == kwargs.qtype:     api_filter = f"PortIdStart in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'port.port_role_' in kwargs.qtype:     api_filter = f"PortId in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
-                    elif 'registered_device' == kwargs.qtype:   api_filter = f"Moid in ('{names}')"
+                    elif re.search(regex1, kwargs.qtype):       api_filter = f"Moid in ('{names}')"
                     elif 'reservations' in kwargs.qtype:        api_filter = f"Identity in ('{names}') and Pool.Moid eq '{kwargs.pmoid}'"
                     elif 'serial_number' == kwargs.qtype:       api_filter = f"Serial in ('{names}')"
                     elif 'storage.drive_groups' == kwargs.qtype:api_filter = f"Name in ('{names}') and StoragePolicy.Moid eq '{kwargs.pmoid}'"
@@ -2087,6 +2088,7 @@ def build_pmoid_dictionary(api_results, kwargs):
             if i.get('SwitchId'): apiDict[iname].switch_id = i.SwitchId
             if i.get('Tags'): apiDict[iname].tags = i.Tags
             if i.get('UpgradeStatus'): apiDict[iname].upgrade_status = i.UpgradeStatus
+            if i.get('WorkflowInfo'): apiDict[iname].workflow_moid = i.WorkflowInfo.Moid
             if i.get('Profiles'):
                 apiDict[iname].profiles = []
                 for x in i['Profiles']:

@@ -2451,6 +2451,7 @@ class wizard(object):
         validating.begin_section(self.type, 'Install')
         kwargs.org_moid= kwargs.org_moids[kwargs.org].moid
         kwargs.models  = []
+        os_install_fail_count = 0
         for i in  kwargs.imm_dict.orgs[kwargs.org].wizard.os_configuration: kwargs.models.append(i.model)
         kwargs.models   = list(numpy.unique(numpy.array(kwargs.models)))
         kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
@@ -2644,19 +2645,23 @@ class wizard(object):
                             f"{'-'*91}\n")
                 kwargs = isight.api(self.type).calls(kwargs)
                 kwargs.server_profiles[k].os_install = DotMap(moid=kwargs.pmoid,workflow='')
-        time.sleep(120)
+        pcolor.Cyan(f'\n{"*" * 91}\nSleeping for 240 seconds to pause for Workflow/Infos Lookup.\n{"*" * 91}\n')
+        time.sleep(240)
         #=================================================
         # Monitor OS Installation until Complete
         #=================================================
-        for k,v in  kwargs.server_profiles.items():
+        kwargs.names = []
+        for k,v in kwargs.server_profiles.items():
             if v.os_installed == False:
-                kwargs.fqdn       = k + '.' + kwargs.dns_domains[0]
-                kwargs.api_filter = f"Input.OSInstallInputs.Answers.Hostname eq '{kwargs.fqdn}'"
-                kwargs.method     = 'get'
-                kwargs.qtype      = self.type
-                kwargs.uri        = 'workflow/WorkflowInfos'
-                kwargs            = isight.api(self.type).calls(kwargs)
-                v.os_install.workflow = kwargs.results[len(kwargs.results)-1].Moid
+                if len(v.os_install.moid) > 0: kwargs.names.append(v.os_install.moid)
+        kwargs.method = 'get'
+        kwargs.qtype  = 'workflow_os_install'
+        kwargs = isight.api(self.type).calls(kwargs)
+        install_workflows = kwargs.pmoids
+        for k,v in kwargs.server_profiles.items():
+            v.install_success = False
+            v.os_install.workflow = install_workflows[f'InstallServerOS{v.os_install.moid}'].workflow_moid
+            if v.os_installed == False and len(v.os_install_workflow) > 0:
                 install_complete = False
                 while install_complete == False:
                     kwargs.method = 'get_by_moid'
@@ -2665,12 +2670,12 @@ class wizard(object):
                     kwargs.uri    = 'workflow/WorkflowInfos'
                     kwargs = isight.api(self.type).calls(kwargs)
                     if kwargs.results.Status == 'COMPLETED':
-                        install_complete = True; install_success  = True
+                        install_complete = True; v.install_success  = True
                         pcolor.Green(f'    - Completed Operating System Installation for {k}.')
                     elif re.search('(FAILED|TERMINATED|TIME_OUT)', kwargs.results.Status):
                         kwargs.upgrade.failed.update({k:v.moid})
                         prRed(f'!!! FAILED !!! Operating System Installation for Server Profile {k} failed.')
-                        install_complete= True; install_success = False
+                        install_complete= True; os_install_fail_count += 1
                     else:
                         progress= kwargs.results.Progress
                         status  = kwargs.results.Status
@@ -2680,7 +2685,7 @@ class wizard(object):
                 #=================================================
                 # Add os_installed Tag to Physical Server
                 #=================================================
-                if install_success == True:
+                if v.install_success == True:
                     tags = deepcopy(v.tags)
                     tag_body = []
                     os_installed = False
@@ -2700,11 +2705,19 @@ class wizard(object):
                     if v.object_type == 'compute.Blade': kwargs.uri = 'compute/Blades'
                     else: kwargs.uri = 'compute/RackUnits'
                     kwargs        = isight.api(kwargs.qtype).calls(kwargs)
-            else: pcolor.Cyan(f'      * Skipping Operating System Install for {k}. OS Already Installed.')
+            elif v.os_installed == False:
+                os_install_fail_count += 1
+                pcolor.Red(f'      * Something went wrong with the OS Install Request for {k}. Please Validate the Server.')
+            else: pcolor.Cyan(f'      * Skipping Operating System Install for {k}.')
         #=====================================================
         # Send End Notification and return kwargs
         #=====================================================
         validating.end_section(self.type, 'Install')
+        if os_install_fail_count > 0:
+            for k,v in kwargs.server_profiles.items():
+                if not v.install_success == True:
+                    pcolor.Red(f'      * OS Install Failed for `{k}`.  Please Validate the Logs.')
+            exit(1)
         return kwargs
 
     #=============================================================================
@@ -2987,7 +3000,6 @@ def vmware_installation_body(k, v, kwargs):
         'Image': {'Moid': kwargs.os_sw_moid, 'ObjectType': 'softwarerepository.OperatingSystemFile'},
         'InstallMethod': 'vMedia',
         'InstallTarget': {},
-        'Name': f'{k}-osinstall',
         'ObjectType': 'os.Install',
         'Organization': {'Moid': kwargs.org_moid, 'ObjectType': 'organization.Organization'},
         'OsduImage': {'Moid': kwargs.scu_moid, 'ObjectType': 'firmware.ServerConfigurationUtilityDistributable'},
@@ -3071,7 +3083,7 @@ def windows_languages(v, kwargs):
         sys.exit(1)
     kwargs.language = DotMap(
         ui_language = language.code,
-        input_local = re.search('\\((.*)\\)', language.local),
+        input_local = (re.search('\\((.*)\\)', language.local)).group(1),
         layered_driver = v.layered_driver,
         secondary_language = 'None')
     if language.get('secondary_language'):
