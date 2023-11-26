@@ -4,4 +4,4 @@ server_model: CxxxM6
 network_share: \\win22-jump\drivers$
 node_list:
   - azs-cl01-host1.ucs-spaces.lab
-  - azs-cl02-host2.ucs-spaces.lab
+  - azs-cl01-host2.ucs-spaces.lab
