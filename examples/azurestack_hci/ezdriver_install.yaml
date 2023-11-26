@@ -1,9 +1,7 @@
 ---
 operating_system: W2K22
 server_model: CxxxM6
-network_share:
-  path: \\win22-jump\drivers$
-  username: ucs-spaces\tyscott
+network_share: \\win22-jump\drivers$
 node_list:
   - azs-cl01-host1.ucs-spaces.lab
   - azs-cl02-host2.ucs-spaces.lab

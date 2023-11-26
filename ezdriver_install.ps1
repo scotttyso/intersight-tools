@@ -89,6 +89,35 @@ if (!($models.contains($ydata.server_model))) {
     Exit(1)
 }
 #=============================================================================
+# Function: Login to AzureStack HCI Node List
+#=============================================================================
+Function LoginNodeList {
+    Param([pscredential]$credential, [string]$cssp, [array]$node_list)
+    if ($credssp -eq $True) {
+        try {
+            foreach ($node in $node_list) {
+                Write-Host "Logging into Host $($node)" -ForegroundColor Yellow
+                New-PSSession -ComputerName $node -Credential $credential -Authentication Credssp | Out-Null
+            }
+        } catch {
+            Write-Host "Failed to Login to one of the Hosts" -ForegroundColor Red
+            Write-Host $_.Exception.Message
+            Exit 1
+        }
+    } else {
+        try {
+            foreach ($node in $node_list) {
+                Write-Host "Logging into Host $($node)" -ForegroundColor Yellow
+                New-PSSession -ComputerName $node -Credential $credential | Out-Null
+            }
+        } catch {
+            Write-Host "Failed to Login to one of the Hosts" -ForegroundColor Red
+            Write-Host $_.Exception.Message
+            Exit 1
+        }
+    }
+}
+#=============================================================================
 # Connect to Azure Stack Nodes and Install Updated Drivers
 #=============================================================================
 $share_password = $env:share_password
@@ -102,16 +131,13 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
     $ydata = $Using:ydata
     $model = $ydata.server_model
     $os_version = $ydata.operating_system
-    $share_path = $ydata.network_share.path
-    $share_password = $Using:share_password
-    $share_username = $ydata.network_share.username
+    $share_path = $ydata.network_share
+    $credential = $Using:credential
     #=========================================================================
     # Connect to Network Share
     #=========================================================================
     New-Item -Path . -Name "temp" -ItemType Directory -Force | Out-Null
-    $share_password = ConvertTo-SecureString $env:password -AsPlainText -Force;
-    $share_creds = New-Object System.Management.Automation.PSCredential ($share_username,$share_password);
-    $file_share  = New-PSDrive -Name "ShareNAME" -PSProvider "FileSystem" -Root $share_path -Credential $share_creds
+    $file_share  = New-PSDrive -Name "ShareNAME" -PSProvider "FileSystem" -Root $share_path -Credential $credential
     if (!($file_share.Root)) {
         Write-Host " * $($env:COMPUTERNAME) Failed to connect to Network Share '$($share_path)'.  Exiting..." -ForegroundColor Red
         Return New-Object PsObject -property @{completed=$False}
