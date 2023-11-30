@@ -2658,6 +2658,9 @@ class wizard(object):
         kwargs.qtype  = 'workflow_os_install'
         kwargs = isight.api(self.type).calls(kwargs)
         install_workflows = kwargs.pmoids
+        print(kwargs.names)
+        print(install_workflows)
+        print(json.dumps(kwargs.results))
         for k,v in kwargs.server_profiles.items():
             v.install_success = False
             v.os_install.workflow = install_workflows[f'InstallServerOS{v.os_install.moid}'].workflow_moid
