@@ -3031,34 +3031,28 @@ def windows_installation_body(k, v, kwargs):
         "Description": "",
         "Image": {"Moid": kwargs.os_sw_moid, "ObjectType": "softwarerepository.OperatingSystemFile"},
         "InstallMethod": "vMedia",
-        "InstallTarget": {
-            "ObjectType": "os.VirtualDrive",
-            "Name": "MStorBootVd",
-            "StorageControllerSlotId": "MSTOR-RAID",
-            "Id": "0"
-        },
         "OperatingSystemParameters": {"Edition": "DatacenterCore", "ObjectType": "os.WindowsParameters"},
         "Organization": {"Moid": kwargs.org_moid, "ObjectType": "organization.Organization"},
         "OsduImage": {"Moid": kwargs.scu_moid, "ObjectType": "firmware.ServerConfigurationUtilityDistributable"},
         "OverrideSecureBoot": True,
         "Server": {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
-    ip_network = ipaddress.IPv4Network(f'{v.inband.ip}/{v.inband.netmask}', strict=False)
-    ip_prefix  = str(ip_network.prefixlen)
+    #ip_network = ipaddress.IPv4Network(f'{v.inband.ip}/{v.inband.netmask}', strict=False)
+    #ip_prefix  = str(ip_network.prefixlen)
     mac_a = kwargs.mgmt_mac_a.replace(':', '-')
     mac_b = kwargs.mgmt_mac_b.replace(':', '-')
     answers_dict = {
         ".DisableAutoDaylightTimeSet": kwargs.disable_daylight,
         ".Domain": v.active_directory.domain,
         ".DomainAdminUser": v.active_directory.administrator,
-        ".Gateway": v.inband.gateway,
+        #".Gateway": v.inband.gateway,
         ".HostName": k,
         ".InputLocale": kwargs.language.input_local,
-        ".IpAddress": v.inband.ip,
-        ".IpPrefix": ip_prefix,
+        #".IpAddress": v.inband.ip,
+        #".IpPrefix": ip_prefix,
         ".LayeredDriver": kwargs.language.layered_driver,
         ".MacAddressNic1_dash_format": mac_a,
         ".MacAddressNic2_dash_format": mac_b,
-        ".NameServer": kwargs.dns_servers[0],
+        #".NameServer": kwargs.dns_servers[0],
         ".secure.AdministratorPassword": kwargs.windows_admin_password,
         ".secure.DomainAdminPassword": kwargs.windows_domain_password,
         ".TimeZone": kwargs.windows_timezone,

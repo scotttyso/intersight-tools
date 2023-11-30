@@ -131,7 +131,7 @@ class api(object):
             if int(debug_level) >= 6: pcolor.Cyan(api_results)
             if int(debug_level) == 7:
                 pcolor.Cyan(json.dumps(payload, indent=4))
-                pcolor.Cyan(payload)
+                pcolor.Cyan(json.dumps(response.headers, indent=4))
             #=====================================================
             # Gather Results from the apiCall
             #=====================================================

@@ -147,9 +147,10 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
     #=========================================================================
     $chip_readme = Get-Content "$($file_share.Root)\ChipSet\Intel\$($model)\$($os_version)\README.html"
     $chip_regex  = $chip_readme | Select-String -Pattern '(?<=href\=\"\.\.\/\.\.\/).+exe(?=\"\>)'
-    $chip_exe    = "$(($chip_regex.Matches[0].Value).Replace("/", "\"))"
-    Copy-Item "$($file_share.Root)\ChipSet\Intel\$($chip_exe)" ".\temp" -Force | Out-Null
-    $mlnx_exe    = (Get-ChildItem -Path "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\" -Filter *.exe | Select-Object -First 1).Name
+    $chip_path    = "$(($chip_regex.Matches[0].Value).Replace("/", "\"))"
+    Copy-Item "$($file_share.Root)\ChipSet\Intel\$($chip_path)" ".\temp" -Force | Out-Null
+    $chip_exe = $chip_path.Split("\")[2]
+    $mlnx_exe = (Get-ChildItem -Path "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\" -Filter *.exe | Select-Object -First 1).Name
     Copy-Item "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\$($mlnx_exe)" ".\temp" -Force | Out-Null
     Copy-Item -Path "$($file_share.Root)\Storage\Intel\C600\$($os_version)" -Destination ".\temp\$($os_version)" -Recurse -Force | Out-Null
     Remove-PsDrive -Name $file_share.Name

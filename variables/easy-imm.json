@@ -8546,7 +8546,7 @@
                         "intersight_api": "BundleVersion",
                         "minLength": 7,
                         "maxLength": 16,
-                        "pattern": "^\\d\\.\\d\\(\\d[a-z]|0\\.2[3-9]\\d{4}\\)$",
+                        "pattern": "^\\d\\.\\d\\(\\d[a-z]|\\d\\.2[3-9]\\d{4}\\)$",
                         "title": "firmware_version"
                     },
                     "server_models": {
