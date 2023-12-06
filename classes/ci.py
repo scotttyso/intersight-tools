@@ -70,63 +70,85 @@ class imm(object):
         if kwargs.imm.policies.boot_volume == 'iscsi': boot_type = 'iscsi'
         elif kwargs.imm.policies.boot_volume == 'm2': boot_type = 'm2'
         elif kwargs.imm.policies.boot_volume == 'san': boot_type = 'fcp'
-        polVars = {
-            'boot_devices': [{
-                'enabled': True,
-                'name': 'kvm',
-                'object_type': 'boot.VirtualMedia',
-                'sub_type': 'kvm-mapped-dvd'
-            }],
-            'boot_mode': 'Uefi',
-            'description': f'{boot_type} Boot Policy',
-            'enable_secure_boot': True,
-            'name': f'{boot_type}-boot',
-        }
-        if 'fcp' in boot_type:
-            fabrics = ['a', 'b']
-            for x in range(0,len(fabrics)):
-                for k,v in kwargs.imm_dict.orgs[kwargs.org].storage.items():
-                    for e in v:
-                        for s in e['wwpns'][chr(ord('@')+x+1).lower()]:
-                            polVars['boot_devices'].append({
-                                'enabled': True,
-                                'interface_name': f'vhba{x+1}',
-                                'name':  e.svm + '-' + s.interface,
-                                'object_type': 'boot.San',
-                                'slot':'MLOM',
-                                'wwpn': s.wwpn
-                            })
-        elif 'iscsi' in boot_type:
-            fabrics = ['a', 'b']
-            for fab in fabrics:
-                    polVars['boot_devices'].append({
-                        'enabled': True,
-                        'interface_name': f'storage-{fab}',
-                        'name': f'storage-{fab}',
-                        'object_type': 'boot.Iscsi',
-                        'slot':'MLOM'
-                    })
-        elif 'm2' in boot_type:
+        vics = []
+        for k,v in kwargs.servers.items():
+            if len(v.vics) > 0: vics.append(f'{v.vics[0].vic_gen}:{v.vics[0].vic_slot}')
+        vics = numpy.unique(numpy.array(vics))
+        for vic in vics:
+            polVars = {
+                'boot_devices': [{
+                    'enabled': True,
+                    'name': 'kvm',
+                    'object_type': 'boot.VirtualMedia',
+                    'sub_type': 'kvm-mapped-dvd'
+                }],
+                'boot_mode': 'Uefi',
+                'description': f'{boot_type} Boot Policy',
+                'enable_secure_boot': True,
+                'name': f'{boot_type}-{vic.split(":")[1]}-boot',
+            }
+            if 'fcp' in boot_type and kwargs.deployment_type == 'flexpod':
+                fabrics = ['a', 'b']
+                for x in range(0,len(fabrics)):
+                    for k,v in kwargs.imm_dict.orgs[kwargs.org].storage.items():
+                        for e in v:
+                            for s in e['wwpns'][chr(ord('@')+x+1).lower()]:
+                                polVars['boot_devices'].append({
+                                    'enabled': True,
+                                    'interface_name': f'vhba{x+1}',
+                                    'name':  e.svm + '-' + s.interface,
+                                    'object_type': 'boot.San',
+                                    'slot': vic.split(":")[1],
+                                    'wwpn': s.wwpn
+                                })
+            elif 'iscsi' in boot_type:
+                fabrics = ['a', 'b']
+                for fab in fabrics:
+                        polVars['boot_devices'].append({
+                            'enabled': True,
+                            'interface_name': f'storage-{fab}',
+                            'name': f'storage-{fab}',
+                            'object_type': 'boot.Iscsi',
+                            'slot': vic.split(":")[1]
+                        })
+            elif 'm2' in boot_type:
+                polVars['boot_devices'].extend({
+                    'enabled': True,
+                    'name': f'm2',
+                    'object_type': 'boot.LocalDisk',
+                    'slot':'MSTOR-RAID'
+                },{
+                    'enabled': True,
+                    'interface_name': '',
+                    'name': f'network_pxe',
+                    'object_type': 'boot.Pxe',
+                    'port': 1,
+                    'slot': vic.split(":")[1]
+                })
+            if 'gen' in vic:
+                indx = next((index for (index, d) in enumerate(polVars['boot_devices']) if d['object_type'] == 'boot.Pxe'), None)
+                polVars['boot_devices'][indx].pop('port')
+                if len(kwargs.virtualization) > 0 and len(kwargs.virtualization[0].virtual_switches) > 0:
+                    if re.search('vswitch0', kwargs.virtualization[0].virtual_switches[0].name, re.IGNORECASE):
+                        if len(kwargs.virtualization[0].virtual_switches[0].alternate_name) > 0:
+                            name = kwargs.virtualization[0].virtual_switches[0].alternate_name
+                        else: name = kwargs.virtualization[0].virtual_switches[0].name
+                    else: name = kwargs.virtualization[0].virtual_switches[0].name
+                    polVars['boot_devices'][indx]['interface_name'] = name
             polVars['boot_devices'].append({
                 'enabled': True,
-                'name': f'm2',
-                'object_type': 'boot.LocalDisk',
-                'slot':'MSTOR-RAID'
+                'name': 'cimc',
+                'object_type': 'boot.VirtualMedia',
+                'sub_type': 'cimc-mapped-dvd'
             })
-        polVars['boot_devices'].append({
-            'enabled': True,
-            'name': 'cimc',
-            'object_type': 'boot.VirtualMedia',
-            'sub_type': 'cimc-mapped-dvd'
-        })
-        polVars['boot_devices'].append({
-            'enabled': True,
-            'name': 'uefishell',
-            'object_type': 'boot.UefiShell'
-        })
-        # Add Policy Variables to imm_dict
-        kwargs.class_path = f'policies,{self.type}'
-        kwargs = ezfunctions.ez_append(polVars, kwargs)
+            polVars['boot_devices'].append({
+                'enabled': True,
+                'name': 'uefishell',
+                'object_type': 'boot.UefiShell'
+            })
+            # Add Policy Variables to imm_dict
+            kwargs.class_path = f'policies,{self.type}'
+            kwargs = ezfunctions.ez_append(polVars, kwargs)
         #=====================================================
         # Return kwargs and kwargs
         #=====================================================

@@ -3,5 +3,6 @@ operating_system: W2K22
 server_model: CxxxM6
 network_share: \\win22-jump.ucs-spaces.lab\drivers$
 node_list:
-  - azs-cl01-host1.ucs-spaces.lab
-  - azs-cl01-host2.ucs-spaces.lab
+  - azs-hci2-n1.ucs-spaces.lab
+  - azs-hci2-n2.ucs-spaces.lab
+  - azs-hci2-n3.ucs-spaces.lab
