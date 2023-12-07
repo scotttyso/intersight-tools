@@ -563,7 +563,7 @@ def main():
                     for i in profile_list:
                         if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
 
-    pcolor.Cyan(f'\n{"-"*91}\n\n  !!! Proceedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*91}\n')
+    pcolor.Cyan(f'\n{"-"*91}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*91}\n')
     sys.exit(0)
 
 if __name__ == '__main__':

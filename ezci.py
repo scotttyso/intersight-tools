@@ -348,7 +348,7 @@ def main():
             if vmware == True:
                 kwargs = vsphere.api('esx').esx(kwargs)
                 kwargs = vsphere.api('powercli').powercli(kwargs)
-    pcolor.Green(f'\n{"-"*91}\n\n  !!! Proceedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*91}\n')
+    pcolor.Green(f'\n{"-"*91}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*91}\n')
     sys.exit(0)
 
 if __name__ == '__main__':
