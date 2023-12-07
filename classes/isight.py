@@ -1069,6 +1069,8 @@ class imm(object):
             policy = f"{np}{policy}{ns}"
             if '/' in original_policy: new_policy = f'{org}/{policy}'
             else: new_policy = policy
+            if not kwargs.isign[org].policy.get('ptype'): kwargs.isight[org].policy[ptype] = DotMap()
+            if not kwargs.cp.get(ptype): kwargs.cp[ptype] = DotMap(names = [])
             if not kwargs.isight[org].policy[ptype].get(policy): kwargs.cp[ptype].names.append(new_policy)
             return kwargs
         #=====================================================
@@ -1635,13 +1637,15 @@ class imm(object):
                 if not kwargs.isight[kwargs.org].policy[self.type].get(str(x)): kwargs.bulk_list.append(deepcopy(api_body))
                 else:
                     indx = next((index for (index, d) in enumerate(kwargs.vlans_results) if d['VlanId'] == x), None)
-                    patch_vlan = compare_body_result(api_body, kwargs.vlans_results[indx])
-                    api_body['pmoid'] = kwargs.isight[kwargs.org].policy[self.type][str(x)]
-                    if patch_vlan == True: kwargs.bulk_list.append(deepcopy(api_body))
-                    else:
-                        pcolor.Cyan(f"      * Skipping VLAN Policy: `{kwargs.parent_name}`, VLAN: `{x}`."\
-                            f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-                    api_body.pop('pmoid')
+                    if not indx == None:
+                        patch_vlan = compare_body_result(api_body, kwargs.vlans_results[indx])
+                        api_body['pmoid'] = kwargs.isight[kwargs.org].policy[self.type][str(x)]
+                        if patch_vlan == True: kwargs.bulk_list.append(deepcopy(api_body))
+                        else:
+                            pcolor.Cyan(f"      * Skipping VLAN Policy: `{kwargs.parent_name}`, VLAN: `{x}`."\
+                                f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
+                        api_body.pop('pmoid')
+                    else: kwargs.bulk_list.append(deepcopy(api_body))
             return kwargs
         #=====================================================
         # Get Multicast Policies
@@ -1665,6 +1669,7 @@ class imm(object):
         kwargs.bulk_list = []
         np, ns = ezfunctions.name_prefix_suffix('vlan', kwargs)
         for i in kwargs.policies:
+            kwargs.bulk_list = []
             vnames = []
             kwargs.parent_name= f'{np}{i.name}{ns}'
             kwargs.parent_type= 'VLAN Policy'
@@ -1676,12 +1681,12 @@ class imm(object):
                 kwargs = api_get(True, vnames, self.type, kwargs)
                 kwargs.vlans_results= kwargs.results
                 for e in i.vlans: kwargs = configure_vlans(e, kwargs)
-        #=====================================================
-        # POST Bulk Request if Post List > 0
-        #=====================================================
-        if len(kwargs.bulk_list) > 0:
-            kwargs.uri    = kwargs.ezdata[self.type].intersight_uri
-            kwargs        = bulk_request(kwargs)
+            #=====================================================
+            # POST Bulk Request if Post List > 0
+            #=====================================================
+            if len(kwargs.bulk_list) > 0:
+                kwargs.uri    = kwargs.ezdata[self.type].intersight_uri
+                kwargs        = bulk_request(kwargs)
         return kwargs
 
     #=====================================================

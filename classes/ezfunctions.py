@@ -137,7 +137,6 @@ def create_yaml(orgs, kwargs):
     for item in classes:
         dest_dir = os.path.join(kwargs.args.dir, ezdata[item].directory)
         if item == 'policies':
-            if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
             for i in ezdata[item].enum:
                 idict = DotMap()
                 for org in orgs:
@@ -160,9 +159,9 @@ def create_yaml(orgs, kwargs):
                         if re.search('policies|pools|profiles|templates', dest_dir): dest_file = f"{i}.ezi.yaml"
                         else: dest_file = f"{i}.yaml"
                         title1 = f"{str.title(item)} -> {i}"
+                        if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
                         write_file(dest_dir, dest_file, idict, title1)
         else:
-            if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
             for i in ezdata[item].enum:
                 idict = deepcopy(DotMap())
                 if item == i:
@@ -186,6 +185,7 @@ def create_yaml(orgs, kwargs):
                                 if re.search('policies|pools|profiles|templates', dest_dir): dest_file = f"{i}.ezi.yaml"
                                 else: dest_file = f"{i}.yaml"
                                 title1 = str.title(item.replace('_', ' '))
+                                if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
                                 write_file(dest_dir, dest_file, idict, title1)
                 else:
                     for org in orgs:
@@ -204,6 +204,7 @@ def create_yaml(orgs, kwargs):
                                     if re.search('policies|pools|profiles|templates', dest_dir): dest_file = f"{i}.ezi.yaml"
                                     else: dest_file = f"{i}.yaml"
                                     title1 = f"{str.title(item.replace('_', ' '))} -> {str.title(i.replace('_', ' '))}"
+                                    if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
                                     write_file(dest_dir, dest_file, idict, title1)
                         
 #==========================================================
