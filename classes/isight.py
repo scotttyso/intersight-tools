@@ -1098,7 +1098,7 @@ class imm(object):
                 names  = list(numpy.unique(numpy.array(kwargs.cp[e].names)))
                 kwargs = api_get(False, names, e, kwargs)
         #=====================================================
-        # Create API Body for Port Types
+        # Loop Through Port Types
         #=====================================================
         kwargs.plist = DotMap()
         for item in kwargs.policies:
@@ -1113,6 +1113,8 @@ class imm(object):
                         port_type_call(e, item, x, kwargs)
                         if len(kwargs.plist[e]) > 0:
                             kwargs.api_body= {'Requests':kwargs.plist[e]}
+                            #print(json.dumps(kwargs.api_body, indent=4))
+                            #exit()
                             kwargs.method = 'post'
                             kwargs.qtype  = 'bulk_request'
                             kwargs.uri    = 'bulk/Requests'
