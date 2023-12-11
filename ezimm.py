@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Intersight IAC - 
+"""EZIMM - 
 Use This Wizard to Create Terraform HCL configuration from Question and Answer or the IMM Transition Tool.
 It uses argparse to take in the following CLI arguments:
     a or intersight-api-key-id: The Intersight API key id for HTTP signature scheme.

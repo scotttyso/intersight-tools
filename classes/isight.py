@@ -1041,9 +1041,9 @@ class imm(object):
                     if len(kwargs.api_body['PcId']) == 2: kwargs.api_body['PcId'] = i.pc_ids[x]
                     else: kwargs.api_body['PcId'] = i.pc_ids[x]
                     if re.search('appliance|ethernet|fcoe', port_type): kwargs = policy_update(port_type, i, x, kwargs)
-                    for x in range(len(api_body['Ports'])):
-                        if not kwargs.api_body['Ports'][x].get('AggregatePortId'): kwargs.api_body['Ports'][x]['AggregatePortId'] = 0
-                        if not kwargs.api_body['Ports'][x].get('SlotId'): kwargs.api_body['Ports'][x]['SlotId'] = 1
+                    for y in range(len(api_body['Ports'])):
+                        if not kwargs.api_body['Ports'][y].get('AggregatePortId'): kwargs.api_body['Ports'][y]['AggregatePortId'] = 0
+                        if not kwargs.api_body['Ports'][y].get('SlotId'): kwargs.api_body['Ports'][y]['SlotId'] = 1
                 else:
                     if not kwargs.api_body.get('AggregatePortId'): kwargs.api_body['AggregatePortId'] = 0
                     if not kwargs.api_body.get('SlotId'): kwargs.api_body['SlotId'] = 1
