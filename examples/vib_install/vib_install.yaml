@@ -1,0 +1,6 @@
+---
+repo_server: intersight-transition.example.com
+vib_file: ucs-tool-esxi_1.3.3-1OEM.zip
+esxi_servers:
+  - esxi01.example.com
+  - esxi02.example.com

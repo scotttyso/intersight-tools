@@ -10,7 +10,7 @@ try:
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
     from pathlib import Path
-    import argparse, base64, jinja2, json, os, logging, platform, re, requests, urllib3, uuid, lxml, yaml
+    import argparse, base64, jinja2, json, os, logging, platform, re, requests, urllib3, uuid, yaml
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -124,30 +124,24 @@ def main():
         kwargs.sensitive_var = v
         kwargs  = ezfunctions.sensitive_var_value(kwargs)
         kwargs[v]=kwargs.var_value
-    #windows_admin_password = base64.b64encode(bytes(kwargs['windows_admin_password'], 'utf-8'))
-    windows_admin_password = kwargs['windows_admin_password'].encode('utf-8').hex()
-    print(windows_admin_password)
-    exit()
-    templateLoader = jinja2.FileSystemLoader(searchpath='./')
-    templateEnv    = jinja2.Environment(loader=templateLoader, autoescape=True)
-    template       = templateEnv.get_template('AzureStackHCI.xml')
+    tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci')
+    tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
+    template = tenviro.get_template('AzureStackHCI.xml')
     jargs = DotMap(
-        administratorPassword = windows_admin_password,
-        domain                = 'ucs-spaces.lab',
-        domainAdministrator   = 'hciadmin@ucs-spaces.lab',
+        administratorPassword = kwargs['windows_admin_password'],
+        domain                = kwargs.imm_dict.wizard.domain,
+        domainAdministrator   = kwargs.imm_dict.wizard.administrator,
         domainPassword        = kwargs['windows_domain_password'],
         ouArgument            = '',
         organization          = 'Cisco Systems',
-        organizationalUnit    = 'CN=Computers,DC=ucs-spaces,DC=lab',
-        sharePath             = '\\\\win22-jump.ucs-spaces.lab\\reminst',
+        organizationalUnit    = kwargs.imm_dict.wiard.organizational_unit,
+        sharePath             = kwargs.imm_dict.wiard.share_path,
         # Language
         inputLocale           = '',
         languagePack          = 'en-Us',
         layeredDriver         = '',
         secondaryLanguage     = ''
     )
-    print(json.dumps(jargs.toDict(), indent=4))
-    exit()
     jargs = jargs.toDict()
     jtemplate = template.render(kwargs=jargs)
     for x in ['LayeredDriver', 'UILanguageFallback']:

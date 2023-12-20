@@ -9,7 +9,7 @@ try:
     from copy import deepcopy
     from dotmap import DotMap
     from operator import itemgetter
-    import ipaddress, json, numpy, os, re, requests, time, urllib3
+    import ipaddress, jinja2, json, numpy, os, re, requests, time, urllib3, uuid
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -2929,6 +2929,328 @@ class wizard(object):
         #=====================================================
         # Return kwargs
         #=====================================================
+        return kwargs
+
+    #=============================================================================
+    # Function - Build Policies - BIOS
+    #=============================================================================
+    def windows_prep(self, kwargs):
+        #=====================================================
+        # Load Variables and Send Begin Notification
+        #=====================================================
+        validating.begin_section(self.type, 'preparation')
+        kwargs.org_moid= kwargs.org_moids[kwargs.org].moid
+        kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
+        kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
+        #==========================================
+        # Get Physical Server Tags to Check for
+        # Existing OS Install
+        #==========================================
+        kwargs.repo_server = 'imm-transition.rich.ciscolabs.com'
+        for v in ['imm_transition_password', 'windows_admin_password', 'windows_domain_password']:
+            kwargs.sensitive_var = v
+            kwargs  = ezfunctions.sensitive_var_value(kwargs)
+            kwargs[v]=kwargs.var_value
+        tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci')
+        tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
+        template = tenviro.get_template('AzureStackHCI.xml')
+        jargs = DotMap(
+            administratorPassword = kwargs['windows_admin_password'],
+            domain                = kwargs.imm_dict.wizard.domain,
+            domainAdministrator   = kwargs.imm_dict.wizard.administrator,
+            domainPassword        = kwargs['windows_domain_password'],
+            ouArgument            = '',
+            organization          = 'Cisco Systems',
+            organizationalUnit    = kwargs.imm_dict.wiard.organizational_unit,
+            sharePath             = kwargs.imm_dict.wiard.share_path,
+            # Language
+            inputLocale           = '',
+            languagePack          = 'en-Us',
+            layeredDriver         = '',
+            secondaryLanguage     = ''
+        )
+        jargs = jargs.toDict()
+        jtemplate = template.render(kwargs=jargs)
+        for x in ['LayeredDriver', 'UILanguageFallback']:
+            if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
+        file  = open('AzureStackHCI.xml', 'w')
+        file.write(jtemplate)
+        file.close()
+        s = requests.Session()
+        data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
+        url = f'https://{kwargs.imm_dict.wizard.repository_server}'
+        try: r = s.post(data = data, headers= {'Content-Type': 'application/json'}, url = f'{url}/api/v1/login', verify = False)
+        except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}\n'); sys.exit(1)
+        if not r.status_code == 200: prRed(r.text); sys.exit(1)
+        jdata = json.loads(r.text)
+        token = jdata['token']
+        file = open('AzureStackHCI.xml', 'rb')
+        files = {'file': file}
+        values = {'uuid':str(uuid.uuid4())}
+        try: r = s.post(
+            url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
+        except requests.exceptions.ConnectionError as e:
+            pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+        if not r.ok: prRed(r.text); sys.exit(1)
+        for uri in ['logout']:
+            try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
+            except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+            if 'repo' in uri: jdata = json.loads(r.text)
+            if not r.status_code == 200: prRed(r.text); sys.exit(1)
+        file.close()
+        os.remove('./AzureStackHCI2.xml')
+        server_profiles = deepcopy(kwargs.server_profiles)
+        compute_moids = kwargs.pmoids
+        for k,v in server_profiles.items():
+            kwargs.server_profiles
+            kwargs.server_profiles[k].hardware_moid = compute_moids[v.serial].moid
+            kwargs.server_profiles[k].tags = compute_moids[v.serial].tags
+            kwargs.server_profiles[k].os_installed = False
+            for e in compute_moids[v.serial].tags:
+                if e.Key == 'os_installed' and e.Value == v.os_type:
+                    kwargs.server_profiles[k].os_installed = True
+                else:  os_install = True
+            #==================================
+            # Process Variables
+            #==================================
+            if v.os_type == 'Windows':
+                sensitive_list = ['windows_admin_password', 'windows_domain_password']
+                for i in sensitive_list:
+                    kwargs.sensitive_var = i
+                    kwargs = ezfunctions.sensitive_var_value(kwargs)
+                    kwargs[i] = kwargs.var_value
+                kwargs = windows_languages(v, kwargs)
+                kwargs = windows_timezones(kwargs)
+            elif v.os_type == 'VMware':
+                kwargs.sensitive_var = 'vmware_esxi_password'
+                kwargs = ezfunctions.sensitive_var_value(kwargs)
+                kwargs.vmware_esxi_password = kwargs.var_value
+            if v.boot_volume == 'm2':
+                if not v.storage_controllers.get('UCS-M2-HWRAID'):
+                    prRed(f"!!! ERROR !!!\n  Could not determine the Controller Slot for:")
+                    prRed(f"  * Profile: {kwargs.server_profiles[k].name}")
+                    prRed(f"  * Serial:  {kwargs.server_profiles[k].serial}\n")
+                    sys.exit(1)
+        #==================================
+        # Test Repo URL for File
+        #==================================
+        def test_repo_url(repo_url):
+            try: requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
+            except requests.RequestException as e:
+                prRed(f"!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n")
+                prRed(f"Please Validate the Software Repository is setup properly.  Exiting...")
+                sys.exit(1)
+        #==========================================
+        # Cfg Repositories if os_install is True
+        #==========================================
+        if os_install == True:
+            #==================================
+            # Get OS Config Files
+            #==================================
+            kwargs.api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')"
+            kwargs.method     = 'get'
+            kwargs.qtype      = 'os_catalog'
+            kwargs.uri        = 'os/Catalogs'
+            kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+            kwargs.org_catalog_moid    = kwargs.pmoids[kwargs.org_moids[kwargs.org].moid].moid
+            shared_catalog_moid = kwargs.pmoids['shared'].moid
+            kwargs.api_filter = f"Catalog.Moid eq '{kwargs.pmoids['shared'].moid}'"
+            kwargs.api_filter = f"Catalog.Moid in ('{kwargs.org_catalog_moid}','{shared_catalog_moid}')"
+            kwargs.qtype      = 'os_configuration'
+            kwargs.uri        = 'os/ConfigurationFiles'
+            kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+            kwargs.os_cfg_moids  = kwargs.pmoids
+            kwargs.os_cfg_results= kwargs.results
+            #==================================
+            # Get SCU Repositories
+            #==================================
+            kwargs.method       = 'get'
+            kwargs.names        = ['user-catalog']
+            kwargs.qtype        = 'org_repository'
+            kwargs.uri          = 'softwarerepository/Catalogs'
+            kwargs              = isight.api(kwargs.qtype).calls(kwargs)
+            kwargs.catalog_moid = kwargs.pmoids['user-catalog'].moid
+            kwargs.api_filter   = f"Catalog.Moid eq '{kwargs.catalog_moid}'"
+            kwargs.names        = []
+            kwargs.qtype        = 'server_configuration_utility'
+            kwargs.uri          = 'firmware/ServerConfigurationUtilityDistributables'
+            kwargs              = isight.api(kwargs.qtype).calls(kwargs)
+            for e in kwargs.results:
+                moid = e.Moid; url = e.Source.LocationLink
+                version = url.split('scu-')[1].replace('.iso', '')
+                kwargs.scu_list[version] = DotMap(moid = moid, url=url)
+            vlist = sorted(list(kwargs.scu_list.keys()), reverse=True)
+            kwargs.scu_moid = kwargs.scu_list[vlist[0]].moid
+            test_repo_url(kwargs.scu_list[vlist[0]].url)
+            kwargs.scu_list[vlist[0]].url.split('/')[2]
+            repo_url = f"https://{kwargs.scu_list[vlist[0]].url.split('/')[2]}/repo/"
+            kwargs.imm_dict.orgs[kwargs.org].wizard.repository_server = repo_url
+            #==================================
+            # Get OS Install Repositories
+            #==================================
+            kwargs.api_filter = f"Catalog.Moid eq '{kwargs.catalog_moid}'"
+            kwargs.qtype      = 'operating_system'
+            kwargs.uri        = 'softwarerepository/OperatingSystemFiles'
+            kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+            os_results = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+            for e in os_results:
+                version = ''
+                moid = e.Moid; url = e.Source.LocationLink
+                x = (e.Version).split(' ')
+                if 'Azure' in url and v.os_type == 'Windows':
+                    version = f'{x[0]}{x[2]}'
+                    if not kwargs.language.secondary_language == 'None': ctemplate = 'AzureStackHCI_secondary.xml'
+                    elif not v.layered_driver == 'Unused': ctemplate = 'AzureStackHCI_jpn_korea.xml'
+                    else: ctemplate = 'AzureStackHCI_all_others.xml'
+                    template_name = version + '-' + ctemplate.split('_')[0]
+                    kwargs.os_config_template = template_name
+                    if not kwargs.os_list.get(version): kwargs.os_list[version] = deepcopy(DotMap(moid = moid, url=url))
+                    if not kwargs.distributions.get(version):
+                        kwargs.api_filter = f"Version eq '{e.Version}'"
+                        kwargs.method     = 'get'
+                        kwargs.qtype      = 'hcl_operating_system'
+                        kwargs.skip_dict  = True
+                        kwargs.uri        = 'hcl/OperatingSystems'
+                        kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+                        kwargs.distributions[version] = DotMap(moid = kwargs.results[0].Moid)
+                    kwargs.distribution_moid = kwargs.distributions[version].moid
+                    if not kwargs.os_cfg_moids.get(template_name):
+                        try:
+                            resp = requests.get(url = f"https://raw.githubusercontent.com/scotttyso/baremetal-azurestack-hci/main/{ctemplate}")
+                            resp.raise_for_status()
+                        except requests.exceptions.HTTPError as err: print(err)
+                        kwargs.file_content = resp.content.decode("utf-8")
+                        kwargs.api_body     = os_configuration_file(kwargs)
+                        kwargs.method       = 'post'
+                        kwargs.qtype        = 'os_configuration'
+                        kwargs.uri          = 'os/ConfigurationFiles'
+                        kwargs              = isight.api(kwargs.qtype).calls(kwargs)
+                        kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
+                    kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
+                    vlist = sorted(list(kwargs.os_list.keys()), reverse=True)
+                    kwargs.os_sw_moid = kwargs.os_list[vlist[0]].moid
+                elif e.Vendor == v.os_type:
+                    version = f'{x[0]}{x[1]}ConfigFile'
+                    if not version == '':
+                        if not kwargs.os_list.get(version): kwargs.os_list[version] = deepcopy(DotMap(moid = moid, url=url))
+                    vlist = sorted(list(kwargs.os_list.keys()), reverse=True)
+                    kwargs.os_cfg_moid = kwargs.os_cfg_moids[vlist[0]].moid
+                    kwargs.os_sw_moid  = kwargs.os_list[vlist[0]].moid
+                    test_repo_url(kwargs.os_list[vlist[0]].url)
+        #==========================================
+        # Install Operating System on Servers
+        #==========================================
+        count = 1
+        for k,v in kwargs.server_profiles.items():
+            if v.boot_volume == 'san':
+                if count % 2 == 0:
+                    kwargs.san_target = kwargs.imm_dict.orgs[kwargs.org].storage.appliances[0].wwpns.a[0].wwpn
+                    kwargs.wwpn = 0
+                else:
+                    kwargs.san_target = kwargs.imm_dict.orgs[kwargs.org].storage.appliances[0].wwpns.b[0].wwpn
+                    kwargs.wwpn = 1
+            if v.os_installed == False:
+                indx             = [e for e, d in enumerate(v.macs) if 'mgmt-a' in d.values()][0]
+                kwargs.mgmt_mac_a= v.macs[indx].mac
+                indx             = [e for e, d in enumerate(v.macs) if 'mgmt-b' in d.values()][0]
+                kwargs.mgmt_mac_b= v.macs[indx].mac
+                kwargs.fqdn      = k + '.' + kwargs.dns_domains[0]
+                if v.os_type == 'VMware': kwargs.api_body = vmware_installation_body(k, v, kwargs)
+                elif v.os_type == 'Windows': kwargs.api_body = windows_installation_body(k, v, kwargs)
+                kwargs.method  = 'post'
+                kwargs.qtype   = self.type
+                kwargs.uri     = 'os/Installs'
+                if v.boot_volume == 'san':
+                    pcolor.Green(f"{'-'*91}\n"\
+                            f"      * host {k}\n"\
+                            f"         initiator: {v.wwpns[kwargs.wwpn].wwpn}\n"\
+                            f"         target: {kwargs.san_target}\n"\
+                            f"         mac: {kwargs.mgmt_mac_a}\n"\
+                            f"{'-'*91}\n")
+                else:
+                    pcolor.Green(f"{'-'*91}\n"\
+                            f"      * host {k}:\n"\
+                            f"         target: {v.boot_volume}\n"\
+                            f"         mac: {kwargs.mgmt_mac_a}\n"\
+                            f"{'-'*91}\n")
+                kwargs = isight.api(self.type).calls(kwargs)
+                kwargs.server_profiles[k].os_install = DotMap(moid=kwargs.pmoid,workflow='')
+        pcolor.Cyan(f'\n{"*" * 91}\nSleeping for 10 Minutes to pause for Workflow/Infos Lookup.\n{"*" * 91}\n')
+        time.sleep(600)
+        #=================================================
+        # Monitor OS Installation until Complete
+        #=================================================
+        kwargs.names = []
+        for k,v in kwargs.server_profiles.items():
+            if v.os_installed == False:
+                if len(v.os_install.moid) > 0: kwargs.names.append(v.os_install.moid)
+        kwargs.method = 'get'
+        kwargs.qtype  = 'workflow_os_install'
+        kwargs = isight.api(self.type).calls(kwargs)
+        install_workflows = kwargs.pmoids
+        print(kwargs.names)
+        print(install_workflows)
+        print(json.dumps(kwargs.results))
+        for k,v in kwargs.server_profiles.items():
+            v.install_success = False
+            v.os_install.workflow = install_workflows[f'InstallServerOS{v.os_install.moid}'].workflow_moid
+            if v.os_installed == False and len(v.os_install_workflow) > 0:
+                install_complete = False
+                while install_complete == False:
+                    kwargs.method = 'get_by_moid'
+                    kwargs.pmoid  = v.os_install.workflow
+                    kwargs.qtype  = 'workflow_info'
+                    kwargs.uri    = 'workflow/WorkflowInfos'
+                    kwargs = isight.api(self.type).calls(kwargs)
+                    if kwargs.results.Status == 'COMPLETED':
+                        install_complete = True; v.install_success  = True
+                        pcolor.Green(f'    - Completed Operating System Installation for {k}.')
+                    elif re.search('(FAILED|TERMINATED|TIME_OUT)', kwargs.results.Status):
+                        kwargs.upgrade.failed.update({k:v.moid})
+                        prRed(f'!!! FAILED !!! Operating System Installation for Server Profile {k} failed.')
+                        install_complete= True; os_install_fail_count += 1
+                    else:
+                        progress= kwargs.results.Progress
+                        status  = kwargs.results.Status
+                        pcolor.Cyan(f'      * Operating System Installation for {k}.')
+                        pcolor.Cyan(f'        Status is {status} Progress is {progress}, Waiting 120 seconds.')
+                        time.sleep(120)
+                #=================================================
+                # Add os_installed Tag to Physical Server
+                #=================================================
+                if v.install_success == True:
+                    tags = deepcopy(v.tags)
+                    tag_body = []
+                    os_installed = False
+                    for e in tags:
+                        if e.Key == 'os_installed':
+                            os_installed = True
+                            tag_body.append({'Key':e.Key,'Value':v.os_type})
+                        else: tag_body.append(e.toDict())
+                    if os_installed == False:
+                        tag_body.append({'Key':'os_installed','Value':v.os_type})
+                    tags = list({v['Key']:v for v in tags}.values())
+                    kwargs.api_body={'Tags':tag_body}
+                    kwargs.method = 'patch'
+                    kwargs.pmoid  = v.hardware_moid
+                    kwargs.qtype  = 'update_tags'
+                    kwargs.tag_server_profile = k
+                    if v.object_type == 'compute.Blade': kwargs.uri = 'compute/Blades'
+                    else: kwargs.uri = 'compute/RackUnits'
+                    kwargs        = isight.api(kwargs.qtype).calls(kwargs)
+            elif v.os_installed == False:
+                os_install_fail_count += 1
+                pcolor.Red(f'      * Something went wrong with the OS Install Request for {k}. Please Validate the Server.')
+            else: pcolor.Cyan(f'      * Skipping Operating System Install for {k}.')
+        #=====================================================
+        # Send End Notification and return kwargs
+        #=====================================================
+        validating.end_section(self.type, 'Install')
+        if os_install_fail_count > 0:
+            for k,v in kwargs.server_profiles.items():
+                if not v.install_success == True:
+                    pcolor.Red(f'      * OS Install Failed for `{k}`.  Please Validate the Logs.')
+            exit(1)
         return kwargs
 
 #=============================================================================

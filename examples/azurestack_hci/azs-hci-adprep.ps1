@@ -77,7 +77,7 @@ Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER)
 # Test AzureStackHCI Active Directory Readiness
 #=============================================================================
 $ydata   = Get-Content -Path $y | ConvertFrom-Yaml
-$ad_user = $ydata.active_directory.admin
+$ad_user = $ydata.active_directory.administrator
 $ad_pass = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
 $adcreds = New-Object System.Management.Automation.PSCredential ($ad_user,$ad_pass)
 $ad =  $ydata.active_directory 
@@ -85,7 +85,9 @@ $file = "AsHciADArtifactsPreCreationTool.ps1"
 if (!([System.IO.File]::Exists("./$file"))) {
     Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile ".\$file"
 }
-$ad_check = Start-Process Powershell -Argumentlist "-ExecutionPolicy Bypass -NoProfile -File '.\$($file)' -AsHciClusterName '$($ydata.cluster)' -AsHciDeploymentPrefix '$($ad.naming_prefix)' -AsHciDeploymentUserCredential '$adcreds' -AsHciOUName '$($ad.ou)' -AsHciPhysicalNodeList $($ydata.node_list) -DomainFQDN '$($ad.fqdn)'"
-$ad_check.WaitForExit()
+foreach ($cluster in $ydata.clusters) {
+    $ad_check = Start-Process Powershell -Argumentlist "-ExecutionPolicy Bypass -NoProfile -File '.\$($file)' -AsHciClusterName '$($cluster.cluster_name)' -AsHciDeploymentPrefix '$($ad.naming_prefix)' -AsHciDeploymentUserCredential '$adcreds' -AsHciOUName '$($ad.organizational_unit)' -AsHciPhysicalNodeList $($cluster.members) -DomainFQDN '$($ad.domain)'"
+    $ad_check.WaitForExit()
+}
 Stop-Transcript
 Exit 0

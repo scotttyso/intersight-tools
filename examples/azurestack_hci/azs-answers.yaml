@@ -1,0 +1,27 @@
+---
+active_directory:
+  administrator: hciadmin@ucs-spaces.lab
+  domain: ucs-spaces.lab
+  naming_prefix: AzS
+  organizational_unit: AzureStack
+clusters:
+  - cluster_name: CL01
+    members:
+    - azs-cl01-host1.ucs-spaces.lab
+    - azs-cl01-host2.ucs-spaces.lab
+file_share_witness:
+  host: witness.ucs-spaces.lab
+  share_name: \\witness.ucs-spaces.lab\file_share
+  type: domain
+install_server:
+  drivers_cd_mount: F:\
+  reminst_share_path: E:\
+node_list:
+ - azs-cl01-host1.ucs-spaces.lab
+ - azs-cl01-host2.ucs-spaces.lab
+operating_system: W2K22
+proxy:
+  host: http://proxy.example.com:81
+  username: administrator
+server_model: CxxxM6
+username: 

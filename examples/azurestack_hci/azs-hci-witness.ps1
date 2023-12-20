@@ -31,7 +31,7 @@ or implied.
 # Pull in YAML Content
 #=============================================================================
 param (
-    [string]$j=$(throw "-y <yaml_file.yaml> is required.")
+    [string]$y=$(throw "-y <yaml_file.yaml> is required.")
 )
 #=============================================================================
 # Validate Running with Administrator Privileges
@@ -121,8 +121,8 @@ if ($ydata.file_share_witness.type -eq "domain") {
         $ydata      = $Using:ydata
         $domain     = $ydata.file_share_witness.domain
         $witness    = $ydata.file_share_witness.host
-        $share_path = $ydata.file_share_witness.share_path
-        $share_name = $share_path.split("\")[-1]
+        $share_path = "\\$($ydata.file_share_witness.host)\$($ydata.file_share_witness.share_name)"
+        $share_name = $ydata.file_share_witness.share_name
         #Create Directory on File Share Witness
         Write-Host "$($witness): Begin Creating directory on File Share Witness." -ForegroundColor Yellow
         $test_dir = Test-Path -PathType Container $share_path
