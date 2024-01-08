@@ -2978,20 +2978,31 @@ class wizard(object):
         file.close()
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
-        url = f'https://{kwargs.imm_dict.wizard.repository_server}'
+        url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
         try: r = s.post(data = data, headers= {'Content-Type': 'application/json'}, url = f'{url}/api/v1/login', verify = False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}\n'); sys.exit(1)
         if not r.status_code == 200: prRed(r.text); sys.exit(1)
         jdata = json.loads(r.text)
         token = jdata['token']
-        file = open('AzureStackHCI.xml', 'rb')
-        files = {'file': file}
-        values = {'uuid':str(uuid.uuid4())}
-        try: r = s.post(
-            url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
-        except requests.exceptions.ConnectionError as e:
-            pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-        if not r.ok: prRed(r.text); sys.exit(1)
+        for adfile in ['azs-answers.yaml', 'AzureStackHCI.xml']:
+            file = open('AzureStackHCI.xml', 'rb')
+            files = {'file': file}
+            values = {'uuid':str(uuid.uuid4())}
+            try: r = s.post(
+                url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
+            except requests.exceptions.ConnectionError as e:
+                pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+            if not r.ok: prRed(r.text); sys.exit(1)
+        fpath = f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci'
+        for adfile in ['azs-hci-adprep.ps1', 'azs-hci-hostprep.ps1']:
+            file = open(f'{fpath}{os.pathsep}{adfile}', 'rb')
+            files = {'file': file}
+            values = {'uuid':str(uuid.uuid4())}
+            try: r = s.post(
+                url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
+            except requests.exceptions.ConnectionError as e:
+                pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+            if not r.ok: prRed(r.text); sys.exit(1)
         for uri in ['logout']:
             try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
