@@ -8821,9 +8821,6 @@
                             },
                             "ipv6_configuration": {
                                 "$ref": "#/components/schemas/ip.ipv6_configuration"
-                            },
-                            "reservations": {
-                                "$ref": "#/components/schemas/ip.reservations"
                             }
                         }
                     }
@@ -9020,60 +9017,6 @@
                     }
                 }
             },
-            "ip.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The IP reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type\n  * ip_type",
-                "intersight_api": "reservations",
-                "intersight_uri": "ippool/Reservations",
-                "intersight_type": "pool",
-                "ObjectType": "ippool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "Identity Reservations",
-                "properties": {
-                    "allocation_type": {
-                        "type": "string",
-                        "default": "static",
-                        "description": "Type of the allocation for the identity in the reservation either static or dynamic (i.e. via pool).\n  * dynamic - Identifiers to be allocated by system.\n  * static - Identifiers are assigned by the user.  (default)",
-                        "intersight_api": "AllocationType",
-                        "enum": [
-                            "dynamic",
-                            "static"
-                        ],
-                        "title": "allocation_type"
-                    },
-                    "ip_type": {
-                        "type": "string",
-                        "default": "IPv4",
-                        "description": "Type of the IP address that needs to be reserved.\n  * IPv4 - IP V4 address type requested. (default)\n  * IPv6 - IP V6 address type requested.",
-                        "intersight_api": "IpType",
-                        "enum": [
-                            "IPv4",
-                            "IPv6"
-                        ],
-                        "title": "ip_type"
-                    },
-                    "identities": {
-                        "type": "array",
-                        "additionalProperties": false,
-                        "description": "List of IP identities to be reserved.",
-                        "intersight_api": "Identity",
-                        "items": {
-                            "type": "string",
-                            "default": "198.18.1.1",
-                            "description": "IP identity to be reserved.  Example `198.18.1.1` or `2001:db8::1`",
-                            "intersight_api": "Identity",
-                            "minLength": 6,
-                            "maxLength": 39,
-                            "pattern": "^((([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-fA-F]|[a-fA-F][a-fA-F0-9\\-]*[a-fA-F0-9])\\.)*([A-Fa-f]|[A-Fa-f][A-Fa-f0-9\\-]*[A-Fa-f0-9])$|^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::)))))$",
-                            "title": "identity"
-                        },
-                        "title": "identities"
-                    }
-                }
-            },
             "ipmi_over_lan": {
                 "description": "Intelligent Platform Management Interface Over LAN Policy.",
                 "intersight_type": "policy",
@@ -9169,9 +9112,6 @@
                                 "maxLength": 64,
                                 "pattern": "^iqn\\.(\\d{4}-\\d{2})\\.([^:]+)$",
                                 "title": "prefix"
-                            },
-                            "reservations": {
-                                "$ref": "#/components/schemas/iqn.reservations"
                             }
                         }
                     }
@@ -9224,49 +9164,6 @@
                         "minimum": 0,
                         "maximum": 60000000000,
                         "title": "to"
-                    }
-                }
-            },
-            "iqn.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The IQN reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "intersight_api": "reservations",
-                "intersight_type": "pool",
-                "intersight_uri": "iqnpool/Reservations",
-                "ObjectType": "iqnpool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "IqnReservations",
-                "properties": {
-                    "allocation_type": {
-                        "type": "string",
-                        "default": "static",
-                        "description": "Type of the allocation for the identity in the reservation either static or dynamic (i.e. via pool).\n  * dynamic - Identifiers to be allocated by system.\n  * static - Identifiers are assigned by the user.  (default)",
-                        "intersight_api": "AllocationType",
-                        "enum": [
-                            "dynamic",
-                            "static"
-                        ],
-                        "title": "allocation_type"
-                    },
-                    "identities": {
-                        "type": "array",
-                        "additionalProperties": false,
-                        "description": "List of IQN identities to be reserved.",
-                        "intersight_api": "Identity",
-                        "items": {
-                            "type": "string",
-                            "default": "iqn.1984-12.com.cisco:ucs000",
-                            "description": "IP identity to be reserved.  Example `iqn.1984-12.com.cisco`",
-                            "intersight_api": "Identity",
-                            "minLength": 7,
-                            "maxLength": 128,
-                            "pattern": "^iqn\\.(\\d{4}-\\d{2})\\.([^:]+)(:)([^,:\\s']+)$",
-                            "title": "identity"
-                        },
-                        "title": "identities"
                     }
                 }
             },
@@ -10714,9 +10611,6 @@
                                     "$ref": "#/components/schemas/mac.mac_blocks"
                                 },
                                 "title": "mac_blocks"
-                            },
-                            "reservations": {
-                                "$ref": "#/components/schemas/mac.reservations"
                             }
                         }
                     }
@@ -10760,49 +10654,6 @@
                         "maxLength": 17,
                         "pattern": "^([\\da-fA-F]{2}:){5}[\\da-fA-F]{2}$",
                         "title": "to"
-                    }
-                }
-            },
-            "mac.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The MAC reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "intersight_api": "reservations",
-                "intersight_type": "pool",
-                "intersight_uri": "macpool/Reservations",
-                "ObjectType": "macpool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "MAC Reservations",
-                "properties": {
-                    "allocation_type": {
-                        "type": "string",
-                        "default": "static",
-                        "description": "Type of the allocation for the identity in the reservation either static or dynamic (i.e. via pool).\n  * dynamic - Identifiers to be allocated by system.\n  * static - Identifiers are assigned by the user.  (default)",
-                        "intersight_api": "AllocationType",
-                        "enum": [
-                            "dynamic",
-                            "static"
-                        ],
-                        "title": "allocation_type"
-                    },
-                    "identities": {
-                        "type": "array",
-                        "additionalProperties": false,
-                        "description": "List of MAC identities to be reserved.",
-                        "intersight_api": "Identity",
-                        "items": {
-                            "type": "string",
-                            "default": "00:25:B5:0A:00:00",
-                            "description": "MAC identity to be reserved.  Example `00:25:B5:0A:00:00`",
-                            "intersight_api": "Identity",
-                            "minLength": 17,
-                            "maxLength": 17,
-                            "pattern": "^([\\da-fA-F]{2}:){5}[\\da-fA-F]{2}$",
-                            "title": "identity"
-                        },
-                        "title": "identities"
                     }
                 }
             },
@@ -14434,6 +14285,13 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "adapter_configuration_policy"
                             },
+                            "attach_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if these Server Profiles should be associated to the template after creating the server profile.  This is most helpful when creating server profiles with identity reservations to create them in this manner.",
+                                "intersightApi": "not_applicable",
+                                "title": "create_from_template"
+                            },
                             "bios_policy": {
                                 "type": "string",
                                 "default": "default",
@@ -14510,6 +14368,13 @@
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "firmware_policy"
+                            },
+                            "ignore_reservations": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if the script should ignore the reservations defined under each target.  The records for identity reservations are deleted from the API as soon as the identities are consumed by the Server Profile with UUID assignment and LAN/SAN Policy attachements.  After reservations have been consumed the reservations block sould be removed from each target.",
+                                "intersightApi": "not_applicable",
+                                "title": "create_from_template"
                             },
                             "imc_access_policy": {
                                 "type": "string",
@@ -14764,6 +14629,84 @@
                     }
                 ]
             },
+            "server.reservations": {
+                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\nRequired Attributes:\n  * identity\n  * identity_type\n  * interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * ip_type - For IP Reservations\n  * management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * pool_name",
+                "ObjectType": "not_applicable",
+                "title": "reservations",
+                "x-allOf-name": "server.Reservations",
+                "allOf": [
+                    {
+                        "type": "object",
+                        "required": [
+                            "identity",
+                            "identity_type",
+                            "pool_name"
+                        ],
+                        "title": "reservations",
+                        "properties": {
+                            "identity": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "IPv4/IPv6/IQN/MAC/WWNN/WWPN Address.",
+                                "minLength": 6,
+                                "maxLength": 60000000000,
+                                "title": "identity"
+                            },
+                            "identity_type": {
+                                "type": "string",
+                                "description": "Type of Identity to Assign.  Options are:\n  * ip\n  * iqn\n  * mac\n  * uuid\n  * wwnn\n  * wwpn",
+                                "enum": [
+                                    "ip",
+                                    "iqn",
+                                    "mac",
+                                    "uuid",
+                                    "wwnn",
+                                    "wwpn"
+                                ],
+                                "title": "identity_type"
+                            },
+                            "interface": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "Name of the vNIC or vHBA for this reservation assignement (MAC/WWPN).",
+                                "minLength": 1,
+                                "maxLength": 64,
+                                "pattern": "^[a-zA-Z0-9_\\.:-]+$",
+                                "title": "interface"
+                            },
+                            "ip_type": {
+                                "type": "string",
+                                "description": "Type of IP to assign.  Options are:\n  * IPv4\n  * IPv6 - Note: IPv6 is only supported for Inband",
+                                "enum": [
+                                    "IPv4",
+                                    "IPv6"
+                                ],
+                                "title": "ip_type"
+                            },
+                            "management_type": {
+                                "type": "string",
+                                "description": "Management Type for IMC Access Policy IP Assignment.  Options are:\n  * Inband\n  * Outofband",
+                                "enum": [
+                                    "Inband",
+                                    "InBand",
+                                    "Outofband",
+                                    "OutOfBand"
+                                ],
+                                "title": "management_type"
+                            },
+                            "pool_name": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "Name of the Pool to for this identity reservation.",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "pool_name"
+                            }
+                        }
+                    }
+                ]
+            },
             "server.targets": {
                 "description": "List of Server Target Settings.",
                 "ObjectType": "not_applicable",
@@ -14780,6 +14723,14 @@
                         "properties": {
                             "pre_assign": {
                                 "$ref": "#/components/schemas/server.targets.pre_assign"
+                            },
+                            "reservations": {
+                                "type": "array",
+                                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\nRequired Attributes:\n  * identity\n  * identity_type\n  * interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * ip_type - For IP Reservations\n  * management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * pool_name",
+                                "items": {
+                                    "$ref": "#/components/schemas/server.reservations"
+                                },
+                                "title": "Server Identity Reservations"
                             },
                             "static_uuid_address": {
                                 "type": "string",
@@ -16623,9 +16574,6 @@
                                 "pattern": "^[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}$",
                                 "title": "prefix"
                             },
-                            "reservations": {
-                                "$ref": "#/components/schemas/uuid.reservations"
-                            },
                             "uuid_blocks": {
                                 "type": "array",
                                 "description": "A block of UUID addresses.\n\nRequired Attributes:\n  * from\n\nOptional Attributes:\n  * size\n  * to\nNote: Only assign either size or to, not both.",
@@ -16636,49 +16584,6 @@
                         }
                     }
                 ]
-            },
-            "uuid.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The UUID reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "intersight_api": "reservations",
-                "intersight_type": "pool",
-                "intersight_uri": "uuidpool/Reservations",
-                "ObjectType": "uuidpool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "IqnReservations",
-                "properties": {
-                    "allocation_type": {
-                        "type": "string",
-                        "default": "static",
-                        "description": "Type of the allocation for the identity in the reservation either static or dynamic (i.e. via pool).\n  * dynamic - Identifiers to be allocated by system.\n  * static - Identifiers are assigned by the user.  (default)",
-                        "intersight_api": "AllocationType",
-                        "enum": [
-                            "dynamic",
-                            "static"
-                        ],
-                        "title": "allocation_type"
-                    },
-                    "identities": {
-                        "type": "array",
-                        "additionalProperties": false,
-                        "description": "List of UUID identities to be reserved.",
-                        "intersight_api": "Identity",
-                        "items": {
-                            "type": "string",
-                            "default": "0000-000000000000",
-                            "description": "UUID identity to be reserved.  Example `0000-000000000000`",
-                            "intersight_api": "Identity",
-                            "minLength": 17,
-                            "maxLength": 17,
-                            "pattern": "^[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-                            "title": "identity"
-                        },
-                        "title": "identities"
-                    }
-                }
             },
             "uuid.uuid_blocks": {
                 "type": "object",
@@ -16895,11 +16800,11 @@
                     "file_location": {
                         "type": "string",
                         "default": "https://server.example.com/os.iso",
-                        "description": "The remote file location path for the virtual media mapping. Accepted formats are:\n  * HDD for CIFS/NFS: hostname-or-IP/filePath/fileName.img\n  * CDD for CIFS/NFS: hostname-or-IP/filePath/fileName.iso\n  * HDD for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.img\n  * CDD for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.iso",
+                        "description": "The remote file location path for the virtual media mapping. Accepted formats are:\n  * HDD for CIFS: cifs://hostname-or-IP/filePath/fileName.img\n  * CDD for CIFS: cifs://hostname-or-IP/filePath/fileName.iso\n  * HDD for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.img\n  * CDD for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.iso\n  * HDD for NFS: nfs://hostname-or-IP/filePath/fileName.img\n  * CDD for NFS: nfs://hostname-or-IP/filePath/fileName.iso",
                         "intersight_api": "FileLocation",
                         "minLength": 1,
                         "maxLength": 512,
-                        "pattern": "^(https?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})$",
+                        "pattern": "^((cifs|https|nfs)?://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|(cifs|https|nfs)?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})$",
                         "title": "file_location"
                     },
                     "mount_options": {
@@ -17201,9 +17106,6 @@
                                     "$ref": "#/components/schemas/wwnn.id_blocks"
                                 },
                                 "title": "id_blocks"
-                            },
-                            "reservations": {
-                                "$ref": "#/components/schemas/wwnn.reservations"
                             }
                         }
                     }
@@ -17249,49 +17151,6 @@
                     }
                 }
             },
-            "wwnn.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The WWxN reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "intersight_api": "reservations",
-                "intersight_type": "pool",
-                "intersight_uri": "fcpool/Reservations",
-                "ObjectType": "fcpool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "WWNN Reservations",
-                "properties": {
-                    "allocation_type": {
-                        "type": "string",
-                        "default": "static",
-                        "description": "Type of the allocation for the identity in the reservation either static or dynamic (i.e. via pool).\n  * dynamic - Identifiers to be allocated by system.\n  * static - Identifiers are assigned by the user.  (default)",
-                        "intersight_api": "AllocationType",
-                        "enum": [
-                            "dynamic",
-                            "static"
-                        ],
-                        "title": "allocation_type"
-                    },
-                    "identities": {
-                        "type": "array",
-                        "additionalProperties": false,
-                        "description": "List of WWxN identities to be reserved.",
-                        "intersight_api": "Identity",
-                        "items": {
-                            "type": "string",
-                            "default": "20:00:00:25:B5:00:00:00",
-                            "description": "WWN identity to be reserved.  Example `20:00:00:25:B5:00:00:00`",
-                            "intersight_api": "Identity",
-                            "minLength": 23,
-                            "maxLength": 23,
-                            "pattern": "^([\\da-fA-F]{2}:){7}[\\da-fA-F]{2}$",
-                            "title": "identity"
-                        },
-                        "title": "identities"
-                    }
-                }
-            },
             "wwpn": {
                 "description": "Pool represents a collection of WWPN addresses that can be allocated to VHBAs of a server profile.",
                 "intersight_type": "pool",
@@ -17322,9 +17181,6 @@
                                     "$ref": "#/components/schemas/wwpn.id_blocks"
                                 },
                                 "title": "id_blocks"
-                            },
-                            "reservations": {
-                                "$ref": "#/components/schemas/wwpn.reservations"
                             }
                         }
                     }
@@ -17369,49 +17225,6 @@
                         "title": "to"
                     }
                 }
-            },
-            "wwpn.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The WWxN reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "intersight_api": "reservations",
-                "intersight_type": "pool",
-                "intersight_uri": "fcpool/Reservations",
-                "ObjectType": "fcpool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "WWPN Reservations",
-                "properties": {
-                    "allocation_type": {
-                        "type": "string",
-                        "default": "static",
-                        "description": "Type of the allocation for the identity in the reservation either static or dynamic (i.e. via pool).\n  * dynamic - Identifiers to be allocated by system.\n  * static - Identifiers are assigned by the user.  (default)",
-                        "intersight_api": "AllocationType",
-                        "enum": [
-                            "dynamic",
-                            "static"
-                        ],
-                        "title": "allocation_type"
-                    },
-                    "identities": {
-                        "type": "array",
-                        "additionalProperties": false,
-                        "description": "List of WWxN identities to be reserved.",
-                        "intersight_api": "Identity",
-                        "items": {
-                            "type": "string",
-                            "default": "20:00:00:25:B5:00:00:00",
-                            "description": "WWN identity to be reserved.  Example `20:00:00:25:B5:00:00:00`",
-                            "intersight_api": "Identity",
-                            "minLength": 23,
-                            "maxLength": 23,
-                            "pattern": "^([\\da-fA-F]{2}:){7}[\\da-fA-F]{2}$",
-                            "title": "identity"
-                        },
-                        "title": "identities"
-                    }
-                }
             }
         },
         "wizard": {
@@ -17419,14 +17232,10 @@
                 "type": "object",
                 "additionalProperties": false,
                 "description": "The WWxN reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "intersight_api": "reservations",
-                "intersight_type": "pool",
-                "intersight_uri": "fcpool/Reservations",
-                "ObjectType": "fcpool.Reservation",
                 "required": [
                     "identities"
                 ],
-                "title": "WWPN Reservations",
+                "title": "Azure Stack - OS Configuration",
                 "properties": {
                     ".DisableAutoDaylightTimeSet": {
                         "type": "string",

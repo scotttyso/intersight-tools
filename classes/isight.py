@@ -1885,7 +1885,7 @@ def api_get(empty, names, otype, kwargs):
     original_org = kwargs.org
     kwargs.glist = DotMap()
     for e in names:
-        if '/' in names: org, policy = e.split('/')
+        if '/' in e: org, policy = e.split('/')
         else: org = kwargs.org; policy = e
         if not kwargs.glist[org].names: kwargs.glist[org].names = []
         kwargs.glist[org].names.append(policy)

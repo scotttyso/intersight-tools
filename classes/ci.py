@@ -2947,6 +2947,8 @@ class wizard(object):
         # Existing OS Install
         #==========================================
         kwargs.repo_server = 'imm-transition.rich.ciscolabs.com'
+        kwargs = windows_languages(kwargs.imm_dict.wizard.windows_install, kwargs)
+        kwargs = windows_timezones(kwargs)
         for v in ['imm_transition_password', 'windows_admin_password', 'windows_domain_password']:
             kwargs.sensitive_var = v
             kwargs  = ezfunctions.sensitive_var_value(kwargs)
@@ -2954,28 +2956,30 @@ class wizard(object):
         tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci')
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
         template = tenviro.get_template('AzureStackHCI.xml')
+        ou       = kwargs.imm_dict.wizard.azurestack[0].ou
+        org_unit = f'OU=Computers,OU={ou}' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
         jargs = DotMap(
             administratorPassword = kwargs['windows_admin_password'],
-            domain                = kwargs.imm_dict.wizard.domain,
-            domainAdministrator   = kwargs.imm_dict.wizard.administrator,
+            domain                = kwargs.imm_dict.wizard.azurestack[0].active_directory.domain,
+            domainAdministrator   = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
             domainPassword        = kwargs['windows_domain_password'],
-            ouArgument            = '',
-            organization          = 'Cisco Systems',
-            organizationalUnit    = kwargs.imm_dict.wiard.organizational_unit,
-            sharePath             = kwargs.imm_dict.wiard.share_path,
+            organization          = kwargs.imm_dict.wizard.azurestack[0].organization,
+            organizationalUnit    = org_unit,
+            sharePath             = kwargs.imm_dict.wizard.share_path,
             # Language
-            inputLocale           = '',
-            languagePack          = 'en-Us',
-            layeredDriver         = '',
-            secondaryLanguage     = ''
+            inputLocale           = kwargs.language.input_local,
+            languagePack          = kwargs.language.ui_language,
+            layeredDriver         = kwargs.language.layered_driver,
+            secondaryLanguage     = kwargs.language.secondary_language
         )
-        jargs = jargs.toDict()
-        jtemplate = template.render(kwargs=jargs)
+        jtemplate = template.render(kwargs=jargs.toDict())
         for x in ['LayeredDriver', 'UILanguageFallback']:
             if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
         file  = open('AzureStackHCI.xml', 'w')
         file.write(jtemplate)
         file.close()
+        template = tenviro.get_template('azs-template.jinja2')
+
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
@@ -3434,13 +3438,13 @@ def windows_languages(v, kwargs):
         for e in kwargs.windows_languages: pcolor.Red(f'  * {(DotMap(e)).language}')
         sys.exit(1)
     kwargs.language = DotMap(
-        ui_language = language.code,
-        input_local = (re.search('\\((.*)\\)', language.local)).group(1),
-        layered_driver = v.layered_driver,
+        ui_language        = language.code,
+        input_local        = (re.search('\\((.*)\\)', language.local)).group(1),
+        layered_driver     = v.layered_driver,
         secondary_language = 'None')
     if language.get('secondary_language'):
         if type(language.secondary_language) == list:
-            kwargs.language.secondary_language = language.secondary_language[0]
+            kwargs.language.secondary_language   = language.secondary_language[0]
         else: kwargs.language.secondary_language = language.secondary_language
     return kwargs
 
