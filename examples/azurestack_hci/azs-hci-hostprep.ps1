@@ -80,10 +80,14 @@ $feature_list = (
     "RSAT-AD-Powershell", "RSAT-Clustering-PowerShell", "NetworkATC", "NetworkHUD", "FS-DATA-Deduplication"
 )
 $ydata      = Get-Content -Path $y | ConvertFrom-Yaml
-$username   = $ydata.username
-$password   = ConvertTo-SecureString $env:domain_administrator_password -AsPlainText -Force;
+$username   = $ydata.active_directory.azurestack_admin
+$password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
 $credential = New-Object System.Management.Automation.PSCredential ($username,$password);
 $client_list = [object[]] @()
+$global_node_list = [object[]] @()
+foreach ($cluster in $ydata.clusters) {
+    foreach ($node in $cluster.members) { $global_node_list += $node }
+}
 $gwsman = Get-WSManCredSSP
 if ($ydata.proxy) {
     if ($ydata.proxy.username) {
@@ -149,7 +153,7 @@ Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
 # Connect to Azure Stack Nodes and Install Updated Drivers
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $ydata.node_list
+LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession
 $sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
 $session_results = Invoke-Command $sessions -ScriptBlock {
@@ -205,20 +209,20 @@ foreach ($result in $session_results) {
 #=============================================================================
 # Enable WSManCredSSP Client on Local Machine
 #=============================================================================
-foreach ($node in $ydata.node_list) {
+foreach ($node in $global_node_list) {
     $reg = [regex] "The machine is configured to $($node)"
     if ($gwsman -match $reg) { $client_list += $node }
 }
-if (!($ydata.node_list.Length -eq $client_list.Length)) {
-    Write-Host "Enabling WSManCredSSP for Client List: $($ydata.node_list)" -ForegroundColor Yellow
-    Enable-WSManCredSSP -Role "Client" -DelegateComputer $ydata.node_list -Force | Out-Null
+if (!($global_node_list.Length -eq $client_list.Length)) {
+    Write-Host "Enabling WSManCredSSP for Client List: $($global_node_list)" -ForegroundColor Yellow
+    Enable-WSManCredSSP -Role "Client" -DelegateComputer $global_node_list -Force | Out-Null
 } else {
-    Write-Host "WSManCredSSP Already Enabled for Client List: $($ydata.node_list)" -ForegroundColor Yellow
+    Write-Host "WSManCredSSP Already Enabled for Client List: $($global_node_list)" -ForegroundColor Yellow
 }
 #=============================================================================
 # Configure Time Zone, Firewall Rules, and Installed Features
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $ydata.node_list
+LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession
 $sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
 $session_results = Invoke-Command $sessions -ScriptBlock {
@@ -285,7 +289,7 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
 # Setup Environment for Next Loop; Sleep 10 Minutes if reboot_count gt 0
 #=============================================================================
 Get-PSSession | Remove-PSSession | Out-Null
-$nrc = NodeAndRebootCheck -session_results $session_results -node_list $ydata.node_list
+$nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 if ($nrc.reboot_count -gt 0) {
     Write-Host "Sleeping for 10 Minutes to Wait for Server Reboots." -ForegroundColor Yellow
     Start-Sleep -Seconds 600
@@ -293,7 +297,7 @@ if ($nrc.reboot_count -gt 0) {
 #=============================================================================
 # Customize the AzureStack HCI OS Environment
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $ydata.node_list
+LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession
 $session_results = Invoke-Command $sessions -ScriptBlock {
     Function RegistryKey {
@@ -363,11 +367,11 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
 # Setup Environment for Next Loop; Sleep 10 Minutes if reboot_count gt 0
 #=============================================================================
 Get-PSSession | Remove-PSSession | Out-Null
-$nrc = NodeAndRebootCheck -session_results $session_results -node_list $ydata.node_list
+$nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 #=============================================================================
 # Test AzureStackHCI Connectivity Readiness
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $ydata.node_list
+LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession | Where-Object {$_.Transport -eq "WSMan"}
 $sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
 if (!($ydata.proxy)) { $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions
@@ -435,10 +439,10 @@ $ad_user = $ydata.active_directory.admin
 $ad_pass = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
 $adcreds = New-Object System.Management.Automation.PSCredential ($ad_user,$ad_pass)
 $ad =  $ydata.active_directory 
-$ad_check = Invoke-AzStackHciExternalActiveDirectoryValidation -PassThru -ActiveDirectoryServer $ad.server -ActiveDirectoryCredentials $adcreds -ADOUPath $ad.ou -ClusterName $ydata.cluster -DomainFQDN $ad.fqdn -NamingPrefix $ad.naming_prefix -PhysicalMachineNames $ydata.node_list
+$ad_check = Invoke-AzStackHciExternalActiveDirectoryValidation -PassThru -ActiveDirectoryServer $ad.server -ActiveDirectoryCredentials $adcreds -ADOUPath $ad.ou -ClusterName $ydata.cluster -DomainFQDN $ad.fqdn -NamingPrefix $ad.naming_prefix -PhysicalMachineNames $global_node_list
 if ($ad_check -eq $True) { Write-Host "True" }
 Get-PSSession | Remove-PSSession | Out-Null
-$nrc = NodeAndRebootCheck -session_results $session_results -node_list $ydata.node_list
+$nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 Stop-Transcript
 #=============================================================================
 # Disable CredSSP on Hosts

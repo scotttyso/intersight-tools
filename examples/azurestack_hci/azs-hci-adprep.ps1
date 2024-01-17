@@ -78,15 +78,30 @@ Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER)
 #=============================================================================
 $ydata   = Get-Content -Path $y | ConvertFrom-Yaml
 $ad_user = $ydata.active_directory.administrator
-$ad_pass = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
+$ad_pass = ConvertTo-SecureString $env:domain_administrator_password -AsPlainText -Force;
 $adcreds = New-Object System.Management.Automation.PSCredential ($ad_user,$ad_pass)
-$ad =  $ydata.active_directory 
+$ad =  $ydata.active_directory
 $file = "AsHciADArtifactsPreCreationTool.ps1"
+if ($ydata.proxy) {
+    if ($ydata.proxy.username) {
+        $proxy_user  = $ydata.proxy.username
+        $proxy_pass  = ConvertTo-SecureString $env:proxy_password -AsPlainText -Force;
+        $proxy_creds = New-Object System.Management.Automation.PSCredential ($proxy_user,$proxy_pass);
+    }
+}
+if (!([System.IO.File]::Exists("./$file"))) {
+    if (!($ydata.proxy)) { Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile ".\$file"
+    } else {
+        if ($proxy_creds) {
+            Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile ".\$file" -Proxy $ydata.proxy.host -ProxyCredential $proxy_creds
+        } else { Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile ".\$file" -Proxy $ydata.proxy.host }
+    }
+}
 if (!([System.IO.File]::Exists("./$file"))) {
     Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile ".\$file"
 }
 foreach ($cluster in $ydata.clusters) {
-    $ad_check = Start-Process Powershell -Argumentlist "-ExecutionPolicy Bypass -NoProfile -File '.\$($file)' -AsHciClusterName '$($cluster.cluster_name)' -AsHciDeploymentPrefix '$($ad.naming_prefix)' -AsHciDeploymentUserCredential '$adcreds' -AsHciOUName '$($ad.organizational_unit)' -AsHciPhysicalNodeList $($cluster.members) -DomainFQDN '$($ad.domain)'"
+    $ad_check = Start-Process Powershell -Argumentlist "-ExecutionPolicy Bypass -NoProfile -File '.\$($file)' -AsHciClusterName '$($cluster.cluster_name)' -AsHciDeploymentPrefix '$($ad.azurestack_prefix)' -AsHciDeploymentUserCredential '$adcreds' -AsHciOUName '$($ad.azurestack_ou)' -AsHciPhysicalNodeList $($cluster.members) -DomainFQDN '$($ad.domain)'"
     $ad_check.WaitForExit()
 }
 Stop-Transcript

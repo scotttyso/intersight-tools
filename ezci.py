@@ -241,21 +241,20 @@ def main():
         #==============================================
         orgs = list(kwargs.imm_dict.orgs.keys())
         if len(kwargs.imm_dict.orgs) > 0: ezfunctions.create_yaml(orgs, kwargs)
-        for org in orgs:
-            kwargs.org = org
-            #==============================================
-            # Policies
-            #==============================================
-            if kwargs.imm_dict.orgs[org].get('policies'):
-                for ptype in kwargs.policy_list:
-                    if kwargs.imm_dict.orgs[org]['policies'].get(ptype):
-                        kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
-        for org in orgs:
-            kwargs.org = org
-            #==============================================
-            # Deploy Domain
-            #==============================================
-            if re.search('(flashstack|flexpod|imm_domain)', kwargs.args.deployment_type):
+        #==============================================
+        # Policies
+        #==============================================
+        if kwargs.imm_dict.orgs[org].get('policies'):
+            for ptype in kwargs.policy_list:
+                for org in orgs:
+                    kwargs.org = org
+                    if kwargs.imm_dict.orgs[org]['policies'].get(ptype): kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
+        #==============================================
+        # Deploy Domain
+        #==============================================
+        if re.search('(flashstack|flexpod|imm_domain)', kwargs.args.deployment_type):
+            for org in orgs:
+                kwargs.org = org
                 kwargs = eval(f"isight.imm('domain').profiles(kwargs)")
     #=================================================================
     # Deploy Chassis/Server Pools/Policies/Profiles
@@ -274,23 +273,25 @@ def main():
         #==============================================
         # Pools
         #==============================================
-        for org in orgs:
-            if kwargs.imm_dict.orgs[org].get('pools'):
-                for ptype in kwargs.imm_dict.orgs[org]['pools']:
-                    kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
+        for ptype in kwargs.imm_dict.orgs[org]['pools']:
+            for org in orgs:
+                kwargs.org = org
+                if kwargs.imm_dict.orgs[org].get('pools'): kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
         #==============================================
         # Policies
         #==============================================
+        for ptype in kwargs.policy_list:
+            for org in orgs:
+                kwargs.org = org
+                if kwargs.imm_dict.orgs[org].get('policies'):  kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
         for org in orgs:
-            if kwargs.imm_dict.orgs[org].get('policies'):
-                for ptype in kwargs.policy_list:
-                    kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
-        for org in orgs:
+            kwargs.org = org
             kwargs.isight[org].policy = DotMap(dict(sorted(kwargs.isight[org].policy.toDict().items())))
         #==============================================
         # Profiles and Server Identities
         #==============================================
         for org in orgs:
+            kwargs.org = org
             if kwargs.imm_dict.orgs[org].get('templates'):
                 if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"isight.imm('server_template').profiles(kwargs)")
             if kwargs.imm_dict.orgs[org].get('profiles'):
@@ -311,6 +312,7 @@ def main():
         #==============================================
         orgs = list(kwargs.imm_dict.orgs.keys())
         for org in orgs:
+            kwargs.org = org
             #=====================================================
             # Load Server Profile Variables
             #=====================================================

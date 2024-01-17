@@ -55,6 +55,17 @@ if ((${env_vars} | Where-Object {$_.Name -eq "OS"}).Value -eq "Windows_NT") {
 if (!( Test-Path -PathType Container $homePath + $pathSep + "Logs")) {
     New-Item -ItemType Directory $homePath + $pathSep + "Logs" | Out-Null
 }
+#=============================================================================
+# Setup Variables for Environment
+#=============================================================================
+$ydata      = Get-Content -Path $y | ConvertFrom-Yaml
+$username   = $ydata.active_directory.username
+$password   = ConvertTo-SecureString $env:domain_administrator_password -AsPlainText -Force;
+$credential = New-Object System.Management.Automation.PSCredential ($username,$password);
+$global_node_list = [object[]] @()
+foreach ($cluster in $ydata.clusters) {
+    foreach ($node in $cluster.members) { $global_node_list += $node }
+}
 Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER).log" -Append -Confirm:$false
 Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
@@ -62,7 +73,6 @@ Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
 Function NodeAndRebootCheck {
     Param([psobject]$session_results, [array]$node_list)
-    #$session_results | Format-Table | Out-String|ForEach-Object {Write-Host $_}
     $nodes = [object[]] @()
     $reboot_count = 0
     foreach ($result in $session_results) {
@@ -135,7 +145,7 @@ if ($ydata.file_share_witness.type -eq "domain") {
         Write-Host "$($witness): Completed Creating directory on File Share Witness." -ForegroundColor Yellow
         Write-Host "$($witness): Begin Configuring File Share on File Share Witness" -ForegroundColor Yellow
         $access_list  = @()
-        foreach ($computer in $ydata.node_list) { $access_list.Add("$domain\$($computer.split('.')[0])$") }
+        foreach ($computer in $global_node_list) { $access_list.Add("$domain\$($computer.split('.')[0])$") }
         $access_list.Add(“$domain\Domain Admins")
         $gsmb = Get-SmbShare -Name $share_name
         $share_assigned = $True
@@ -177,7 +187,7 @@ if ($ydata.file_share_witness.type -eq "domain") {
     # Setup Environment for Next Loop
     #=============================================================================
     Get-PSSession | Remove-PSSession | Out-Null
-    NodeAndRebootCheck -session_results $session_results -node_list $ydata.node_list
+    NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
     #=============================================================================
     # Configure Cluster Quorum Witness File Share
     #=============================================================================
@@ -205,7 +215,7 @@ if ($ydata.file_share_witness.type -eq "domain") {
     # Setup Environment for Next Loop
     #=============================================================================
     Get-PSSession | Remove-PSSession | Out-Null
-    NodeAndRebootCheck -session_results $session_results -node_list $ydata.node_list
+    NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 }
 Stop-Transcript
 Exit 0

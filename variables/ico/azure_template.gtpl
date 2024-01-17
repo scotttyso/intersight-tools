@@ -49,11 +49,11 @@ windows_install:\n
   layered_driver: {{ if index $windows_install "layered_driver" }}{{ $windows_install.layered_driver }}{{ else }}0{{ end }}\n
 azurestack:\n
   - active_directory:\n
-      domain: {{ if index $azurestack.active_directory "domain" }}{{ $azurestack.active_directory.domain }}{{ else }}example.com{{ end }}\n
       administrator: {{ if index $azurestack.active_directory "administrator" }}{{ $azurestack.active_directory.administrator }}{{ else }}administrator@example.com{{ end }}\n
-    azurestack_admin: {{ if index $azurestack "azurestack_admin" }}{{ $azurestack.azurestack_admin}}{{ else }}hciadmin@example.com{{ end }}\n
-    azurestack_ou: {{ if index $azurestack "azurestack_ou" }}{{ $azurestack.azurestack_ou }}{{ else }}AzureStack{{ end }}\n
-    azurestack_prefix: {{ if index $azurestack "azurestack_prefix" }}{{ $azurestack.azurestack_prefix }}{{ else }}AzS{{ end }}\n
+      azurestack_admin: {{ if index $azurestack "azurestack_admin" }}{{ $azurestack.azurestack_admin}}{{ else }}hciadmin@example.com{{ end }}\n
+      azurestack_ou: {{ if index $azurestack "azurestack_ou" }}{{ $azurestack.azurestack_ou }}{{ else }}AzureStack{{ end }}\n
+      azurestack_prefix: {{ if index $azurestack "azurestack_prefix" }}{{ $azurestack.azurestack_prefix }}{{ else }}AzS{{ end }}\n
+      domain: {{ if index $azurestack.active_directory "domain" }}{{ $azurestack.active_directory.domain }}{{ else }}example.com{{ end }}\n
     clusters:\n
 {{ range $i, $cluster := $azurestack.clusters }}
       - name: {{ if index $cluster "name" }}{{ $cluster.name }}{{ else }}CLUSTER01{{ end }}\n
@@ -62,8 +62,14 @@ azurestack:\n
           - cimc: {{ if index $member "cimc" }}{{ $member.cimc }}{{ else }}198.18.1.1{{ end  }}\n
             hostname: {{ if index $member "hostname" }}{{ $member.hostname }}{{ end }}\n
 {{ end }}
-        subscription: {{ if index $cluster "azure_subscription_id" }}{{ $cluster.azure_subscription_id }}{{ else }}53614803-d327-4397-bf55-8dedcc24be0d{{ end }}\n
 {{ end }}
+{{ if eq .global.workflow.input.config_witness true}}
+    file_share_witness:
+      host: {{ if index $intersight.policies.snmp "username" }}{{ $intersight.policies.snmp.username }}{{ else }}''{{ end }}\n
+      share_name: {{ if index $intersight.policies.snmp "username" }}{{ $intersight.policies.snmp.username }}{{ else }}''{{ end }}\n
+      type: domain
+{{ end }}
+    organization: {{ if index $azurestack.active_directory "organization" }}{{ $azurestack.active_directory.organization}}{{ else }}Example Company{{ end }}\n
 intersight:\n
   - organization: {{ if index $intersight "organization" }}{{ $intersight.organization }}{{ end }}\n
     cimc_default: {{ if index $intersight "cimc_default" }}{{ $intersight.cimc_default }}{{ else }}false{{ end }}\n
