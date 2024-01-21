@@ -1630,7 +1630,7 @@ class imm(object):
         for template in templates:
             polVars = dict(
                 action               = 'Deploy',
-                create_from_template = True,
+                attach_template      = True,
                 target_platform      = 'FIAttached',
                 targets              = [],
                 ucs_server_template  = template

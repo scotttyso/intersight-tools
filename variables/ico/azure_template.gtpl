@@ -5,7 +5,6 @@
 {{ $azurestack := .global.workflow.input.azurestack }}
 {{ $intersight := .global.workflow.input.intersight }}
 {{ $protocols := .global.workflow.input.protocols }}
-{{ $proxy := .global.workflow.input.proxy }}
 {{ $windows_install := .global.workflow.input.windows_install }}
 protocols:\n
 {{ if index $protocols "dhcp_servers" }}
@@ -41,12 +40,6 @@ protocols:\n
 {{ else }}
   ntp_servers: []\n
 {{ end }}
-proxy:\n
-  url: {{ if index $proxy "url" }}{{ $proxy.url }}{{ else }}''{{ end }}\n
-  username: {{ if index $proxy "username" }}{{ $proxy.username }}{{ else }}''{{ end }}\n
-windows_install:\n
-  language_pack: {{ if index $windows_install "language_pack" }}{{ $windows_install.language_pack}}{{ else }}English - United States{{ end }}\n
-  layered_driver: {{ if index $windows_install "layered_driver" }}{{ $windows_install.layered_driver }}{{ else }}0{{ end }}\n
 azurestack:\n
   - active_directory:\n
       administrator: {{ if index $azurestack.active_directory "administrator" }}{{ $azurestack.active_directory.administrator }}{{ else }}administrator@example.com{{ end }}\n
@@ -63,13 +56,22 @@ azurestack:\n
             hostname: {{ if index $member "hostname" }}{{ $member.hostname }}{{ end }}\n
 {{ end }}
 {{ end }}
-{{ if eq .global.workflow.input.config_witness true}}
-    file_share_witness:
-      host: {{ if index $intersight.policies.snmp "username" }}{{ $intersight.policies.snmp.username }}{{ else }}''{{ end }}\n
-      share_name: {{ if index $intersight.policies.snmp "username" }}{{ $intersight.policies.snmp.username }}{{ else }}''{{ end }}\n
-      type: domain
-{{ end }}
     organization: {{ if index $azurestack.active_directory "organization" }}{{ $azurestack.active_directory.organization}}{{ else }}Example Company{{ end }}\n
+{{ if eq $azurestack.config_witness true}}
+file_share_witness:\n
+  host: {{ if index $azurestack.file_share_witness "host" }}{{ $azurestack.file_share_witness.host}}{{ else }}''{{ end }}\n
+  share_name: {{ if index $azurestack.file_share_witness "share_name" }}{{ $azurestack.file_share_witness.share_name}}{{ else }}''{{ end }}\n
+  type: domain\n
+{{ end }}
+install_server:\n
+  drivers_cd_mount: {{ if index $azurestack.install_server "drivers_cd_mount" }}{{ $azurestack.install_server.drivers_cd_mount}}{{ else }}F:{{ end }}\n
+  reminst_share_path: {{ if index $azurestack.install_server "reminst_share_path" }}{{ $azurestack.install_server.reminst_share_path}}{{ else }}E:{{ end }}\n
+{{ if eq .global.workflow.input.config_proxy true}}
+proxy:\n
+  url: {{ if index .global.workflow.input.proxy "url" }}{{ .global.workflow.input.proxy.url }}{{ else }}''{{ end }}\n
+  username: {{ if index .global.workflow.input.proxy "username" }}{{ .global.workflow.input.proxy.username }}{{ else }}''{{ end }}\n
+{{ end }}
+imm_transition: {{ .global.workflow.input.imm_transition.hostname }}\n
 intersight:\n
   - organization: {{ if index $intersight "organization" }}{{ $intersight.organization }}{{ end }}\n
     cimc_default: {{ if index $intersight "cimc_default" }}{{ $intersight.cimc_default }}{{ else }}false{{ end }}\n

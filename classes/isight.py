@@ -131,7 +131,7 @@ class api(object):
             if int(debug_level) >= 6: pcolor.Cyan(api_results)
             if int(debug_level) == 7:
                 pcolor.Cyan(json.dumps(payload, indent=4))
-                pcolor.Cyan(json.dump(dict(response.headers), indent=4))
+                pcolor.Cyan(json.dumps(dict(response.headers), indent=4))
             #=====================================================
             # Gather Results from the apiCall
             #=====================================================
@@ -1113,8 +1113,6 @@ class imm(object):
                         port_type_call(e, item, x, kwargs)
                         if len(kwargs.plist[e]) > 0:
                             kwargs.api_body= {'Requests':kwargs.plist[e]}
-                            #print(json.dumps(kwargs.api_body, indent=4))
-                            #exit()
                             kwargs.method = 'post'
                             kwargs.qtype  = 'bulk_request'
                             kwargs.uri    = 'bulk/Requests'
@@ -1128,15 +1126,12 @@ class imm(object):
         ezdata = kwargs.ezdata[self.type]
         for item in profiles:
             api_body = {'ObjectType':ezdata.ObjectType}
-            for i in item.targets:
-                pitems = dict(deepcopy(item), **i)
-                pop_items = ['action', 'targets']
-                for e in pop_items:
-                    if pitems.get(e): pitems.pop(e)
-                api_body = build_api_body(api_body, kwargs.idata, pitems, self.type, kwargs)
-                api_body = profile_policy_bucket(api_body, kwargs)
-                if api_body.get('SerialNumber'): api_body = assign_physical_device(api_body, kwargs)
-                kwargs = profile_api_calls(api_body, kwargs)
+            pitems = deepcopy(item)
+            if pitems.get('action'): pitems.pop('action')
+            api_body = build_api_body(api_body, kwargs.idata, pitems, self.type, kwargs)
+            api_body = profile_policy_bucket(api_body, kwargs)
+            if api_body.get('SerialNumber'): api_body = assign_physical_device(api_body, kwargs)
+            kwargs = profile_api_calls(api_body, kwargs)
         #=====================================================
         # POST Bulk Request if Post List > 0
         #=====================================================
@@ -1200,55 +1195,67 @@ class imm(object):
     #=====================================================
     # Build Chassis Profiles
     #=====================================================
-    def profile_server(self, profiles, templates, kwargs):
+    def profile_server(self, profiles, kwargs):
         ezdata = kwargs.ezdata[self.type]
-        for item in profiles:
+        for e in profiles:
             api_body = {'ObjectType':ezdata.ObjectType}
-            for i in item.targets:
-                create_from_template = False; policy_bucket = False
-                if item.get('create_from_template'):
-                    if item.create_from_template == True: create_from_template = True
-                    else: policy_bucket = True
-                else: policy_bucket = True
-                if item.get('ucs_server_template'):
-                    if '/' in item.ucs_server_template: org, template = item.ucs_server_template
-                    else: org = kwargs.org; template = item.ucs_server_template
-                    if create_from_template == True:
-                        if not kwargs.isight[org].profile['server_template'].get(template):
-                            ptype = 'ucs_server_template'; tname = item.ucs_server_template
-                            validating.error_policy_doesnt_exist(ptype, tname, i.name, self.type, 'Profile')
-                else: create_from_template = False
-                if create_from_template == True:
-                    if not kwargs.isight[kwargs.org].profile['server'].get(i.name):
-                        if not kwargs.bulk_template.get(item.ucs_server_template):
-                            kwargs = bulk_template(i, item.ucs_server_template, kwargs)
-                        kwargs = bulk_template_append(i, item.ucs_server_template, kwargs)
-                if policy_bucket == True:
-                    if item.get('ucs_server_template'):
-                        pitems = dict(deepcopy(item), **templates[org][template], **i)
-                    else: pitems = dict(deepcopy(item), **i)
-                    pop_items = ['action', 'create_from_template', 'targets', 'ucs_server_template']
-                    for e in pop_items:
-                        if pitems.get(e): pitems.pop(e)
-                    api_body = {'ObjectType':ezdata.ObjectType}
-                    api_body = build_api_body(api_body, kwargs.idata, item, self.type, kwargs)
-                    if not api_body.get('TargetPlatform'): api_body['TargetPlatform'] = 'FIAttached'
-                    api_body = profile_policy_bucket(api_body, kwargs)
-                    if api_body.get('SerialNumber'): api_body = assign_physical_device(api_body, kwargs)
-                    kwargs = profile_api_calls(api_body, kwargs)
+            if len(e.ucs_server_template) > 0:
+                if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
+                else: org = kwargs.org; template = e.ucs_server_template
+            if e.attach_template == True or len(e.ucs_server_template) == 0: pitems = deepcopy(e)
+            else:
+                pitems = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
+            pop_items = ['action', 'attach_template', 'create_from_template', 'create_template', 'ignore_reservations', 'ucs_server_template']
+            pkeys = list(pitems.keys())
+            for p in pop_items:
+                if p in pkeys: pitems.pop(p)
+            plist = []
+            for k, v in kwargs.idata.items():
+                if '_policy' in k: plist.append(k)
+                if '_pool' in k: plist.append(k)
+            for p in plist:
+                if pitems.get(p):
+                    if org != kwargs.org:
+                        if not '/' in pitems[p]: pitems[p] = f'{org}/{pitems[p]}'
+            api_body = {'ObjectType':ezdata.ObjectType}
+            api_body = build_api_body(api_body, kwargs.idata, pitems, self.type, kwargs)
+            if not api_body.get('TargetPlatform'): api_body['TargetPlatform'] = 'FIAttached'
+            if api_body.get('PolicyBucket'): api_body = profile_policy_bucket(api_body, kwargs)
+            if api_body.get('SerialNumber'): api_body = assign_physical_device(api_body, kwargs)
+            if e.attach_template == True and len(e.ucs_server_template) > 0:
+                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].profile.server_template[template],
+                                           'ObjectType':'server.ProfileTemplate'}
+            else: api_body['SrcTemplate'] = None
+            kwargs = profile_api_calls(api_body, kwargs)
         #=====================================================
-        # POST Bulk Request if Post List > 0
+        # POST bulk/Requests if Bulk List > 0
         #=====================================================
-        if len(kwargs.bulk_template) > 0:
-            for e in kwargs.bulk_template.keys():
-                kwargs.api_body= kwargs.bulk_template[e]
-                kwargs.method = 'post'
-                kwargs.qtype  = 'bulk'
-                kwargs.uri    = 'bulk/MoCloners'
-                kwargs = api(kwargs.qtype).calls(kwargs)
         if len(kwargs.bulk_list) > 0:
             kwargs.uri = kwargs.ezdata[self.type].intersight_uri
             kwargs     = bulk_request(kwargs)
+        for e in profiles:
+            if e.attach_template == True and len(e.ucs_server_template) > 0:
+                if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
+                else: org = kwargs.org; template = e.ucs_server_template
+                if not kwargs.bulk_merger_template.get(f'{org}/{template}'):
+                    tmoid = kwargs.isight[org].profile['server_template'][template]
+                    kwargs.bulk_merger_template[f'{org}/{template}'] = {
+                        'MergeAction': 'Merge', 'ObjectType': 'bulk.MoMerger', 'Targets':[],
+                        'Sources':[{'Moid':tmoid, 'ObjectType':'server.ProfileTemplate'}]
+                    }
+                idict = {'Moid': kwargs.isight[kwargs.org].profile.server[e.name], 'ObjectType':'server.Profile'}
+                kwargs.bulk_merger_template[e.ucs_server_template]['Targets'].append(idict)
+
+        #=====================================================
+        # POST bulk/MoMergers if List > 0
+        #=====================================================
+        if len(kwargs.bulk_merger_template) > 0:
+            for e in kwargs.bulk_merger_template.keys():
+                kwargs.api_body= kwargs.bulk_merger_template[e]
+                kwargs.method = 'post'
+                kwargs.qtype  = 'bulk'
+                kwargs.uri    = 'bulk/MoMergers'
+                kwargs = api(kwargs.qtype).calls(kwargs)
         return kwargs
 
     #=====================================================
@@ -1262,7 +1269,7 @@ class imm(object):
             if not api_body.get('TargetPlatform'): api_body['TargetPlatform'] = 'FIAttached'
             api_body = profile_policy_bucket(api_body, kwargs)
             api_body.pop('create_template')
-            if item.create_template == True: kwargs = profile_api_calls(api_body, kwargs)
+            kwargs = profile_api_calls(api_body, kwargs)
         #=====================================================
         # POST Bulk Request if Post List > 0
         #=====================================================
@@ -1280,57 +1287,54 @@ class imm(object):
         #=====================================================
         ptitle= ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
         validating.begin_section(ptitle, 'profiles')
-        names = []; kwargs.bulk_profiles = []; kwargs.cp = DotMap(); kwargs.bulk_list = []
-        kwargs.serials = []; kwargs.templates = []
+        names = []; kwargs.cp = DotMap(); kwargs.bulk_list = []; kwargs.serials = []
         ezdata = kwargs.ezdata[self.type]
         idata = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
         if re.search('chassis|server', self.type):
             targets = DotMap(dict(pair for d in idata.targets['items'].allOf for pair in d.properties.items()))
             idata.pop('targets')
             idata = DotMap(dict(idata.toDict(), **targets.toDict()))
-        if 'template' in self.type:
-            profiles= list({v.name:v for v in kwargs.imm_dict.orgs[kwargs.org]['templates']['server']}.values())
-        else:
-            if self.type == 'domain':
-                profiles = list({v.name:v for v in kwargs.imm_dict.orgs[kwargs.org].profiles[self.type]}.values())
-            else: profiles =list({v.targets[0].name:v for v in kwargs.imm_dict.orgs[kwargs.org].profiles[self.type]}.values())
-        if 'server' == self.type:
-            templates = DotMap()
-            for i in profiles:
-                if i.get('ucs_server_template'):
-                    if '/' in i.ucs_server_template: org, template = i.ucs_server_template.split('/')
-                    else: org = kwargs.org; template = i.ucs_server_template
-                    if not kwargs.isight[org].profile['server_template'].get(template):
-                        if i.create_from_template == True: kwargs.templates.append(i.ucs_server_template)
-                    if not i.create_from_template == True:
-                        if not templates[org].get(template):
-                            template_exist = False
-                            if kwargs.imm_dict.org.get(org):
-                                if kwargs.imm_dict.orgs[org].get('templates'):
-                                    for e in kwargs.imm_dict.orgs[kwargs.org]['templates']['server']: templates[org][e.name] = e
-                                    if templates[org].get(template): template_exist = True
-                            if template_exist == False:
-                                ptype = 'ucs_server_template'; tname = i.ucs_server_template
-                                validating.error_policy_doesnt_exist(ptype, tname, i.name, self.type, 'Profile')
         #=====================================================
         # Compile List of Profile Names
         #=====================================================
-        for item in profiles:
-            if re.search('^(chassis|server)$', self.type):
-                for i in item.targets:
-                    names.append(i.name)
-                    if i.get('serial_number'): kwargs.serials.append(i.serial_number)
-            else:
-                names.append(item.name)
-                if item.get('serial_numbers'): kwargs.serials.extend(item.serial_numbers)
+        profiles = []
+        profile_policy_list = []
+        if 'template' in self.type:
+            for e in kwargs.imm_dict.orgs[kwargs.org]['templates']['server']:
+                if e.create_template == True: profiles.append(e)
+                profile_policy_list.append(e)
+        elif 'domain' in self.type:
+            profiles = kwargs.imm_dict.orgs[kwargs.org].profiles[self.type]
+            profile_policy_list = profiles
+            for e in profiles: kwargs.serials.extend(e.serial_numbers)
+        else:
+            for v in kwargs.imm_dict.orgs[kwargs.org].profiles[self.type]:
+                for e in v.targets:
+                    profiles.append(DotMap(dict(e, **v)))
+                    kwargs.serials.append(e.serial_number)
+            profile_policy_list = profiles
+        if re.search('^chassis|server$', self.type):
+            for e in profiles:
+                e.pop('targets')
+                if 'server' == self.type and e.get('ucs_server_template'):
+                    if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
+                    else: org = kwargs.org; template = e.ucs_server_template
+                    ptype = 'ucs_server_template'; tname = e.ucs_server_template
+                    tdata = kwargs.imm_dict.orgs[org]['templates']['server']
+                    indx = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
+                    if indx == None:
+                        validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
+                    elif tdata[indx].create_template == True and e.attach_template == True:
+                        if len(kwargs.isight[org].profile.server_template[template]) == 0:
+                            validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
+                    kwargs.templates[f'{org}/{template}'] = tdata[indx]
         #==================================
         # Get Moids for Profiles/Templates
         #==================================
-        kwargs = api_get(True, names, self.type, kwargs)
-        kwargs.profile_results = kwargs.results
-        if len(kwargs.templates) > 0:
-            kwargs = api_get(False, list(numpy.unique(numpy.array(kwargs.templates))), 'server_template', kwargs)
-            kwargs.template_results = kwargs.results
+        for e in profiles: names.append(e.name)
+        if len(names) > 0:
+            kwargs = api_get(True, names, self.type, kwargs)
+            kwargs.profile_results = kwargs.results
         #==================================
         # Get Moids for Switch Profiles
         #==================================
@@ -1373,19 +1377,11 @@ class imm(object):
         #========================================
         # Get Policy Moids
         #========================================
-        for item in profiles: kwargs = policy_search(item, kwargs)
+        for e in profile_policy_list: kwargs = policy_search(e, kwargs)
         for e in list(kwargs.cp.keys()):
             if len(kwargs.cp[e].names) > 0:
                 names  = list(numpy.unique(numpy.array(kwargs.cp[e].names)))
                 kwargs = api_get(False, names, e, kwargs)
-        if 'server' == self.type:
-            if len(templates) > 0:
-                original_org = kwargs.org
-                for e in list(templates.keys()):
-                    kwargs.org = e
-                    kwargs.cp = DotMap()
-                    for i in list(templates[e].keys()): kwargs = policy_search(i, kwargs)
-                kwargs.org = original_org
         #========================================
         # Get Serial Moids
         #========================================
@@ -1400,17 +1396,17 @@ class imm(object):
         # Create the Profiles with the Functions
         #=====================================================
         kwargs.idata = idata; kwargs.type = self.type
-        if 'chassis' == self.type:
-            kwargs = imm.profile_chassis(self, profiles, kwargs)
+        if 'server' == self.type:
+            kwargs = imm.profile_server(self, profiles, kwargs)
             kwargs = deploy_chassis_server_profiles(profiles, kwargs)
-        elif 'domain' == self.type:
-            kwargs = imm.profile_domain(self, profiles, kwargs)
-            kwargs = deploy_domain_profiles(profiles, kwargs)
-        elif 'server' == self.type:
-            kwargs = imm.profile_server(self, profiles, templates, kwargs)
+        elif 'chassis' == self.type:
+            kwargs = imm.profile_chassis(self, profiles, kwargs)
             kwargs = deploy_chassis_server_profiles(profiles, kwargs)
         elif 'server_template' == self.type:
             kwargs = imm.profile_template(self, profiles, kwargs)
+        elif 'domain' == self.type:
+            kwargs = imm.profile_domain(self, profiles, kwargs)
+            kwargs = deploy_domain_profiles(profiles, kwargs)
         #========================================================
         # End Function and return kwargs
         #========================================================
@@ -1902,7 +1898,8 @@ def api_get(empty, names, otype, kwargs):
         if empty == False and kwargs.results == []: empty_results(kwargs)
         else:
             if kwargs.ezdata[otype].get('intersight_type'):
-                for k, v in kwargs.pmoids.items(): kwargs.isight[org][kwargs.ezdata[otype].intersight_type][otype][k] = v.moid
+                for k, v in kwargs.pmoids.items():
+                    kwargs.isight[org][kwargs.ezdata[otype].intersight_type][otype][k] = v.moid
             if len(kwargs.results) > 0:
                 results.extend(kwargs.results)
                 pmoids = DotMap(dict(pmoids.toDict(), **kwargs.pmoids.toDict()))
@@ -2146,31 +2143,6 @@ def bulk_request(kwargs):
         kwargs = loop_thru_lists(kwargs)
     return kwargs
 
-#=====================================================
-# Create Bulk Server Template
-#=====================================================
-def bulk_template(i, server_template, kwargs):
-    if not kwargs.isight[kwargs.org].profile['server_template'].get(server_template):
-        validating.error_policy_doesnt_exist('template', server_template, i.name, kwargs.type, 'Profile')
-    tmoid = kwargs.isight[kwargs.org].profile['server_template'][server_template]
-    kwargs.bulk_template[server_template] = {
-        'ObjectType': 'bulk.MoCloner', 'Sources':[{'Moid':tmoid, 'ObjectType':'server.ProfileTemplate'}], 'Targets':[]}
-    return kwargs
-
-#=====================================================
-# Create Bulk Server Template
-#=====================================================
-def bulk_template_append(i, template, kwargs):
-    if kwargs.serial_moids.get(i.serial_number):
-        serial_moid= kwargs.serial_moids[i.serial_number].moid
-        sobject    = kwargs.serial_moids[i.serial_number]['object_type']
-    else: validating.error_serial_number(kwargs.name, serial_moid)
-    idict = {'AssignedServer':{'Moid':serial_moid,'ObjectType':sobject}, 'Description': i.description, 'Name':i.name,
-            'Organization': {}, 'ObjectType':'server.Profile', 'ServerAssignmentMode': 'Static'}
-    idict = org_map(idict, kwargs.org_moids[kwargs.org].moid)
-    kwargs.bulk_template[template]['Targets'].append(idict)
-    return kwargs
-
 #=======================================================
 # Add Organization Key Map to Dictionaries
 #=======================================================
@@ -2192,7 +2164,10 @@ def compare_body_result(api_body, result):
                         else:
                             if len(result[k][a]) - 1 < count: patch_return = True
                             elif not result[k][a][count] == e: patch_return = True
-                elif not result[k][a] == b: patch_return = True
+                else:
+                    if not result.get(k): patch_return = True
+                    elif not result[k].get(a): patch_return = True
+                    elif not result[k][a] == b: patch_return = True
         elif type(v) == list:
             count = 0
             for e in v:
@@ -2392,11 +2367,21 @@ def profile_api_calls(api_body, kwargs):
         indx = next((index for (index, d) in enumerate(kwargs.profile_results) if d['Name'] == api_body['Name']), None)
         patch_port = compare_body_result(api_body, kwargs.profile_results[indx])
         api_body['pmoid'] = kwargs.isight[kwargs.org].profile[kwargs.type][api_body['Name']]
-        if patch_port == True: kwargs.bulk_list.append(deepcopy(api_body))
+        if patch_port == True:
+            if not api_body['SrcTemplate'] == None:
+                if not kwargs.profile_results[indx].SrcTemplate == None:
+                    if api_body['SrcTemplate']['Moid'] != kwargs.profile_results[indx].SrcTemplate.Moid:
+                        kwargs.api_body = {'SrcTemplate':None}
+                        kwargs.method   = 'patch'
+                        kwargs.pmoid    = kwargs.isight[kwargs.org].profile[kwargs.type][api_body['Name']]
+                        kwargs.qtype    = 'server'
+                        kwargs.uri      = 'server/Profiles'
+                        kwargs          = api(kwargs.qtype).calls(kwargs)
+            kwargs.bulk_list.append(deepcopy(api_body))
         else:
             if 'server_template' in kwargs.type: ntitle = 'Server Profile Template'
             else: ntitle = f'{kwargs.type.title()} Profile'
-            pcolor.Cyan(f"      * Skipping {ntitle}: `{api_body['Name']}`.  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
+            pcolor.Cyan(f"      * Skipping Org: {kwargs.org} > {ntitle}: `{api_body['Name']}`.  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
     else: kwargs.bulk_list.append(deepcopy(api_body))
     return kwargs
 
@@ -2421,7 +2406,7 @@ def profile_policy_bucket(api_body, kwargs):
         api_body['PolicyBucket'][x]['Moid'] = kwargs.isight[org].policy[ptype][policy]
     if api_body.get('UuidPool'):
         api_body['UuidAddressType'] = 'POOL'
-        if '/' in api_body.get('UuidPool'): org, pool = api_body['UuidPool']['Moid'].split('/')
+        if '/' in api_body['UuidPool']['Moid']: org, pool = api_body['UuidPool']['Moid'].split('/')
         else: org = kwargs.org; pool = api_body['UuidPool']['Moid']
         if not kwargs.isight[org].pool['uuid'].get(pool):
             validating.error_policy_doesnt_exist('uuid', api_body['UuidPool']['Moid'], kwargs.type, 'profile', api_body['Name'])

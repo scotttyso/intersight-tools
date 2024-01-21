@@ -259,6 +259,17 @@ def main():
     #=================================================================
     # Deploy Chassis/Server Pools/Policies/Profiles
     #=================================================================
+    elif kwargs.args.deployment_step == 'dummy':
+        print(kwargs.args)
+        plist = [
+            'intersight_api_key_id', 'intersight_secret_key', 'local_user_password_1', 'imm_transition_password', 'snmp_auth_password_1',
+            'snmp_privacy_password_1', 'nexus_password', 'proxy_password', 'windows_admin_password', 'windows_domain_password', 'yaml_file'
+        ]
+        idict = vars(kwargs.args)
+        for e in plist:
+            print(e)
+            print(f'  * {idict[e]}')
+        exit()
     elif kwargs.args.deployment_step == 'servers':
         kwargs.deployed = {}
         #==============================================

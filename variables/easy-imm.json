@@ -14258,7 +14258,7 @@
                         "title": "server",
                         "required": [
                             "action",
-                            "create_from_template",
+                            "attach_template",
                             "target_platform",
                             "targets"
                         ],
@@ -14290,7 +14290,7 @@
                                 "default": false,
                                 "description": "Flag to determine if these Server Profiles should be associated to the template after creating the server profile.  This is most helpful when creating server profiles with identity reservations to create them in this manner.",
                                 "intersightApi": "not_applicable",
-                                "title": "create_from_template"
+                                "title": "attach_template"
                             },
                             "bios_policy": {
                                 "type": "string",
@@ -14321,13 +14321,6 @@
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "certificate_management_policy"
-                            },
-                            "create_from_template": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Flag to determine if these Server Profiles should be created from the UCS Server Profile Template Reference or just used as a policy source.",
-                                "intersight_api": "not_applicable",
-                                "title": "create_from_template"
                             },
                             "device_connector_policy": {
                                 "type": "string",
@@ -14374,13 +14367,13 @@
                                 "default": false,
                                 "description": "Flag to determine if the script should ignore the reservations defined under each target.  The records for identity reservations are deleted from the API as soon as the identities are consumed by the Server Profile with UUID assignment and LAN/SAN Policy attachements.  After reservations have been consumed the reservations block sould be removed from each target.",
                                 "intersightApi": "not_applicable",
-                                "title": "create_from_template"
+                                "title": "ignore_reservations"
                             },
                             "imc_access_policy": {
                                 "type": "string",
                                 "default": "default",
                                 "description": "The Name of the IMC Access Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
-                                "intersight_api": "$pbucket:server.Profile:Moid",
+                                "intersight_api": "$pbucket:access.Policy:Moid",
                                 "minLength": 1,
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
@@ -14400,7 +14393,7 @@
                                 "type": "string",
                                 "default": "default",
                                 "description": "The Name of the LAN Connectivity Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:vnic.EthNetworkPolicy:Moid",
+                                "intersight_api": "$pbucket:vnic.LanConnectivityPolicy:Moid",
                                 "minLength": 1,
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
@@ -14536,7 +14529,7 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "ssh_policy"
                             },
-                            "storage": {
+                            "storage_policy": {
                                 "type": "string",
                                 "default": "default",
                                 "description": "The Name of the Storage Policy to Assign to the Profile(s).",
@@ -14544,7 +14537,7 @@
                                 "minLength": 1,
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "storage"
+                                "title": "storage_policy"
                             },
                             "syslog_policy": {
                                 "type": "string",
@@ -14781,6 +14774,328 @@
                         "title": "slot_id"
                     }
                 }
+            },
+            "server_template": {
+                "description": "A profile template specifying configuration settings for a physical server.",
+                "intersight_type": "profile",
+                "intersight_uri": "server/ProfileTemplates",
+                "ObjectType": "server.ProfileTemplate",
+                "title": "server - Templates > Server - Intersight Uri: server/ProfileTemplates",
+                "x-allOf-name": "server.ProfileTemplate",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_profile"
+                    },
+                    {
+                        "type": "object",
+                        "description": "Definition of the list of properties defined in 'server.ProfileTemplate', excluding properties defined in parent classes.",
+                        "required": [
+                            "create_template",
+                            "target_platform"
+                        ],
+                        "title": "server",
+                        "properties": {
+                            "adapter_configuration_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Adapter Configuration Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:adapter.ConfigPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "adapter_configuration_policy"
+                            },
+                            "bios_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the BIOS Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:bios.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "bios_policy"
+                            },
+                            "boot_order_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Boot Order Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:boot.PrecisionPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "boot_order_policy"
+                            },
+                            "certificate_management_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Certificate Management Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
+                                "intersight_api": "$pbucket:certificatemanagement.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "certificate_management_policy"
+                            },
+                            "create_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if these Template Should be created or just used as a Policy Reference.",
+                                "intersight_api": "create_template",
+                                "title": "create_template"
+                            },
+                            "device_connector_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Device Connector Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:deviceconnector.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "device_connector_policy"
+                            },
+                            "drive_security_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Drive Security Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:storage.DriveSecurityPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "drive_security_policy"
+                            },
+                            "firmware_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Firmware Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:firmware.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "firmware_policy"
+                            },
+                            "imc_access_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the IMC Access Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
+                                "intersight_api": "$pbucket:access.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "imc_access_policy"
+                            },
+                            "ipmi_over_lan_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the IPMI over LAN Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:ipmioverlan.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ipmi_over_lan_policy"
+                            },
+                            "lan_connectivity_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the LAN Connectivity Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:vnic.LanConnectivityPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "lan_connectivity_policy"
+                            },
+                            "ldap_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the LDAP Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:iam.LdapPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ldap_policy"
+                            },
+                            "local_user_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Local User Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:iam.EndPointUserPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "local_user_policy"
+                            },
+                            "network_connectivity_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Network Connectivity Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:networkconfig.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "network_connectivity_policy"
+                            },
+                            "ntp_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the NTP Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:ntp.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ntp_policy"
+                            },
+                            "persistent_memory_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Persistent Memory Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:memory.PersistentMemoryPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "persistent_memory_policy"
+                            },
+                            "power_policy": {
+                                "type": "string",
+                                "default": "",
+                                "description": "The Name of the Power Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
+                                "intersight_api": "$pbucket:power.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "power_policy"
+                            },
+                            "san_connectivity_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SAN Connectivity Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:vnic.SanConnectivityPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "san_connectivity_policy"
+                            },
+                            "serial_over_lan_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Serial over LAN Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:sol.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "serial_over_lan_policy"
+                            },
+                            "sd_card_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SD Card Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:sdcard.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "sd_card_policy"
+                            },
+                            "smtp_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SMTP Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:smtp.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "smtp_policy"
+                            },
+                            "snmp_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SNMP Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:snmp.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "snmp_policy"
+                            },
+                            "ssh_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SSH Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
+                                "intersight_api": "$pbucket:ssh.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ssh_policy"
+                            },
+                            "storage_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Storage Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:storage.StoragePolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "storage_policy"
+                            },
+                            "syslog_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Syslog Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:syslog.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "syslog_policy"
+                            },
+                            "target_platform": {
+                                "type": "string",
+                                "default": "FIAttached",
+                                "description": "Default is `FIAttached`.  The platform for which the server profile is applicable. It can either be a server that is operating in standalone mode or which is attached to a Fabric Interconnect managed by Intersight.\n  * `Standalone` - Servers which are operating in standalone mode i.e. not connected to a Fabric Interconnected.\n  * `FIAttached` - Servers which are connected to a Fabric Interconnect that is managed by Intersight.",
+                                "intersight_api": "TargetPlatform",
+                                "enum": [
+                                    "FIAttached",
+                                    "Standalone"
+                                ],
+                                "title": "target_platform"
+                            },
+                            "thermal_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Thermal Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:thermal.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "thermal_policy"
+                            },
+                            "uuid_pool": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the UUID Pool to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
+                                "intersight_api": "$ref:UuidPool:uuidpool.Pool:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "uuid_pool"
+                            },
+                            "virtual_kvm_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the KVM Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:kvm.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "virtual_kvm_policy"
+                            },
+                            "virtual_media_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Virtual Media Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:vmedia.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "virtual_media_policy"
+                            }
+                        }
+                    }
+                ]
             },
             "smtp": {
                 "description": "Name that identifies the SMTP Policy.",
@@ -16176,328 +16491,6 @@
                     "$ref": "#/components/schemas/mo_tag"
                 },
                 "title": "tags - Tags"
-            },
-            "server_template": {
-                "description": "A profile template specifying configuration settings for a physical server.",
-                "intersight_type": "profile",
-                "intersight_uri": "server/ProfileTemplates",
-                "ObjectType": "server.ProfileTemplate",
-                "title": "server - Templates > Server - Intersight Uri: server/ProfileTemplates",
-                "x-allOf-name": "server.ProfileTemplate",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/abstract_profile"
-                    },
-                    {
-                        "type": "object",
-                        "description": "Definition of the list of properties defined in 'server.ProfileTemplate', excluding properties defined in parent classes.",
-                        "required": [
-                            "create_template",
-                            "target_platform"
-                        ],
-                        "title": "server",
-                        "properties": {
-                            "adapter_configuration_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Adapter Configuration Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:adapter.ConfigPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "adapter_configuration_policy"
-                            },
-                            "bios_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the BIOS Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:bios.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "bios_policy"
-                            },
-                            "boot_order_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Boot Order Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:boot.PrecisionPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "boot_order_policy"
-                            },
-                            "certificate_management_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Certificate Management Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
-                                "intersight_api": "$pbucket:certificatemanagement.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "certificate_management_policy"
-                            },
-                            "create_template": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Flag to determine if these Template Should be created or just used as a Policy Reference.",
-                                "intersight_api": "create_template",
-                                "title": "create_template"
-                            },
-                            "device_connector_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Device Connector Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:deviceconnector.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "device_connector_policy"
-                            },
-                            "drive_security_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Drive Security Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:storage.DriveSecurityPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "drive_security_policy"
-                            },
-                            "firmware_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Firmware Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:firmware.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "firmware_policy"
-                            },
-                            "imc_access_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the IMC Access Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
-                                "intersight_api": "$pbucket:access.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "imc_access_policy"
-                            },
-                            "ipmi_over_lan_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the IPMI over LAN Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:ipmioverlan.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "ipmi_over_lan_policy"
-                            },
-                            "lan_connectivity_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the LAN Connectivity Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:vnic.LanConnectivityPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "lan_connectivity_policy"
-                            },
-                            "ldap_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the LDAP Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:iam.LdapPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "ldap_policy"
-                            },
-                            "local_user_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Local User Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:iam.EndPointUserPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "local_user_policy"
-                            },
-                            "network_connectivity_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Network Connectivity Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:networkconfig.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "network_connectivity_policy"
-                            },
-                            "ntp_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the NTP Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:ntp.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "ntp_policy"
-                            },
-                            "persistent_memory_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Persistent Memory Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:memory.PersistentMemoryPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "persistent_memory_policy"
-                            },
-                            "power_policy": {
-                                "type": "string",
-                                "default": "",
-                                "description": "The Name of the Power Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
-                                "intersight_api": "$pbucket:power.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "power_policy"
-                            },
-                            "san_connectivity_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the SAN Connectivity Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:vnic.SanConnectivityPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "san_connectivity_policy"
-                            },
-                            "serial_over_lan_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Serial over LAN Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:sol.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "serial_over_lan_policy"
-                            },
-                            "sd_card_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the SD Card Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:sdcard.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "sd_card_policy"
-                            },
-                            "smtp_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the SMTP Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:smtp.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "smtp_policy"
-                            },
-                            "snmp_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the SNMP Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:snmp.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "snmp_policy"
-                            },
-                            "ssh_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the SSH Policy to Assign to the Profile(s).  This is only Applicable to Standalone Servers.",
-                                "intersight_api": "$pbucket:ssh.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "ssh_policy"
-                            },
-                            "storage_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Storage Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:storage.StoragePolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "storage_policy"
-                            },
-                            "syslog_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Syslog Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:syslog.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "syslog_policy"
-                            },
-                            "target_platform": {
-                                "type": "string",
-                                "default": "FIAttached",
-                                "description": "Default is `FIAttached`.  The platform for which the server profile is applicable. It can either be a server that is operating in standalone mode or which is attached to a Fabric Interconnect managed by Intersight.\n  * `Standalone` - Servers which are operating in standalone mode i.e. not connected to a Fabric Interconnected.\n  * `FIAttached` - Servers which are connected to a Fabric Interconnect that is managed by Intersight.",
-                                "intersight_api": "TargetPlatform",
-                                "enum": [
-                                    "FIAttached",
-                                    "Standalone"
-                                ],
-                                "title": "target_platform"
-                            },
-                            "thermal_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Thermal Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:thermal.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "thermal_policy"
-                            },
-                            "uuid_pool": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the UUID Pool to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
-                                "intersight_api": "$ref:UuidPool:uuidpool.Pool:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "uuid_pool"
-                            },
-                            "virtual_kvm_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the KVM Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:kvm.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "virtual_kvm_policy"
-                            },
-                            "virtual_media_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Virtual Media Policy to Assign to the Profile(s).",
-                                "intersight_api": "$pbucket:vmedia.Policy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "virtual_media_policy"
-                            }
-                        }
-                    }
-                ]
             },
             "thermal": {
                 "description": "Thermal Management policy models a configuration that can be applied to Chassis or Server to manage Thermal Features.",

@@ -535,10 +535,10 @@ def main():
             pool_list = []
             for k, v in kwargs.ezdata.items():
                 if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
-            for org in orgs:
-                kwargs.org = org
-                if kwargs.imm_dict.orgs[org].get('pools'):
-                    for ptype in pool_list:
+            for ptype in pool_list:
+                for org in orgs:
+                    kwargs.org = org
+                    if kwargs.imm_dict.orgs[org].get('pools'):
                         if ptype in kwargs.imm_dict.orgs[org]['pools']:  kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
             #==============================================
             # Policies
@@ -546,10 +546,10 @@ def main():
             policy_list = []
             for k, v in kwargs.ezdata.items():
                 if v.intersight_type == 'policy' and not '.' in k: policy_list.append(k)
-            for org in orgs:
-                kwargs.org = org
-                if kwargs.imm_dict.orgs[org].get('policies'):
-                    for ptype in policy_list:
+            for ptype in policy_list:
+                for org in orgs:
+                    kwargs.org = org
+                    if kwargs.imm_dict.orgs[org].get('policies'):
                         if ptype in kwargs.imm_dict.orgs[org]['policies']:  kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
             #==============================================
             # Profiles
@@ -558,6 +558,8 @@ def main():
                 kwargs.org = org
                 if kwargs.imm_dict.orgs[org].get('templates'):
                     if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"isight.imm('server_template').profiles(kwargs)")
+            for org in orgs:
+                kwargs.org = org
                 if kwargs.imm_dict.orgs[org].get('profiles'):
                     profile_list = ['domain', 'chassis', 'server']
                     for i in profile_list:

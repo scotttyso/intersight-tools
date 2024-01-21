@@ -53,18 +53,18 @@ def completed_item(ptype, kwargs):
     if re.search(oregex, iresults.get('ObjectType')):
         parent_type = iresults['ObjectType'].split('.')[1]
         if method == 'post':
-            pcolor.Green(f'      * Completed {method} for {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'      * Completed {method} for {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.Green(f'      * Completed {method.upper()} for {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'      * Completed {method.upper()} for {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', kwargs.qtype) and kwargs.qtype == 'firmware':
-        if method == 'post': pcolor.Green(f'      * Completed {method} for {kwargs.qtype} {name}.')
-        else: pcolor.LightPurple(f'      * Completed {method} for {kwargs.qtype} {name}.')
+        if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
+        else: pcolor.LightPurple(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
     elif iresults.get('Targets'):
-        if method == 'post': pcolor.Green(f'    - Completed Bulk Clone {method} for name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed Bulk Clone {method} for name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
     else:
-        if method == 'post': pcolor.Green(f'    - Completed {method} for name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed {method} for name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'    - Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
 
 def deploy_notification(profile, profile_type):
     print(f'\n-------------------------------------------------------------------------------------------\n')
@@ -84,11 +84,13 @@ def end_section(ptype1, ptype2):
     pcolor.LightPurple(f"\n   Completed {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.")
 
 def error_policy_doesnt_exist(policy_type, policy_name, profile, profile_type, ptype):
+    if 'uuid' in policy_type: dtype = 'Pool'
+    else: dtype = 'Policy'
     print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'   !!! ERROR !!! The Following policy was attached to {profile_type} {ptype} {profile}')
+    print(f'   !!! ERROR !!! The Following {dtype} was attached to {profile_type.capitalize()} {ptype} {profile.capitalize()}')
     print(f'   But it has not been created.')
-    print(f'   Policy Type: {policy_type}')
-    print(f'   Policy Name: {policy_name}')
+    print(f'   {dtype} Type: {policy_type}')
+    print(f'   {dtype} Name: {policy_name}')
     print(f'\n-------------------------------------------------------------------------------------------\n')
     sys.exit(1)
 
