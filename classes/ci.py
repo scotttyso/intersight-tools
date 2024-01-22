@@ -770,6 +770,10 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(polVars, kwargs)
+        polVars = dict(cco_password = 1, cco_user = 1)
+        # Add Policy for Firmware Authentication
+        kwargs.class_path = f'policies,firmware_authenticate'
+        kwargs = ezfunctions.ez_append(polVars, kwargs)
 
         #=====================================================
         # Return kwargs and kwargs

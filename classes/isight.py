@@ -740,6 +740,10 @@ class imm(object):
         idata = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
         pdict = deepcopy(kwargs.imm_dict.orgs[kwargs.org].policies[self.type])
         if self.type == 'port': policies = list({v.names[0]:v for v in pdict}.values())
+        elif self.type == 'firmware_authenticate':
+            kwargs = firmware_authenticate(kwargs)
+            validating.end_section(ptitle, 'policies')
+            return kwargs
         else: policies = list({v.name:v for v in pdict}.values())
         #=====================================================
         # Get Existing Policies
@@ -2351,6 +2355,23 @@ def deploy_chassis_server_profiles(profiles, kwargs):
 #======================================================
 def empty_results(kwargs):
         prRed(f"The API Query Results were empty for {kwargs.uri}.  Exiting..."); sys.exit(1)
+
+#======================================================
+# Function - Validate CCO Authorization
+#======================================================
+def firmware_authenticate(kwargs):
+    for e in ['cco_password', 'cco_user']:
+        if os.environ.get(e) == None:
+            kwargs.sensitive_var = e
+            kwargs = ezfunctions.sensitive_var_value(kwargs)
+            os.environ[e] = kwargs.value
+    kwargs.api_body = {
+        'ObjectType':'softwarerepository.Authorization','Password':os.environ['cco_password'],'RepositoryType':'Cisco','UserId':os.environ['cco_user']}
+    kwargs.method   = 'post'
+    kwargs.qtype    = 'firmware_authorization'
+    kwargs.uri      = 'softwarerepository/Authorizations'
+    kwargs          = api(kwargs.type).calls(kwargs)
+    return kwargs
 
 #=======================================================
 # Add Organization Key Map to Dictionaries

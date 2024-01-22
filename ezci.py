@@ -50,6 +50,8 @@ def cli_arguments():
     Parser.add_argument(
         '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
         help='The Intersight API key id for HTTP signature scheme.')
+    Parser.add_argument( '-ccp', '--cco-password',   help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
+    Parser.add_argument( '-cco', '--cco-user',   help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
     Parser.add_argument(
         '-d', '--dir', default = 'Intersight',
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')
@@ -163,7 +165,7 @@ def main():
     #==============================================
     arg_dict = vars(kwargs.args)[e]
     for e in list(arg_dict.keys()):
-        if re.search('password|intersight', e): os.environ[e] = arg_dict[e]
+        if re.search('cco|password|intersight', e): os.environ[e] = arg_dict[e]
     #==============================================
     # Get Intersight Configuration
     # - intersight_api_key_id
@@ -254,7 +256,7 @@ def main():
                 kwargs.org = org
                 kwargs = eval(f"isight.imm('domain').profiles(kwargs)")
     #=================================================================
-    # Deploy Chassis/Server Pools/Policies/Profiles
+    # Dummy Step to Test Script
     #=================================================================
     elif kwargs.args.deployment_step == 'dummy':
         idict = vars(kwargs.args)
@@ -264,6 +266,9 @@ def main():
                 if idict[e] != None: print(f'  * Sensitive Data Value Set.')
                 else: print(f'  * {idict[e]}')
             else: print(f'  * {idict[e]}')
+    #=================================================================
+    # Deploy Chassis/Server Pools/Policies/Profiles
+    #=================================================================
     elif kwargs.args.deployment_step == 'servers':
         kwargs.deployed = {}
         #==============================================
