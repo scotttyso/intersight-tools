@@ -79,6 +79,7 @@ intersight:\n
     policies:\n
       local_user: {{ if index $intersight.policies "local_user" }}{{ $intersight.policies.local_user }}{{ end }}\n
       prefix: {{ if index $intersight.policies "prefix" }}{{ $intersight.policies.prefix }}{{ end }}\n
+{{ if eq .global.workflow.input.intersight.policies.config_snmp true}}
       snmp:\n
         contact: {{ if index $intersight.policies.snmp "contact" }}{{ $intersight.policies.snmp.contact }}{{ else }}admin@example.com{{ end }}\n
         location: {{ if index $intersight.policies.snmp "location" }}{{ $intersight.policies.snmp.location }}{{ else }}Example Company{{ end }}\n
@@ -91,6 +92,8 @@ intersight:\n
 {{ else }}
         servers: []\n
 {{ end }}
+{{ end }}
+{{ if eq $intersight.policies.config_syslog true}}
       syslog:\n
 {{ if index $intersight.policies "syslog_servers" }}
         servers:\n
@@ -99,6 +102,7 @@ intersight:\n
 {{ end }}
 {{ else }}
         servers: []\n
+{{ end }}
 {{ end }}
 nxos_configure: {{ if index .global.workflow.input "config_nxos" }}{{ .global.workflow.input.config_nxos }}{{ else }}false{{ end }}\n
 {{ if eq .global.workflow.input.config_nxos true}}

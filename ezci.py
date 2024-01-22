@@ -126,7 +126,9 @@ def main():
     logging.basicConfig( filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
     logger = logging.getLogger('openapi')
     kwargs = cli_arguments()
-    if os.getenv('intersight_fqdn'): kwargs.args.intersight_fqdn = os.getenv('intersight_fqdn')
+    if 'api/v1/iam/Users' in kwargs.args.intersight_fqdn:
+        kwargs.args.intersight_fqdn = ((kwargs.args.intersight_fqdn).replace('https://', '')).split('/')[0]
+    elif os.getenv('intersight_fqdn'): kwargs.args.intersight_fqdn = os.getenv('intersight_fqdn')
     #==============================================
     # Determine the Script Path
     #==============================================
@@ -159,20 +161,15 @@ def main():
     #==============================================
     # Add Sensitive Variables to Environment
     #==============================================
-    sensitive_list = [
-        'local_user_password_1', 'local_user_password_2', 'snmp_auth_password_1', 'snmp_privacy_password_1',
-        'netapp_password', 'nexus_password', 'pure_storage_password', 'vmware_esxi_password', 'vmware_vcenter_password',
-        'windows_admin_password', 'windows_domain_password']
-    for e in sensitive_list:
-        if vars(kwargs.args)[e]: os.environ[e] = vars(kwargs.args)[e]
+    arg_dict = vars(kwargs.args)[e]
+    for e in list(arg_dict.keys()):
+        if re.search('password|intersight', e): os.environ[e] = arg_dict[e]
     #==============================================
     # Get Intersight Configuration
     # - intersight_api_key_id
     # - intersight_fqdn
     # - intersight_secret_key
     #==============================================
-    if re.search('azurestack|flashstack|flexpod', kwargs.args.deployment_type):
-        kwargs.args.intersight_secret_key = f"{kwargs.args.dir}{os.sep}intersight_api_key.key"
     kwargs         = ezfunctions.intersight_config(kwargs)
     kwargs.args.url= 'https://%s' % (kwargs.args.intersight_fqdn)
     #==============================================
@@ -260,16 +257,13 @@ def main():
     # Deploy Chassis/Server Pools/Policies/Profiles
     #=================================================================
     elif kwargs.args.deployment_step == 'dummy':
-        print(kwargs.args)
-        plist = [
-            'intersight_api_key_id', 'intersight_secret_key', 'local_user_password_1', 'imm_transition_password', 'snmp_auth_password_1',
-            'snmp_privacy_password_1', 'nexus_password', 'proxy_password', 'windows_admin_password', 'windows_domain_password', 'yaml_file'
-        ]
         idict = vars(kwargs.args)
-        for e in plist:
-            print(e)
-            print(f'  * {idict[e]}')
-        exit()
+        for e in list(idict.keys()):
+            print(f'{e} {"="*10}')
+            if re.search('intersight|password', e):
+                if idict[e] != None: print(f'  * Sensitive Data Value Set.')
+                else: print(f'  * {idict[e]}')
+            else: print(f'  * {idict[e]}')
     elif kwargs.args.deployment_step == 'servers':
         kwargs.deployed = {}
         #==============================================

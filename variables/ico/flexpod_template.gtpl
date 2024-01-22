@@ -1,7 +1,7 @@
 ---\n
 {{$protocols := .global.workflow.input.protocols}}
 {{$netapp := .global.workflow.input.netapp}}
-{{$imm := .global.workflow.input.imm}}
+{{$imm := .global.workflow.input.intersight}}
 protocols:\n
 {{if index $protocols "dhcp_servers"}}
   dhcp_servers:\n
