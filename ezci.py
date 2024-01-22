@@ -163,7 +163,7 @@ def main():
     #==============================================
     # Add Sensitive Variables to Environment
     #==============================================
-    arg_dict = vars(kwargs.args)[e]
+    arg_dict = vars(kwargs.args)
     for e in list(arg_dict.keys()):
         if re.search('cco|password|intersight', e): os.environ[e] = arg_dict[e]
     #==============================================
@@ -259,13 +259,13 @@ def main():
     # Dummy Step to Test Script
     #=================================================================
     elif kwargs.args.deployment_step == 'dummy':
-        idict = vars(kwargs.args)
-        for e in list(idict.keys()):
+        arg_dict = vars(kwargs.args)
+        for e in list(arg_dict.keys()):
             print(f'{e} {"="*10}')
             if re.search('intersight|password', e):
-                if idict[e] != None: print(f'  * Sensitive Data Value Set.')
-                else: print(f'  * {idict[e]}')
-            else: print(f'  * {idict[e]}')
+                if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
+                else: print(f'  * {arg_dict[e]}')
+            else: print(f'  * {arg_dict[e]}')
     #=================================================================
     # Deploy Chassis/Server Pools/Policies/Profiles
     #=================================================================
