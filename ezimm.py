@@ -42,6 +42,8 @@ def cli_arguments():
     Parser.add_argument(
         '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
         help='The Intersight API key id for HTTP signature scheme.')
+    Parser.add_argument( '-ccp', '--cco-password',   help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
+    Parser.add_argument( '-ccu', '--cco-user',   help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
     Parser.add_argument(
         '-d', '--dir', default = 'Intersight',
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')

@@ -2369,7 +2369,7 @@ class wizard(object):
                         kwargs.imm.domain[i.name].vsans           = i.vsans
                     kwargs.imm.domain[i.name].virtualization = item.virtualization
                 if len(kwargs.imm.domains) == 0: kwargs.imm.profiles = item.profiles
-            if len(kwargs.imm.policies.prefix) > 0:
+            if not kwargs.imm.policies.prefix == None and len(str(kwargs.imm.policies.prefix)) > 0:
                 kwargs.imm_dict.orgs[kwargs.org].policies.name_prefix = DotMap(default = kwargs.imm.policies.prefix)
             else: kwargs.imm.policies.prefix = ''
         #=====================================================
