@@ -65,7 +65,9 @@ file_share_witness:\n
 {{ end }}
 install_server:\n
   drivers_cd_mount: {{ if index $azurestack.install_server "drivers_cd_mount" }}'{{ $azurestack.install_server.drivers_cd_mount}}'{{ else }}'F:'{{ end }}\n
-  reminst_share_path: {{ if index $azurestack.install_server "reminst_share_path" }}'{{ $azurestack.install_server.reminst_share_path}}'{{ else }}'E:'{{ end }}\n
+  hostname: {{ if index $azurestack.install_server "hostname" }}'{{ $azurestack.install_server.hostname}}'{{ else }}reminstall.example.com{{ end }}\n
+  reminst_drive: {{ if index $azurestack.install_server "reminst_drive" }}'{{ $azurestack.install_server.reminst_drive}}'{{ else }}'F:'{{ end }}\n
+  reminst_share: {{ if index $azurestack.install_server "reminst_share" }}'{{ $azurestack.install_server.reminst_share}}'{{ else }}reminst{{ end }}\n
 windows_install:\n
   language_pack: {{ if index $windows_install "language_pack" }}'{{ $windows_install.language_pack}}'{{ else }}'English - United States'{{ end }}\n
   layered_driver: {{ if index $windows_install "layered_driver" }}'{{ $windows_install.layered_driver}}'{{ else }}'0'{{ end }}\n

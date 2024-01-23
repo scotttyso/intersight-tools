@@ -53,15 +53,15 @@ foreach ($rm in $required_modules) {
 #=========================================================================
 $ydata        = Get-Content -Path $y -Raw | ConvertFrom-Yaml
 $driver_mount = $ydata.install_server.drivers_cd_mount
-$driver_path  = "$($ydata.install_server.reminst_share_path)\drivers"
-$fpath        = $ydata.install_server.reminst_share_path
-$image_path   = "$($ydata.install_server.reminst_share_path)\images"
+$driver_path  = "$($ydata.install_server.reminst_drive)\drivers"
+$fpath        = $ydata.install_server.reminst_drive
+$image_path   = "$($ydata.install_server.reminst_drive)\images"
 $model        = $ydata.server_model
 $models       = @("BxxxM5", "BxxxM6", "CxxxM5", "CxxxM6", "CxxxM7", "CxxxM8", "X210M6", "X210M7", "X410M7")
 $os_versions  = @("W2K16", "W2K19", "W2K22")
 $os_version   = $ydata.operating_system
-New-Item -Path $ydata.install_server.reminst_share_path -Name "drivers" -ItemType Directory -Force | Out-Null
-New-Item -Path $ydata.install_server.reminst_share_path -Name "images" -ItemType Directory -Force | Out-Null
+New-Item -Path $fpath -Name "drivers" -ItemType Directory -Force | Out-Null
+New-Item -Path $fpath -Name "images" -ItemType Directory -Force | Out-Null
 #=========================================================================
 # Test Variables
 #=========================================================================
