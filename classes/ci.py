@@ -9,7 +9,7 @@ try:
     from copy import deepcopy
     from dotmap import DotMap
     from operator import itemgetter
-    import ipaddress, jinja2, json, numpy, os, re, requests, time, urllib3, uuid
+    import ipaddress, jinja2, json, numpy, os, re, requests, shutil, time, urllib3, uuid
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -2997,7 +2997,12 @@ class wizard(object):
         for x in ['LayeredDriver', 'UILanguageFallback']:
             if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
             if f'            <{x}>None</{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}>None</{x}>\n', '')
-        file  = open('AzureStackHCI.xml', 'w')
+        cwd = os.getcwd()
+        new_dir = 'AzureStack'
+        if not os.path.exists(f'{cwd}{os.sep}{new_dir}'):
+            os.makedirs(f'{cwd}{os.sep}{new_dir}')
+        
+        file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}AzureStackHCI.xml', 'w')
         file.write(jtemplate)
         file.close()
         models = []
@@ -3029,15 +3034,22 @@ class wizard(object):
             jargs['file_share_witness'] = kwargs.imm_dict.wizard.file_share_witness
         else: jargs.pop('file_share_witness')
         jtemplate = template.render(jargs)
-        file  = open('azs-answers.yaml', 'w')
+        file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}azs-answers.yaml', 'w')
         file.write(jtemplate)
         file.close()
         hostnames = {}
         for k, v in kwargs.server_profiles.items():
             hostnames.update({v.serial:k})
-        file  = open('hostnames.json', 'w')
+        file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}hostnames.json', 'w')
         file.write(json.dumps(hostnames, indent=4))
         file.close()
+        fpath = f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}'
+        win_files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
+        for file in win_files:
+            shutil.copyfile(f'{fpath}{file}', f'{cwd}{os.sep}{new_dir}{os.sep}{file}')
+        azs_file_name = 'azure_stack_hci_files.zip'
+        shutil.make_archive(f'{cwd}{os.sep}{azs_file_name}', 'zip', f'{cwd}{os.sep}{new_dir}')
+        # LOGIN TO IMM TRANSITION API
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
@@ -3046,52 +3058,39 @@ class wizard(object):
         if not r.status_code == 200: prRed(r.text); sys.exit(1)
         jdata = json.loads(r.text)
         token = jdata['token']
+        # GET EXISTING FILES FROM THE SOFTWARE REPOSITORY
         try: r = s.get(url = f'{url}/api/v1/repo/files', headers={'x-access-token': token}, verify=False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if not r.ok: prRed(r.text); sys.exit(1)
         repository_files = (r.json())['repofiles']
-        def check_existing_files(files_to_check, repository_files, s, url):
-            for file in files_to_check:
-                indx = next((index for (index, d) in enumerate(repository_files) if d['name'] == file), None)
-                if not indx == None:
-                    pcolor.Cyan(f'  * Deleting Existing Copy of `{file}` on `{url}/api/v1/repo/files`')
-                    try: r = s.delete(url = f'{url}/api/v1/repo/files/{file}', headers={'x-access-token': token}, verify=False)
-                    except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-                    if not r.ok: prRed(r.text); sys.exit(1)
-        win_files = ['azs-answers.yaml', 'AzureStackHCI.xml', 'hostnames.json']
-        check_existing_files(win_files, repository_files, s, url)
-        fpath = os.getcwd()
-        for adfile in win_files:
-            file = open(f'{fpath}{os.sep}{adfile}', 'rb')
-            files = {'file': file}
-            values = {'uuid':str(uuid.uuid4())}
-            pcolor.Green(f'  * Uploading `{adfile}` to `{url}/api/v1/repo/files`')
-            try: r = s.post(
-                url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
-            except requests.exceptions.ConnectionError as e:
-                pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+        indx = next((index for (index, d) in enumerate(repository_files) if d['name'] == azs_file_name), None)
+        if not indx == None:
+            pcolor.Cyan(f'  * Deleting Existing Copy of `{azs_file_name}` on `{url}/api/v1/repo/files`')
+            try: r = s.delete(url = f'{url}/api/v1/repo/files/{azs_file_name}', headers={'x-access-token': token}, verify=False)
+            except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if not r.ok: prRed(r.text); sys.exit(1)
-            file.close()
-        #for e in win_files: os.remove(f'{fpath}{os.sep}{e}')
-        fpath = f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci'
-        win_files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
-        check_existing_files(win_files, repository_files, s, url)
-        for adfile in win_files:
-            file = open(f'{fpath}{os.sep}{adfile}', 'rb')
-            files = {'file': file}
-            values = {'uuid':str(uuid.uuid4())}
-            pcolor.Green(f'  * Uploading `{adfile}` to `{url}/api/v1/repo/files`')
-            try: r = s.post(
-                url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
-            except requests.exceptions.ConnectionError as e:
-                pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-            if not r.ok: prRed(r.text); sys.exit(1)
-            file.close()
+        # CREATE ZIP FILE IN THE SOFTWARE REPOSITORY
+        file = open(f'{cwd}{os.sep}{azs_file_name}', 'rb')
+        files = {'file': file}
+        values = {'uuid':str(uuid.uuid4())}
+        pcolor.Green(f'  * Uploading `{azs_file_name}` to `{url}/api/v1/repo/files`')
+        try: r = s.post(
+            url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
+        except requests.exceptions.ConnectionError as e:
+            pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+        if not r.ok: prRed(r.text); sys.exit(1)
+        file.close()
+        # LOGOUT OF THE API
         for uri in ['logout']:
             try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if 'repo' in uri: jdata = json.loads(r.text)
             if not r.status_code == 200: prRed(r.text); sys.exit(1)
+        # REMOVE FOLDER and ZIP FILE
+        try: shutil.rmtree(new_dir)
+        except OSError as e: print("Error: %s - %s." % (e.filename, e.strerror))
+        os.remove(f'{cwd}{os.sep}{azs_file_name}')
+        # END SECTION
         validating.end_section(self.type, 'preparation')
         return kwargs
 
