@@ -2976,7 +2976,7 @@ class wizard(object):
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
         template = tenviro.get_template('AzureStackHCI.xml')
         ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
-        org_unit = f'OU=Computers,OU={ou}' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
+        org_unit = f'OU=Computers,OU={ou},OU=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
         install_server = kwargs.imm_dict.wizard.install_server.hostname
         share_path     = kwargs.imm_dict.wizard.install_server.reminst_share
         jargs = dict(
@@ -2996,20 +2996,20 @@ class wizard(object):
         jtemplate = template.render(jargs)
         for x in ['LayeredDriver', 'UILanguageFallback']:
             if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
+            if f'            <{x}>None</{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}>None</{x}>\n', '')
         file  = open('AzureStackHCI.xml', 'w')
         file.write(jtemplate)
         file.close()
-        template = tenviro.get_template('azs-template.jinja2')
-        print(json.dumps(kwargs.imm_dict.orgs, indent=4))
         models = []
-        for e in kwargs.imm_dict.orgs[kwargs.org]:
-            if e.get('model'): models.append('model')
+        for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
+            if e.get('model'): models.append(e.model)
         models = list(numpy.unique(numpy.array(models)))
         for e in models:
             if re.search('UCSC.*M7', e): server_model = 'CxxxM7'; break
             elif re.search('UCSC.*M6', e): server_model = 'CxxxM6'; break
             elif re.search('UCSC.*M7', e): server_model = 'CxxxM7'; break
             elif re.search('UCSC.*M7', e): server_model = 'CxxxM7'; break
+        template = tenviro.get_template('azs-template.jinja2')
         jargs = dict(
             administrator       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_admin,
             azurestack_ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou,
@@ -3038,7 +3038,6 @@ class wizard(object):
         file  = open('hostnames.json', 'w')
         file.write(json.dumps(hostnames, indent=4))
         file.close()
-        exit()
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'

@@ -116,7 +116,7 @@
                     <RequiresUserInput>false</RequiresUserInput>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo Add-Computer -Domain &apos;{{ domain }}&apos; -Cred $Cred -OU {{ organizationalUnit }} -Force -Verbose;Stop-Transcript &gt;&gt; C:\j.ps1&quot;</CommandLine>
+                    <CommandLine>CMD /c &quot;echo Add-Computer -Domain &apos;{{ domain }}&apos; -Cred $Cred -OU $OU -Force -Verbose;Stop-Transcript &gt;&gt; C:\j.ps1&quot;</CommandLine>
                     <Order>34</Order>
                     <RequiresUserInput>false</RequiresUserInput>
                 </SynchronousCommand>
