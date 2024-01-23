@@ -27,3 +27,8 @@ mkdir -p {{.global.GetRunningWorkflowInfosId1.output.Workflowinfos_id}} ; echo -
 if (${workflow.input.config_nxos} === 'true') 'nxos'; else 'none'
 
 if (${workflow.input.config_proxy} === 'true' && ${workflow.input.intersight.policies.config_snmp} === 'true') 'both'; else if (${workflow.input.config_proxy} === 'true') 'proxy'; else if (${workflow.input.intersight.policies.config_snmp} === 'true') 'snmp'; else 'none'
+
+
+Regex for File Share Witness
+^([a-zA-Z0-9](?:(?:[a-zA-Z0-9-]*|(?<!-)\.(?![-.]))*[a-zA-Z0-9]+)?)$ 
+^(?!.*[\/\[\]\:\¦\<\>\+\=\;\,\*\?\"].*).{3,64}$

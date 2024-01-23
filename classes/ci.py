@@ -112,7 +112,7 @@ class imm(object):
                             'slot': vic.split(":")[1]
                         })
             elif 'm2' in boot_type:
-                polVars['boot_devices'].extend({
+                polVars['boot_devices'].extend([{
                     'enabled': True,
                     'name': f'm2',
                     'object_type': 'boot.LocalDisk',
@@ -120,11 +120,16 @@ class imm(object):
                 },{
                     'enabled': True,
                     'interface_name': '',
+                    'interface_source': 'name',
                     'name': f'network_pxe',
                     'object_type': 'boot.Pxe',
                     'port': 1,
                     'slot': vic.split(":")[1]
-                })
+                }])
+            if 'azurestack' in kwargs.args.deployment_type:
+                indx = next((index for (index, d) in enumerate(polVars['boot_devices']) if d['object_type'] == 'boot.Pxe'), None)
+                polVars['boot_devices'][indx]['interface_source'] = 'port'
+                polVars['boot_devices'][indx].pop('interface_name')
             if 'gen' in vic:
                 indx = next((index for (index, d) in enumerate(polVars['boot_devices']) if d['object_type'] == 'boot.Pxe'), None)
                 polVars['boot_devices'][indx].pop('port')
@@ -770,6 +775,16 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(polVars, kwargs)
+        polVars = dict(cco_password = 1, cco_user = 1)
+        #=====================================================
+        # Return kwargs and kwargs
+        #=====================================================
+        return kwargs
+
+    #=============================================================================
+    # Function - Build Policies - Firmware
+    #=============================================================================
+    def firmware_authenticate(self, kwargs):
         polVars = dict(cco_password = 1, cco_user = 1)
         # Add Policy for Firmware Authentication
         kwargs.class_path = f'policies,firmware_authenticate'
@@ -2943,14 +2958,14 @@ class wizard(object):
         # Load Variables and Send Begin Notification
         #=====================================================
         validating.begin_section(self.type, 'preparation')
-        kwargs.org_moid= kwargs.org_moids[kwargs.org].moid
+        kwargs.org_moid = kwargs.org_moids[kwargs.org].moid
         kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
         kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
         #==========================================
         # Get Physical Server Tags to Check for
         # Existing OS Install
         #==========================================
-        kwargs.repo_server = 'imm-transition.rich.ciscolabs.com'
+        kwargs.repo_server = kwargs.imm_dict.wizard.imm_transition
         kwargs = windows_languages(kwargs.imm_dict.wizard.windows_install, kwargs)
         kwargs = windows_timezones(kwargs)
         for v in ['imm_transition_password', 'windows_admin_password', 'windows_domain_password']:
@@ -3023,7 +3038,19 @@ class wizard(object):
         jdata = json.loads(r.text)
         token = jdata['token']
         fpath = f'{kwargs.script_path}'
+        try: r = s.get(url = f'{url}/api/v1/repo/files', headers={'x-access-token': token}, verify=False)
+        except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+        if not r.ok: prRed(r.text); sys.exit(1)
+        repository_files = (r.json())['repofiles']
+        def check_existing_files(files_to_check, repository_files, s, url):
+            for file in files_to_check:
+                indx = next((index for (index, d) in enumerate(repository_files) if d['name'] == file), None)
+                if not indx == None:
+                    try: r = s.delete(url = f'{url}/api/v1/repo/files/{file}', headers={'x-access-token': token}, verify=False)
+                    except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
+                    if not r.ok: prRed(r.text); sys.exit(1)
         files = ['azs-answers.yaml', 'AzureStackHCI.xml', 'hostnames.json']
+        check_existing_files(files, repository_files, s, url)
         for adfile in files:
             file = open(f'{fpath}{os.pathsep}{adfile}', 'rb')
             files = {'file': file}
@@ -3036,7 +3063,9 @@ class wizard(object):
             file.close()
         for e in files: os.remove(f'{fpath}{os.pathsep}{e}')
         fpath = f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci'
-        for adfile in ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']:
+        files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
+        check_existing_files(files, repository_files, s, url)
+        for adfile in files:
             file = open(f'{fpath}{os.pathsep}{adfile}', 'rb')
             files = {'file': file}
             values = {'uuid':str(uuid.uuid4())}

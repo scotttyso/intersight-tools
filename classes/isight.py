@@ -1249,7 +1249,7 @@ class imm(object):
                         'Sources':[{'Moid':tmoid, 'ObjectType':'server.ProfileTemplate'}]
                     }
                 idict = {'Moid': kwargs.isight[kwargs.org].profile.server[e.name], 'ObjectType':'server.Profile'}
-                kwargs.bulk_merger_template[e.ucs_server_template]['Targets'].append(idict)
+                kwargs.bulk_merger_template[f'{org}/{template}']['Targets'].append(idict)
 
         #=====================================================
         # POST bulk/MoMergers if List > 0
@@ -2257,25 +2257,25 @@ def deploy_domain_profiles(profiles, kwargs):
     if deploy_profiles == True: pcolor.LightPurple(f'\n{"-"*91}\n')
     return kwargs
 
-DotMap(Changes=['OperationalPolicies'], ClassId='policy.ConfigChange', Disruptions=['ActivationRequiresReboot', 'MgmtNetworkDisconnection'], ObjectType='policy.ConfigChange', PolicyDisruptions=[DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=['ActivationRequiresReboot'], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='boot.PrecisionPolicy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='snmp.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='storage.StoragePolicy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=['ActivationRequiresReboot'], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='bios.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='syslog.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='kvm.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=['MgmtNetworkDisconnection'], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='networkconfig.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='ntp.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='sol.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='iam.EndPointUserPolicy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='thermal.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='ssh.Policy', PolicyPendingAction='Deploy'), DotMap(ClassId='policy.ConfigChangeDisruptionDetailType', Disruptions=[], ObjectType='policy.ConfigChangeDisruptionDetailType', PolicyName='vmedia.Policy', PolicyPendingAction='Deploy')])
 #======================================================
 # Function - Deploy Chassis/Server Profile if Action is Deploy
 #======================================================
 def deploy_chassis_server_profiles(profiles, kwargs):
     pending_changes = False
     kwargs.profile_update = DotMap()
-    for item in profiles:
-        for i in item.targets:
-            if item.get('action') and i.get('serial_number'):
-                if item.action == 'Deploy' and re.search(serial_regex, i.serial_number):
-                    kwargs.profile_update[i.name] = DotMap(dict(item.toDict(), **i.toDict()))
-                    kwargs.profile_update[i.name].pending_changes = 'Blank'
+    for e in profiles:
+        if e.get('action') and e.get('serial_number'):
+            if e.action == 'Deploy' and re.search(serial_regex, e.serial_number):
+                kwargs.profile_update[e.name] = e
+                kwargs.profile_update[e.name].pending_changes = 'Blank'
     if len(kwargs.profile_update) > 0:
         kwargs = api_get(False, list(kwargs.profile_update.keys()), kwargs.type, kwargs)
         profile_results = kwargs.results
         for e in list(kwargs.profile_update.keys()):
             indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
-            if len(profile_results[indx].ConfigChanges.Changes) > 0 or profile_results[indx].ConfigContext.ConfigState == 'Assigned':
+            if len(profile_results[indx].ConfigChanges.Changes) > 0 or re.search(
+                'Assigned|Failed|pending-changes', profile_results[indx].ConfigContext.ConfigState
+            ) or re.search('Failed|Inconsistent', profile_results[indx].ConfigContext.ConfigStateSummary):
                 if pending_changes == False: pending_changes = True
                 kwargs.profile_update[e].pending_changes = 'Deploy'
             elif len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
@@ -2334,7 +2334,7 @@ def deploy_chassis_server_profiles(profiles, kwargs):
                             pcolor.LightPurple(f'    - Skipping Profile Activation for `{e}`.  No Pending Changes.')
                             kwargs.profile_update[e].pending_changes = 'Blank'
                 pcolor.LightPurple(f'\n{"-"*91}\n')
-                pcolor.LightPurple('    * Pending Activitions.  Sleeping for 600 Seconds'); time.sleep(600)
+                pcolor.LightPurple('    * Pending Activitions.  Sleeping for 300 Seconds'); time.sleep(300)
                 for e in list(kwargs.profile_update.keys()):
                     if not kwargs.profile_update[e].pending_changes == 'Blank':
                         deploy_complete = False

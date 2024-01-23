@@ -112,6 +112,24 @@ def cli_arguments():
     return kwargs
 
 #=================================================================
+# Remove Duplicate Entries in Python Dictionary
+#=================================================================
+def remove_duplicates(orgs, plist, kwargs):
+    idict = {}
+    for org in orgs:
+        idict[org] = {}
+        for d in plist:
+            idict[org][d] = {}
+            for e in list(kwargs.imm_dict.orgs[org][d].keys()):
+                idict[org][d][e] = []
+                for i in kwargs.imm_dict.orgs[org][d][e]:
+                    if not i in idict[org][d][e]:
+                        idict[org][d][e].append(i)
+                kwargs.imm_dict.orgs[org][d][e] = deepcopy(idict[org][d][e])
+            kwargs.imm_dict.orgs[org][d] = DotMap(sorted(kwargs.imm_dict.orgs[org][d].items()))
+    return kwargs
+
+#=================================================================
 # The Main Module
 #=================================================================
 def main():
@@ -240,14 +258,15 @@ def main():
         # Create YAML Files
         #==============================================
         orgs = list(kwargs.imm_dict.orgs.keys())
+        kwargs = remove_duplicates(orgs, ['policies', 'profiles'], kwargs)
         if len(kwargs.imm_dict.orgs) > 0: ezfunctions.create_yaml(orgs, kwargs)
         #==============================================
-        # Policies
+        # Deploy Policies
         #==============================================
-        if kwargs.imm_dict.orgs[org].get('policies'):
-            for ptype in kwargs.policy_list:
-                for org in orgs:
-                    kwargs.org = org
+        for org in orgs:
+            kwargs.org = org
+            if kwargs.imm_dict.orgs[org].get('policies'):
+                for ptype in kwargs.policy_list:
                     if kwargs.imm_dict.orgs[org]['policies'].get(ptype): kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
         #==============================================
         # Deploy Domain
@@ -280,13 +299,16 @@ def main():
         #==============================================
         # Create YAML Files
         #==============================================
+        kwargs = remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
+        if 'azurestack' == kwargs.args.deployment_type:
+            for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #==============================================
         # Pools
         #==============================================
-        for ptype in kwargs.imm_dict.orgs[org]['pools']:
-            for org in orgs:
-                kwargs.org = org
+        for org in orgs:
+            kwargs.org = org
+            for ptype in kwargs.imm_dict.orgs[org]['pools']:
                 if kwargs.imm_dict.orgs[org].get('pools'): kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
         #==============================================
         # Policies
@@ -305,11 +327,15 @@ def main():
             kwargs.org = org
             if kwargs.imm_dict.orgs[org].get('templates'):
                 if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"isight.imm('server_template').profiles(kwargs)")
+        for org in orgs:
+            kwargs.org = org
             if kwargs.imm_dict.orgs[org].get('profiles'):
                 profile_list = ['chassis', 'server']
                 for i in profile_list:
                     if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
             kwargs = ci.wizard('wizard').server_identities(kwargs)
+        if 'azurestack' == kwargs.args.deployment_type:
+            for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #==============================================
         # Create YAML Files
         #==============================================
