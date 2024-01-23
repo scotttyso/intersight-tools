@@ -7,10 +7,10 @@ active_directory:
   domain: {{ domain }}
 clusters:
 {%- for e in clusters %}
-  - cluster_name = {{e.cluster_name}}
+  - cluster_name: {{e.name}}
     members:
   {%- for i in e.members %}
-     - {{i}}
+     - {{i.hostname}}.{{domain}}
   {%- endfor %}
 {%- endfor %}
 {%- if file_share_witness %}

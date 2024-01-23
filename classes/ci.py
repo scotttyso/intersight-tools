@@ -2979,7 +2979,7 @@ class wizard(object):
         org_unit = f'OU=Computers,OU={ou}' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
         install_server = kwargs.imm_dict.wizard.azurestack[0].install_server.hostname
         share_path     = kwargs.imm_dict.wizard.azurestack[0].install_server.reminst_share_path
-        jargs = DotMap(
+        jargs = dict(
             administratorPassword = kwargs['windows_admin_password'],
             domain                = kwargs.imm_dict.wizard.azurestack[0].active_directory.domain,
             domainAdministrator   = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
@@ -2993,14 +2993,14 @@ class wizard(object):
             layeredDriver         = kwargs.language.layered_driver,
             secondaryLanguage     = kwargs.language.secondary_language
         )
-        jtemplate = template.render(kwargs=jargs.toDict())
+        jtemplate = template.render(jargs)
         for x in ['LayeredDriver', 'UILanguageFallback']:
             if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
         file  = open('AzureStackHCI.xml', 'w')
         file.write(jtemplate)
         file.close()
         template = tenviro.get_template('azs-template.jinja2')
-        jargs = DotMap(
+        jargs = dict(
             administrator       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_admin,
             azurestack_ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou,
             azurestack_prefix   = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_prefix,
@@ -3008,17 +3008,17 @@ class wizard(object):
             domainAdministrator = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
             clusters            = kwargs.imm_dict.wizard.azurestack[0].clusters,
             file_share_witness  = {},
-            install_server      = kwargs.imm_dict.wizard.azurestack[0].install_server,
+            install_server      = kwargs.imm_dict.wizard.install_server.toDict(),
             operating_system    = 'W2K22',
             proxy               = {},
             server              = 'CxxxM6'
         )
-        if kwargs.imm_dict.wizard.get('proxy'): jargs.proxy = kwargs.imm_dict.wizard.proxy
+        if kwargs.imm_dict.wizard.get('proxy'): jargs.proxy = kwargs.imm_dict.wizard.proxy.toDict()
         else: jargs.pop('proxy')
-        if kwargs.imm_dict.wizard.azurestack[0].get('file_share_witness'):
-            jargs.file_share_witness = kwargs.imm_dict.wizard.azurestack[0].file_share_witness
+        if kwargs.imm_dict.wizard.get('file_share_witness'):
+            jargs.file_share_witness = kwargs.imm_dict.wizard.file_share_witness
         else: jargs.pop('file_share_witness')
-        jtemplate = template.render(kwargs=jargs.toDict())
+        jtemplate = template.render(jargs)
         file  = open('azs-answers.yaml', 'w')
         file.write(jtemplate)
         file.close()
@@ -3028,6 +3028,7 @@ class wizard(object):
         file  = open('hostnames.json', 'w')
         file.write(json.dumps(hostnames, indent=4))
         file.close()
+        exit()
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
