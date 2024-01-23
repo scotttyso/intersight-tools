@@ -3047,8 +3047,9 @@ class wizard(object):
         win_files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
         for file in win_files:
             shutil.copyfile(f'{fpath}{file}', f'{cwd}{os.sep}{new_dir}{os.sep}{file}')
-        azs_file_name = 'azure_stack_hci_files.zip'
+        azs_file_name = 'azure_stack_hci_files'
         shutil.make_archive(f'{cwd}{os.sep}{azs_file_name}', 'zip', f'{cwd}{os.sep}{new_dir}')
+        azs_file_name = 'azure_stack_hci_files.zip'
         # LOGIN TO IMM TRANSITION API
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
