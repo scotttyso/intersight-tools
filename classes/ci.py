@@ -2972,7 +2972,7 @@ class wizard(object):
             kwargs.sensitive_var = v
             kwargs  = ezfunctions.sensitive_var_value(kwargs)
             kwargs[v]=kwargs.var_value
-        tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci')
+        tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci')
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
         template = tenviro.get_template('AzureStackHCI.xml')
         ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
@@ -3019,16 +3019,15 @@ class wizard(object):
             jargs.file_share_witness = kwargs.imm_dict.wizard.azurestack[0].file_share_witness
         else: jargs.pop('file_share_witness')
         jtemplate = template.render(kwargs=jargs.toDict())
-        file  = open('AzureStackHCI.xml', 'w')
+        file  = open('azs-answers.yaml', 'w')
         file.write(jtemplate)
         file.close()
         hostnames = {}
         for k, v in kwargs.server_profiles.items():
             hostnames.update({v.serial:k})
         file  = open('hostnames.json', 'w')
-        file.write(json.dump(hostnames, indent=4))
+        file.write(json.dumps(hostnames, indent=4))
         file.close()
-
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
@@ -3037,7 +3036,6 @@ class wizard(object):
         if not r.status_code == 200: prRed(r.text); sys.exit(1)
         jdata = json.loads(r.text)
         token = jdata['token']
-        fpath = f'{kwargs.script_path}'
         try: r = s.get(url = f'{url}/api/v1/repo/files', headers={'x-access-token': token}, verify=False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if not r.ok: prRed(r.text); sys.exit(1)
@@ -3046,29 +3044,33 @@ class wizard(object):
             for file in files_to_check:
                 indx = next((index for (index, d) in enumerate(repository_files) if d['name'] == file), None)
                 if not indx == None:
+                    pcolor.Cyan(f'  * Deleting Existing Copy of `{file}` on `{url}/api/v1/repo/files`')
                     try: r = s.delete(url = f'{url}/api/v1/repo/files/{file}', headers={'x-access-token': token}, verify=False)
                     except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
                     if not r.ok: prRed(r.text); sys.exit(1)
-        files = ['azs-answers.yaml', 'AzureStackHCI.xml', 'hostnames.json']
-        check_existing_files(files, repository_files, s, url)
-        for adfile in files:
-            file = open(f'{fpath}{os.pathsep}{adfile}', 'rb')
+        win_files = ['azs-answers.yaml', 'AzureStackHCI.xml', 'hostnames.json']
+        check_existing_files(win_files, repository_files, s, url)
+        fpath = os.getcwd()
+        for adfile in win_files:
+            file = open(f'{fpath}{os.sep}{adfile}', 'rb')
             files = {'file': file}
             values = {'uuid':str(uuid.uuid4())}
+            pcolor.Green(f'  * Uploading `{adfile}` to `{url}/api/v1/repo/files`')
             try: r = s.post(
                 url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
             except requests.exceptions.ConnectionError as e:
                 pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if not r.ok: prRed(r.text); sys.exit(1)
             file.close()
-        for e in files: os.remove(f'{fpath}{os.pathsep}{e}')
-        fpath = f'{kwargs.script_path}{os.pathsep}examples{os.pathsep}azurestack_hci'
-        files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
-        check_existing_files(files, repository_files, s, url)
-        for adfile in files:
-            file = open(f'{fpath}{os.pathsep}{adfile}', 'rb')
+        #for e in win_files: os.remove(f'{fpath}{os.sep}{e}')
+        fpath = f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci'
+        win_files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
+        check_existing_files(win_files, repository_files, s, url)
+        for adfile in win_files:
+            file = open(f'{fpath}{os.sep}{adfile}', 'rb')
             files = {'file': file}
             values = {'uuid':str(uuid.uuid4())}
+            pcolor.Green(f'  * Uploading `{adfile}` to `{url}/api/v1/repo/files`')
             try: r = s.post(
                 url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
             except requests.exceptions.ConnectionError as e:
@@ -3080,6 +3082,7 @@ class wizard(object):
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if 'repo' in uri: jdata = json.loads(r.text)
             if not r.status_code == 200: prRed(r.text); sys.exit(1)
+        validating.end_section(self.type, 'preparation')
         return kwargs
 
 #=============================================================================

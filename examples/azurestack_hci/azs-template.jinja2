@@ -1,24 +1,33 @@
 ---
 active_directory:
-  administrator: hciadmin@ucs-spaces.lab
-  azurestack_admin: hciadmin@ucs-spaces.lab
-  azurestack_ou: AzureStack
-  azurestack_prefix: AzS
-  domain: ucs-spaces.lab
+  administrator: {{ domainAdministrator }}
+  azurestack_admin: {{ administrator }}
+  azurestack_ou: {{ azurestack_ou }}
+  azurestack_prefix: {{ azurestack_prefix }}
+  domain: {{ domain }}
 clusters:
-  - cluster_name: CL01
+{%- for e in clusters %}
+  - cluster_name = {{e.cluster_name}}
     members:
-    - azs-cl01-host1.ucs-spaces.lab
-    - azs-cl01-host2.ucs-spaces.lab
+  {%- for i in e.members %}
+     - {{i}}
+  {%- endfor %}
+{%- endfor %}
+{%- if file_share_witness %}
 file_share_witness:
-  host: witness.ucs-spaces.lab
-  share_name: file_share
+  host: {{file_share_witness.host}}
+  share_name: {{file_share_witness.share_name}}
   type: domain
+{%- endif %}
 install_server:
-  drivers_cd_mount: F:\
-  reminst_share_path: E:\
+  drivers_cd_mount: '{{install_server.drivers_cd_mount}}\'
+  reminst_share_path: '{{install_server.reminst_share_path}}\'
 operating_system: W2K22
+{%- if proxy %}
 proxy:
-  host: http://proxy.example.com:81
-  username: administrator
+  url: {{proxy.host}}
+  {%- if proxy.username %}
+  username: {{proxy.username}}
+  {%- endif %}
 server_model: CxxxM6
+{%- endif %}
