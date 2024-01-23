@@ -1,9 +1,10 @@
 ---
 active_directory:
   administrator: hciadmin@ucs-spaces.lab
+  azurestack_admin: hciadmin@ucs-spaces.lab
+  azurestack_ou: AzureStack
+  azurestack_prefix: AzS
   domain: ucs-spaces.lab
-  naming_prefix: AzS
-  organizational_unit: AzureStack
 clusters:
   - cluster_name: CL01
     members:
@@ -16,12 +17,8 @@ file_share_witness:
 install_server:
   drivers_cd_mount: F:\
   reminst_share_path: E:\
-node_list:
- - azs-cl01-host1.ucs-spaces.lab
- - azs-cl01-host2.ucs-spaces.lab
 operating_system: W2K22
 proxy:
   host: http://proxy.example.com:81
   username: administrator
 server_model: CxxxM6
-username: hciadmin@ucs-spaces.lab

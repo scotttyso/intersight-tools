@@ -3000,6 +3000,7 @@ class wizard(object):
         file.write(jtemplate)
         file.close()
         template = tenviro.get_template('azs-template.jinja2')
+        print(json.dump(kwargs.imm_dict.orgs, indent=4))
         jargs = dict(
             administrator       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_admin,
             azurestack_ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou,
@@ -3011,7 +3012,7 @@ class wizard(object):
             install_server      = kwargs.imm_dict.wizard.install_server.toDict(),
             operating_system    = 'W2K22',
             proxy               = {},
-            server              = 'CxxxM6'
+            server_model        = 'CxxxM6'
         )
         if kwargs.imm_dict.wizard.get('proxy'): jargs['proxy'] = kwargs.imm_dict.wizard.proxy.toDict()
         else: jargs.pop('proxy')
