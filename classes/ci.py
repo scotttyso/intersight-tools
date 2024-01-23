@@ -3013,10 +3013,10 @@ class wizard(object):
             proxy               = {},
             server              = 'CxxxM6'
         )
-        if kwargs.imm_dict.wizard.get('proxy'): jargs.proxy = kwargs.imm_dict.wizard.proxy.toDict()
+        if kwargs.imm_dict.wizard.get('proxy'): jargs['proxy'] = kwargs.imm_dict.wizard.proxy.toDict()
         else: jargs.pop('proxy')
         if kwargs.imm_dict.wizard.get('file_share_witness'):
-            jargs.file_share_witness = kwargs.imm_dict.wizard.file_share_witness
+            jargs['file_share_witness'] = kwargs.imm_dict.wizard.file_share_witness
         else: jargs.pop('file_share_witness')
         jtemplate = template.render(jargs)
         file  = open('azs-answers.yaml', 'w')
