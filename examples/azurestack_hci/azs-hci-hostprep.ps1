@@ -31,7 +31,7 @@ or implied.
 # Pull in YAML Content
 #=============================================================================
 param (
-    [string]$j=$(throw "-y <yaml_file.yaml> is required.")
+    [string]$y=$(throw "-y <yaml_file.yaml> is required.")
 )
 #=============================================================================
 # Validate Running with Administrator Privileges
@@ -52,8 +52,9 @@ if ((${env_vars} | Where-Object {$_.Name -eq "OS"}).Value -eq "Windows_NT") {
     $homePath = (${env_vars} | Where-Object {$_.Name -eq "HOME"}).Value
     $pathSep  = "/"
 }
-if (!( Test-Path -PathType Container $homePath + $pathSep + "Logs")) {
-    New-Item -ItemType Directory $homePath + $pathSep + "Logs" | Out-Null
+$log_dir = $homePath + $pathSep + "Logs"
+if (!( Test-Path -PathType Container $log_dir)) {
+    New-Item -ItemType Directory $log_dir | Out-Null
 }
 Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER).log" -Append -Confirm:$false
 Get-PSSession | Remove-PSSession | Out-Null
@@ -153,58 +154,58 @@ Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
 # Connect to Azure Stack Nodes and Install Updated Drivers
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
-$sessions = Get-PSSession
-$sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
-$session_results = Invoke-Command $sessions -ScriptBlock {
-    #=========================================================================
-    # Setup Variables on Nodes
-    #=========================================================================
-    $ydata = $Using:ydata
-    $model = $ydata.server_model
-    $os_version = $ydata.operating_system
-    $share_path = $ydata.network_share
-    $credential = $Using:credential
-    #=========================================================================
-    # Connect to Network Share
-    #=========================================================================
-    New-Item -Path "C:\" -Name "temp" -ItemType Directory -Force | Out-Null
-    $file_share  = New-PSDrive -Name "ShareNAME" -PSProvider "FileSystem" -Root $share_path -Credential $credential
-    if (!($file_share.Root)) {
-        Write-Host " * $($env:COMPUTERNAME) Failed to connect to Network Share '$($share_path)'.  Exiting..." -ForegroundColor Red
-        Return New-Object PsObject -property @{completed=$False}
-    }
-    #=========================================================================
-    # Obtain Driver Files and Folders for Install
-    #=========================================================================
-    $chip_readme = Get-Content "$($file_share.Root)\ChipSet\Intel\$($model)\$($os_version)\README.html"
-    $chip_regex  = $chip_readme | Select-String -Pattern '(?<=href\=\"\.\.\/\.\.\/).+exe(?=\"\>)'
-    $chip_path    = "$(($chip_regex.Matches[0].Value).Replace("/", "\"))"
-    Copy-Item "$($file_share.Root)\ChipSet\Intel\$($chip_path)" "C:\temp" -Force | Out-Null
-    $chip_exe = $chip_path.Split("\")[2]
-    $mlnx_exe = (Get-ChildItem -Path "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\" -Filter *.exe | Select-Object -First 1).Name
-    Copy-Item "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\$($mlnx_exe)" "C:\temp" -Force | Out-Null
-    Copy-Item -Path "$($file_share.Root)\Storage\Intel\C600\$($os_version)" -Destination "C:\temp\$($os_version)" -Recurse -Force | Out-Null
-    Remove-PsDrive -Name $file_share.Name
-    if (!($chip_exe)) {
-        Write-Host " * $($env:COMPUTERNAME) Failed to Locate Intel Chipset Drivers in '$($file_share.Root)\ChipSet\Intel\$($model)\$($os_version)\README.html'.  Exiting..." -ForegroundColor Red
-        Return New-Object PsObject -property @{completed=$False}
-    }
-    if (!($mlnx_exe)) {
-        Write-Host " * $($env:COMPUTERNAME) Failed to Locate Mellanox Drivers in '$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\'.  Exiting..." -ForegroundColor Red
-        Return New-Object PsObject -property @{completed=$False}
-    }
-    Return New-Object PsObject -property @{completed=$True; chip_exe=$chip_exe; mlnx_exe=$mlnx_exe; $reboot=$False}
-}
-#=============================================================================
-# Setup Environment for Next Loop
-#=============================================================================
-Get-PSSession | Remove-PSSession | Out-Null
-NodeAndRebootCheck -session_results $session_results -node_list $jdata.node_list
-foreach ($result in $session_results) {
-    $chip_exe = $result.chip_exe
-    $mlnx_exe = $result.mlnx_exe
-}
+#LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
+#$sessions = Get-PSSession
+#$sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
+#$session_results = Invoke-Command $sessions -ScriptBlock {
+#    #=========================================================================
+#    # Setup Variables on Nodes
+#    #=========================================================================
+#    $ydata = $Using:ydata
+#    $model = $ydata.server_model
+#    $os_version = $ydata.operating_system
+#    $share_path = $ydata.network_share
+#    $credential = $Using:credential
+#    #=========================================================================
+#    # Connect to Network Share
+#    #=========================================================================
+#    New-Item -Path "C:\" -Name "temp" -ItemType Directory -Force | Out-Null
+#    $file_share  = New-PSDrive -Name "ShareNAME" -PSProvider "FileSystem" -Root $share_path -Credential $credential
+#    if (!($file_share.Root)) {
+#        Write-Host " * $($env:COMPUTERNAME) Failed to connect to Network Share '$($share_path)'.  Exiting..." -ForegroundColor Red
+#        Return New-Object PsObject -property @{completed=$False}
+#    }
+#    #=========================================================================
+#    # Obtain Driver Files and Folders for Install
+#    #=========================================================================
+#    $chip_readme = Get-Content "$($file_share.Root)\ChipSet\Intel\$($model)\$($os_version)\README.html"
+#    $chip_regex  = $chip_readme | Select-String -Pattern '(?<=href\=\"\.\.\/\.\.\/).+exe(?=\"\>)'
+#    $chip_path    = "$(($chip_regex.Matches[0].Value).Replace("/", "\"))"
+#    Copy-Item "$($file_share.Root)\ChipSet\Intel\$($chip_path)" "C:\temp" -Force | Out-Null
+#    $chip_exe = $chip_path.Split("\")[2]
+#    $mlnx_exe = (Get-ChildItem -Path "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\" -Filter *.exe | Select-Object -First 1).Name
+#    Copy-Item "$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\$($mlnx_exe)" "C:\temp" -Force | Out-Null
+#    Copy-Item -Path "$($file_share.Root)\Storage\Intel\C600\$($os_version)" -Destination "C:\temp\$($os_version)" -Recurse -Force | Out-Null
+#    Remove-PsDrive -Name $file_share.Name
+#    if (!($chip_exe)) {
+#        Write-Host " * $($env:COMPUTERNAME) Failed to Locate Intel Chipset Drivers in '$($file_share.Root)\ChipSet\Intel\$($model)\$($os_version)\README.html'.  Exiting..." -ForegroundColor Red
+#        Return New-Object PsObject -property @{completed=$False}
+#    }
+#    if (!($mlnx_exe)) {
+#        Write-Host " * $($env:COMPUTERNAME) Failed to Locate Mellanox Drivers in '$($file_share.Root)\Network\Mellanox\ConnectX4-5-6\$($os_version)\'.  Exiting..." -ForegroundColor Red
+#        Return New-Object PsObject -property @{completed=$False}
+#    }
+#    Return New-Object PsObject -property @{completed=$True; chip_exe=$chip_exe; mlnx_exe=$mlnx_exe; $reboot=$False}
+#}
+##=============================================================================
+## Setup Environment for Next Loop
+##=============================================================================
+#Get-PSSession | Remove-PSSession | Out-Null
+#NodeAndRebootCheck -session_results $session_results -node_list $jdata.node_list
+#foreach ($result in $session_results) {
+#    $chip_exe = $result.chip_exe
+#    $mlnx_exe = $result.mlnx_exe
+#}
 
 #=============================================================================
 # Enable WSManCredSSP Client on Local Machine
@@ -275,14 +276,14 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
         $reboot = $True
     }
     Write-Host "$($env:COMPUTERNAME) Completed Check for Required Windows Features and Restarted Host." -ForegroundColor Yellow
-    $gva = Get-PSSessionConfiguration -Name 'VirtualAccount'
-    if (!($gva)) {
-        Write-Host "$($env:COMPUTERNAME) Failed on VirtualAccount Check.  Please Run the Following PowerShell Command On Each Host." -ForegroundColor Red
-        Write-Host " * Run: New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\VirtualAccount.pssc" -ForegroundColor Red
-        Write-Host " * Run: Register-PSSessionConfiguration -Name 'VirtualAccount' -Path .\VirtualAccount.pssc -Force" -ForegroundColor Red
-        Write-Host " * Validate with: Get-PSSessionConfiguration -Name 'VirtualAccount'" -ForegroundColor Red
-        Return New-Object PsObject -property @{completed=$False}
-    }
+    #$gva = Get-PSSessionConfiguration -Name 'VirtualAccount'
+    #if (!($gva)) {
+    #    Write-Host "$($env:COMPUTERNAME) Failed on VirtualAccount Check.  Please Run the Following PowerShell Command On Each Host." -ForegroundColor Red
+    #    Write-Host " * Run: New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\VirtualAccount.pssc" -ForegroundColor Red
+    #    Write-Host " * Run: Register-PSSessionConfiguration -Name 'VirtualAccount' -Path .\VirtualAccount.pssc -Force" -ForegroundColor Red
+    #    Write-Host " * Validate with: Get-PSSessionConfiguration -Name 'VirtualAccount'" -ForegroundColor Red
+    #    Return New-Object PsObject -property @{completed=$False}
+    #}
     Return New-Object PsObject -property @{completed=$True;reboot=$reboot}
 }
 #=============================================================================
@@ -349,17 +350,19 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
         Write-Host "$($env:COMPUTERNAME) Secure Boot State is not Enabled.  Exiting..." -ForegroundColor Red
         Return New-Object PsObject -property @{completed=$False}
     }
-    $file = "./KernelDmaProtection.ps1"
-    if (!([System.IO.File]::Exists("$file"))) {
-        Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile "$file"
-    }
-    $dma_protection = "$file"
-    if (!($dma_protection -eq $True)) {
-        Write-Host " * $($env:COMPUTERNAME) Failed.  Kernel DMA Protection is not Enabled."  -ForegroundColor Red
-        Write-Host "   Manually Check Output of 'msinfo32.exe' for 'Kernel DMA Protection' State: 'On'." -ForegroundColor Red
-        Return New-Object PsObject -property @{completed=$False}
-    }
-    Remove-Item "$file" | Out-Null
+    #$file = "./KernelDmaProtection.ps1"
+    #if (!([System.IO.File]::Exists("$file"))) {
+    #    Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile "$file" -UseBasicParsing
+    #}
+    #Start-Process -FilePath ".\$file" -PassThru -Wait -RedirectStandardOutput stdout.txt -RedirectStandardError stderr.txt
+    #Write-Host
+    #$dma_protection = "$file"
+    #if (!($dma_protection -eq $True)) {
+    #    Write-Host " * $($env:COMPUTERNAME) Failed.  Kernel DMA Protection is not Enabled."  -ForegroundColor Red
+    #    Write-Host "   Manually Check Output of 'msinfo32.exe' for 'Kernel DMA Protection' State: 'On'." -ForegroundColor Red
+    #    Return New-Object PsObject -property @{completed=$False}
+    #}
+    #Remove-Item "$file" | Out-Null
     Write-Host "$($env:COMPUTERNAME) Completed Validating Secure-Core Configuration." -ForegroundColor Yellow
     Return New-Object PsObject -property @{completed=$True}
 }
@@ -406,11 +409,11 @@ if ($test_success -eq $False) {
 #=============================================================================
 # Test AzureStackHCI Hardware Readiness
 #=============================================================================
-if ($ydata.proxy) { $session_results = Invoke-AzStackHciHardwareValidation -PassThru -PsSession $sessions
+if (!($ydata.proxy)) { $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions
 } else {
     if ($proxy_creds) {
-        $session_results = Invoke-AzStackHciHardwareValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host -ProxyCredential $proxy_creds
-    } else { $session_results = Invoke-AzStackHciHardwareValidation-PassThru -PsSession $sessions -Proxy $ydata.proxy.host }
+        $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host -ProxyCredential $proxy_creds
+    } else { $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host }
 }
 $test_success = $True
 foreach ($result in $session_results) {
@@ -435,12 +438,22 @@ if ($test_success -eq $False) {
 #=============================================================================
 # Test AzureStackHCI Active Directory Readiness
 #=============================================================================
-$ad_user = $ydata.active_directory.admin
-$ad_pass = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
-$adcreds = New-Object System.Management.Automation.PSCredential ($ad_user,$ad_pass)
-$ad =  $ydata.active_directory 
-$ad_check = Invoke-AzStackHciExternalActiveDirectoryValidation -PassThru -ActiveDirectoryServer $ad.server -ActiveDirectoryCredentials $adcreds -ADOUPath $ad.ou -ClusterName $ydata.cluster -DomainFQDN $ad.fqdn -NamingPrefix $ad.naming_prefix -PhysicalMachineNames $global_node_list
-if ($ad_check -eq $True) { Write-Host "True" }
+#$ad = $ydata.active_directory
+#foreach ($cluster in $ydata.clusters) {
+#    $ad_user = $ad.administrator
+#    $ad_pass = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
+#    $adcreds = New-Object System.Management.Automation.PSCredential ($ad_user,$ad_pass)
+#    $node_list = @()
+#    foreach ($member in $cluster.members) {
+#        $node_list += $member.split(".")[0]
+#    }
+#    $dsplit = $ad.domain.split(".")
+#    $djoin = $dsplit -join ",DC="
+#    $domain_ou = "DC=" + $djoin
+#    $ad_check = Invoke-AzStackHciExternalActiveDirectoryValidation  -ActiveDirectoryCredentials $adcreds -ADOUPath "ou=$($ad.azurestack_ou),$domain_ou" -ClusterName $cluster.cluster_name -DomainFQDN $ad.domain -NamingPrefix $ad.azurestack_prefix -PhysicalMachineNames $node_list
+#    if ($ad_check -eq $True) { Write-Host "True" }
+#}
+
 Get-PSSession | Remove-PSSession | Out-Null
 $nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 Stop-Transcript

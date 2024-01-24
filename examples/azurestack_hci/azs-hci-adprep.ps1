@@ -31,7 +31,7 @@ or implied.
 # Pull in YAML Content
 #=============================================================================
 param (
-    [string]$j=$(throw "-y <yaml_file.yaml> is required.")
+    [string]$y=$(throw "-y <yaml_file.yaml> is required.")
 )
 #=============================================================================
 # Validate Running with Administrator Privileges
@@ -51,8 +51,9 @@ if ((${env_vars} | Where-Object {$_.Name -eq "OS"}).Value -eq "Windows_NT") {
     $homePath = (${env_vars} | Where-Object {$_.Name -eq "HOME"}).Value
     $pathSep  = "/"
 }
-if (!( Test-Path -PathType Container $homePath + $pathSep + "Logs")) {
-    New-Item -ItemType Directory $homePath + $pathSep + "Logs" | Out-Null
+$log_dir = $homePath + $pathSep + "Logs"
+if (!( Test-Path -PathType Container $log_dir)) {
+    New-Item -ItemType Directory $log_dir | Out-Null
 }
 $credential_path = $homePath + $pathSep + "powershell.Cred"
 If (Test-Path -PathType Leaf $credential_path) {
@@ -61,6 +62,14 @@ If (Test-Path -PathType Leaf $credential_path) {
     $credential = Get-Credential
     $credential | Export-CliXml -Path $credential_path
 }
+if (!(Get-WindowsFeature -Name RSAT-AD-PowerShell)) {
+    Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
+}
+if (!(Get-WindowsFeature -Name GPMC)) {
+    Install-WindowsFeature -Name GPMC -IncludeAllSubFeature
+}
+Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
+
 $required_modules = @("powershell-yaml")
 foreach ($rm in $required_modules) {
     if (!(Get-Module -ListAvailable -Name $rm)) {
@@ -72,15 +81,12 @@ foreach ($rm in $required_modules) {
         Import-Module $rm
     }
 }
-Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER).log" -Append -Confirm:$false
 #=============================================================================
 # Test AzureStackHCI Active Directory Readiness
 #=============================================================================
 $ydata   = Get-Content -Path $y | ConvertFrom-Yaml
-$ad_user = $ydata.active_directory.administrator
-$ad_pass = ConvertTo-SecureString $env:domain_administrator_password -AsPlainText -Force;
-$adcreds = New-Object System.Management.Automation.PSCredential ($ad_user,$ad_pass)
 $ad =  $ydata.active_directory
+
 $file = "AsHciADArtifactsPreCreationTool.ps1"
 if ($ydata.proxy) {
     if ($ydata.proxy.username) {
@@ -101,8 +107,24 @@ if (!([System.IO.File]::Exists("./$file"))) {
     Invoke-WebRequest -URI "https://raw.githubusercontent.com/scotttyso/intersight-tools/master/examples/azurestack_hci/$file" -OutFile ".\$file"
 }
 foreach ($cluster in $ydata.clusters) {
-    $ad_check = Start-Process Powershell -Argumentlist "-ExecutionPolicy Bypass -NoProfile -File '.\$($file)' -AsHciClusterName '$($cluster.cluster_name)' -AsHciDeploymentPrefix '$($ad.azurestack_prefix)' -AsHciDeploymentUserCredential '$adcreds' -AsHciOUName '$($ad.azurestack_ou)' -AsHciPhysicalNodeList $($cluster.members) -DomainFQDN '$($ad.domain)'"
-    $ad_check.WaitForExit()
+    $node_list = @()
+    foreach ($member in $cluster.members) {
+        $node_list += $member.split(".")[0]
+    }
+    $node_list = $node_list -join "', '"
+    $node_list = "'" + $node_list + "'"
+    $dsplit = $ad.domain.split(".")
+    $djoin = $dsplit -join ",DC="
+    $domain_ou = "DC=" + $djoin
+    $az_admin = $ad.azurestack_admin.split("@")[0]
+    Write-Host ""
+    Write-Host "Run the Following Commands in Order:" -ForegroundColor Yellow
+    Write-Host "`$ad_user = '<your-domain>\$az_admin'" -ForegroundColor Green
+    Write-Host "`$ad_pass = ConvertTo-SecureString '<new_hci_user_password>' -AsPlainText -Force;" -ForegroundColor Green
+    Write-Host "`$adcreds = New-Object System.Management.Automation.PSCredential (`$ad_user,`$ad_pass)" -ForegroundColor Green
+    Write-Host "`$node_list = @($node_list)" -ForegroundColor Green
+    Write-HOst ".\AsHciADArtifactsPreCreationTool.ps1 -AsHciClusterName '$($cluster.cluster_name)' -AsHciDeploymentPrefix '$($ad.azurestack_prefix)' -AsHciDeploymentUserCredential `$adcreds -AsHciOUName 'ou=$($ad.azurestack_ou),$domain_ou' -AsHciPhysicalNodeList `$node_list -DomainFQDN '$($ad.domain)'" -ForegroundColor Green
+    #Start-Process Powershell -Argumentlist "-ExecutionPolicy Bypass -NoProfile -File '.\$($file)' -AsHciClusterName '$($cluster.cluster_name)' -AsHciDeploymentPrefix '$($ad.azurestack_prefix)' -AsHciDeploymentUserCredential '$adcreds' -AsHciOUName '$($ad.azurestack_ou)' -AsHciPhysicalNodeList $($cluster.members) -DomainFQDN '$($ad.domain)'"
+    #$ad_check.WaitForExit()
 }
-Stop-Transcript
 Exit 0

@@ -2976,7 +2976,7 @@ class wizard(object):
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
         template = tenviro.get_template('AzureStackHCI.xml')
         ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
-        org_unit = f'OU=Computers,OU={ou},OU=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
+        org_unit = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
         install_server = kwargs.imm_dict.wizard.install_server.hostname
         share_path     = kwargs.imm_dict.wizard.install_server.reminst_share
         jargs = dict(
