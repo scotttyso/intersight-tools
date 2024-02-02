@@ -16883,7 +16883,7 @@
                         "properties": {
                             "vlans": {
                                 "type": "array",
-                                "description": "List of VLANs to add to the VLAN Policy.\nRequired Attributes:\n  * multicast_policy\n  * name\n  * vlan_list\n\nOptional Attributes:\n  * auto_allow_on_uplinks\n  * native_vlan\n  * name\n  * primary_vlan_id\n  * sharing_type",
+                                "description": "List of VLANs to add to the VLAN Policy.\nRequired Attributes:\n  * multicast_policy\n  * name\n  * vlan_list\n\nOptional Attributes:\n  * auto_allow_on_uplinks\n  * native_vlan\n  * name\n  * name_prefix\n  * primary_vlan_id\n  * sharing_type",
                                 "intersight_uri": "fabric/Vlans",
                                 "items": {
                                     "$ref": "#/components/schemas/vlan.vlans"
@@ -16930,7 +16930,14 @@
                         "description": "Name or Prefix for the VLAN, or List of VLANs.",
                         "$ref": "#/components/schemas/abstract_policy/properties/name"
                     },
-                    "native_vlan": {
+                    "name_prefix": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true`.  Used to define whether the name should be used as a prefix or not when it is a list of vlans.",
+                        "intersightApi": "IsNative",
+                        "title": "native_vlan"
+                        },
+                        "native_vlan": {
                         "type": "boolean",
                         "default": false,
                         "description": "Default is `false`.  Used to define whether this VLAN is to be classified as 'native' for traffic in this FI.",
@@ -16940,7 +16947,7 @@
                     "primary_vlan_id": {
                         "type": "integer",
                         "default": 1,
-                        "description": "Default is 1.  The Primary VLAN ID of the VLAN, if the sharing type of the VLAN is Isolated or Community.",
+                        "description": "Default is `1`.  The Primary VLAN ID of the VLAN, if the sharing type of the VLAN is Isolated or Community.",
                         "intersight_api": "PrimaryVlanId",
                         "minimum": 0,
                         "maximum": 4093,

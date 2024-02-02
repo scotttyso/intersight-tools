@@ -1630,9 +1630,7 @@ class imm(object):
             if not api_body.get('IsNative'): api_body['IsNative'] = False
             for x in ezfunctions.vlan_list_full(e.vlan_list):
                 if type(x) == str: x = int(x)
-                if not len(ezfunctions.vlan_list_full(e.vlan_list)) == 1:
-                    if e.name == 'vlan': api_body['Name'] = f"{e.name}{'0'*(4 - len(str(x)))}{x}"
-                    else: api_body['Name'] = f"{e.name}-vl{'0'*(4 - len(str(x)))}{x}"
+                if not (len(ezfunctions.vlan_list_full(e.vlan_list)) == 1 and e.name_prefix == False): api_body['Name'] = f"{e.name}{'0'*(4 - len(str(x)))}{x}"
                 api_body['VlanId'] = x
                 #=====================================================
                 # Create or Patch the VLANs via the Intersight API
