@@ -17,7 +17,7 @@ except ImportError as e:
     sys.exit(1)
 
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description='Intersight Converged Infrastructure Deployment Module')
+    Parser = argparse.ArgumentParser(description='UCS Central VLAN Push Module')
     Parser.add_argument( '-y', '--yaml-file', help = 'The input YAML File.', required=True )
     kwargs = DotMap()
     kwargs.args = Parser.parse_args()
