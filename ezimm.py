@@ -103,31 +103,31 @@ def create_terraform_workspaces(orgs, kwargs):
     org = kwargs.org
     tfcb_config = []
     polVars = DotMap()
-    kwargs.jData = DotMap()
-    kwargs.jData.default     = True
-    kwargs.jData.description = f'Terraform Cloud Workspaces'
-    kwargs.jData.varInput    = f'Do you want to Proceed with creating Workspaces in Terraform Cloud or Enterprise?'
-    kwargs.jData.varName     = 'Terraform Cloud Workspaces'
+    kwargs.jdata = DotMap()
+    kwargs.jdata.default     = True
+    kwargs.jdata.description = f'Terraform Cloud Workspaces'
+    kwargs.jdata.varInput    = f'Do you want to Proceed with creating Workspaces in Terraform Cloud or Enterprise?'
+    kwargs.jdata.varName     = 'Terraform Cloud Workspaces'
     runTFCB = ezfunctions.varBoolLoop(kwargs)
     if runTFCB == True:
         polVars = {}
         kwargs.multi_select = False
-        kwargs.jData = DotMap()
-        kwargs.jData.default     = 'Terraform Cloud'
-        kwargs.jData.description = 'Select the Terraform Target.'
-        kwargs.jData.enum        = ['Terraform Cloud', 'Terraform Enterprise']
-        kwargs.jData.varType     = 'Target'
+        kwargs.jdata = DotMap()
+        kwargs.jdata.default     = 'Terraform Cloud'
+        kwargs.jdata.description = 'Select the Terraform Target.'
+        kwargs.jdata.enum        = ['Terraform Cloud', 'Terraform Enterprise']
+        kwargs.jdata.varType     = 'Target'
         terraform_target = ezfunctions.variablesFromAPI(kwargs)
 
         if terraform_target[0] == 'Terraform Enterprise':
-            kwargs.jData = DotMap()
-            kwargs.jData.default     = f'app.terraform.io'
-            kwargs.jData.description = f'Hostname of the Terraform Enterprise Instance'
-            kwargs.jData.pattern     = '^[a-zA-Z0-9\\-\\.\\:]+$'
-            kwargs.jData.minimum     = 1
-            kwargs.jData.maximum     = 90
-            kwargs.jData.varInput    = f'What is the Hostname of the TFE Instance?'
-            kwargs.jData.varName     = f'Terraform Target Name'
+            kwargs.jdata = DotMap()
+            kwargs.jdata.default     = f'app.terraform.io'
+            kwargs.jdata.description = f'Hostname of the Terraform Enterprise Instance'
+            kwargs.jdata.pattern     = '^[a-zA-Z0-9\\-\\.\\:]+$'
+            kwargs.jdata.minimum     = 1
+            kwargs.jdata.maximum     = 90
+            kwargs.jdata.varInput    = f'What is the Hostname of the TFE Instance?'
+            kwargs.jdata.varName     = f'Terraform Target Name'
             polVars.tfc_host = ezfunctions.varStringLoop(kwargs)
             if re.search(r"[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+", polVars.tfc_host):
                 validating.ip_address('Terraform Target', polVars.tfc_host)
@@ -195,26 +195,26 @@ def create_terraform_workspaces(orgs, kwargs):
         #==============================================
         # Assign the Terraform Version
         #==============================================
-        kwargs.jData = DotMap()
-        kwargs.jData.default     = terraform_versions[0]
-        kwargs.jData.description = "Terraform Version for Workspaces:"
-        kwargs.jData.dontsort    = True
-        kwargs.jData.enum        = terraform_versions
-        kwargs.jData.varType     = 'Terraform Version'
+        kwargs.jdata = DotMap()
+        kwargs.jdata.default     = terraform_versions[0]
+        kwargs.jdata.description = "Terraform Version for Workspaces:"
+        kwargs.jdata.dontsort    = True
+        kwargs.jdata.enum        = terraform_versions
+        kwargs.jdata.varType     = 'Terraform Version'
         polVars.terraformVersion = ezfunctions.variablesFromAPI(kwargs)
         #==============================================
         # Begin Creating Workspaces
         #==============================================
         for org in orgs:
             kwargs.org = org
-            kwargs.jData = DotMap()
-            kwargs.jData.default     = f'{org}'
-            kwargs.jData.description = f'Name of the {org} Workspace to Create in Terraform Cloud'
-            kwargs.jData.pattern     = '^[a-zA-Z0-9\\-\\_]+$'
-            kwargs.jData.minimum     = 1
-            kwargs.jData.maximum     = 90
-            kwargs.jData.varInput    = f'Terraform Cloud Workspace Name.'
-            kwargs.jData.varName     = f'Workspace Name'
+            kwargs.jdata = DotMap()
+            kwargs.jdata.default     = f'{org}'
+            kwargs.jdata.description = f'Name of the {org} Workspace to Create in Terraform Cloud'
+            kwargs.jdata.pattern     = '^[a-zA-Z0-9\\-\\_]+$'
+            kwargs.jdata.minimum     = 1
+            kwargs.jdata.maximum     = 90
+            kwargs.jdata.varInput    = f'Terraform Cloud Workspace Name.'
+            kwargs.jdata.varName     = f'Workspace Name'
             polVars.workspaceName = ezfunctions.varStringLoop(kwargs)
             polVars.workspace_id = tf.terraform_cloud().tfcWorkspace(polVars, kwargs)
             vars = ['apikey.Intersight API Key', 'secretkey.Intersight Secret Key' ]

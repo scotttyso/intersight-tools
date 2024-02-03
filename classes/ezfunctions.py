@@ -10,6 +10,7 @@ try:
     from dotmap import DotMap
     from git import cmd, Repo
     from openpyxl import load_workbook
+    from pathlib import Path
     import ipaddress, itertools, jinja2, json, os, pexpect, pkg_resources, pytz, re, requests
     import shutil, subprocess, stdiomask, string, textwrap, validators, yaml
 except ImportError as e:
@@ -34,8 +35,11 @@ def child_login(kwargs):
     kwargs.sensitive_var = kwargs.password
     kwargs   = sensitive_var_value(kwargs)
     password = kwargs.var_value
+    kwargs.password = password
+    log_dir = os.path.join(str(Path.home()), 'Logs')
+    if not os.path.isdir(log_dir): os.mkdir(log_dir)
     #=====================================================
-    # Use 
+    # Launch Local Shell
     #=====================================================
     if kwargs.op_system == 'Windows':
         from pexpect import popen_spawn
@@ -44,18 +48,21 @@ def child_login(kwargs):
         system_shell = os.environ['SHELL']
         child = pexpect.spawn(system_shell, encoding='utf-8')
     child.logfile_read = sys.stdout
+    #=====================================================
+    # Test Connectivity with Ping and then Login
+    #=====================================================
     if kwargs.op_system == 'Windows':
         child.sendline(f'ping -n 2 {kwargs.hostname}')
         child.expect(f'ping -n 2 {kwargs.hostname}')
         child.expect_exact("> ")
-        child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | Tee-Object Logs\{kwargs.hostname}.txt')
-        child.expect(f'Tee-Object Logs\{kwargs.hostname}.txt')
+        child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | Tee-Object {log_dir}\{kwargs.hostname}.txt')
+        child.expect(f'Tee-Object {log_dir}\{kwargs.hostname}.txt')
     else:
         child.sendline(f'ping -c 2 {kwargs.hostname}')
         child.expect(f'ping -c 2 {kwargs.hostname}')
         child.expect_exact("$ ")
-        child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | tee Logs/{kwargs.hostname}.txt')
-        child.expect(f'tee Logs/{kwargs.hostname}.txt')
+        child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | tee {log_dir}/{kwargs.hostname}.txt')
+        child.expect(f'tee {log_dir}/{kwargs.hostname}.txt')
     logged_in = False
     while logged_in == False:
         i = child.expect(
@@ -73,6 +80,7 @@ def child_login(kwargs):
             prRed(f'!!! FAILED !!!\n Could not open SSH Connection to {kwargs.hostname}')
             prRed(f"\n{'-'*91}\n")
             sys.exit(1)
+    # Return values
     return child, kwargs
 
 #======================================================
@@ -258,7 +266,7 @@ def disable_daylight_savings(zonename):
     elif june_dst == False and dec_dst == True: return False
     elif june_dst == False and dec_dst == False: return True
     else:
-        print(f'unknown Timezone Result for {zonename}')
+        prRed(f'unknown Timezone Result for {zonename}')
         sys.exit(1)
 
 #======================================================
@@ -452,7 +460,7 @@ def findVars(ws, func, rows, count):
 # Function - Prompt User for the Intersight Configurtion
 #========================================================
 def intersight_config(kwargs):
-    kwargs.jData = DotMap()
+    kwargs.jdata = DotMap()
     if kwargs.args.intersight_api_key_id == None:
         kwargs.sensitive_var = 'intersight_api_key_id'
         kwargs = sensitive_var_value(kwargs)
@@ -874,32 +882,32 @@ def sensitive_var_value(kwargs):
                     prRed(f'    !!! ERROR !!!\n  Invalid Value for the {sensitive_var}.  Please re-enter the {sensitive_var}.')
                     prRed(f'\n{"-"*91}\n')
             elif re.search('intersight_api_key_id', sensitive_var):
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.intersight_api_key_id
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.intersight_api_key_id
                 valid = validate_sensitive(secure_value, kwargs)
             elif 'bind' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.ldap_binding_password
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.ldap_binding_password
                 valid = validate_sensitive(secure_value, kwargs)
             elif 'community' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.snmp_community_string
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.snmp_community_string
                 valid = validate_sensitive(secure_value, kwargs)
             elif 'ipmi_key' in sensitive_var: valid = validating.ipmi_key_check(secure_value)
             elif 'iscsi_boot' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.iscsi_boot_password
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.iscsi_boot_password
                 valid = validate_sensitive(secure_value, kwargs)
-            elif 'local_user_password' in sensitive_var or 'ucs_password' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.local_user_password
+            elif re.search('(local_user|ucs(_central)?)_password', sensitive_var):
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.local_user_password
                 if kwargs.enforce_strong_password == True:
                     kwargs.jdata.maxLength = 20
                     valid = validate_strong_password(secure_value, kwargs)
                 else: valid = validate_sensitive(secure_value, kwargs)
             elif 'persistent_passphrase' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.persistent_passphrase
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.persistent_passphrase
                 valid = validate_sensitive(secure_value, kwargs)
             elif 'snmp' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.snmp_password
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.snmp_password
                 valid = validate_sensitive(secure_value, kwargs)
             elif 'vmedia' in sensitive_var:
-                kwargs.jdata = kwargs.ezdata.sensitive_variables.vmedia_password
+                kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.vmedia_password
                 valid = validate_sensitive(secure_value, kwargs)
 
         # Add Policy Variables to imm_dict
@@ -1328,17 +1336,17 @@ def validate_ipmi_key(varValue):
 #======================================================
 def validate_sensitive(secure_value, kwargs):
     invalid_count = 0
-    if not validators.length(secure_value, min=int(kwargs.minLength), max=int(kwargs.maxLength)):
+    if not validators.length(secure_value, min=int(kwargs.jdata.minLength), max=int(kwargs.jdata.maxLength)):
         invalid_count += 1
         prRed(f'\n--------------------------------------------------------------------------------------\n')
         prRed(f'   !!! {kwargs.sensitive_var} is Invalid!!!')
-        prRed(f'   Length Must be between {kwargs.minLength} and {kwargs.maxLength} characters.')
+        prRed(f'   Length Must be between {kwargs.jdata.minLength} and {kwargs.jdata.maxLength} characters.')
         prRed(f'\n--------------------------------------------------------------------------------------\n')
-    if not re.search(kwargs.pattern, secure_value):
+    if not re.search(kwargs.jdata.pattern, secure_value):
         invalid_count += 1
         prRed(f'\n--------------------------------------------------------------------------------------\n')
         prRed(f'   !!! Invalid Characters in {kwargs.sensitive_var}.  The allowed characters are:')
-        prRed(f'   - "{kwargs.pattern}"')
+        prRed(f'   - "{kwargs.jdata.pattern}"')
         prRed(f'\n--------------------------------------------------------------------------------------\n')
     if invalid_count == 0: return True
     else: return False

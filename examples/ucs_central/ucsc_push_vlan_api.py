@@ -8,8 +8,9 @@ try:
     from ucscsdk.ucschandle import UcsHandle
     from ucscsdk.mometa.fabric.FabricNetGroup import FabricNetGroup
     from ucscsdk.mometa.fabric.FabricPoolableVlan import FabricPooledVlan
-    from ucscsdk.mometa.fabric.FabricLanCloud import FabricLanCloud
     from ucscsdk.mometa.fabric.FabricVlan import FabricVlan
+    from ucscsdk.methodmeta import ConfigPublishVlanMeta
+    from ucscsdk.utils.ucscdomain import get_domain
     import argparse, getpass, json, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -24,41 +25,25 @@ def cli_arguments():
     kwargs.args = Parser.parse_args()
     return kwargs
 
-def create_modify_vlan(handle, vlan_id, vlan_name):
-    mo = FabricLanCloud(parent_mo_or_dn="domaingroup-root/fabric/lan", mode="end-host",
-                        vlan_compression="disabled", mac_aging="mode-default")
+def create_vlan(handle, kwargs):
     dn = handle.query_dn("domaingroup-root/fabric/lan")
-    mo = FabricVlan(parent_mo_or_dn="domaingroup-root/fabric/lan", name=vlan_name)
-    handle.remove_mo(mo)
-    handle.commit()
+    mo = FabricVlan(parent_mo_or_dn="domaingroup-root/fabric/lan", name=kwargs.vlan_name)
     handle.add_mo(mo)
     handle.commit()
-    obj = handle.query_dn("domaingroup-root/fabric/lan/net-" + vlan_name)
-    obj.id = vlan_id
+    obj = handle.query_dn("domaingroup-root/fabric/lan/net-" + kwargs.vlan_name)
+    obj.id = kwargs.vlan_id
     handle.set_mo(obj)
     handle.commit()
 
-def create_modify_vlan_group(handle, vlan_id, vlan_name):
+def add_vlan_to_vlan_group(handle, kwargs):
     dn_base = 'domaingroup-root/domaingroup-Lab-RDU/fabric/lan'
-    vlanGroup = FabricNetGroup(parent_mo_or_dn=dn_base, name='breakthings')
-    vlanRef = FabricPooledVlan(parent_mo_or_dn=vlanGroup, name='RDU1 OOBMBBCORE-01/02 to MGMTFW-01')
+    vlanGroup = FabricNetGroup(parent_mo_or_dn=dn_base, name=kwargs.vlan_group)
+    vlanRef = FabricPooledVlan(parent_mo_or_dn=vlanGroup, name=kwargs.vlan_name)
     handle.add_mo(vlanRef, True)
     handle.commit()
-    mo = FabricLanCloud(parent_mo_or_dn="domaingroup-root/fabric/lan", mode="end-host",
-                        vlan_compression="disabled", mac_aging="mode-default")
-    dn = handle.query_dn("domaingroup-root/fabric/lan")
-    mo = FabricVlan(parent_mo_or_dn="domaingroup-root/fabric/lan", name=vlan_name)
-    handle.remove_mo(mo)
-    handle.commit()
-    handle.add_mo(mo)
-    handle.commit()
-    obj = handle.query_dn("domaingroup-root/fabric/lan/net-" + vlan_name)
-    obj.id = vlan_id
-    handle.set_mo(obj)
-    handle.commit()
 
-def delete_vlan(handle, vland_id, vlan_name):
-    obj = handle.query_dn("domaingroup-root/fabric/lan/net-" + vlan_name)
+def delete_vlan(handle, kwargs):
+    obj = handle.query_dn("domaingroup-root/fabric/lan/net-" + kwargs.vlan_name)
     handle.remove_mo(obj)
     handle.commit()
 
@@ -73,6 +58,9 @@ def main():
     user_passwd = getpass.getpass("=> passowrd: ")
     handle=UcsHandle()
     handle.login(ip=ydict.hostname,username=ydict.username, password=user_passwd)
+    print(handle)
+    for e in ydict.domains:
+        domain = get_domain(handle, domain_ip=e.domain_ip)
     print("=> logged into {}".format(handle.ip))
     print("=> logging out of {}".format(handle.ip))
     handle.logout()
