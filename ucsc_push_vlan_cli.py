@@ -71,7 +71,7 @@ def main():
             cmd_check = False
             while cmd_check == False:
                 i = child.expect(['Do you want to continue?', kwargs.host_prompt])
-                if   i == 0: child.sendline('yes')
+                if   i == 0: child.sendline('yes'); child.expect('yes')
                 elif i == 1: cmd_check = True
         child.sendline('exit')
         child.expect(kwargs.host_prompt)
