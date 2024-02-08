@@ -12,8 +12,8 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 
-oregex = re.compile(
-    'fabric.([a-zA-z]+(Mode|Role)|(Eth|Fc)NetworkP)|vnic.(Eth|Fc)If|iam.EndPointUserRole|DriveGroup|Ldap(Group|Provider)')
+oregex = re.compile('fabric.([a-zA-z]+(Mode|Role)|V[l|s]an)|vnic.(Eth|Fc)If|iam.EndPointUserRole|DriveGroup|Ldap(Group|Provider)')
+#oregex = re.compile('fabric.([a-zA-z]+(Mode|Role)|(Eth|Fc)NetworkP)|vnic.(Eth|Fc)If|iam.EndPointUserRole|DriveGroup|Ldap(Group|Provider)')
 policy_regex = re.compile('(network_connectivity|ntp|port|snmp|switch_control|syslog|system_qos|vlan|vsan)')
 
 # Errors & Notifications
@@ -53,18 +53,19 @@ def completed_item(ptype, kwargs):
     if re.search(oregex, iresults.get('ObjectType')):
         parent_type = iresults['ObjectType'].split('.')[1]
         if method == 'post':
-            pcolor.Green(f'      * Completed {method.upper()} for {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'      * Completed {method.upper()} for {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+        else:
+            pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', kwargs.qtype) and kwargs.qtype == 'firmware':
         if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
         else: pcolor.LightPurple(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
     elif iresults.get('Targets'):
-        if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
     else:
         if method == 'post': pcolor.Green(f'    - Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
 
 def deploy_notification(profile, profile_type):
     print(f'\n-------------------------------------------------------------------------------------------\n')

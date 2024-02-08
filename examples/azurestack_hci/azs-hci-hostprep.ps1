@@ -59,7 +59,7 @@ if (!( Test-Path -PathType Container $log_dir)) {
 Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER).log" -Append -Confirm:$false
 Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
-# Install YAML PowerShell Module
+# Install PowerShell Modules
 #=============================================================================
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 $required_modules = @("PowerShellGet", "AzStackHci.EnvironmentChecker", "powershell-yaml")

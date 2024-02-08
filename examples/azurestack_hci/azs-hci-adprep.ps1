@@ -40,6 +40,7 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     Write-Host "Script must run with elevated Administrator permissions...Exiting" -Foreground Red
     Exit 1
 }
+$computer_name = (Get-ComputerInfo).CsDNSHostName
 #=============================================================================
 # Setup Environment
 #=============================================================================

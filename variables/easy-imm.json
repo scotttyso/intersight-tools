@@ -16934,8 +16934,8 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true`.  Used to define whether the name should be used as a prefix or not when it is a list of vlans.",
-                        "intersightApi": "IsNative",
-                        "title": "native_vlan"
+                        "intersight_api": "name_prefix",
+                        "title": "name_prefix"
                         },
                         "native_vlan": {
                         "type": "boolean",
