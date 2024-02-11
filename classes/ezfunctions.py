@@ -69,16 +69,16 @@ def child_login(kwargs):
             ['Are you sure you want to continue', 'closed', 'password:', 'Password:', kwargs.host_prompt, pexpect.TIMEOUT])
         if i == 0: child.sendline('yes')
         elif i == 1:
-            prRed(f'\n!!! FAILED !!! to connect.  '\
+            pcolor.Red(f'\n!!! FAILED !!! to connect.  '\
                 f'Please Validate {kwargs.hostname} is correct and username {kwargs.username} is correct.')
             sys.exit(1)
         elif i == 2: child.sendline(password)
         elif i == 3: child.sendline(password)
         elif i == 4: logged_in = True
         elif i == 5:
-            prRed(f"\n{'-'*91}\n")
-            prRed(f'!!! FAILED !!!\n Could not open SSH Connection to {kwargs.hostname}')
-            prRed(f"\n{'-'*91}\n")
+            pcolor.Red(f"\n{'-'*91}\n")
+            pcolor.Red(f'!!! FAILED !!!\n Could not open SSH Connection to {kwargs.hostname}')
+            pcolor.Red(f"\n{'-'*91}\n")
             sys.exit(1)
     # Return values
     return child, kwargs
@@ -266,7 +266,7 @@ def disable_daylight_savings(zonename):
     elif june_dst == False and dec_dst == True: return False
     elif june_dst == False and dec_dst == False: return True
     else:
-        prRed(f'unknown Timezone Result for {zonename}')
+        pcolor.Red(f'unknown Timezone Result for {zonename}')
         sys.exit(1)
 
 #======================================================
@@ -483,14 +483,14 @@ def intersight_config(kwargs):
                 secret_path = ''
             if '~' in secret_path: secret_path = os.path.expanduser(secret_path)
             if not secret_path == '':
-                if not os.path.isfile(secret_path): prRed(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key not found.')
+                if not os.path.isfile(secret_path): pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key not found.')
                 else:
                     secret_file = open(secret_path, 'r'); count = 0
                     if '-----BEGIN RSA PRIVATE KEY-----' in secret_file.read(): count += 1
                     secret_file.seek(0)
                     if '-----END RSA PRIVATE KEY-----' in secret_file.read(): count += 1
                     if count == 2: kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
-                    else: prRed(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key does not seem to contain a Valid Secret Key.')
+                    else: pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key does not seem to contain a Valid Secret Key.')
             if not valid == True:
                 kwargs.jdata = DotMap(
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
@@ -509,7 +509,7 @@ def intersight_config(kwargs):
             if re.search(r'^[a-zA-Z0-9]{1,4}:', varValue): valid = validating.ip_address(varName, varValue)
             elif re.search(r'[a-zA-Z]', varValue): valid = validating.dns_name(varName, varValue)
             elif re.search(r'^([0-9]{1,3}\.){3}[0-9]{1,3}$', varValue): valid = validating.ip_address(varName, varValue)
-            else: prRed(f'\n{"-"*108}\n\n  "{varValue}" is not a valid address.\n\n{"-"*108}\n')
+            else: pcolor.Red(f'\n{"-"*108}\n\n  "{varValue}" is not a valid address.\n\n{"-"*108}\n')
         if valid == False:
             kwargs.jdata = kwargs.ezdata.ntp.allOf[1].properties.ntp_servers['items']
             kwargs.jdata.update(DotMap(description = 'Hostname of the Intersight FQDN',
@@ -626,7 +626,7 @@ def merge_easy_imm_repository(kwargs):
 # Function - Message for Invalid List Selection
 #======================================================
 def message_invalid_selection():
-    prRed(f'\n{"-"*108}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message for Invalid Selection Y or N
@@ -634,34 +634,34 @@ def message_invalid_selection():
 def message_invalid_y_or_n(length):
     if length == 'short': dashRep = '-'*54
     else: dashRep = '-'*91
-    prRed(f'\n{dashRep}\n\n  !!!Error!!! Invalid Value.  Please enter `Y` or `N`.\n\n{dashRep}\n')
+    pcolor.Red(f'\n{dashRep}\n\n  !!!Error!!! Invalid Value.  Please enter `Y` or `N`.\n\n{dashRep}\n')
 
 #======================================================
 # Function - Message Invalid FCoE VLAN
 #======================================================
 def message_fcoe_vlan(fcoe_id, vlan_policy):
-    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  The FCoE VLAN `{fcoe_id}` is already assigned to the VLAN Policy')
-    prRed(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The FCoE VLAN `{fcoe_id}` is already assigned to the VLAN Policy')
+    pcolor.Red(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.\n\n{"-"*108}\n')
 
 #======================================================
 # Function(s) - Message Invalid Native VLAN
 #======================================================
 def message_invalid_native_vlan(nativeVlan, VlanList):
-    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  The Native VLAN `{nativeVlan}` was not in the VLAN Policy List.')
-    prRed(f'  VLAN Policy List is: "{VlanList}"\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The Native VLAN `{nativeVlan}` was not in the VLAN Policy List.')
+    pcolor.Red(f'  VLAN Policy List is: "{VlanList}"\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Invalid VLAN/VSAN
 #======================================================
 def message_invalid_vxan():
-    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Invalid VLAN
 #======================================================
 def message_invalid_vsan_id(vsan_policy, vsan_id, vsan_list):
-    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  The VSAN `{vsan_id}` is not in the VSAN Policy `{vsan_policy}`.')
-    prRed(f'  Options are: {vsan_list}.\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The VSAN `{vsan_id}` is not in the VSAN Policy `{vsan_policy}`.')
+    pcolor.Red(f'  Options are: {vsan_list}.\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Starting Over
@@ -813,7 +813,7 @@ def read_in(excel_workbook, kwargs):
         kwargs['wb'] = load_workbook(excel_workbook)
         pcolor.Cyan("Workbook Loaded.")
     except Exception as e:
-        prRed(f'\n{"-"*108}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!\n\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!\n\n{"-"*108}\n')
         sys.exit(e)
     return kwargs
 
@@ -825,7 +825,7 @@ def repo_url_test(file, pargs):
     try:
         r = requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
     except requests.RequestException as e:
-        prRed(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n\n{"-"*108}\n')
         sys.exit(1)
     return repo_url
 
@@ -870,7 +870,7 @@ def sensitive_var_value(kwargs):
                     password1 = stdiomask.getpass(prompt=f"Enter the value for {kwargs.sensitive_var}: ")
                     password2 = stdiomask.getpass(prompt=f"Re-Enter the value for {kwargs.sensitive_var}: ")
                     if password1 == password2: secure_value = password1; valid_pass = True
-                    else: prRed('!!! ERROR !!! Sensitive Values did not match.  Please re-enter...')
+                    else: pcolor.Red('!!! ERROR !!! Sensitive Values did not match.  Please re-enter...')
 
             # Validate Sensitive Passwords
             cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
@@ -878,9 +878,9 @@ def sensitive_var_value(kwargs):
             if re.search('(certificate|private_key)', sensitive_var):
                 if not re.search(cert_regex, secure_value): valid = True
                 else:
-                    prRed(f'\n{"-"*108}\n')
-                    prRed(f'    !!! ERROR !!!\n  Invalid Value for the {sensitive_var}.  Please re-enter the {sensitive_var}.')
-                    prRed(f'\n{"-"*108}\n')
+                    pcolor.Red(f'\n{"-"*108}\n')
+                    pcolor.Red(f'    !!! ERROR !!!\n  Invalid Value for the {sensitive_var}.  Please re-enter the {sensitive_var}.')
+                    pcolor.Red(f'\n{"-"*108}\n')
             elif re.search('intersight_api_key_id', sensitive_var):
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.intersight_api_key_id
                 valid = validate_sensitive(secure_value, kwargs)
@@ -1165,9 +1165,9 @@ def ucs_serial(kwargs):
         if serial == '': serial = 'unknown'; valid = True
         elif re.fullmatch(r'^[A-Z]{3}[2-3][\d]([0][1-9]|[1-4][0-9]|[5][1-3])[\dA-Z]{4}$', serial): valid = True
         else:
-            prRed(f'\n-------------------------------------------------------------------------------------------\n')
-            prRed(f'  Error!! Invalid Serial Number.  "{serial}" is not a valid serial.')
-            prRed(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'  Error!! Invalid Serial Number.  "{serial}" is not a valid serial.')
+            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
     return serial
 
 #======================================================
@@ -1193,9 +1193,9 @@ def ucs_domain_serials(kwargs):
             elif re.fullmatch(r'^[A-Z]{3}[2-3][\d]([0][1-9]|[1-4][0-9]|[5][1-3])[\dA-Z]{4}$', polVars[f'serial_{x}']):
                 valid = True
             else:
-                prRed(f'\n-------------------------------------------------------------------------------------------\n')
-                prRed('  Error!! Invalid Serial Number.  "{}" is not a valid serial.').format(polVars[f'serial_{x}'])
-                prRed(f'\n-------------------------------------------------------------------------------------------\n')
+                pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+                pcolor.Red('  Error!! Invalid Serial Number.  "{}" is not a valid serial.').format(polVars[f'serial_{x}'])
+                pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
     serials = [polVars['serial_A'], polVars['serial_B']]
     return serials
 
@@ -1255,7 +1255,7 @@ def validate_args(json_data, kwargs):
         elif json_data[i]['type'] == 'string':
             if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
                 validating.string_pattern(i, json_data, kwargs)
-        else: prRed(f"error validating.  Type not found {json_data[i]['type']}. 2."); sys.exit(1)
+        else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 2."); sys.exit(1)
     for i in json_data['optional_args']:
         if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
             if re.search(r'^module_[\d]+$', i): validating.list_values_key('modules', i, json_data, kwargs)
@@ -1294,7 +1294,7 @@ def validate_args(json_data, kwargs):
             elif json_data[i]['type'] == 'list_of_vlans':  validating.vlans(i, kwargs)
             elif json_data[i]['type'] == 'mac_address':    validating.mac_address(i, kwargs)
             elif json_data[i]['type'] == 'string':         validating.string_pattern(i, json_data, kwargs)
-            else: prRed(f"error validating.  Type not found {json_data[i]['type']}. 3."); sys.exit(1)
+            else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 3."); sys.exit(1)
     return kwargs
 
 #======================================================
@@ -1309,10 +1309,10 @@ def validate_vlan_in_policy(vlan_policy_list, vlan_id):
             if int(vlan) == int(vlan_id): vlan_count = 1; continue
         if vlan_count == 1: valid = True; return valid
         else:
-            prRed(f'\n-------------------------------------------------------------------------------------------\n')
-            prRed(f'  VLAN {vlan_id} not found in the VLAN Policy List.  Please us a VLAN from the list below:')
-            prRed(f'  {vlan_policy_list}')
-            prRed(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'  VLAN {vlan_id} not found in the VLAN Policy List.  Please us a VLAN from the list below:')
+            pcolor.Red(f'  {vlan_policy_list}')
+            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
             return valid
 
 def validate_ipmi_key(varValue):
@@ -1322,12 +1322,12 @@ def validate_ipmi_key(varValue):
     if not validators.length(varValue, min=2, max=40): valid_count += 1
     if not len(varValue) % 2 == 0: valid_count += 1
     if not valid_count == 0:
-        prRed(f'\n-----------------------------------------------------------------------------\n')
-        prRed(f'   Error with ipmi_key!!  The encryption key should have an even number of ')
-        prRed(f'   hexadecimal characters and not exceed 40 characters.\n')
-        prRed(f'   Valid Hex Characters are:')
-        prRed(f'    - {string.hexdigits}')
-        prRed(f'\n-----------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n-----------------------------------------------------------------------------\n')
+        pcolor.Red(f'   Error with ipmi_key!!  The encryption key should have an even number of ')
+        pcolor.Red(f'   hexadecimal characters and not exceed 40 characters.\n')
+        pcolor.Red(f'   Valid Hex Characters are:')
+        pcolor.Red(f'    - {string.hexdigits}')
+        pcolor.Red(f'\n-----------------------------------------------------------------------------\n')
         return False
     else: return True
 
@@ -1338,16 +1338,16 @@ def validate_sensitive(secure_value, kwargs):
     invalid_count = 0
     if not validators.length(secure_value, min=int(kwargs.jdata.minLength), max=int(kwargs.jdata.maxLength)):
         invalid_count += 1
-        prRed(f'\n--------------------------------------------------------------------------------------\n')
-        prRed(f'   !!! {kwargs.sensitive_var} is Invalid!!!')
-        prRed(f'   Length Must be between {kwargs.jdata.minLength} and {kwargs.jdata.maxLength} characters.')
-        prRed(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'   !!! {kwargs.sensitive_var} is Invalid!!!')
+        pcolor.Red(f'   Length Must be between {kwargs.jdata.minLength} and {kwargs.jdata.maxLength} characters.')
+        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
     if not re.search(kwargs.jdata.pattern, secure_value):
         invalid_count += 1
-        prRed(f'\n--------------------------------------------------------------------------------------\n')
-        prRed(f'   !!! Invalid Characters in {kwargs.sensitive_var}.  The allowed characters are:')
-        prRed(f'   - "{kwargs.jdata.pattern}"')
-        prRed(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'   !!! Invalid Characters in {kwargs.sensitive_var}.  The allowed characters are:')
+        pcolor.Red(f'   - "{kwargs.jdata.pattern}"')
+        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
     if invalid_count == 0: return True
     else: return False
 
@@ -1365,16 +1365,16 @@ def validate_strong_password(secure_value, kwargs):
     if re.search(r'[0-9]', secure_value): valid_count += 1
     if re.search(r'[\!\@\#\$\%\^\&\*\-\_\+\=]', secure_value): valid_count += 1
     if not invalid_count == 0 and valid_count >= 4:
-        prRed(f'\n---------------------------------------------------------------------------------------\n')
-        prRed(f"   Error with {kwargs.sensitive_var}! The password failed one of the following complexity rules:")
-        prRed(f'     - The password must have a minimum of 8 and a maximum of 20 characters.')
-        prRed(f"     - The password must not contain the User's Name.")
-        prRed(f'     - The password must contain characters from three of the following four categories.')
-        prRed(f'       * English uppercase characters (A through Z).')
-        prRed(f'       * English lowercase characters (a through z).')
-        prRed(f'       * Base 10 digits (0 through 9).')
-        prRed(f'       * Non-alphabetic characters (! , @, #, $, %, ^, &, *, -, _, +, =)')
-        prRed(f'\n---------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n---------------------------------------------------------------------------------------\n')
+        pcolor.Red(f"   Error with {kwargs.sensitive_var}! The password failed one of the following complexity rules:")
+        pcolor.Red(f'     - The password must have a minimum of 8 and a maximum of 20 characters.')
+        pcolor.Red(f"     - The password must not contain the User's Name.")
+        pcolor.Red(f'     - The password must contain characters from three of the following four categories.')
+        pcolor.Red(f'       * English uppercase characters (A through Z).')
+        pcolor.Red(f'       * English lowercase characters (a through z).')
+        pcolor.Red(f'       * Base 10 digits (0 through 9).')
+        pcolor.Red(f'       * Non-alphabetic characters (! , @, #, $, %, ^, &, *, -, _, +, =)')
+        pcolor.Red(f'\n---------------------------------------------------------------------------------------\n')
         return False
     else: return True
 
@@ -1438,7 +1438,7 @@ def variableFromList(kwargs):
                 for vars in var_list:
                     if int(vars) == index: var_count += 1; selection.append(value)
             if var_count == var_length: valid = True
-            else: prRed(f'\n{"-"*108}\n\n  The list of Vars {var_list} did not match the available list.\n\n{"-"*108}\n')
+            else: pcolor.Red(f'\n{"-"*108}\n\n  The list of Vars {var_list} did not match the available list.\n\n{"-"*108}\n')
         if valid == False: message_invalid_selection()
     return selection, valid
 
@@ -1450,11 +1450,11 @@ def variablePrompt(kwargs):
     # Improper Value Notifications
     #==============================================
     def invalid_boolean(title, answer):
-        prRed(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!! Please enter `Y` or `N`.\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!! Please enter `Y` or `N`.\n{"-"*108}\n')
     def invalid_integer(title, answer):
-        prRed(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!  Valid range is `{minimum}-{maximum}`.\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!  Valid range is `{minimum}-{maximum}`.\n{"-"*108}\n')
     def invalid_string(title, answer):
-        prRed(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!\n{"-"*108}\n')
     #==============================================
     # Set Function Variables
     #==============================================
@@ -1580,17 +1580,17 @@ def vlan_pool(name):
                 valid_vlan = validating.number_in_range('VLAN ID', vlan, 1, 4094)
                 if valid_vlan == False: break
             if valid_vlan == False:
-                prRed(f'\n{"-"*108}\n')
-                prRed(f'  !!!Error!!!\n  With VLAN(s) assignment. VLAN List: "{VlanList}" is not Valid.')
-                prRed(f'  The allowed vlan list can be in the format of:')
-                prRed(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
-                prRed(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
+                pcolor.Red(f'\n{"-"*108}\n')
+                pcolor.Red(f'  !!!Error!!!\n  With VLAN(s) assignment. VLAN List: "{VlanList}" is not Valid.')
+                pcolor.Red(f'  The allowed vlan list can be in the format of:')
+                pcolor.Red(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
+                pcolor.Red(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
             else: valid = True
         else:
-            prRed(f'\n{"-"*108}\n')
-            prRed(f'  The allowed vlan list can be in the format of:')
-            prRed(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
-            prRed(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
+            pcolor.Red(f'\n{"-"*108}\n')
+            pcolor.Red(f'  The allowed vlan list can be in the format of:')
+            pcolor.Red(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
+            pcolor.Red(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
     return VlanList,vlanListExpanded
 
 #========================================================

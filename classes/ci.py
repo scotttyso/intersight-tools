@@ -1596,13 +1596,13 @@ class imm(object):
             # Send Error Message if IP Range isn't long enough
             #=====================================================
             def error_ip_range(i):
-                prRed(f'!!! ERROR !!!\nNot Enough IPs in Range {i.server} for {name}')
+                pcolor.Red(f'!!! ERROR !!!\nNot Enough IPs in Range {i.server} for {name}')
                 sys.exit(1)
             #=====================================================
             # Send Error Message if Server Range is missing
             #=====================================================
             def error_server_range(i):
-                prRed(f'!!! ERROR !!!\nDid Not Find Server IP Range defined for {i.vlan_type}:{i.name}:{i.vlan_id}')
+                pcolor.Red(f'!!! ERROR !!!\nDid Not Find Server IP Range defined for {i.vlan_type}:{i.name}:{i.vlan_id}')
                 sys.exit(1)
             #=====================================================
             # Dictionary of IP Settings for Server
@@ -1683,13 +1683,13 @@ class imm(object):
                             match_profile = True
                             break
                     if match_profile == False:
-                        prRed('!!! ERROR !!!')
-                        prRed(f'Did not Find Profile Definition for {k}')
-                        prRed(f'Profiles:\n')
-                        prRed(json.dumps(idict.profiles, indent=4))
-                        prRed(f'Server Settings:\n')
-                        prRed(json.dumps(v, indent=4))
-                        prRed('!!! ERROR !!!\n Exiting...')
+                        pcolor.Red('!!! ERROR !!!')
+                        pcolor.Red(f'Did not Find Profile Definition for {k}')
+                        pcolor.Red(f'Profiles:\n')
+                        pcolor.Red(json.dumps(idict.profiles, indent=4))
+                        pcolor.Red(f'Server Settings:\n')
+                        pcolor.Red(json.dumps(v, indent=4))
+                        pcolor.Red('!!! ERROR !!!\n Exiting...')
                         sys.exit(1)
                     if equipment_type == 'RackServer': name = pstart
                     else: name = f"{pprefix}{str(pstart+v.slot-1).zfill(suffix)}"
@@ -2538,9 +2538,9 @@ class wizard(object):
                 kwargs.vmware_esxi_password = kwargs.var_value
             if v.boot_volume == 'm2':
                 if not v.storage_controllers.get('UCS-M2-HWRAID'):
-                    prRed(f"!!! ERROR !!!\n  Could not determine the Controller Slot for:")
-                    prRed(f"  * Profile: {kwargs.server_profiles[k].name}")
-                    prRed(f"  * Serial:  {kwargs.server_profiles[k].serial}\n")
+                    pcolor.Red(f"!!! ERROR !!!\n  Could not determine the Controller Slot for:")
+                    pcolor.Red(f"  * Profile: {kwargs.server_profiles[k].name}")
+                    pcolor.Red(f"  * Serial:  {kwargs.server_profiles[k].serial}\n")
                     sys.exit(1)
         #==================================
         # Test Repo URL for File
@@ -2548,8 +2548,8 @@ class wizard(object):
         def test_repo_url(repo_url):
             try: requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
             except requests.RequestException as e:
-                prRed(f"!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n")
-                prRed(f"Please Validate the Software Repository is setup properly.  Exiting...")
+                pcolor.Red(f"!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n")
+                pcolor.Red(f"Please Validate the Software Repository is setup properly.  Exiting...")
                 sys.exit(1)
         #==========================================
         # Cfg Repositories if os_install is True
@@ -2718,7 +2718,7 @@ class wizard(object):
                         pcolor.Green(f'    - Completed Operating System Installation for {k}.')
                     elif re.search('(FAILED|TERMINATED|TIME_OUT)', kwargs.results.Status):
                         kwargs.upgrade.failed.update({k:v.moid})
-                        prRed(f'!!! FAILED !!! Operating System Installation for Server Profile {k} failed.')
+                        pcolor.Red(f'!!! FAILED !!! Operating System Installation for Server Profile {k} failed.')
                         install_complete= True; os_install_fail_count += 1
                     else:
                         progress= kwargs.results.Progress
@@ -3056,20 +3056,20 @@ class wizard(object):
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
         try: r = s.post(data = data, headers= {'Content-Type': 'application/json'}, url = f'{url}/api/v1/login', verify = False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}\n'); sys.exit(1)
-        if not r.status_code == 200: prRed(r.text); sys.exit(1)
+        if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
         jdata = json.loads(r.text)
         token = jdata['token']
         # GET EXISTING FILES FROM THE SOFTWARE REPOSITORY
         try: r = s.get(url = f'{url}/api/v1/repo/files', headers={'x-access-token': token}, verify=False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-        if not r.ok: prRed(r.text); sys.exit(1)
+        if not r.ok: pcolor.Red(r.text); sys.exit(1)
         repository_files = (r.json())['repofiles']
         indx = next((index for (index, d) in enumerate(repository_files) if d['name'] == azs_file_name), None)
         if not indx == None:
             pcolor.Cyan(f'  * Deleting Existing Copy of `{azs_file_name}` on `{url}/api/v1/repo/files`')
             try: r = s.delete(url = f'{url}/api/v1/repo/files/{azs_file_name}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-            if not r.ok: prRed(r.text); sys.exit(1)
+            if not r.ok: pcolor.Red(r.text); sys.exit(1)
         # CREATE ZIP FILE IN THE SOFTWARE REPOSITORY
         file = open(f'{cwd}{os.sep}{azs_file_name}', 'rb')
         files = {'file': file}
@@ -3079,14 +3079,14 @@ class wizard(object):
             url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
         except requests.exceptions.ConnectionError as e:
             pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-        if not r.ok: prRed(r.text); sys.exit(1)
+        if not r.ok: pcolor.Red(r.text); sys.exit(1)
         file.close()
         # LOGOUT OF THE API
         for uri in ['logout']:
             try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if 'repo' in uri: jdata = json.loads(r.text)
-            if not r.status_code == 200: prRed(r.text); sys.exit(1)
+            if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
         # REMOVE FOLDER and ZIP FILE
         try: shutil.rmtree(new_dir)
         except OSError as e: print("Error: %s - %s." % (e.filename, e.strerror))

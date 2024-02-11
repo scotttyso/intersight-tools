@@ -157,11 +157,11 @@ def main():
     kwargs = isight.api('organization').all_organizations(kwargs)
     if not kwargs.args.yaml_file == None:
         if not os.path.isfile(kwargs.args.yaml_file):
-            prRed(f'\n-------------------------------------------------------------------------------------------\n')
-            prRed(f'  !!ERROR!!')
-            prRed(f'  Did not find the file {kwargs.args.yaml_file}.')
-            prRed(f'  Please Validate that you have specified the correct file and path.')
-            prRed(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'  !!ERROR!!')
+            pcolor.Red(f'  Did not find the file {kwargs.args.yaml_file}.')
+            pcolor.Red(f'  Please Validate that you have specified the correct file and path.')
+            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
             sys.exit(1)
         else:
             def try_utf8(yaml_file):

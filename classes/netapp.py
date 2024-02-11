@@ -259,7 +259,7 @@ class api(object):
             while zerospares == False:
                 i = child.expect([r'\d.\d.[\d]+ [\d]', 'to page down', kwargs.host_prompt])
                 if i == 0:
-                    if dcount == 10: prRed(f'\n**failed on "{cmd}".  Please Check for any issues and restart the wizard.')
+                    if dcount == 10: pcolor.Red(f'\n**failed on "{cmd}".  Please Check for any issues and restart the wizard.')
                     time.sleep(60)
                     dcount =+ 1
                     child.sendline(cmd)
@@ -345,11 +345,11 @@ class api(object):
                         r = DotMap(deepcopy(r))
                         if r.name == p and r.state == 'compliant': license_installed = True
                         #elif r.name == p and r.state == 'noncompliant':
-                        #    prRed(f'\n!!! ERROR !!!\nLicense for protocol {p} is {r.state}\n')
+                        #    pcolor.Red(f'\n!!! ERROR !!!\nLicense for protocol {p} is {r.state}\n')
                         #    sys.exit(1)
                         elif r.name == p: license_installed = True
                     if license_installed == False:
-                        prRed(f'\n!!! ERROR !!!\nNo License was found for protocol {p}\n')
+                        pcolor.Red(f'\n!!! ERROR !!!\nNo License was found for protocol {p}\n')
                         sys.exit(1)
             #=====================================================
             # Configure Sub-Sections
@@ -1585,11 +1585,11 @@ def auth(kwargs, section=''):
     while auth == '':
         try: auth = s.post(url, verify=False)
         except requests.exceptions.ConnectionError as e:
-            prRed("Connection error, pausing before retrying. Error: %s" % (e))
+            pcolor.Red("Connection error, pausing before retrying. Error: %s" % (e))
             time.sleep(5)
         except Exception as e:
-            prRed(f'{url}')
-            prRed("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
+            pcolor.Red(f'{url}')
+            pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
             sys.exit(1)
     return s, url
 
@@ -1601,8 +1601,8 @@ def check_for_boot_lun(kwargs):
     for v in kwargs.volumes:
         if v.volume_type == 'boot': boot_volume = True
     if boot_volume == False:
-        prRed('\n\n!!! ERROR !!!\nCould not determine the boot volume.  No Boot Volume found in:\n')
-        for v in kwargs.volumes: prRed(f'  *  Type =\t"{v.volume_type}"\tVolume Name:"{v.name}"')
+        pcolor.Red('\n\n!!! ERROR !!!\nCould not determine the boot volume.  No Boot Volume found in:\n')
+        for v in kwargs.volumes: pcolor.Red(f'  *  Type =\t"{v.volume_type}"\tVolume Name:"{v.name}"')
         sys.exit(1)
 
 #=====================================================
@@ -1638,7 +1638,7 @@ def config_function(child, kwargs):
             if i == 1: count += 1
             elif i == 2: cmd_check = True
         if not count == kwargs.count:
-            prRed(kwargs.message)
+            pcolor.Red(kwargs.message)
             sys.exit(1)
 
 #=====================================================
@@ -1707,14 +1707,14 @@ def delete(uri, kwargs, section=''):
         try:
             pcolor.Cyan(f"     * delete: {f'{url}/api/{uri}'}")
             r = s.delete(f'{url}/api/{uri}', verify=False)
-            if print_response_always: prRed(f"delete: {r.status_code} success with {uri}")
+            if print_response_always: pcolor.Red(f"delete: {r.status_code} success with {uri}")
             if r.status_code == 200 or r.status_code == 404: return r.json()
             else: validating.error_request_netapp('delete', r.status_code, r.text, uri)
         except requests.exceptions.ConnectionError as e:
-            prRed("Connection error, pausing before retrying. Error: %s" % (e))
+            pcolor.Red("Connection error, pausing before retrying. Error: %s" % (e))
             time.sleep(5)
         except Exception as e:
-            prRed("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
+            pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
             sys.exit(1)
 
 #=====================================================
@@ -1731,11 +1731,11 @@ def get(uri, kwargs, section=''):
             if r.status_code == 200 or r.status_code == 404: return r.json()
             else: validating.error_request_netapp('get', r.status_code, r.text, uri)
         except requests.exceptions.ConnectionError as e:
-            prRed("Connection error, pausing before retrying. Error: %s" % (e))
+            pcolor.Red("Connection error, pausing before retrying. Error: %s" % (e))
             time.sleep(5)
         except Exception as e:
-            prRed(f'{url}/api/{uri}')
-            prRed("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
+            pcolor.Red(f'{url}/api/{uri}')
+            pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
             sys.exit(1)
 
 #=====================================================
@@ -1799,11 +1799,11 @@ def patch(uri, kwargs, payload, section=''):
                 pcolor.Purple(f"     * patch: {r.status_code} success with {uri}")
             return r.json()
         except requests.exceptions.ConnectionError as e:
-            prRed("Connection error, pausing before retrying. Error: %s" % (e))
+            pcolor.Red("Connection error, pausing before retrying. Error: %s" % (e))
             time.sleep(5)
         except Exception as e:
-            prRed(f'{url}/api/{uri}')
-            prRed("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
+            pcolor.Red(f'{url}/api/{uri}')
+            pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
             sys.exit(1)
 
 #=====================================================
@@ -1848,11 +1848,11 @@ def post(uri, kwargs, payload, section=''):
                 pcolor.Green(f"     * post: {r.status_code} success with {uri}")
             return r.json()
         except requests.exceptions.ConnectionError as e:
-            prRed("Connection error, pausing before retrying. Error: %s" % (e))
+            pcolor.Red("Connection error, pausing before retrying. Error: %s" % (e))
             time.sleep(5)
         except Exception as e:
-            prRed(f'{url}/api/{uri}')
-            prRed("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
+            pcolor.Red(f'{url}/api/{uri}')
+            pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
             sys.exit(1)
 
 #=====================================================
@@ -1942,7 +1942,7 @@ def svm_pexpect(child, host_file, i, kwargs, svm):
                 elif i == 3: value     = (child.match).group(1)
                 elif i == 4: cmd_check = True
         if not change == 'none' and len(value) > 0:
-            prRed(kwargs.message)
+            pcolor.Red(kwargs.message)
             sys.exit(1)
         return value
     #=====================================================

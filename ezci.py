@@ -199,9 +199,9 @@ def main():
     for folder in kwargs.args.dir.split(os.sep):
         if folder == '': fcount = 0
         elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
-            prRed(f'\n{"-"*91}\n\n  !! ERROR !!\n  The Directory structure can only contain the following characters:')
-            prRed(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), or and underscore(_).')
-            prRed(f'  It can be a short path or a fully qualified path. {folder} failed this check.\n\n{"-"*91}\n')
+            pcolor.Red(f'\n{"-"*91}\n\n  !! ERROR !!\n  The Directory structure can only contain the following characters:')
+            pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), or and underscore(_).')
+            pcolor.Red(f'  It can be a short path or a fully qualified path. {folder} failed this check.\n\n{"-"*91}\n')
             sys.exit(1)
     #==============================================
     # Load Previous Configurations

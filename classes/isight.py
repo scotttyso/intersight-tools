@@ -75,17 +75,17 @@ class api(object):
             for i in range(retries):
                 try:
                     def send_error():
-                        prRed(json.dumps(kwargs.api_body, indent=4))
-                        prRed(kwargs.api_body)
-                        prRed(f'!!! ERROR !!!')
-                        if kwargs.method == 'get_by_moid': prRed(f'  URL: {url}/api/v1/{uri}/{moid}')
-                        elif kwargs.method ==    'delete': prRed(f'  URL: {url}/api/v1/{uri}/{moid}')
-                        elif kwargs.method ==       'get': prRed(f'  URL: {url}/api/v1/{uri}{api_args}')
-                        elif kwargs.method ==     'patch': prRed(f'  URL: {url}/api/v1/{uri}/{moid}')
-                        elif kwargs.method ==      'post': prRed(f'  URL: {url}/api/v1/{uri}')
-                        prRed(f'  Running Process: {kwargs.method} {kwargs.qtype}')
-                        prRed(f'    Error status is {status}')
-                        for k, v in (response.json()).items(): prRed(f"    {k} is '{v}'")
+                        pcolor.Red(json.dumps(kwargs.api_body, indent=4))
+                        pcolor.Red(kwargs.api_body)
+                        pcolor.Red(f'!!! ERROR !!!')
+                        if kwargs.method == 'get_by_moid': pcolor.Red(f'  URL: {url}/api/v1/{uri}/{moid}')
+                        elif kwargs.method ==    'delete': pcolor.Red(f'  URL: {url}/api/v1/{uri}/{moid}')
+                        elif kwargs.method ==       'get': pcolor.Red(f'  URL: {url}/api/v1/{uri}{api_args}')
+                        elif kwargs.method ==     'patch': pcolor.Red(f'  URL: {url}/api/v1/{uri}/{moid}')
+                        elif kwargs.method ==      'post': pcolor.Red(f'  URL: {url}/api/v1/{uri}')
+                        pcolor.Red(f'  Running Process: {kwargs.method} {kwargs.qtype}')
+                        pcolor.Red(f'    Error status is {status}')
+                        for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
                         sys.exit(1)
                     if 'get_by_moid' in kwargs.method: response =  requests.get(f'{url}/api/v1/{uri}/{moid}', auth=api_auth)
                     elif 'delete' in kwargs.method:    response =requests.delete(f'{url}/api/v1/{uri}/{moid}', auth=api_auth)
@@ -116,7 +116,7 @@ class api(object):
                         kwargs.running = True
                         return kwargs
                     else:
-                        prRed(f"Exception when calling {kwargs.uri}: {e}\n")
+                        pcolor.Red(f"Exception when calling {kwargs.uri}: {e}\n")
                         sys.exit(1)
                 break
             #=====================================================
@@ -1373,9 +1373,9 @@ class imm(object):
         #=====================================================
         ptitle= ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
         validating.begin_section(ptitle, 'profiles')
-        names = []; kwargs.cp = DotMap(); kwargs.bulk_list = []; kwargs.serials = []
+        names  = []; kwargs.cp = DotMap(); kwargs.bulk_list = []; kwargs.serials = []
         ezdata = kwargs.ezdata[self.type]
-        idata = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
+        idata  = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
         if re.search('chassis|server', self.type):
             targets = DotMap(dict(pair for d in idata.targets['items'].allOf for pair in d.properties.items()))
             idata.pop('targets')
@@ -1383,9 +1383,9 @@ class imm(object):
         #=====================================================
         # Compile List of Profile Names
         #=====================================================
-        profiles = []
+        profiles            = []
         profile_policy_list = []
-        run_reservation = False
+        run_reservation     = False
         if 'template' in self.type:
             for e in kwargs.imm_dict.orgs[kwargs.org]['templates']['server']:
                 if e.create_template == True: profiles.append(e)
@@ -1410,7 +1410,7 @@ class imm(object):
                     else: org = kwargs.org; template = e.ucs_server_template
                     ptype = 'ucs_server_template'; tname = e.ucs_server_template
                     tdata = kwargs.imm_dict.orgs[org]['templates']['server']
-                    indx = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
+                    indx  = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
                     if indx == None:
                         validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
                     elif tdata[indx].create_template == True and e.attach_template == True:
@@ -1440,8 +1440,8 @@ class imm(object):
                 if kwargs.isight[kwargs.org].profile[self.type].get(c):
                     for x in range(0,2): kwargs.names.append(f"{c}-{chr(ord('@')+x+1)}")
                     kwargs.pmoid = kwargs.isight[kwargs.org].profile[self.type][c]
-                    kwargs = api('switch').calls(kwargs)
-                    kwargs.switch_moids[c] = kwargs.pmoids
+                    kwargs       = api('switch').calls(kwargs)
+                    kwargs.switch_moids[c]   = kwargs.pmoids
                     kwargs.switch_results[c] = kwargs.results
         #=====================================================
         # Compile List of Policy Names
@@ -2063,8 +2063,7 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
             else:
                 api_body[idata[k]['items'].intersight_api] = []
                 for e in v:
-                    if type(e) == str:
-                        api_body[idata[k]['items'].intersight_api].append(e)
+                    if type(e) == str: api_body[idata[k]['items'].intersight_api].append(e)
                     else:
                         idict = {'ObjectType':idata[k]['items'].ObjectType}
                         for a, b in idata[k]['items'].properties.items():
@@ -2079,11 +2078,9 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
                                     if e[a].get(c): idict[b.intersight_api].update({d.intersight_api:e[a][c]})
                             elif b.type == 'array' and a in e:
                                 if not re.search('(l|s)an_connectivity|firmware|port|storage', kwargs.type):
-                                    pcolor.Cyan(f'\n++{"-"*108}\n\n')
-                                    pcolor.Cyan(f'{k}\n{a}\n{b}\n{e[c]}')
-                                    prRed(f'!!! ERROR !!! undefined mapping for array in array: `{d.type}`')
-                                    pcolor.Cyan(kwargs.type)
-                                    pcolor.Cyan(f'\n++{"-"*108}\n\n')
+                                    pcolor.Cyan(f'\n++{"-"*108}\n\n{k}\n{a}\n{b}\n{e[c]}')
+                                    pcolor.Red(f'!!! ERROR !!! undefined mapping for array in array: `{d.type}`')
+                                    pcolor.Cyan(f'{kwargs.type}\n\n++{"-"*108}\n\n')
                                     sys.exit(1)
                                 idict[b.intersight_api] = e[a]
                         idict = dict(sorted(idict.items()))
@@ -2105,7 +2102,7 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
                                 else:
                                     pcolor.Cyan(f'\n{"-"*108}\n\n')
                                     pcolor.Cyan(f'{c}\n{d}\n{e}\n{e[c]}')
-                                    prRed(f'!!! ERROR !!! undefined mapping for array in object: `{d.type}`')
+                                    pcolor.Red(f'!!! ERROR !!! undefined mapping for array in object: `{d.type}`')
                                     pcolor.Cyan(f'\n{"-"*108}\n\n')
                                     sys.exit(1)
                 elif idata[k].type == 'object':
@@ -2113,7 +2110,7 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
                 elif b.type == 'object':
                     pcolor.Cyan(f'\n{"-"*108}\n\n')
                     pcolor.Cyan(f'---\n{k}---\n{a}---\n{b}---\n{v}')
-                    prRed('!!! ERROR !!! undefined mapping for object in object')
+                    pcolor.Red('!!! ERROR !!! undefined mapping for object in object')
                     pcolor.Cyan(f'\n{"-"*108}\n\n')
                     sys.exit(1)
                 elif v.get(a): api_body[idata[k].intersight_api].update({b.intersight_api:v[a]})
@@ -2293,8 +2290,8 @@ def compare_body_result(api_body, result):
                             elif len(result[k]) - 1 < count: patch_return = True
                             elif not result[k][count][a] == b: patch_return = True
                 elif type(e) == list:
-                    prRed(e)
-                    prRed('compare_body_result; not accounted for')
+                    pcolor.Red(e)
+                    pcolor.Red('compare_body_result; not accounted for')
                     sys.exit(1)
                 else:
                     if len(result[k]) - 1 < count: patch_return = True
@@ -2453,7 +2450,7 @@ def deploy_chassis_server_profiles(profiles, kwargs):
 # Function - Exit on Empty Results
 #======================================================
 def empty_results(kwargs):
-        prRed(f"The API Query Results were empty for {kwargs.uri}.  Exiting..."); sys.exit(1)
+        pcolor.Red(f"The API Query Results were empty for {kwargs.uri}.  Exiting..."); sys.exit(1)
 
 #======================================================
 # Function - Validate CCO Authorization

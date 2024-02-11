@@ -154,7 +154,7 @@ def main():
     url = f'https://{kwargs.repo_server}'
     try: r = s.post(data = data, headers= {'Content-Type': 'application/json'}, url = f'{url}/api/v1/login', verify = False)
     except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}\n'); sys.exit(1)
-    if not r.status_code == 200: prRed(r.text); sys.exit(1)
+    if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
     jdata = json.loads(r.text)
     token = jdata['token']
     file = open('./AzureStackHCI2.xml', 'rb')
@@ -164,12 +164,12 @@ def main():
         url = f'{url}/api/v1/repo/actions/upload?use_chunks=false', headers={'x-access-token': token}, verify=False, data=values, files=files)
     except requests.exceptions.ConnectionError as e:
         pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
-    if not r.ok: prRed(r.text); sys.exit(1)
+    if not r.ok: pcolor.Red(r.text); sys.exit(1)
     for uri in ['logout']:
         try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if 'repo' in uri: jdata = json.loads(r.text)
-        if not r.status_code == 200: prRed(r.text); sys.exit(1)
+        if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
     file.close()
     os.remove('./AzureStackHCI2.xml')
 

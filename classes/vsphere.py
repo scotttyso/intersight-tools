@@ -41,14 +41,14 @@ class api(object):
             url = f'https://{kwargs.repo_server}/api/v1/'
             try: r = s.post(data = data, headers= {'Content-Type': 'application/json'}, url = f'{url}login', verify = False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}\n'); sys.exit(1)
-            if not r.status_code == 200: prRed(r.text); sys.exit(1)
+            if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
             jdata = json.loads(r.text)
             token = jdata['token']
             for uri in ['repo/files', 'logout']:
                 try: r = s.get(url = f'{url}{uri}', headers={'x-access-token': token}, verify=False)
                 except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
                 if 'repo' in uri: jdata = json.loads(r.text)
-                if not r.status_code == 200: prRed(r.text); sys.exit(1)
+                if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
             netapp_plugin = ''
             for e in jdata['repofiles']:
                 if 'NetAppNasPlugin' in e['file_path']: netapp_plugin = e['file_path'].split('/')[2]
