@@ -18,11 +18,11 @@ policy_regex = re.compile('(network_connectivity|ntp|port|snmp|switch_control|sy
 
 # Errors & Notifications
 def begin_loop(ptype1, ptype2):
-    pcolor.LightGray(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
 def begin_section(ptype1, ptype2):
-    pcolor.LightGray(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(
         f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.\n")
 
@@ -68,15 +68,15 @@ def completed_item(ptype, kwargs):
         else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
 
 def deploy_notification(profile, profile_type):
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f'   Deploy Action Still ongoing for {profile_type} Profile {profile}')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
 
 def error_file_location(varName, varValue):
-    print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'  !!! ERROR !!! The "{varName}" "{varValue}"')
-    print(f'  is invalid.  Please valid the Entry for "{varName}".')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'  !!! ERROR !!! The "{varName}" "{varValue}"')
+    pcolor.Yellow(f'  is invalid.  Please valid the Entry for "{varName}".')
+    pcolor.LightGray(f'\n{"-"*108}\n')
 
 def end_loop(ptype1, ptype2):
     pcolor.LightPurple(f"\n   Completed {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.")
@@ -87,43 +87,59 @@ def end_section(ptype1, ptype2):
 def error_policy_doesnt_exist(policy_type, policy_name, profile, profile_type, ptype):
     if 'uuid' in policy_type: dtype = 'Pool'
     else: dtype = 'Policy'
-    print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'   !!! ERROR !!! The Following {dtype} was attached to {profile_type.capitalize()} {ptype} {profile.capitalize()}')
-    print(f'   But it has not been created.')
-    print(f'   {dtype} Type: {policy_type}')
-    print(f'   {dtype} Name: {policy_name}')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! The Following {dtype} was attached to {profile_type.capitalize()} {ptype} {profile.capitalize()}')
+    pcolor.Yellow(f'   But it has not been created.')
+    pcolor.Yellow(f'   {dtype} Type: {policy_type}')
+    pcolor.Yellow(f'   {dtype} Name: {policy_name}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    sys.exit(1)
+
+def error_pool_doesnt_exist(org, pool_type, pool_name, profile):
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! The Following Pool was used in reservations for Server Profile {profile}')
+    pcolor.Yellow(f'   But it has not been created.')
+    pcolor.Yellow(f'   Organization: {org}')
+    pcolor.Yellow(f'   Pool Type: {pool_type}')
+    pcolor.Yellow(f'   Pool Name: {pool_name}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    sys.exit(1)
+
+def error_required_argument_missing(kwargs):
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! {kwargs.type}: `{kwargs.name}` missing required argument {kwargs.argument}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 
 def error_request(status, text):
-    print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'   !!! ERROR !!! in Retreiving Terraform Cloud Organization Workspaces')
-    print(f'   Exiting on Error {status} with the following output:')
-    print(f'   {text}')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! in Retreiving Terraform Cloud Organization Workspaces')
+    pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
+    pcolor.Yellow(f'   {text}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 
 def error_request_netapp(method, status, text, uri):
-    print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'   !!! ERROR !!! when attempting {method} to {uri}')
-    print(f'   Exiting on Error {status} with the following output:')
-    print(f'   {text}')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! when attempting {method} to {uri}')
+    pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
+    pcolor.Yellow(f'   {text}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 
 def error_request_pure_storage(method, status, text, uri):
-    print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'   !!! ERROR !!! when attempting {method} to {uri}')
-    print(f'   Exiting on Error {status} with the following output:')
-    print(f'   {text}')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! when attempting {method} to {uri}')
+    pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
+    pcolor.Yellow(f'   {text}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 
 def error_serial_number(name, serial):
-    print(f'\n-------------------------------------------------------------------------------------------\n')
-    print(f'  !!! ERROR !!! The Serial Number "{serial}" for "{name}" was not found in inventory.')
-    print(f'  Please check the serial number for "{name}".')
-    print(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'  !!! ERROR !!! The Serial Number "{serial}" for "{name}" was not found in inventory.')
+    pcolor.Yellow(f'  Please check the serial number for "{name}".')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 
 def error_subnet_check(kwargs):
@@ -134,35 +150,35 @@ def error_subnet_check(kwargs):
     pool_from = ipaddress.ip_address(kwargs['pool_from'])
     pool_to = ipaddress.ip_address(kwargs['pool_to'])
     if not pool_from in ipaddress.ip_network(f"{gateway}/{prefix}", strict=False):
-        print(f'\n{"-"*91}\n')
+        print(f'\n{"-"*108}\n')
         print(f'   !!! ERROR !!!  {pool_from} is not in network {gateway}/{prefix}:')
         print(f'   Exiting....')
-        print(f'\n{"-"*91}\n')
+        print(f'\n{"-"*108}\n')
         sys.exit(1)
     if not pool_to in ipaddress.ip_network(f"{gateway}/{prefix}", strict=False):
-        print(f'\n{"-"*91}\n')
+        print(f'\n{"-"*108}\n')
         print(f'   !!! ERROR !!!  {pool_to} is not in network {gateway}/{prefix}:')
         print(f'   Exiting....')
-        print(f'\n{"-"*91}\n')
+        print(f'\n{"-"*108}\n')
         sys.exit(1)
 
 
 def error_subnet_not_found(kwargs):
     poolFrom = kwargs['pool_from']
-    print(f'\n{"-"*91}\n')
+    print(f'\n{"-"*108}\n')
     print(f'   !!! ERROR !!!  Did not Find a Correlating Network for {poolFrom}.')
     print(f'   Defined Network List:')
     for i in kwargs['networks']:
         print(f'    * {i}')
         print(f'   Exiting....')
-    print(f'\n{"-"*91}\n')
+    print(f'\n{"-"*108}\n')
     sys.exit(1)
 
 
 def unmapped_keys(policy_type, name, key):
-    print(f'\n{"-"*91}\n')
+    print(f'\n{"-"*108}\n')
     print(f'   !!! ERROR !!!! For {policy_type}, {name}, unknown key {key}')
-    print(f'\n{"-"*91}\n')
+    print(f'\n{"-"*108}\n')
     sys.exit(1)
  
 # Validations

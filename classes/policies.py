@@ -444,10 +444,10 @@ class policies(object):
                                 #==============================================
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
-                                print(f'\n{"-"*91}\n')
+                                print(f'\n{"-"*108}\n')
                                 print(textwrap.indent(yaml.dump(boot_device, Dumper=MyDumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
-                                print(f'{"-"*91}\n')
+                                print(f'{"-"*108}\n')
                                 valid_confirm = False
                                 while valid_confirm == False:
                                     confirm_config = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')
@@ -1180,10 +1180,10 @@ class policies(object):
                                 #==============================================
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
-                                print(f'\n{"-"*91}\n')
+                                print(f'\n{"-"*108}\n')
                                 print(textwrap.indent(yaml.dump(ldap_group, Dumper=MyDumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
-                                print(f'{"-"*91}\n')
+                                print(f'{"-"*108}\n')
                                 valid_confirm = False
                                 while valid_confirm == False:
                                     confirm_config = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')
@@ -1239,10 +1239,10 @@ class policies(object):
                                 #==============================================
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
-                                print(f'\n{"-"*91}\n')
+                                print(f'\n{"-"*108}\n')
                                 print(textwrap.indent(yaml.dump(ldap_server, Dumper=MyDumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
-                                print(f'{"-"*91}\n')
+                                print(f'{"-"*108}\n')
                                 valid_confirm = False
                                 while valid_confirm == False:
                                     confirm_config = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')
@@ -1809,10 +1809,10 @@ class policies(object):
                                 #==============================================
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
-                                print(f'\n{"-"*91}\n')
+                                print(f'\n{"-"*108}\n')
                                 print(textwrap.indent(yaml.dump(namespace, Dumper=MyDumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
-                                print(f'{"-"*91}\n')
+                                print(f'{"-"*108}\n')
                                 valid_confirm = False
                                 while valid_confirm == False:
                                     confirm_namespace = input('Do you want to accept the configuration above?  Enter "Y" or "N" [Y]: ')
@@ -2908,10 +2908,10 @@ class policies(object):
                                 #==============================================
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
-                                print(f'\n{"-"*91}\n')
+                                print(f'\n{"-"*108}\n')
                                 print(textwrap.indent(yaml.dump(vdrive, Dumper=MyDumper, default_flow_style=False
                                 ), " "*4, predicate=None))
-                                print(f'{"-"*91}\n')
+                                print(f'{"-"*108}\n')
                                 pol_type = 'Virtual Drive Configuration'
                                 valid_confirm = False
                                 while valid_confirm == False:
@@ -2934,10 +2934,10 @@ class policies(object):
                             #==============================================
                             # Print Policy and Prompt User to Accept
                             #==============================================
-                            print(f'\n{"-"*91}\n')
+                            print(f'\n{"-"*108}\n')
                             print(textwrap.indent(yaml.dump(drive_group, Dumper=MyDumper, default_flow_style=False
                             ), " "*4, predicate=None))
-                            print(f'{"-"*91}\n')
+                            print(f'{"-"*108}\n')
                             pol_type = 'Drive Group Configuration'
                             valid_confirm = False
                             while valid_confirm == False:
@@ -3018,9 +3018,9 @@ class policies(object):
                             #==============================================
                             # Print Policy and Prompt User to Accept
                             #==============================================
-                            print(f'\n{"-"*91}\n')
+                            print(f'\n{"-"*108}\n')
                             print(textwrap.indent(yaml.dump(polVars.single_drive_raid_configuration, Dumper=MyDumper, default_flow_style=False), " "*4, predicate=None))
-                            print(f'{"-"*91}\n')
+                            print(f'{"-"*108}\n')
                             valid_confirm = False
                             while valid_confirm == False:
                                 confirm_v = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')
@@ -3525,9 +3525,9 @@ class policies(object):
                                             Question = ezfunctions.varNumberLoop(**kwargs)
                                             if int(Question) % 1024 == 0: valid = True
                                             else:
-                                                print(f'\n{"-"*91}\n')
+                                                print(f'\n{"-"*108}\n')
                                                 print(f'  {x} should be a divisable by 1024 and be between 1024 and 1048576')
-                                                print(f'\n{"-"*91}\n')
+                                                print(f'\n{"-"*108}\n')
                                         xValue = '%s=%s' % (x, Question)
                                         mount_output.remove(x); mount_output.append(xValue)
                                     elif x == 'vers':
@@ -3559,10 +3559,10 @@ class policies(object):
                             #==============================================
                             # Print Policy and Prompt User to Accept
                             #==============================================
-                            print(f'\n{"-"*91}\n')
+                            print(f'\n{"-"*108}\n')
                             print(textwrap.indent(yaml.dump(vmedia_map, Dumper=MyDumper, default_flow_style=False
                             ), ' '*4, predicate=None))
-                            print(f'{"-"*91}\n')
+                            print(f'{"-"*108}\n')
                             valid_confirm = False
                             while valid_confirm == False:
                                 confirm_config = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')

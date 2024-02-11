@@ -64,9 +64,9 @@ class api(object):
         server_profiles = deepcopy(kwargs.server_profiles)
         for k, v in server_profiles.items():
             esx_host = k + '.' + kwargs.dns_domains[0]
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
             pcolor.Green(f"   Beginning Host Customization for {esx_host}.")
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
             time.sleep(2)
             kwargs.hostname   = esx_host
             kwargs.password   = 'vmware_esxi_password'
@@ -113,9 +113,9 @@ class api(object):
                 while download_success == False:
                     i = child.expect(['error getting response', 'saved', kwargs.host_prompt, pexpect.TIMEOUT])
                     if i == 3 or attempt_count == 3:
-                        pcolor.Red(f"\n{'-'*91}\n")
+                        pcolor.Red(f"\n{'-'*108}\n")
                         pcolor.Red(f'!!! FAILED !!!\n Failed to Download {vib} via {kwargs.repo_server}')
-                        pcolor.Red(f"\n{'-'*91}\n")
+                        pcolor.Red(f"\n{'-'*108}\n")
                         sys.exit(1)
                     elif i == 0:
                         child.sendline(f'wget {repo_url}')
@@ -152,9 +152,9 @@ class api(object):
                 kwargs.server_profiles[k].rebooted = False
                 child.sendline('exit')
                 child.expect('closed')
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
             pcolor.Green(f"   Completed Base Configuration for {esx_host}")
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
             time.sleep(2)
         child.close()
 
@@ -410,11 +410,11 @@ class api(object):
         pcolor.LightPurple(results.stderr)      # Print any Error Output
 
         if results.returncode == 0:  # COMPARING RESULT
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
             pcolor.Green(f"  Completed Configuring the Virtualization Environment Successfully.")
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
         else:
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
             pcolor.Green(f"  !!! ERROR !!!\n Something went wrong with the Configuration of the Virtualization Environment")
-            pcolor.Green(f"\n{'-'*91}\n")
+            pcolor.Green(f"\n{'-'*108}\n")
         return kwargs

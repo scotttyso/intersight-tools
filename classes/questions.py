@@ -27,9 +27,9 @@ def existing_object(ptype, item, kwargs):
     #==============================================
     # Show User Configuration
     #==============================================
-    pcolor.Green(f'\n{"-"*91}\n  Found Existing Configuration:\n')
+    pcolor.Green(f'\n{"-"*108}\n  Found Existing Configuration:\n')
     pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
-    pcolor.Green(f'\n{"-"*91}\n')
+    pcolor.Green(f'\n{"-"*108}\n')
     kwargs.jdata = DotMap(
         default     = False,
         description = f'Do you want to Delete Any of these?',
@@ -64,9 +64,9 @@ def existing_object(ptype, item, kwargs):
                 kwargs.method = 'delete'
                 kwargs = isight.api(ptype).calls(kwargs)
             else:
-                pcolor.Red(f"\n{'-'*91}\n")
+                pcolor.Red(f"\n{'-'*108}\n")
                 pcolor.Red(f'  !!! ERROR !!!!\n  Did not find {ptitle}: `{e}` in Intersight')
-                pcolor.Red(f"\n{'-'*91}\n")
+                pcolor.Red(f"\n{'-'*108}\n")
     kwargs.jdata = DotMap(
         default     = True,
         description = f'Do you want to configure additional {ptitle} {ptype.title()}s?',
@@ -344,9 +344,9 @@ def prompt_user_for_sub_item(item, kwargs):
 # Function: Prompt User to Accept Configuration
 #=================================================================
 def prompt_user_to_accept(item, idict, kwargs):
-    pcolor.Green(f'\n{"-"*91}\n')
+    pcolor.Green(f'\n{"-"*108}\n')
     pcolor.Green(textwrap.indent(yaml.dump(idict.toDict(), Dumper=MyDumper, default_flow_style=False), prefix=" "*3, predicate=None))
-    pcolor.Green(f'\n{"-"*91}\n')
+    pcolor.Green(f'\n{"-"*108}\n')
     kwargs.jdata = DotMap(
         default      = True,
         description  = f'Do You want to accept the above configuration for {item}?',

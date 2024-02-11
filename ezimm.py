@@ -326,7 +326,7 @@ def create_terraform_workspaces(orgs, kwargs):
 # Function: Main Menu
 #=================================================================
 def main_menu(kwargs):
-    pcolor.Cyan(f'\n{"-"*91}\n\n  Starting the Easy IMM Configuration Wizard!\n\n{"-"*91}\n')
+    pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Configuration Wizard!\n\n{"-"*108}\n')
     kwargs = questions.previous_configuration(kwargs)
     kwargs.main_menu_list = []
     kwargs = questions.main_menu_deployment_type(kwargs)
@@ -469,11 +469,11 @@ def main():
     for folder in kwargs.args.dir.split(os.sep):
         if folder == '': fcount = 0
         elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
-            prRed(f'\n{"-"*91}\n\n  !!ERROR!!')
+            prRed(f'\n{"-"*108}\n\n  !!ERROR!!')
             prRed(f'  The Directory structure can only contain the following characters:')
             prRed(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
             prRed(f'  It can be a short path or a fully qualified path.  "{folder}" does not qualify.')
-            prRed(f'  Exiting...\n\n{"-"*91}\n')
+            prRed(f'  Exiting...\n\n{"-"*108}\n')
             sys.exit(1)
     #==============================================
     # Run IMM Transition if json Arg Present
@@ -483,8 +483,8 @@ def main():
         # Validate the Existence of the json File
         #==============================================
         if not os.path.isfile(kwargs.args.json_file):
-            prRed(f'\n{"-"*91}\n\n  !!ERROR!!\n  Did not find the file {kwargs.args.json_file}.')
-            prRed(f'  Please Validate that you have specified the correct file and path.\n\n{"-"*91}\n')
+            prRed(f'\n{"-"*108}\n\n  !!ERROR!!\n  Did not find the file {kwargs.args.json_file}.')
+            prRed(f'  Please Validate that you have specified the correct file and path.\n\n{"-"*108}\n')
             sys.exit(1)
         else:
             kwargs.deployment_type = 'Terraform'
@@ -494,13 +494,13 @@ def main():
             # Validate the device_type in json file
             #==============================================
             if not device_type == 'intersight':
-                prRed(f'\n{"-"*91}\n\n  !!ERROR!!\n  The File "{kwargs.args.json_file}" device_type is "{device_type}".')
+                prRed(f'\n{"-"*108}\n\n  !!ERROR!!\n  The File "{kwargs.args.json_file}" device_type is "{device_type}".')
                 prRed(f'  This file is the UCSM Configuration converted from XML to JSON.')
                 prRed(f'  The device_type is found on line 10 of the json config file.')
                 prRed(f'  The Script is looking for the file that has been converted to Intersight Managed Mode.')
                 prRed(f'  The JSON file should be downloaded at the last step of the IMM Transition tool where the')
                 prRed(f'  API Key and Secret would be entered to upload to Intersight.')
-                prRed(f'  Exiting Wizard...\n\n{"-"*91}\n')
+                prRed(f'  Exiting Wizard...\n\n{"-"*108}\n')
                 sys.exit(1)
             #==============================================
             # Run through the IMM Transition Wizard
@@ -567,7 +567,7 @@ def main():
                     for i in profile_list:
                         if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
 
-    pcolor.Cyan(f'\n{"-"*91}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*91}\n')
+    pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*108}\n')
     sys.exit(0)
 
 if __name__ == '__main__':

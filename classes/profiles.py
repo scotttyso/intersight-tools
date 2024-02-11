@@ -107,10 +107,10 @@ class profiles(object):
                         #==============================================
                         # Print Policy and Prompt User to Accept
                         #==============================================
-                        print(f'\n{"-"*91}\n')
+                        print(f'\n{"-"*108}\n')
                         print(textwrap.indent(yaml.dump(cprofile, Dumper=MyDumper, default_flow_style=False
                         ), ' '*4, predicate=None))
-                        print(f'{"-"*91}\n')
+                        print(f'{"-"*108}\n')
                         valid_confirm = False
                         while valid_confirm == False:
                             confirm_config = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')
@@ -446,10 +446,10 @@ class profiles(object):
                     #==============================================
                     # Print Policy and Prompt User to Accept
                     #==============================================
-                    print(f'\n{"-"*91}\n')
+                    print(f'\n{"-"*108}\n')
                     print(textwrap.indent(yaml.dump(sprofile, Dumper=MyDumper, default_flow_style=False
                     ), ' '*4, predicate=None))
-                    print(f'{"-"*91}\n')
+                    print(f'{"-"*108}\n')
                     valid_confirm = False
                     while valid_confirm == False:
                         confirm_config = input('Do you want to accept the above configuration?  Enter "Y" or "N" [Y]: ')

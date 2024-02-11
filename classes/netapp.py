@@ -1609,9 +1609,9 @@ def check_for_boot_lun(kwargs):
 # pexpect - Configuration Function
 #=====================================================
 def config_function(child, kwargs):
-    kwargs.message = f'\n{"-"*91}\n\n  !!! ERROR !!!!\n  **failed on "{kwargs.show}".\n'\
+    kwargs.message = f'\n{"-"*108}\n\n  !!! ERROR !!!!\n  **failed on "{kwargs.show}".\n'\
         f'    Looking for regex "{kwargs.regex}".\n'\
-        f'\n  Please Validate the cluster and restart this wizard.\n\n{"-"*91}\n'
+        f'\n  Please Validate the cluster and restart this wizard.\n\n{"-"*108}\n'
     child.sendline(kwargs.show)
     count = 0
     cmd_check = False
@@ -1906,11 +1906,11 @@ def svm_pexpect(child, host_file, i, kwargs, svm):
     # Function to Configure Protocols
     #=====================================================
     def config_protocols(child, kwargs):
-        kwargs.message = f'\n{"-"*91}\n\n  !!! ERROR !!!!\n  **failed on "{kwargs.show}".\n'\
+        kwargs.message = f'\n{"-"*108}\n\n  !!! ERROR !!!!\n  **failed on "{kwargs.show}".\n'\
             f'    Looking for regex "{kwargs.regex1}".\n'\
             f'    Looking for regex "{kwargs.regex2}".\n'\
             f'    Looking for regex "{kwargs.regex3}".\n'\
-            f'\n  Please Validate {svm.name} and restart this wizard.\n\n{"-"*91}\n'
+            f'\n  Please Validate {svm.name} and restart this wizard.\n\n{"-"*108}\n'
         child.sendline(kwargs.show)
         change   = 'none'
         value    = ''

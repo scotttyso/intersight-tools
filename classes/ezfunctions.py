@@ -92,7 +92,7 @@ def choose_policy(policy_type, kwargs):
     for i in kwargs['policies'][policy_type]: policy_list.append(i['name'])
     valid = False
     while valid == False:
-        pcolor.Cyan(f'\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         if kwargs.get('optional_message'): pcolor.Cyan(kwargs['optional_message'])
         pcolor.Cyan(f'  {policy_descr} Policy Options:')
         for i, v in enumerate(policy_list):
@@ -101,7 +101,7 @@ def choose_policy(policy_type, kwargs):
             else: pcolor.Cyan(f'    {i}. {v}')
         if kwargs['allow_opt_out'] == True: pcolor.Cyan(f'     99. Do not assign a(n) {policy_descr}.')
         pcolor.Cyan(f'     100. Create a New {policy_descr}.')
-        pcolor.Cyan(f'\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         policyOption = input(f"Select the Option Number for the {policy_descr} Policy to Assign to {kwargs['name']} Policy: ")
         if re.search(r'^[0-9]{1,3}$', policyOption):
             for i, v in enumerate(policy_list):
@@ -476,21 +476,21 @@ def intersight_config(kwargs):
             valid = False
             if secret_path == None:
                 varName = 'intersight_secret_key'
-                pcolor.Cyan(f'\n{"-"*91}\n\n  The Script did not find {varName} as an `environment` variable.')
+                pcolor.Cyan(f'\n{"-"*108}\n\n  The Script did not find {varName} as an `environment` variable.')
                 pcolor.Cyan(f'  To not be prompted for the value of {varName} each time\n  add the following to your local environemnt:')
                 pcolor.Cyan(f"    - Linux: export {varName}='{varName}_value'")
                 pcolor.Cyan(f"    - Windows: $env:{varName}='{varName}_value'")
                 secret_path = ''
             if '~' in secret_path: secret_path = os.path.expanduser(secret_path)
             if not secret_path == '':
-                if not os.path.isfile(secret_path): prRed(f'\n{"-"*91}\n\n  !!!Error!!! intersight_secret_key not found.')
+                if not os.path.isfile(secret_path): prRed(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key not found.')
                 else:
                     secret_file = open(secret_path, 'r'); count = 0
                     if '-----BEGIN RSA PRIVATE KEY-----' in secret_file.read(): count += 1
                     secret_file.seek(0)
                     if '-----END RSA PRIVATE KEY-----' in secret_file.read(): count += 1
                     if count == 2: kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
-                    else: prRed(f'\n{"-"*91}\n\n  !!!Error!!! intersight_secret_key does not seem to contain a Valid Secret Key.')
+                    else: prRed(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key does not seem to contain a Valid Secret Key.')
             if not valid == True:
                 kwargs.jdata = DotMap(
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
@@ -509,7 +509,7 @@ def intersight_config(kwargs):
             if re.search(r'^[a-zA-Z0-9]{1,4}:', varValue): valid = validating.ip_address(varName, varValue)
             elif re.search(r'[a-zA-Z]', varValue): valid = validating.dns_name(varName, varValue)
             elif re.search(r'^([0-9]{1,3}\.){3}[0-9]{1,3}$', varValue): valid = validating.ip_address(varName, varValue)
-            else: prRed(f'\n{"-"*91}\n\n  "{varValue}" is not a valid address.\n\n{"-"*91}\n')
+            else: prRed(f'\n{"-"*108}\n\n  "{varValue}" is not a valid address.\n\n{"-"*108}\n')
         if valid == False:
             kwargs.jdata = kwargs.ezdata.ntp.allOf[1].properties.ntp_servers['items']
             kwargs.jdata.update(DotMap(description = 'Hostname of the Intersight FQDN',
@@ -585,9 +585,9 @@ def local_users_function(kwargs):
         #==============================================
         # Show User Configuration
         #==============================================
-        pcolor.Green(f'\n{"-"*91}\n')
+        pcolor.Green(f'\n{"-"*108}\n')
         pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
-        pcolor.Green(f'\n{"-"*91}\n')
+        pcolor.Green(f'\n{"-"*108}\n')
         #======================================================================
         # * Prompt User to Accept Configuration, If Accepted add to Dictionary
         # * If User Selects to, Configure Additional
@@ -626,7 +626,7 @@ def merge_easy_imm_repository(kwargs):
 # Function - Message for Invalid List Selection
 #======================================================
 def message_invalid_selection():
-    prRed(f'\n{"-"*91}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.\n\n{"-"*91}\n')
+    prRed(f'\n{"-"*108}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message for Invalid Selection Y or N
@@ -640,28 +640,28 @@ def message_invalid_y_or_n(length):
 # Function - Message Invalid FCoE VLAN
 #======================================================
 def message_fcoe_vlan(fcoe_id, vlan_policy):
-    prRed(f'\n{"-"*91}\n\n  !!!Error!!!\n  The FCoE VLAN `{fcoe_id}` is already assigned to the VLAN Policy')
-    prRed(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.\n\n{"-"*91}\n')
+    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  The FCoE VLAN `{fcoe_id}` is already assigned to the VLAN Policy')
+    prRed(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.\n\n{"-"*108}\n')
 
 #======================================================
 # Function(s) - Message Invalid Native VLAN
 #======================================================
 def message_invalid_native_vlan(nativeVlan, VlanList):
-    prRed(f'\n{"-"*91}\n\n  !!!Error!!!\n  The Native VLAN `{nativeVlan}` was not in the VLAN Policy List.')
-    prRed(f'  VLAN Policy List is: "{VlanList}"\n\n{"-"*91}\n')
+    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  The Native VLAN `{nativeVlan}` was not in the VLAN Policy List.')
+    prRed(f'  VLAN Policy List is: "{VlanList}"\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Invalid VLAN/VSAN
 #======================================================
 def message_invalid_vxan():
-    prRed(f'\n{"-"*91}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.\n\n{"-"*91}\n')
+    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Invalid VLAN
 #======================================================
 def message_invalid_vsan_id(vsan_policy, vsan_id, vsan_list):
-    prRed(f'\n{"-"*91}\n\n  !!!Error!!!\n  The VSAN `{vsan_id}` is not in the VSAN Policy `{vsan_policy}`.')
-    prRed(f'  Options are: {vsan_list}.\n\n{"-"*91}\n')
+    prRed(f'\n{"-"*108}\n\n  !!!Error!!!\n  The VSAN `{vsan_id}` is not in the VSAN Policy `{vsan_policy}`.')
+    prRed(f'  Options are: {vsan_list}.\n\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Starting Over
@@ -813,7 +813,7 @@ def read_in(excel_workbook, kwargs):
         kwargs['wb'] = load_workbook(excel_workbook)
         pcolor.Cyan("Workbook Loaded.")
     except Exception as e:
-        prRed(f'\n{"-"*91}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!\n\n{"-"*91}\n')
+        prRed(f'\n{"-"*108}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!\n\n{"-"*108}\n')
         sys.exit(e)
     return kwargs
 
@@ -825,7 +825,7 @@ def repo_url_test(file, pargs):
     try:
         r = requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
     except requests.RequestException as e:
-        prRed(f'\n{"-"*91}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n\n{"-"*91}\n')
+        prRed(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n\n{"-"*108}\n')
         sys.exit(1)
     return repo_url
 
@@ -838,16 +838,16 @@ def sensitive_var_value(kwargs):
     # Check to see if the Variable is already set in the Environment, and if not prompt the user for Input.
     #=======================================================================================================
     if os.environ.get(sensitive_var) is None:
-        pcolor.Cyan(f'\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         pcolor.Cyan(f'  The Script did not find {sensitive_var} as an `environment` variable.')
         pcolor.Cyan(f'  To not be prompted for the value of `{kwargs.sensitive_var}` each time')
         pcolor.Cyan(f'  add the following to your local environemnt:\n')
         pcolor.Cyan(f"    - Linux: export {sensitive_var}='{kwargs.sensitive_var}_value'")
         pcolor.Cyan(f"    - Windows: $env:{sensitive_var}='{kwargs.sensitive_var}_value'")
-        pcolor.Cyan(f'\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
     if os.environ.get(sensitive_var) is None and kwargs.sensitive_var == 'ipmi_key':
-        pcolor.Cyan(f'\n{"-"*91}\n\n  The ipmi_key Must be in Hexidecimal Format [a-fA-F0-9]')
-        pcolor.Cyan(f'  and no longer than 40 characters.\n\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n  The ipmi_key Must be in Hexidecimal Format [a-fA-F0-9]')
+        pcolor.Cyan(f'  and no longer than 40 characters.\n\n{"-"*108}\n')
     if os.environ.get(sensitive_var) is None:
         valid = False
         while valid == False:
@@ -878,9 +878,9 @@ def sensitive_var_value(kwargs):
             if re.search('(certificate|private_key)', sensitive_var):
                 if not re.search(cert_regex, secure_value): valid = True
                 else:
-                    prRed(f'\n{"-"*91}\n')
+                    prRed(f'\n{"-"*108}\n')
                     prRed(f'    !!! ERROR !!!\n  Invalid Value for the {sensitive_var}.  Please re-enter the {sensitive_var}.')
-                    prRed(f'\n{"-"*91}\n')
+                    prRed(f'\n{"-"*108}\n')
             elif re.search('intersight_api_key_id', sensitive_var):
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.intersight_api_key_id
                 valid = validate_sensitive(secure_value, kwargs)
@@ -964,9 +964,9 @@ def snmp_trap_servers(kwargs):
         #==============================================
         # Show User Configuration
         #==============================================
-        pcolor.Green(f'\n{"-"*91}\n')
+        pcolor.Green(f'\n{"-"*108}\n')
         pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
-        pcolor.Green(f'\n{"-"*91}\n')
+        pcolor.Green(f'\n{"-"*108}\n')
         #======================================================================
         # * Prompt User to Accept Configuration, If Accepted add to Dictionary
         # * If User Selects to, Configure Additional
@@ -1011,9 +1011,9 @@ def snmp_users(kwargs):
         #==============================================
         # Show User Configuration
         #==============================================
-        pcolor.Green(f'\n{"-"*91}\n')
+        pcolor.Green(f'\n{"-"*108}\n')
         pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
-        pcolor.Green(f'\n{"-"*91}\n')
+        pcolor.Green(f'\n{"-"*108}\n')
         #======================================================================
         # * Prompt User to Accept Configuration, If Accepted add to Dictionary
         # * If User Selects to, Configure Additional
@@ -1032,9 +1032,9 @@ def snmp_users(kwargs):
 def stdout_log(ws, row_num):
     if log_level == 0: return
     elif ((log_level == (1) or log_level == (2)) and (ws) and (row_num is None)) and row_num == 'begin':
-        pcolor.Cyan(f'\n{"-"*91}\n\n   Begin Worksheet "{ws.title}" evaluation...\n\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n   Begin Worksheet "{ws.title}" evaluation...\n\n{"-"*108}\n')
     elif (log_level == (1) or log_level == (2)) and row_num == 'end':
-        pcolor.Cyan(f'\n{"-"*91}\n\n   Completed Worksheet "{ws.title}" evaluation...\n\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n   Completed Worksheet "{ws.title}" evaluation...\n\n{"-"*108}\n')
     elif log_level == (2) and (ws) and (row_num is not None):
         pcolor.Cyan(f'    - Evaluating Row{" "*(4-len(row_num))}{row_num}...')
     else: return
@@ -1060,9 +1060,9 @@ def syslog_servers(kwargs):
             #==============================================
             # Show User Configuration
             #==============================================
-            pcolor.Green(f'\n{"-"*91}\n')
+            pcolor.Green(f'\n{"-"*108}\n')
             pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
-            pcolor.Green(f'\n{"-"*91}\n')
+            pcolor.Green(f'\n{"-"*108}\n')
             #======================================================================
             # * Prompt User to Accept Configuration, If Accepted add to Dictionary
             # * If User Selects to, Configure Additional
@@ -1438,7 +1438,7 @@ def variableFromList(kwargs):
                 for vars in var_list:
                     if int(vars) == index: var_count += 1; selection.append(value)
             if var_count == var_length: valid = True
-            else: prRed(f'\n{"-"*91}\n\n  The list of Vars {var_list} did not match the available list.\n\n{"-"*91}\n')
+            else: prRed(f'\n{"-"*108}\n\n  The list of Vars {var_list} did not match the available list.\n\n{"-"*108}\n')
         if valid == False: message_invalid_selection()
     return selection, valid
 
@@ -1450,11 +1450,11 @@ def variablePrompt(kwargs):
     # Improper Value Notifications
     #==============================================
     def invalid_boolean(title, answer):
-        prRed(f'\n{"-"*91}\n   `{title}` value of `{answer}` is Invalid!!! Please enter `Y` or `N`.\n{"-"*91}\n')
+        prRed(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!! Please enter `Y` or `N`.\n{"-"*108}\n')
     def invalid_integer(title, answer):
-        prRed(f'\n{"-"*91}\n   `{title}` value of `{answer}` is Invalid!!!  Valid range is `{minimum}-{maximum}`.\n{"-"*91}\n')
+        prRed(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!  Valid range is `{minimum}-{maximum}`.\n{"-"*108}\n')
     def invalid_string(title, answer):
-        prRed(f'\n{"-"*91}\n   `{title}` value of `{answer}` is Invalid!!!\n{"-"*91}\n')
+        prRed(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!\n{"-"*108}\n')
     #==============================================
     # Set Function Variables
     #==============================================
@@ -1568,10 +1568,10 @@ def vlan_native_function(vlan_policy_list, vlan_list):
 def vlan_pool(name):
     valid = False
     while valid == False:
-        pcolor.Cyan(f'\n{"-"*91}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         pcolor.Cyan(f'  The allowed vlan list can be in the format of:')
         pcolor.Cyan(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
-        pcolor.Cyan(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*91}\n')
+        pcolor.Cyan(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
         VlanList = input(f'Enter the VLAN or List of VLANs to assign to the Domain VLAN Pool {name}: ')
         if not VlanList == '':
             vlanListExpanded = vlan_list_full(VlanList)
@@ -1580,17 +1580,17 @@ def vlan_pool(name):
                 valid_vlan = validating.number_in_range('VLAN ID', vlan, 1, 4094)
                 if valid_vlan == False: break
             if valid_vlan == False:
-                prRed(f'\n{"-"*91}\n')
+                prRed(f'\n{"-"*108}\n')
                 prRed(f'  !!!Error!!!\n  With VLAN(s) assignment. VLAN List: "{VlanList}" is not Valid.')
                 prRed(f'  The allowed vlan list can be in the format of:')
                 prRed(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
-                prRed(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*91}\n')
+                prRed(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
             else: valid = True
         else:
-            prRed(f'\n{"-"*91}\n')
+            prRed(f'\n{"-"*108}\n')
             prRed(f'  The allowed vlan list can be in the format of:')
             prRed(f'     5 - Single VLAN\n     1-10 - Range of VLANs\n     1,2,3,4,5,11,12,13,14,15 - List of VLANs')
-            prRed(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*91}\n')
+            prRed(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
     return VlanList,vlanListExpanded
 
 #========================================================

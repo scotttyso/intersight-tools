@@ -14371,7 +14371,7 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Flag to determine if the script should ignore the reservations defined under each target.  The records for identity reservations are deleted from the API as soon as the identities are consumed by the Server Profile with UUID assignment and LAN/SAN Policy attachements.  After reservations have been consumed the reservations block sould be removed from each target.",
-                                "intersightApi": "not_applicable",
+                                "intersightApi": "ignore_reservations",
                                 "title": "ignore_reservations"
                             },
                             "imc_access_policy": {
@@ -14750,31 +14750,37 @@
             "server.targets.pre_assign": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Enabled the Pre-Assignment of a Server Profile to either a Chassis/Slot or using the Serial Number.  * Note - If using Chassis/Slot make sure you have defined the domain_name as well to the Server Profile Section.",
-                "ObjectType": [
-                    "ServerPreAssignBySerial",
-                    "ServerPreAssignBySlot"
-                ],
+                "description": "Enabled the Pre-Assignment of a Server Profile to either a Chassis/Slot or using the Serial Number.  * Note - If using Chassis/Slot make sure you have defined the domain_name as well to the Server Profile Section.\nFor Chassis/Slot assignment:\n  * chassis\n  * slot\n\nFor Serial Pre-Assignment:\n  * serial_number",
+                "intersight_api": "ServerPreAssignBySlot",
+                "ObjectType": "server.ServerAssignTypeSlot",
                 "title": "pre_assign",
                 "properties": {
                     "chassis_id": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Default is 0 (Unused).  The Chassis Id to Pre-Assign this Server Profile to.",
+                        "description": "Default is `0` (Unused).  The Chassis Id to Pre-Assign this Server Profile to.",
                         "intersight_api": "ChassisId",
                         "minimum": 0,
                         "maximum": 20,
                         "title": "chassis_id"
                     },
                     "serial_number": {
-                        "$ref": "#/components/schemas/abstract_serial"
+                        "type": "string",
+                        "default": "default",
+                        "description": "Serial Number of the Device.  You can assign unknown if you want to generate the Profile without assigning hardware.",
+                        "intersight_api": "SerialNumber",
+                        "minLength": 7,
+                        "maxLength": 11,
+                        "optional": true,
+                        "pattern": "^[A-Z]{3}[2-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$",
+                        "title": "serial_number"
                     },
                     "slot_id": {
                         "type": "integer",
-                        "default": 0,
-                        "description": "Default is 0.  The Slot Identity to Assign the Server Profile to.",
-                        "intersight_api": "Count",
-                        "minimum": 0,
+                        "default": 1,
+                        "description": "Default is `1`.  The Slot Identity to Assign the Server Profile to.",
+                        "intersight_api": "SlotId",
+                        "minimum": 1,
                         "maximum": 8,
                         "title": "slot_id"
                     }
