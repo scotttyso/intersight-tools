@@ -65,8 +65,7 @@ def child_login(kwargs):
         child.expect(f'tee {log_dir}/{kwargs.hostname}.txt')
     logged_in = False
     while logged_in == False:
-        i = child.expect(
-            ['Are you sure you want to continue', 'closed', 'password:', 'Password:', kwargs.host_prompt, pexpect.TIMEOUT])
+        i = child.expect(['Are you sure you want to continue', 'closed', 'password:', 'Password:', kwargs.host_prompt, pexpect.TIMEOUT])
         if i == 0: child.sendline('yes')
         elif i == 1:
             pcolor.Red(f'\n!!! FAILED !!! to connect.  '\
@@ -321,38 +320,33 @@ def exit_loop_default_yes(loop_count, policy_type):
 # Function to Append the imm_dict Dictionary
 #========================================================
 def ez_append(polVars, kwargs):
-    class_path= kwargs['class_path']
+    class_path= kwargs.class_path
     p         = class_path.split(',')
-    org       = kwargs['org']
+    if kwargs.use_shared_org == True and re.search('^policies|pools', class_path) and kwargs.org != 'default':
+        org   = kwargs.shared_org
+    else: org = kwargs.org
     polVars   = ez_remove_empty(polVars)
     polVars   = DotMap(polVars)
     # Confirm the Key Exists
     if not kwargs.imm_dict.orgs.get(org):
         kwargs.imm_dict.orgs[org] = DotMap()
     if len(p) >= 2:
-        if not kwargs.imm_dict.orgs[org].get(p[0]):
-            kwargs.imm_dict.orgs[org][p[0]] = DotMap()
+        if not kwargs.imm_dict.orgs[org].get(p[0]): kwargs.imm_dict.orgs[org][p[0]] = DotMap()
     if len(p) >= 3:
-        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap()
+        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap()
     if len(p) >= 4:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = DotMap()
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = DotMap()
     if len(p) == 2:
-        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]] = [deepcopy(polVars)]
+        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = [deepcopy(polVars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]].append(deepcopy(polVars))
     elif len(p) == 3:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = [deepcopy(polVars)]
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = [deepcopy(polVars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].append(deepcopy(polVars))
     elif len(p) == 4:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = [deepcopy(polVars)]
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = [deepcopy(polVars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].append(deepcopy(polVars))
     elif len(p) == 5:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = DotMap()
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = DotMap()
         if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].get(p[4]):
             kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]] = [deepcopy(polVars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]].append(deepcopy(polVars))
@@ -367,26 +361,21 @@ def ez_append_wizard(polVars, kwargs):
     p = class_path.split(',')
     polVars = ez_remove_empty(polVars)
     # Confirm the Key Exists
-    if not kwargs.imm_dict.get('wizard'): kwargs.imm_dict['wizard'] = {}
+    if not kwargs.imm_dict.get('wizard'): kwargs.imm_dict.wizard = {}
     if len(p) >= 2:
-        if not kwargs.imm_dict['wizard'].get(p[0]):
-            kwargs.imm_dict['wizard'].update(deepcopy({p[0]:{}}))
+        if not kwargs.imm_dict.wizard.get(p[0]): kwargs.imm_dict.wizard.update(deepcopy({p[0]:{}}))
     if len(p) >= 3:
-        if not kwargs.imm_dict['wizard'][p[0]].get(p[1]):
-            kwargs.imm_dict['wizard'][p[0]].update(deepcopy({p[1]:{}}))
+        if not kwargs.imm_dict.wizard[p[0]].get(p[1]): kwargs.imm_dict.wizard[p[0]].update(deepcopy({p[1]:{}}))
     if len(p) == 1:
-        if not kwargs.imm_dict['wizard'].get(p[0]):
-            kwargs.imm_dict['wizard'].update(deepcopy({p[0]:[]}))
+        if not kwargs.imm_dict.wizard.get(p[0]): kwargs.imm_dict.wizard.update(deepcopy({p[0]:[]}))
     elif len(p) == 2:
-        if not kwargs.imm_dict['wizard'][p[0]].get(p[1]):
-            kwargs.imm_dict['wizard'][p[0]].update(deepcopy({p[1]:[]}))
+        if not kwargs.imm_dict.wizard[p[0]].get(p[1]): kwargs.imm_dict.wizard[p[0]].update(deepcopy({p[1]:[]}))
     elif len(p) == 3:
-        if not kwargs.imm_dict['wizard'][p[0]][p[1]].get(p[2]):
-            kwargs.imm_dict['wizard'][p[0]][p[1]].update(deepcopy({p[2]:[]}))
+        if not kwargs.imm_dict.wizard[p[0]][p[1]].get(p[2]): kwargs.imm_dict.wizard[p[0]][p[1]].update(deepcopy({p[2]:[]}))
     # append the Dictionary
-    if len(p) == 1: kwargs.imm_dict['wizard'][p[0]].append(deepcopy(polVars))
-    if len(p) == 2: kwargs.imm_dict['wizard'][p[0]][p[1]].append(deepcopy(polVars))
-    elif len(p) == 3: kwargs.imm_dict['wizard'][p[0]][p[1]][p[2]].append(deepcopy(polVars))
+    if len(p) == 1: kwargs.imm_dict.wizard[p[0]].append(deepcopy(polVars))
+    if len(p) == 2: kwargs.imm_dict.wizard[p[0]][p[1]].append(deepcopy(polVars))
+    elif len(p) == 3: kwargs.imm_dict.wizard[p[0]][p[1]][p[2]].append(deepcopy(polVars))
     return kwargs
 
 #========================================================
@@ -522,16 +511,15 @@ def load_previous_configurations(kwargs):
             if os.path.isdir(os.path.join(kwargs.args.dir, dest_dir)):
                 dir_list = os.listdir(os.path.join(kwargs.args.dir, dest_dir))
                 for i in dir_list:
-                    if os.path.isfile(os.path.join(kwargs.args.dir, dest_dir, i)):
-                        if re.search('.*yaml$', i):
-                            yfile = open(os.path.join(kwargs.args.dir, dest_dir, i), 'r')
-                            data = yaml.safe_load(yfile)
-                            if not data == None:
-                                for key, value in data.items():
-                                    if not kwargs.imm_dict.orgs.get(key): kwargs.imm_dict.orgs[key] = {}
-                                    for k, v in value.items():
-                                        if not kwargs.imm_dict.orgs[key].get(k): kwargs.imm_dict.orgs[key][k] = {}
-                                        kwargs.imm_dict.orgs[key][k].update(deepcopy(v))
+                    if os.path.isfile(os.path.join(kwargs.args.dir, dest_dir, i)) and re.search('.*yaml$', i):
+                        yfile = open(os.path.join(kwargs.args.dir, dest_dir, i), 'r')
+                        data = yaml.safe_load(yfile)
+                        if not data == None:
+                            for key, value in data.items():
+                                if not kwargs.imm_dict.orgs.get(key): kwargs.imm_dict.orgs[key] = {}
+                                for k, v in value.items():
+                                    if not kwargs.imm_dict.orgs[key].get(k): kwargs.imm_dict.orgs[key][k] = {}
+                                    kwargs.imm_dict.orgs[key][k].update(deepcopy(v))
     # Return kwargs
     return kwargs
 
@@ -1183,8 +1171,7 @@ def validate_args(json_data, kwargs):
     json_data = kwargs['validateData']
     for i in json_data['required_args']:
         if json_data[i]['type'] == 'boolean':
-            if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
-                validating.boolean(i, kwargs)
+            if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''): validating.boolean(i, kwargs)
         elif json_data[i]['type'] == 'hostname':
             if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
                 if ':' in kwargs['var_dict'][i]: validating.ip_address_ws(i, kwargs)
@@ -1230,8 +1217,7 @@ def validate_args(json_data, kwargs):
         elif json_data[i]['type'] == 'list_of_vlans':
             if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''): validating.vlans(i, kwargs)
         elif json_data[i]['type'] == 'string':
-            if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
-                validating.string_pattern(i, json_data, kwargs)
+            if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''): validating.string_pattern(i, json_data, kwargs)
         else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 2."); sys.exit(1)
     for i in json_data['optional_args']:
         if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
@@ -1381,8 +1367,7 @@ def variableFromList(kwargs):
                 else: pcolor.LightGray(textwrap.fill(f'{line}',104, subsequent_indent=' '))
         else: pcolor.LightGray(textwrap.fill(f'{description}',104, subsequent_indent=' '))
         if kwargs.jdata.get('multi_select') == True:
-            pcolor.Yellow(
-                '\n     Note: Answer can be:\n       * Single: 1 or 5\n       * Multiple: `1,2,3` or `1-3,5-6` in example')
+            pcolor.Yellow('\n     Note: Answer can be:\n       * Single: 1 or 5\n       * Multiple: `1,2,3` or `1-3,5-6` in example')
         if kwargs.jdata.get('multi_select') == True: pcolor.Yellow(f'    Select Option(s) Below:')
         else: pcolor.Yellow(f'\n    Select an Option Below:')
         for index, value in enumerate(vars):
