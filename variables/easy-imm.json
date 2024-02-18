@@ -7694,6 +7694,15 @@
                             "wizard"
                         ]
                     },
+                    "chassis": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the chassis.ezi.yaml file.",
+                        "title": "chassis",
+                        "enum": [
+                            "chassis"
+                        ]
+                    },
                     "compute": {
                         "type": "string",
                         "default": "",
@@ -7703,8 +7712,18 @@
                             "bios",
                             "boot_order",
                             "firmware",
+                            "firmware_authenticate",
                             "persistent_memory",
                             "virtual_media"
+                        ]
+                    },
+                    "domain_profile": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the domain.ezi.yaml file.",
+                        "title": "domain",
+                        "enum": [
+                            "domain"
                         ]
                     },
                     "domain": {
@@ -7790,6 +7809,16 @@
                             "virtual_kvm"
                         ]
                     },
+                    "name_pfx_sfx": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the name_pfx_sfx.ezi.yaml file.",
+                        "title": "name prefix/suffix",
+                        "enum": [
+                            "name_prefix",
+                            "name_suffix"
+                        ]
+                    },
                     "netapp": {
                         "type": "string",
                         "default": "",
@@ -7814,11 +7843,27 @@
                             "fibre_channel",
                             "lan_connectivity",
                             "management",
+                            "name_pfx_sfx",
                             "port",
                             "san_connectivity",
                             "storage",
                             "vlan",
                             "vsan"
+                        ]
+                    },
+                    "pool_types": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the pools.ezi.yaml file.",
+                        "title": "pools",
+                        "enum": [
+                            "ip",
+                            "iqn",
+                            "mac",
+                            "resource",
+                            "uuid",
+                            "wwnn",
+                            "wwpn"
                         ]
                     },
                     "pools": {
@@ -7828,7 +7873,8 @@
                         "directory": "pools",
                         "title": "pools",
                         "enum": [
-                            "pools"
+                            "name_pfx_sfx",
+                            "pool_types"
                         ]
                     },
                     "port": {
@@ -7848,7 +7894,8 @@
                         "title": "profiles",
                         "enum": [
                             "chassis",
-                            "domain",
+                            "domain_profile",
+                            "name_pfx_sfx",
                             "server"
                         ]
                     },
@@ -7859,6 +7906,15 @@
                         "title": "san_connectivity",
                         "enum": [
                             "san_connectivity"
+                        ]
+                    },
+                    "server": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the server.ezi.yaml file.",
+                        "title": "server",
+                        "enum": [
+                            "server"
                         ]
                     },
                     "storage": {
@@ -9022,6 +9078,19 @@
                     }
                 }
             },
+            "ip.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The IP reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "ippool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "ippool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "IP Identity Reservations"
+            },
             "ipmi_over_lan": {
                 "description": "Intelligent Platform Management Interface Over LAN Policy.",
                 "intersight_type": "policy",
@@ -9171,6 +9240,19 @@
                         "title": "to"
                     }
                 }
+            },
+            "iqn.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The IQN reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "iqnpool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "iqnpool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "IQN Identity Reservations"
             },
             "iscsi_adapter": {
                 "description": "Set of iSCSI properties that govern the host-side behavior of the adapter.",
@@ -10661,6 +10743,19 @@
                         "title": "to"
                     }
                 }
+            },
+            "mac.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The MAC reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "macpool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "macpool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "MAC Identity Reservations"
             },
             "multicast": {
                 "description": "A policy to configure Multicast settings for all the Virtual LAN networks.",
@@ -16246,7 +16341,7 @@
                         "properties": {
                             "classes": {
                                 "type": "array",
-                                "description": "System QoS Classes to Configure for the Domain.\nRequired Attributes:\n  * priority - {Best Effort|Bronze|FC|Gold|Platinum|Silver}\n  * state\n\nOptional Attributes:\n  * bandwidth_percent\n  * cos\n  * packet_drop\n  * weight",
+                                "description": "System QoS Classes to Configure for the Domain.\nRequired Attributes:\n  * priority - {Best Effort|Bronze|FC|Gold|Platinum|Silver}\n  * state\n\nOptional Attributes:\n  * cos\n  * packet_drop\n  * weight",
                                 "intersight_uri": "fabric/SystemQosPolicies",
                                 "items": {
                                     "$ref": "#/components/schemas/system_qos.classes"
@@ -16257,14 +16352,14 @@
                             "configure_default_classes": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Flag to Configure the following class values:\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n  - bandwidth_percent: 50\n    cos: 255\n    packet_drop: true\n    priority: Best Effort\n    state: Enabled\n    weight: 10\n  - bandwidth_percent: 50\n    cos: 3\n    mtu: 2240\n    packet_drop: false\n    priority: FC\n    state: Enabled\n    weight: 10",
+                                "description": "Flag to Configure the following class values:\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n    cos: 255\n    packet_drop: true\n    priority: Best Effort\n    state: Enabled\n    weight: 10\n    cos: 3\n    mtu: 2240\n    packet_drop: false\n    priority: FC\n    state: Enabled\n    weight: 10",
                                 "intersight_api": "configure_default_classes",
                                 "title": "configure_default_classes"
                             },
                             "configure_recommended_classes": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Flag to Configure the following class values:\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n  - bandwidth_percent: 10\n    cos: 255\n    packet_drop: true\n    priority: Best Effort\n    state: Enabled\n    weight: 5\n  - bandwidth_percent: 14\n    cos: 1\n    packet_drop: true\n    priority: Bronze\n    state: Enabled\n    weight: 7\n  - bandwidth_percent: 18\n    cos: 4\n    packet_drop: true\n    priority: Gold\n    state: Enabled\n    weight: 9\n  - bandwidth_percent: 20\n    cos: 3\n    mtu: 2240\n    packet_drop: false\n    priority: FC\n    state: Enabled\n    weight: 10\n  - bandwidth_percent: 20\n    cos: 5\n    packet_drop: false\n    priority: Platinum\n    state: Enabled\n    weight: 10\n  - bandwidth_percent: 18\n    cos: 2\n    packet_drop: true\n    priority: Silver\n    state: Enabled\n    weight: 8",
+                                "description": "Flag to Configure the following class values:\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n    cos: 255\n    packet_drop: true\n    priority: Best Effort\n    state: Enabled\n    weight: 5\n    cos: 1\n    packet_drop: true\n    priority: Bronze\n    state: Enabled\n    weight: 7\n    cos: 4\n    packet_drop: true\n    priority: Gold\n    state: Enabled\n    weight: 9\n    cos: 3\n    mtu: 2240\n    packet_drop: false\n    priority: FC\n    state: Enabled\n    weight: 10\n    cos: 5\n    packet_drop: false\n    priority: Platinum\n    state: Enabled\n    weight: 10\n    cos: 2\n    packet_drop: true\n    priority: Silver\n    state: Enabled\n    weight: 8",
                                 "intersight_api": "configure_recommended_classes",
                                 "title": "configure_recommended_classes"
                             },
@@ -16291,15 +16386,6 @@
                 ],
                 "title": "Class",
                 "properties": {
-                    "bandwidth_percent": {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Percentage of bandwidth received by the traffic tagged with this QoS.  Range is 0-100",
-                        "intersight_api": "BandwidthPercent",
-                        "minimum": 1,
-                        "maximum": 100,
-                        "title": "bandwidth_percent"
-                    },
                     "cos": {
                         "type": "integer",
                         "default": 255,
@@ -16364,7 +16450,6 @@
                 "classes": [
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 50,
                         "Cos": 255,
                         "Mtu": 9216,
                         "Name": "Best Effort",
@@ -16374,7 +16459,6 @@
                     },
                     {
                         "AdminState": "Disabled",
-                        "BandwidthPercent": 0,
                         "Cos": 1,
                         "Mtu": 9216,
                         "Name": "Bronze",
@@ -16384,7 +16468,6 @@
                     },
                     {
                         "AdminState": "Disabled",
-                        "BandwidthPercent": 0,
                         "Cos": 4,
                         "Mtu": 9216,
                         "Name": "Gold",
@@ -16394,7 +16477,6 @@
                     },
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 50,
                         "Cos": 3,
                         "Mtu": 2240,
                         "Name": "FC",
@@ -16404,7 +16486,6 @@
                     },
                     {
                         "AdminState": "Disabled",
-                        "BandwidthPercent": 0,
                         "Cos": 5,
                         "Mtu": 9216,
                         "Name": "Platinum",
@@ -16414,7 +16495,6 @@
                     },
                     {
                         "AdminState": "Disabled",
-                        "BandwidthPercent": 0,
                         "Cos": 2,
                         "Mtu": 9216,
                         "Name": "Silver",
@@ -16435,7 +16515,6 @@
                 "classes": [
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 10,
                         "Cos": 255,
                         "Mtu": 9216,
                         "Name": "Best Effort",
@@ -16445,7 +16524,6 @@
                     },
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 14,
                         "Cos": 1,
                         "Mtu": 9216,
                         "Name": "Bronze",
@@ -16455,7 +16533,6 @@
                     },
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 18,
                         "Cos": 4,
                         "Mtu": 9216,
                         "Name": "Gold",
@@ -16465,7 +16542,6 @@
                     },
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 20,
                         "Cos": 3,
                         "Mtu": 2240,
                         "Name": "FC",
@@ -16475,7 +16551,6 @@
                     },
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 20,
                         "Cos": 5,
                         "Mtu": 9216,
                         "Name": "Platinum",
@@ -16485,7 +16560,6 @@
                     },
                     {
                         "AdminState": "Enabled",
-                        "BandwidthPercent": 18,
                         "Cos": 2,
                         "Mtu": 9216,
                         "Name": "Silver",
@@ -16588,6 +16662,19 @@
                         }
                     }
                 ]
+            },
+            "uuid.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The UUID reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "uuidpool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "uuidpool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "UUID Identity Reservations"
             },
             "uuid.uuid_blocks": {
                 "type": "object",
@@ -17162,6 +17249,19 @@
                     }
                 }
             },
+            "wwnn.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The WWNN reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "fcpool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "fcpool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "WWNN Identity Reservations"
+            },
             "wwpn": {
                 "description": "Pool represents a collection of WWPN addresses that can be allocated to VHBAs of a server profile.",
                 "intersight_type": "pool",
@@ -17236,6 +17336,19 @@
                         "title": "to"
                     }
                 }
+            },
+            "wwpn.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The WWPN reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "fcpool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "fcpool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "WWPN Identity Reservations"
             }
         },
         "wizard": {

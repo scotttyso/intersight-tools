@@ -13,6 +13,11 @@ def print_process(cchar, ptext):
         sub_indent = ' ' * (indent) + '   '
         print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
     elif re.search('^[\\*|\\-] [a-zA-Z0-9]', ptext):
+        indent = 2
+        sub_indent = ' ' * indent
+        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
+    elif re.search('^[ ]+[a-zA-Z0-9]', ptext):
+        indent = len(re.search('^([ ]+)[a-zA-Z0-9]', ptext).group(1))
         sub_indent = ' ' * indent
         print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
     elif re.search('^[a-zA-Z0-9\\-\\=]', ptext):

@@ -32,3 +32,5 @@ if (${workflow.input.config_proxy} === 'true' && ${workflow.input.intersight.pol
 Regex for File Share Witness
 ^([a-zA-Z0-9](?:(?:[a-zA-Z0-9-]*|(?<!-)\.(?![-.]))*[a-zA-Z0-9]+)?)$ 
 ^(?!.*[\/\[\]\:\¦\<\>\+\=\;\,\*\?\"].*).{3,64}$
+
+ezci.py -s dummy -t azurestack -a {{.global.workflow.variable.intersight_api_key_id}} -f {{.global.workflow.variable.intersight_fqdn}} -k "{{.global.workflow.input.intersight_secret_key}}" -y {{.global.GetRunningWorkflowInfosId1.output.Workflowinfos_id}}/ico_answers.yaml -wap "{{.global.workflow.input.azurestack.windows_admin_password}}" -wdp "{{.global.workflow.input.azurestack.active_directory.windows_domain_password}}"

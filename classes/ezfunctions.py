@@ -129,7 +129,8 @@ def countKeys(ws, func):
 def create_yaml(orgs, kwargs):
     ezdata  = kwargs.ezdata.ezimm_class.properties
     classes = kwargs.ezdata.ezimm_class.properties.classes.enum
-    def write_file(dest_dir, dest_file, dict, title1):
+    def write_file(dest_dir, dest_file, idict, title1):
+        if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
         if not os.path.exists(os.path.join(dest_dir, dest_file)):
             create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'
             os.system(create_file)
@@ -140,81 +141,57 @@ def create_yaml(orgs, kwargs):
         wr_file.write(f'#{dash_length}\n')
         wr_file.write(f'#   {title1} - Variables\n')
         wr_file.write(f'#{dash_length}\n')
-        wr_file.write(yaml.dump(dict, Dumper=MyDumper, default_flow_style=False))
+        if 'name_pfx_sfx' in dest_file: wr_file.write('# If a prefix/suffix policy is undefined default will be used\n')
+        wr_file.write(yaml.dump(idict, Dumper=MyDumper, default_flow_style=False))
         wr_file.close()
     for item in classes:
         dest_dir = os.path.join(kwargs.args.dir, ezdata[item].directory)
-        if item == 'policies':
+        if re.search('policies|pools|profiles|templates', item):
             for i in ezdata[item].enum:
-                idict = DotMap()
+                idict = {}
                 for org in orgs:
-                    if not idict.get(org): idict[org] = DotMap()
-                    for x in ezdata[i].enum:
-                        if kwargs.imm_dict.orgs[org].get(item):
-                            if kwargs.imm_dict.orgs[org][item].get(x):
-                                idict[org][item][x] = deepcopy(kwargs.imm_dict.orgs[org][item][x])
-                            if not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
-                    if len(idict[org][item]) > 0:
-                        idict = json.dumps(idict.toDict())
-                        idict = json.loads(idict)
-                        for x in ezdata[i].enum:
-                            if kwargs.imm_dict.orgs[org][item].get(x):
-                                if type(idict[org][item][x]) == list:
-                                    if idict[org][item][x][0].get('name'):
-                                        idict[org][item][x] = list({v['name']:v for v in idict[org][item][x]}.values())
-                                    elif idict[org][item][x][0].get('names'):
-                                        idict[org][item][x] = list({v['names'][0]:v for v in idict[org][item][x]}.values())
-                        if re.search('policies|pools|profiles|templates', dest_dir): dest_file = f"{i}.ezi.yaml"
-                        else: dest_file = f"{i}.yaml"
-                        title1 = f"{str.title(item)} -> {i}"
-                        if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
-                        write_file(dest_dir, dest_file, idict, title1)
+                    org_keys = list(kwargs.imm_dict.orgs[org].keys())
+                    if item in org_keys:
+                        if not idict.get(org): idict[org] = {}
+                        if not idict[org].get(item): idict[org][item] = {}
+                        ikeys = ezdata[i].enum
+                        pkeys = list(kwargs.imm_dict.orgs[org][item].keys())
+                        idict[org][item] = dict(sorted(deepcopy(kwargs.imm_dict.orgs[org][item].toDict()).items()))
+                        for x in pkeys:
+                            if not x in ikeys: idict[org][item].pop(x)
+                            elif not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
+                        if len(idict[org][item]) == 0: idict.pop(org)
+                if len(idict) > 0:
+                    title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
+                    if i == 'pool_types': dest_file = 'pools.ezi.yaml'
+                    elif i == 'domain_profile': dest_file = 'domain.ezi.yaml'
+                    else: dest_file = f"{i}.ezi.yaml"
+                    write_file(dest_dir, dest_file, idict, title1)
         else:
             for i in ezdata[item].enum:
-                idict = deepcopy(DotMap())
+                idict = {}
                 if item == i:
                     for org in orgs:
-                        if kwargs.imm_dict.orgs[org].get(item):
-                            if len(kwargs.imm_dict.orgs[org][item]) > 0:
-                                itemDict = deepcopy(kwargs.imm_dict.orgs[org][item].toDict())
-                                idict[org][item] = itemDict
-                                idict = json.dumps(idict.toDict())
-                                idict = json.loads(idict)
-                                if type(idict[org][item]) == list: idict[org][item] = list({v['name']:v for v in value}.values())
-                                else:
-                                    newdict = deepcopy(idict)
-                                    if re.search('(netapp|storage)', item):
-                                        for key, value in newdict[org][item].items():
-                                            idict[org][item][key] = list({v['name']:v for v in value}.values())
-                                    else:
-                                        for key, value in newdict[org][item].items():
-                                            if not 'name' in value: idict[org][item][key] = value
-                                            else: idict[org][item][key] = list({v['name']:v for v in value}.values())
-                                if re.search('policies|pools|profiles|templates', dest_dir): dest_file = f"{i}.ezi.yaml"
-                                else: dest_file = f"{i}.yaml"
-                                title1 = str.title(item.replace('_', ' '))
-                                if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
-                                write_file(dest_dir, dest_file, idict, title1)
+                        org_keys = list(kwargs.imm_dict.orgs[org].keys())
+                        if item in org_keys and len(kwargs.imm_dict.orgs[org][item]) > 0:
+                            idict[org] = {}; idict[org][item] = dict(sorted(deepcopy(kwargs.imm_dict.orgs[org][item].toDict()).items()))
                 else:
                     for org in orgs:
-                        if kwargs.imm_dict.orgs[org].get(item):
-                            if kwargs.imm_dict.orgs[org][item].get(i):
-                                if len(kwargs.imm_dict.orgs[org][item][i]) > 0:
-                                    idict[org][item][i] = deepcopy(kwargs.imm_dict.orgs[org][item][i])
-                                    idict = json.dumps(idict.toDict())
-                                    idict = json.loads(idict)
-                                    if type(idict[org][item][i]) == list:
-                                        if re.search('(chassis|server)', i) and item == 'profiles': idict[org][item][i] = list({
-                                                v['targets'][0]['name']:v for v in idict[org][item][i]}.values())
-                                        else: idict[org][item][i] = list({v['name']:v for v in idict[org][item][i]}.values())
-                                    else:
-                                        for a, b in idict[org][item][i].items(): b = list({v['name']:v for v in b}.values())
-                                    if re.search('policies|pools|profiles|templates', dest_dir): dest_file = f"{i}.ezi.yaml"
-                                    else: dest_file = f"{i}.yaml"
-                                    title1 = f"{str.title(item.replace('_', ' '))} -> {str.title(i.replace('_', ' '))}"
-                                    if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
-                                    write_file(dest_dir, dest_file, idict, title1)
-                        
+                        org_keys = list(kwargs.imm_dict.orgs[org].keys())
+                        if item in org_keys:
+                            if not idict.get(org): idict[org] = {}
+                            if not idict[org].get(item): idict[org][item] = {}
+                            ikeys = ezdata[i].enum
+                            pkeys = list(kwargs.imm_dict.orgs[org][item].keys())
+                            idict[org][item] = dict(sorted(deepcopy(kwargs.imm_dict.orgs[org][item].toDict()).items()))
+                            for x in pkeys:
+                                if not i == x or len(kwargs.imm_dict.orgs[org][item][i]) == 0: idict[org][item].pop(x)
+                            if len(idict[org][item]) == 0: idict.pop(org)
+                if len(idict) > 0:
+                    if i == item: title1 = mod_pol_description(str.title(item.replace('_', ' ')))
+                    else: title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((i).replace('_', ' '))}")
+                    write_file(dest_dir, f"{i}.yaml", idict, title1)
+
 #==========================================================
 # Function for Processing Wizard Data and Creating YAML Files
 #==========================================================

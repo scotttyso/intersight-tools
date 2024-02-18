@@ -29,6 +29,7 @@ def begin_section(ptype1, ptype2):
 def completed_item(ptype, kwargs):
     iresults = kwargs.api_results
     method = kwargs.method
+    name   = None
     pmoid  = iresults.Moid
     if   'vnic.EthIf' == iresults['ObjectType']: name = f"vNIC {iresults['Name']}"
     elif 'vnic.FcIf' == iresults['ObjectType']:  name = f"vHBA {iresults['Name']}"
@@ -49,23 +50,35 @@ def completed_item(ptype, kwargs):
     elif iresults.get('ScheduledActions'): name = f"Activating Profile {pmoid}"
     elif iresults.get('Targets'):          name = iresults['Targets'][0]['Name']
     elif 'update_tags' in kwargs.qtype:    name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
-    else: name = iresults['Name']
+    elif iresults.get('Identity'):         name = f"Reservation: `{iresults.Identity}`"
+    elif iresults.get('Name'):             name = iresults['Name']
+    elif iresults.get('EndPointRole'):
+        name = list(kwargs.user_moids.keys())[list(kwargs.user_moids.values()).index({'moid':iresults.EndPointUser.Moid})]
+    if name == None:
+        print(json.dumps(iresults, indent=4))
+        print(kwargs.ptype)
+        print(kwargs.parent_name)
+        print(kwargs.parent_type)
+        print('missing definition')
+        exit()
     if re.search(oregex, iresults.get('ObjectType')):
-        parent_type = iresults['ObjectType'].split('.')[1]
+        parents = kwargs.isight[kwargs.org].policy[kwargs.parent_key]
+        kwargs.parent_name = list(parents.keys())[list(parents.values()).index(iresults.Parent.Moid)]
         if method == 'post':
-            pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org} > {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
         else:
-            pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org} > {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', kwargs.qtype) and kwargs.qtype == 'firmware':
         if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
         else: pcolor.LightPurple(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
-    elif iresults.get('Targets'):
-        if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
+    elif 'Reservation' in name: pcolor.Green(f'    - Completed POST for {name} - Moid: {pmoid}')
+    elif 'bulk/MoMergers' == kwargs.uri:
+        if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
     else:
         if method == 'post': pcolor.Green(f'    - Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org}; Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
 
 def deploy_notification(profile, profile_type):
     pcolor.LightGray(f'\n{"-"*108}\n')
