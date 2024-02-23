@@ -6427,7 +6427,7 @@
                             "action": {
                                 "type": "string",
                                 "default": "No-op",
-                                "description": "Action to Perform on the Profile Assignment.",
+                                "description": "Action to Perform on the Profile Assignment.  Options are:\n  * Deploy - will deploy the profile.\n  * No-op - will not deploy the profile.\n  * Unassign - will detach the profile from the hardware.",
                                 "intersight_api": "Action",
                                 "enum": [
                                     "Deploy",
@@ -6641,7 +6641,7 @@
                             "action": {
                                 "type": "string",
                                 "default": "No-op",
-                                "description": "Action to Perform on the Profile Assignment.",
+                                "description": "Action to Perform on the Profile Assignment.  Options are:\n  * Deploy - will deploy the profile.\n  * No-op - will not deploy the profile.\n  * Unassign - will detach the profile from the hardware.",
                                 "intersight_api": "Action",
                                 "enum": [
                                     "Deploy",
@@ -7317,7 +7317,7 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
-                            "Count":1,
+                            "Count":4,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize":512
                         }
@@ -10578,7 +10578,7 @@
                     "grace_period": {
                         "type": "integer",
                         "default": 1,
-                        "description": "Default is 1.  Time period until when you can use the existing password, after it expires.",
+                        "description": "Default is `1`.  Time period until when you can use the existing password, after it expires.",
                         "intersight_api": "GracePeriod",
                         "minimum": 0,
                         "maximum": 5,
@@ -10587,7 +10587,7 @@
                     "notification_period": {
                         "type": "integer",
                         "default": 15,
-                        "description": "Default is 15.  The duration after which the password will expire.",
+                        "description": "Default is `15`.  The duration after which the password will expire.",
                         "intersight_api": "NotificationPeriod",
                         "minimum": 1,
                         "maximum": 15,
@@ -10596,7 +10596,7 @@
                     "password_expiry_duration": {
                         "type": "integer",
                         "default": 90,
-                        "description": "Default is 90.  Set time period for password expiration. Value should be greater than notification period and grace period.",
+                        "description": "Default is `90`.  Set time period for password expiration. Value should be greater than notification period and grace period.",
                         "intersight_api": "PasswordExpiryDuration",
                         "minimum": 1,
                         "maximum": 3650,
@@ -10605,7 +10605,7 @@
                     "password_history": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Default is 5.  Tracks password change history. Specifies in number of instances, that the new password was already used.",
+                        "description": "Default is `5`.  Tracks password change history. Specifies in number of instances, that the new password was already used.",
                         "intersight_api": "PasswordHistory",
                         "minimum": 0,
                         "maximum": 5,
@@ -14366,7 +14366,7 @@
                             "action": {
                                 "type": "string",
                                 "default": "No-op",
-                                "description": "Action to Perform on the Profile Assignment.\n  * Deploy - will deploy the profile.\n  * No-op - will not deploy the profile.\n  * Unassign - will detach the profile from the hardware.",
+                                "description": "Action to Perform on the Profile Assignment.  Options are:\n  * Deploy - will deploy the profile.\n  * No-op - will not deploy the profile.\n  * Unassign - will detach the profile from the hardware.",
                                 "intersight_api": "Action",
                                 "enum": [
                                     "Deploy",
@@ -17030,7 +17030,7 @@
                         "intersight_api": "name_prefix",
                         "title": "name_prefix"
                         },
-                        "native_vlan": {
+                    "native_vlan": {
                         "type": "boolean",
                         "default": false,
                         "description": "Default is `false`.  Used to define whether this VLAN is to be classified as 'native' for traffic in this FI.",

@@ -350,15 +350,12 @@ class imm(object):
             api_body['BootDevices'] = []
             for i in item.boot_devices:
                 boot_dev = {'Name':i.name,'ObjectType':i.object_type}
-                if re.search('(Iscsi|LocalDisk|Nvme|PchStorage|San|SdCard)', i.object_type) and api_body['ConfiguredBootMode'] == 'Uefi':
-                    boot_dev['Bootloader'] = {'ObjectType':'boot.Bootloader'}
-                    if 'bootloader' in i:
-                        ez1 = kwargs.ezdata['boot_order.boot_devices.boot_loader'].properties
-                        for k, v in i.items():
-                            if k in ez1: boot_dev['Bootloader'].update({ez1[k].intersight_api:v})
-                    else: boot_dev['Bootloader'].update({'Name':'BOOTx64.EFI','Path':"\\EFI\\BOOT\\"})
                 for k, v in i.items():
                     if k in ezdata: boot_dev.update({ezdata[k].intersight_api:v})
+                bkeys = list(boot_dev.keys())
+                if not 'Enabled' in bkeys: boot_dev['Enabled'] = True
+                if not 'IpType' in bkeys and 'boot.Pxe' == i.object_type: boot_dev['IpType'] = 'IPv4'
+                boot_dev = dict(sorted(boot_dev.items()))
                 api_body['BootDevices'].append(deepcopy(boot_dev))
         return api_body
 
@@ -455,6 +452,7 @@ class imm(object):
                 for i in e['ModelFamily']:
                     idict = deepcopy(e); idict['ModelFamily'] = i
                     api_body['ModelBundleCombo'].append(idict)
+            api_body['ModelBundleCombo'] = sorted(api_body['ModelBundleCombo'], key=lambda item: item['BundleVersion'])
         return api_body
 
     #=======================================================
@@ -794,12 +792,15 @@ class imm(object):
     #=======================================================
     def local_user(self, api_body, item, kwargs):
         if not api_body.get('PasswordProperties'): api_body['PasswordProperties'] = {}
-        for k, v in kwargs.ezdata['local_user.password_properties'].properties.items():
-            if item.get('password_properties'):
-                if item.password_properties.get(k):
-                    api_body['PasswordProperties'][v.intersight_api] =  item.password_properties[k]
+        ikeys = list(item.keys())
+        if 'password_properties' in ikeys:
+            pkeys = list(item.password_properties.keys())
+            for k, v in kwargs.ezdata['local_user.password_properties'].properties.items():
+                if k in pkeys: api_body['PasswordProperties'][v.intersight_api] =  item.password_properties[k]
                 else: api_body['PasswordProperties'][v.intersight_api] = v.default
-            else: api_body['PasswordProperties'][v.intersight_api] = v.default
+        else:
+            for k, v in kwargs.ezdata['local_user.password_properties'].properties.items():
+                api_body['PasswordProperties'][v.intersight_api] = v.default
         return api_body
 
     #=======================================================
@@ -848,7 +849,7 @@ class imm(object):
         def policies_to_api(api_body, kwargs):
             kwargs.qtype = self.type
             kwargs.uri   = kwargs.ezdata[self.type].intersight_uri
-            if kwargs.isight[kwargs.org].policy[self.type].get(api_body['Name']):
+            if api_body['Name'] in kwargs.isight[kwargs.org].policy[self.type]:
                 indx = next((index for (index, d) in enumerate(kwargs.policy_results) if d['Name'] == api_body['Name']), None)
                 patch_policy = compare_body_result(api_body, kwargs.policy_results[indx])
                 api_body['pmoid']  = kwargs.isight[kwargs.org].policy[self.type][api_body['Name']]
@@ -963,7 +964,7 @@ class imm(object):
             #=====================================================
             # If Modified Patch the Pool via the Intersight API
             #=====================================================
-            if kwargs.isight[kwargs.org].pool[self.type].get(api_body['Name']):
+            if api_body['Name'] in kwargs.isight[kwargs.org].pool[self.type]:
                 indx = next((index for (index, d) in enumerate(kwargs.pool_results) if d['Name'] == api_body['Name']), None)
                 patch_pool = compare_body_result(api_body, kwargs.pool_results[indx])
                 api_body['pmoid'] = kwargs.isight[kwargs.org].pool[self.type][api_body['Name']]
@@ -1628,8 +1629,8 @@ class imm(object):
             for x in range(0, len(api_body['Classes'])):
                 if api_body['Classes'][x].get('Priority'):
                     api_body['Classes'][x]['Name'] = api_body['Classes'][x]['Priority']; api_body['Classes'][x].pop('Priority')
-                if api_body['jumbo_mtu'] == True: api_body['Classes'][x]['Mtu'] = 9000
-                else: api_body['Classes'][x]['Mtu'] = 9000
+                if api_body['jumbo_mtu'] == True: api_body['Classes'][x]['Mtu'] = 9216
+                else: api_body['Classes'][x]['Mtu'] = 9216
                 if api_body['Classes'][x]['Name'] == 'FC': api_body['Classes'][x]['Mtu'] = 2240
             api_body.pop('jumbo_mtu')
         classes = api_body['Classes']
@@ -1637,6 +1638,7 @@ class imm(object):
         for e in classes:
             if type(e) == dict: api_body['Classes'].append(e)
             else: api_body['Classes'].append(e.toDict())
+        api_body['Classes'] = sorted(api_body['Classes'], key=lambda item: item['Name'])
         return api_body
 
     #=====================================================
@@ -1763,10 +1765,13 @@ class imm(object):
                 validating.error_policy_doesnt_exist('multicast_policy', e.multicast_policy, self.type, 'Vlans', e.vlan_list)
             api_body['MulticastPolicy']['Moid'] = kwargs.isight[org].policy['multicast'][policy]
             if not api_body.get('IsNative'): api_body['IsNative'] = False
+            vkeys = list(e.keys())
+            if not 'name_prefix' in vkeys: name_prefix = True
+            else: name_prefix = e.name_prefix
             vlans = ezfunctions.vlan_list_full(e.vlan_list)
             for x in ezfunctions.vlan_list_full(e.vlan_list):
                 if type(x) == str: x = int(x)
-                if len(vlans) > 1 and e.name_prefix == True: api_body['Name'] = f"{e.name}{'0'*(4 - len(str(x)))}{x}"
+                if len(vlans) > 1 and name_prefix == True: api_body['Name'] = f"{e.name}{'0'*(4 - len(str(x)))}{x}"
                 api_body['VlanId'] = x
                 #=====================================================
                 # Create or Patch the VLANs via the Intersight API
@@ -2083,6 +2088,7 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
             if '$ref:' in idata[k].intersight_api:
                 x = idata[k].intersight_api.split(':')
                 if not api_body.get(x[1]): api_body.update({x[1]:{x[3]:v, 'ObjectType':x[2]}})
+                elif not api_body[x[1]].get(x[3]): api_body[x[1]].update({x[3]:v})
             elif '$pbucket:' in idata[k].intersight_api:
                 if not api_body.get('PolicyBucket'): api_body['PolicyBucket'] = []
                 x = idata[k].intersight_api.split(':')
@@ -2127,7 +2133,8 @@ def build_api_body(api_body, idata, item, ptype, kwargs):
                         idict = dict(sorted(idict.items()))
                         api_body[idata[k]['items'].intersight_api].append(idict)
         elif idata[k].type == 'object':
-            api_body[idata[k].intersight_api] = {'ObjectType':idata[k].ObjectType}
+            if not api_body.get(idata[k].intersight_api):
+                api_body[idata[k].intersight_api] = {'ObjectType':idata[k].ObjectType}
             for a, b in idata[k].properties.items():
                 if b.type == 'array':
                     if re.search('pci_(links|order)|slot_ids|switch_ids|uplink_ports', a):

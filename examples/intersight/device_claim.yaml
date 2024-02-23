@@ -1,0 +1,8 @@
+---
+device_list:
+  - device_type: imc
+    devices:
+      - 198.18.1.51
+      - 198.18.1.52
+    resource_group: default
+    username: admin
