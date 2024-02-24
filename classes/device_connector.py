@@ -112,7 +112,6 @@ class device_connector(object):
                 else:
                     pcolor.Red(resp.status_code)
                     pcolor.Red('DNS Configuration Failed.  device_connector.py line 114')
-                    break
             if not re.match(r'2..', str(resp.status_code)):
                 result.ApiError = f"post {self.xml_uri} {resp.status_code} management interface."
         return result
