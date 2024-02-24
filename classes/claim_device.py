@@ -18,6 +18,7 @@ def claim_targets(kwargs):
     return_code     = 0
     result          = DotMap()
     resource_groups = []
+    connected_error = False
     for i in kwargs.yaml.device_list: resource_groups.append(i.resource_group)
     names= "', '".join(numpy.unique(numpy.array(resource_groups))).strip("', '")
     # Get Intersight Resource Groups
@@ -112,7 +113,6 @@ def claim_targets(kwargs):
             # wait for a connection to establish before checking claim state
             for _ in range(10):
                 if ro_json.ConnectionState != 'Connected':
-                    print(f'conn state is "{ro_json.ConnectionState}"')
                     if ro_json.ConnectionState == 'DNS Misconfigured': result = dc_obj.configure_dns(result)
                     else: sleep(1); ro_json = dc_obj.get_status()
 
@@ -120,7 +120,10 @@ def claim_targets(kwargs):
             result[device.hostname].msg += f"#ConnectionState: {ro_json.ConnectionState}"
             result[device.hostname].msg += f"#Claimed state: {ro_json.AccountOwnershipState}"
 
-            if ro_json.ConnectionState != 'Connected': return_code = 1; continue
+            if ro_json.ConnectionState != 'Connected':
+                if ('dc_obj' in locals() or 'dc_obj' in globals()): dc_obj.logout()
+                connected_error = True
+                return_code = 1; continue
             else:
                 pcolor.Cyan(ro_json.ConnectionState)
                 (claim_resp, device_id, claim_code) = dc_obj.get_claim_info(ro_json)
@@ -159,8 +162,7 @@ def claim_targets(kwargs):
             if ('dc_obj' in locals() or 'dc_obj' in globals()): dc_obj.logout()
 
         null_selector = False
-        if re.search(r'ParentConnection eq null',  resource_groups[i.resource_group].selectors[0].Selector):
-            null_selector = True
+        if re.search(r'ParentConnection eq null',  resource_groups[i.resource_group].selectors[0].Selector): null_selector = True
         elif re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector):
             device_registrations= re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector).group(1)
         else: device_registrations= ''
@@ -196,6 +198,12 @@ def claim_targets(kwargs):
             else: pcolor.Cyan(f"{k}: {v}")
         pcolor.Cyan(f'{"-" * 5}')
     pcolor.Cyan(f'{"-" * 60}')
+    if connected_error == True:
+        pcolor.Cyan(f'\n{"-"*108}\n')
+        pcolor.Yellow(f'  !! ERROR !!\n  One or More Servers Could not Connect to Intersight.')
+        pcolor.Yellow(f'  Please Check the Output above.  claim_device.py line 203.')
+        pcolor.Cyan(f'\n{"-"*108}\n')
+        sys.exit(1)
 
     # logout of any sessions active after exception handling
     kwargs.result = result

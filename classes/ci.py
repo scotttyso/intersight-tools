@@ -33,7 +33,7 @@ class imm(object):
         dataset   = []
         for k, v in kwargs.servers.items():
             dataset.append(f"{v.gen}-{v.cpu}-{v.tpm}")
-        models = numpy.unique(numpy.array(dataset))
+        models = list(numpy.unique(numpy.array(dataset)))
         for i in models:
             gen, cpu, tpm = i.split('-')
             if kwargs.args.deployment_type == 'azurestack':
@@ -72,7 +72,7 @@ class imm(object):
         vics = []
         for k,v in kwargs.servers.items():
             if len(v.vics) > 0: vics.append(f'{v.vics[0].vic_gen}:{v.vics[0].vic_slot}')
-        vics = numpy.unique(numpy.array(vics))
+        vics = list(numpy.unique(numpy.array(vics)))
         for vic in vics:
             pol_vars = {
                 'boot_devices': [{
@@ -313,7 +313,7 @@ class imm(object):
             #=====================================================
             models = []
             for k, v in chassis_pmoids.items(): models.append(str(v.model).lower())
-            models = numpy.unique(numpy.array(models))
+            models = list(numpy.unique(numpy.array(models)))
             for model in models: kwargs.chassis[model] = []
             for k, v in chassis_pmoids.items():
                 model = str(v.model).lower()
@@ -766,7 +766,7 @@ class imm(object):
             g = re.search('(M[\\d]{1,2})', v.model).group(1)
             v.model = v.model.replace(m, g)
             dataset.append(v.model)
-        models = numpy.unique(numpy.array(dataset))
+        models = list(numpy.unique(numpy.array(dataset)))
         if len(kwargs.domain) > 0: fw_name = kwargs.domain.name
         else: fw_name = 'fw'
         kwargs.firmware_policy_name = fw_name
@@ -1398,7 +1398,7 @@ class imm(object):
                     breakout = []
                     for i in kwargs.domain.fcp_uplink_ports:
                         breakout.append(int(i.split('/')[-2]))
-                    breakout = numpy.unique(numpy.array(breakout))
+                    breakout = list(numpy.unique(numpy.array(breakout)))
                     for item in breakout:
                         port_list = []
                         for i in kwargs.domain.fcp_uplink_ports:
@@ -1660,7 +1660,7 @@ class imm(object):
         #=====================================================
         templates = []
         for k, v in kwargs.servers.items(): templates.append(v.template)
-        templates = numpy.unique(numpy.array(templates))
+        templates = list(numpy.unique(numpy.array(templates)))
         for template in templates:
             pol_vars = dict(
                 action               = 'Deploy',
@@ -2886,7 +2886,7 @@ class wizard(object):
             #=====================================================
             # Query API for Ethernet Network Policies and Add to Server Profile Dictionaries
             #=====================================================
-            kwargs.eth_moids = numpy.unique(numpy.array(kwargs.eth_moids))
+            kwargs.eth_moids = list(numpy.unique(numpy.array(kwargs.eth_moids)))
             kwargs.method    = 'get_by_moid'
             kwargs.qtype     = 'ethernet_network_group'
             kwargs.uri       = 'fabric/EthNetworkGroupPolicies'

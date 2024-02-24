@@ -91,14 +91,13 @@ class device_connector(object):
     def configure_dns(self, result):
         """Configure the DNS Settings if Connection State is DNSMisconfigured)."""
         if len(self.device.dns_servers) > 0:
-            print('dns servers')
             # setup defaults for DNS servers
             dns_servers = self.device.dns_servers
             dns_preferred = dns_servers[0]
             if len(dns_servers) > 1: dns_alternate = dns_servers[1]
             else: dns_alternate = ''
             for _ in range(4):
-                xml_body = f"<configConfMo cookie=\"{self.xml_cookie}\" inHierarchical=\"false\" classId=\"mgmtIf\"/><inConfig><mgmtIf dn=\"sys/rack-unit-1/mgmt/if-1\" dnsPreferred=\"{dns_preferred}\" dnsAlternate=\"{dns_alternate}\"/></inConfig></configConfMo>"
+                xml_body = f"<configConfMo cookie=\"{self.xml_cookie}\" inHierarchical=\"false\"><inConfig><mgmtIf dn=\"sys/rack-unit-1/mgmt/if-1\" dnsPreferred=\"{dns_preferred}\" dnsAlternate=\"{dns_alternate}\"/></inConfig></configConfMo>"
                 resp = requests.post(url=self.xml_uri, verify=False, data=xml_body)
                 if re.match(r'2..', str(resp.status_code)):
                     xml_tree = ElementTree.fromstring(resp.content)
