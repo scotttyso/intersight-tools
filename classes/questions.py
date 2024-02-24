@@ -36,7 +36,7 @@ def existing_object(ptype, item, kwargs):
         title       = 'Delete Policies',
         type        = 'boolean'
     )
-    del_objects = ezfunctions.variablePrompt(kwargs)
+    del_objects = ezfunctions.variable_prompt(kwargs)
     if del_objects == True:
         kwargs.jdata = DotMap(
             enum        = [e.name for e in kwargs.imm_dict.orgs[kwargs.org][ptype][item]],
@@ -46,7 +46,7 @@ def existing_object(ptype, item, kwargs):
             title       = 'Delete Objects',
             type        = 'string'
         )
-        delete_objects = ezfunctions.variablePrompt(kwargs)
+        delete_objects = ezfunctions.variable_prompt(kwargs)
         for e in delete_objects:
             idict = [i for i in kwargs.imm_dict.orgs[kwargs.org][ptype][item] if not (i.name == e)]
             kwargs.imm_dict.orgs[kwargs.org][ptype][item] = idict
@@ -56,7 +56,7 @@ def existing_object(ptype, item, kwargs):
             title       = f'Delete {e}',
             type        = 'boolean'
         )
-        del_int = ezfunctions.variablePrompt(kwargs)
+        del_int = ezfunctions.variable_prompt(kwargs)
         if del_int == True:
             kwargs.uri = kwargs.ezdata[ptype].intersight_uri
             kwargs = isight.api_get(False, [e], ptype, kwargs)
@@ -73,7 +73,7 @@ def existing_object(ptype, item, kwargs):
         title       = 'Config',
         type        = 'boolean'
     )
-    kwargs.configure_more = ezfunctions.variablePrompt(kwargs)
+    kwargs.configure_more = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -97,7 +97,7 @@ def main_menu_assignment_method(kwargs):
         title        = 'Deployment Type',
         type         = 'string'
     )
-    kwargs.imm_dict.orgs[kwargs.org].wizard.assignment_method = ezfunctions.variablePrompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.assignment_method = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -110,7 +110,7 @@ def main_menu_discovery(kwargs):
         title        = 'Discovery Status',
         type         = 'boolean'
     )
-    kwargs.imm_dict.orgs[kwargs.org].wizard.discovery = ezfunctions.variablePrompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.discovery = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -128,7 +128,7 @@ def main_menu_build_type(kwargs):
         title        = 'Automation Type',
         type         = 'string'
     )
-    kwargs.imm_dict.orgs[kwargs.org].wizard.build_type = ezfunctions.variablePrompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.build_type = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -149,7 +149,7 @@ def main_menu_deployment_method(kwargs):
             title        = 'Automation Type',
             type         = 'string'
         )
-    kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_method = ezfunctions.variablePrompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_method = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -172,7 +172,7 @@ def main_menu_deployment_type(kwargs):
         title        = 'Deployment Type',
         type         = 'string'
     )
-    kwargs.deployment_type = ezfunctions.variablePrompt(kwargs)
+    kwargs.deployment_type = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -196,7 +196,7 @@ def main_menu_individual(kwargs):
             title        = e,
             type         = 'string'
         )
-        kwargs.main_menu_list.extend(ezfunctions.variablePrompt(kwargs))
+        kwargs.main_menu_list.extend(ezfunctions.variable_prompt(kwargs))
     return kwargs
 
 #=================================================================
@@ -212,7 +212,7 @@ def main_menu_individual_types(kwargs):
         title        = 'Individual Type(s)',
         type         = 'string'
     )
-    kwargs.ptypes = ezfunctions.variablePrompt(kwargs)
+    kwargs.ptypes = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -232,7 +232,7 @@ def main_menu_name_prefix(kwargs):
             title       = 'Name Prefix',
             type        = 'string'
         )
-        kwargs.imm_dict.orgs[kwargs.org].wizard.name_prefix = ezfunctions.variablePrompt(kwargs)
+        kwargs.imm_dict.orgs[kwargs.org].wizard.name_prefix = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -252,7 +252,7 @@ def main_menu_name_suffix(kwargs):
             title       = 'Name Suffix',
             type        = 'string'
         )
-        kwargs.imm_dict.orgs[kwargs.org].wizard.name_suffix = ezfunctions.variablePrompt(kwargs)
+        kwargs.imm_dict.orgs[kwargs.org].wizard.name_suffix = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -270,7 +270,7 @@ def main_menu_operating_systems(kwargs):
         type         = 'string'
     )
     if kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_type == 'Profile': kwargs.jdata.multi_select == False
-    kwargs.imm_dict.orgs[kwargs.org].wizard.operating_systems = ezfunctions.variablePrompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.operating_systems = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
@@ -287,13 +287,13 @@ def organization(kwargs):
         sort        = False,
         title       = 'Intersight Organization',
         type        = 'string')
-    kwargs.org = ezfunctions.variablePrompt(kwargs)
+    kwargs.org = ezfunctions.variable_prompt(kwargs)
     if kwargs.org == 'Create New':
         kwargs.jdata = DotMap(
             description = 'Name for the Organization',
             title       = 'Intersight Organization',
             type        = 'string')
-        kwargs.org = ezfunctions.variablePrompt(kwargs)
+        kwargs.org = ezfunctions.variable_prompt(kwargs)
         kwargs.api_body = { "Name":f'{kwargs.org}', "ObjectType":"resource.Group" }
         kwargs.method = 'post'
         kwargs = isight.api(kwargs.qtype).calls(kwargs)
@@ -320,7 +320,7 @@ def previous_configuration(kwargs):
                 title       = 'Load Existing Configuration(s)',
                 type        = 'boolean'
             )
-            load_config = ezfunctions.variablePrompt(kwargs)
+            load_config = ezfunctions.variable_prompt(kwargs)
             kwargs.args.load_config = True
         elif kwargs.args.load_config == True: load_config = True
         if load_config == True and kwargs.args.load_config == True:
@@ -337,7 +337,7 @@ def prompt_user_for_sub_item(item, kwargs):
         title        = item,
         type         = 'boolean'
     )
-    answer = ezfunctions.variablePrompt(kwargs)
+    answer = ezfunctions.variable_prompt(kwargs)
     return answer
 
 #=================================================================
@@ -353,7 +353,7 @@ def prompt_user_to_accept(item, idict, kwargs):
         title        = f'Accept',
         type         = 'boolean'
     )
-    answer = ezfunctions.variablePrompt(kwargs)
+    answer = ezfunctions.variable_prompt(kwargs)
     return answer
 
 #=================================================================
@@ -367,7 +367,7 @@ def promp_user_to_add(item, kwargs):
         title        = item,
         type         = 'boolean'
     )
-    answer = ezfunctions.variablePrompt(kwargs)
+    answer = ezfunctions.variable_prompt(kwargs)
     return answer
 
 #=================================================================
@@ -381,7 +381,7 @@ def prompt_user_to_configure(item, ptype, kwargs):
         title        = f'{ptitle} {ptype.title()}',
         type         = 'boolean'
     )
-    answer = ezfunctions.variablePrompt(kwargs)
+    answer = ezfunctions.variable_prompt(kwargs)
     return answer
 
 #=================================================================
@@ -390,7 +390,7 @@ def prompt_user_to_configure(item, ptype, kwargs):
 def prompt_user_item(k, v, kwargs):
     kwargs.jdata = v
     kwargs.jdata.title = k
-    answer = ezfunctions.variablePrompt(kwargs)
+    answer = ezfunctions.variable_prompt(kwargs)
     return answer
 
 #=================================================================
@@ -409,6 +409,6 @@ def target_platform(kwargs):
         title        = 'Type of Servers',
         type         = 'string'
     )
-    kwargs.imm_dict.orgs[kwargs.org].wizard.target_platform = ezfunctions.variablePrompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.target_platform = ezfunctions.variable_prompt(kwargs)
     kwargs.target_platform = kwargs.imm_dict.orgs[kwargs.org].wizard.target_platform
     return kwargs

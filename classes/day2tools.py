@@ -55,7 +55,7 @@ class intersight_api(object):
             kwargs.jdata = DotMap(
                 default = 'server', description  = 'Select the Intersight Profile Type.',
                 enum = target_platforms,  multi_select = True, title = 'Profile Type(s)')
-            profile_types = ezfunctions.variablePrompt(kwargs)
+            profile_types = ezfunctions.variable_prompt(kwargs)
         else: profile_types = [e.type for e in ydata.profile_types]
         kwargs.sub_type = DotMap()
         if yaml_arg == False:
@@ -64,7 +64,7 @@ class intersight_api(object):
                     kwargs.jdata = DotMap(
                         default = 'FIAttached', description  = f'Select the {e} Profile Sub-Type.',
                         enum = ['FIAttached', 'Standalone'], title = 'Profile Sub-Type')
-                    kwargs.sub_type[e] = ezfunctions.variablePrompt(kwargs)
+                    kwargs.sub_type[e] = ezfunctions.variable_prompt(kwargs)
         else:
             for e in ydata.profile_types:
                 if re.search('server|server_template'):
@@ -82,7 +82,7 @@ class intersight_api(object):
                     enum         = policies,
                     multi_select = True,
                     title        = 'Policy Type(s)')
-                target[e].update_policies = ezfunctions.variablePrompt(kwargs)
+                target[e].update_policies = ezfunctions.variable_prompt(kwargs)
             else: target[e].update_policies = ydata.policy_types
         #======================================================
         # Prompt for Organizations and Loop Through Target Platforms
@@ -660,14 +660,14 @@ def get_local_time(kwargs):
         description  = f'Select the Timezone Region.',
         enum         = sorted(tz_regions),
         title        = f'{kwargs.qtype} Profiles')
-    tz_region = ezfunctions.variablePrompt(kwargs)
+    tz_region = ezfunctions.variable_prompt(kwargs)
     region_tzs = [e.split('/')[1] for e in timezones if tz_region in e]
     kwargs.jdata = DotMap(
         default      = sorted(region_tzs)[0],
         description  = f'Select the Timezone within the Region.',
         enum         = sorted(region_tzs),
         title        = f'{kwargs.qtype} Profiles')
-    timezone = f'{tz_region}/{ezfunctions.variablePrompt(kwargs)}'
+    timezone = f'{tz_region}/{ezfunctions.variable_prompt(kwargs)}'
     kwargs.datetime = datetime.now(pytz.timezone(timezone))
     kwargs.time_short = kwargs.datetime.strftime('%Y-%m-%d-%H-%M')
     kwargs.time_long  = kwargs.datetime.strftime('%Y-%m-%d %H:%M:%S %Z %z')
@@ -684,7 +684,7 @@ def select_organizations(kwargs):
         enum         = kwargs.org_moids.keys(),
         multi_select = True,
         title        = 'Organizations')
-    kwargs.organizations = ezfunctions.variablePrompt(kwargs)
+    kwargs.organizations = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 
@@ -713,7 +713,7 @@ def update_profile(org, target, target_platform, yaml_arg, ydata, kwargs):
             description  = f'Select the {policy} Policy to attach to the Profile(s).',
             enum         = list(policies[policy].keys()),
             title        = f'{policy} Policy Name')
-        policies[policy].name = ezfunctions.variablePrompt(kwargs)
+        policies[policy].name = ezfunctions.variable_prompt(kwargs)
     #======================================================
     # Obtain Profile Data.
     #======================================================
@@ -740,7 +740,7 @@ def update_profile(org, target, target_platform, yaml_arg, ydata, kwargs):
             enum         = sorted(list(profiles.keys())),
             multi_select = True,
             title        = f'{kwargs.qtype} Profiles')
-        profile_names = ezfunctions.variablePrompt(kwargs)
+        profile_names = ezfunctions.variable_prompt(kwargs)
     else: profile_names = ydata.profiles
     #======================================================
     # Attach the Policy to the Selected Server Profiles.

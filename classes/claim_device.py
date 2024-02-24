@@ -4,7 +4,7 @@
 def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
-    from classes import device_connector, isight, pcolor
+    from classes import device_connector, ezfunctions, isight, pcolor
     from dotmap import DotMap
     from time import sleep
     import json, numpy, re
@@ -15,29 +15,38 @@ except ImportError as e:
     sys.exit(1)
 
 def claim_targets(kwargs):
-    return_code = 0
-    result = DotMap()
-
+    return_code     = 0
+    result          = DotMap()
     resource_groups = []
     for i in kwargs.yaml.device_list: resource_groups.append(i.resource_group)
     names= "', '".join(numpy.unique(numpy.array(resource_groups))).strip("', '")
-
-    kwargs.api_filter= f"Name in ('{names}')"
-    kwargs.method    = 'get'
-    kwargs.qtype     = 'resource_group'
-    kwargs.uri       = 'resource/Groups'
-    kwargs           = isight.api(kwargs.qtype).calls(kwargs)
-    resource_groups  = kwargs.pmoids
-
+    # Get Intersight Resource Groups
+    kwargs.api_filter = f"Name in ('{names}')"
+    kwargs.method     = 'get'
+    kwargs.qtype      = 'resource_group'
+    kwargs.uri        = 'resource/Groups'
+    kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+    resource_groups   = kwargs.pmoids
+    # Loop Through Device List
     for i in kwargs.yaml.device_list:
+        if len(i.username) > 0:
+            kwargs.sensitive_var  = 'proxy_password'
+            kwargs                = ezfunctions.sensitive_var_value(kwargs)
+            proxy_password        = kwargs.var_value
+        else: proxy_password = ''
         for e in i.devices:
+            kwargs.org = i.organization
             device = DotMap(
-                device_type   = i.device_type,
-                hostname      = e,
-                password      = kwargs.password,
-                resource_group= i.resource_group,
-                script_path   = kwargs.script_path,
-                username      = kwargs.username)
+                device_type    = i.device_type,
+                hostname       = e,
+                password       = kwargs.password,
+                proxy_host     = i.proxy_host,
+                proxy_password = proxy_password,
+                proxy_port     = i.proxy_port,
+                proxy_username = i.proxy_username,
+                resource_group = i.resource_group,
+                script_path    = kwargs.script_path,
+                username       = i.username)
             result[device.hostname] = DotMap(changed=False)
             result[device.hostname].msg = f"#Host: {device.hostname}"
             if not i.get('read_only'): device.read_only = False
@@ -124,25 +133,25 @@ def claim_targets(kwargs):
                 result[device.hostname].msg += f"#Token : {claim_code}"
 
                 # Post claim_code and device_id
-                kwargs.api_body= {'SecurityToken': claim_code, 'SerialNumber': device_id}
-                kwargs.method  = 'post'
-                kwargs.qtype   = 'device_claim'
-                kwargs.uri     = 'asset/DeviceClaims'
-                kwargs         = isight.api(kwargs.qtype).calls(kwargs)
-                reg_moid       = kwargs.results.Moid
+                kwargs.api_body = {'SecurityToken': claim_code, 'SerialNumber': device_id}
+                kwargs.method   = 'post'
+                kwargs.qtype    = 'device_claim'
+                kwargs.uri      = 'asset/DeviceClaims'
+                kwargs          = isight.api(kwargs.qtype).calls(kwargs)
+                reg_moid        = kwargs.results.Moid
                 result[device.hostname].reg_moid = reg_moid
-                result[device.hostname].changed= True
-                result[device.hostname].serial = device_id
+                result[device.hostname].changed  = True
+                result[device.hostname].serial   = device_id
             else:
-                kwargs.method    = 'get'
-                kwargs.api_filter= f'contains(Serial,{device_id})'
-                kwargs.qtype     = 'device_registration'
-                kwargs.uri       = 'asset/DeviceRegistrations'
-                kwargs           = isight.api(kwargs.qtype).calls(kwargs)
-                reg_moid         = kwargs.results[0].Moid
+                kwargs.method     = 'get'
+                kwargs.api_filter = f'contains(Serial,{device_id})'
+                kwargs.qtype      = 'device_registration'
+                kwargs.uri        = 'asset/DeviceRegistrations'
+                kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+                reg_moid          = kwargs.results[0].Moid
                 result[device.hostname].reg_moid = reg_moid
-                result[device.hostname].changed= False
-                result[device.hostname].serial = device_id
+                result[device.hostname].changed  = False
+                result[device.hostname].serial   = device_id
             if ('dc_obj' in locals() or 'dc_obj' in globals()): dc_obj.logout()
 
         null_selector = False
@@ -166,11 +175,11 @@ def claim_targets(kwargs):
                 "ObjectType": "resource.Selector",
                 "Selector": "/api/v1/asset/DeviceRegistrations?$filter=Moid in("f"{appended_targets})"
             }] }
-            kwargs.method= 'patch'
-            kwargs.pmoid = resource_groups[i.resource_group].moid
-            kwargs.qtype = 'resource_group'
-            kwargs.uri   = 'resource/Groups'
-            kwargs       = isight.api(kwargs.qtype).calls(kwargs)
+            kwargs.method = 'patch'
+            kwargs.pmoid  = resource_groups[i.resource_group].moid
+            kwargs.qtype  = 'resource_group'
+            kwargs.uri    = 'resource/Groups'
+            kwargs        = isight.api(kwargs.qtype).calls(kwargs)
 
     pcolor.Cyan(f'\n{"-" * 60}\n {"-" * 5}')
     for key, value in result.items():

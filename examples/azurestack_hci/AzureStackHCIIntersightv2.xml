@@ -5,7 +5,7 @@
         <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <AutoLogon>
                 <Password>
-                    <Value>{{ administratorPassword }}</Value>
+                    <Value>{{ .secure.administratorPassword }}</Value>
                     <PlainText>true</PlainText>
                 </Password>
                 <LogonCount>3</LogonCount>
@@ -24,122 +24,14 @@
                 <SkipUserOOBE>true</SkipUserOOBE>
                 <UnattendEnableRetailDemo>false</UnattendEnableRetailDemo>
             </OOBE>
-            <TimeZone>{{ timeZone }}</TimeZone>
-            <DisableAutoDaylightTimeSet>{{ disableAutoDaylightTimeSet }}</DisableAutoDaylightTimeSet>
+            <TimeZone>{{ .timeZone }}</TimeZone>
+            <DisableAutoDaylightTimeSet>{{ .disableAutoDaylightTimeSet }}</DisableAutoDaylightTimeSet>
             <UserAccounts>
                 <AdministratorPassword>
-                    <Value>{{ administratorPassword }}</Value>
+                    <Value>{{ .secure.administratorPassword }}</Value>
                     <PlainText>true</PlainText>
                 </AdministratorPassword>
             </UserAccounts>
-            <FirstLogonCommands>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;Del C:\*.ps1 /F /Q&quot;</CommandLine>
-                    <Description>Delete powershell scripts</Description>
-                    <Order>1</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo Start-Transcript;Write-Host &apos;Waiting 20 seconds for Network...&apos;;Start-Sleep -seconds 20 &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Create n.ps1</Description>
-                    <Order>11</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $Cred = $(New-Object -Type &apos;PSCredential&apos; -Arg &apos;{{ domainAdministrator }}&apos;,$(ConvertTo-SecureString &apos;{{ domainPassword }}&apos; -AsPlain -Force)) &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Add Remote Repository Credentials</Description>
-                    <Order>12</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $fshare = New-PSDrive -Name &apos;ShareNAME&apos; -PSProvider &apos;FileSystem&apos; -Root &apos;{{ sharePath }}&apos; -Credential $Cred &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Setup FileShare</Description>
-                    <Order>13</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $share = $fshare.Root &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Setup FileShare</Description>
-                    <Order>14</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $j = Get-Content -Path $share\hostnames.json ^| ConvertFrom-Json &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Get JSON Containing Hostname Mappings</Description>
-                    <Order>15</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $s = (Get-WmiObject &apos;win32_bios&apos;).serialnumber.trim() &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Get Serial Number</Description>
-                    <Order>16</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;Write-Host &apos;Json Content&apos;;Write-Host $j;Write-Host &apos;Hostname is&apos;;Write-Host $j.$s &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Get Serial Number</Description>
-                    <Order>17</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo Rename-Computer -NewName $j.$s -Force;Stop-Transcript;Restart-Computer -Force &gt;&gt; C:\n.ps1&quot;</CommandLine>
-                    <Description>Set Hostname</Description>
-                    <Order>18</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoLogo -Noninteractive -File &quot;C:\n.ps1&quot;</CommandLine>
-                    <Description>Execute the n.ps1 Script</Description>
-                    <Order>19</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;timeout 2&quot;</CommandLine>
-                    <Description>Sleep for 2 seconds</Description>
-                    <Order>20</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo Start-Transcript;Write-Host &apos;Waiting 20 seconds for Network...&apos;;Start-Sleep -seconds 20 &gt;&gt; C:\j.ps1&quot;</CommandLine>
-                    <Description>Create j.ps1</Description>
-                    <Order>31</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $Cred = $(New-Object -Type &apos;PSCredential&apos; -Arg &apos;{{ domainAdministrator }}&apos;,$(ConvertTo-SecureString &apos;{{ domainPassword }}&apos; -AsPlain -Force)) &gt;&gt; C:\j.ps1&quot;</CommandLine>
-                    <Description>Set Credentials</Description>
-                    <Order>32</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $OU = &apos;{{ organizationalUnit }}&apos; &gt;&gt; C:\j.ps1&quot;</CommandLine>
-                    <Description>Set Organizational Unit</Description>
-                    <Order>33</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo Add-Computer -Domain &apos;{{ domain }}&apos; -Cred $Cred -OU $OU -Force -Verbose;Stop-Transcript &gt;&gt; C:\j.ps1&quot;</CommandLine>
-                    <Order>34</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoLogo -Noninteractive -File &quot;C:\j.ps1&quot;</CommandLine>
-                    <Order>35</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;Del C:\*.ps1 /F /Q&quot;</CommandLine>
-                    <Description>Delete powershell script to join to domain</Description>
-                    <Order>40</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>C:\Windows\System32\shutdown.exe /r /f /t 0</CommandLine>
-                    <Description>Reboot after Domain Join</Description>
-                    <Order>50</Order>
-                    <RequiresUserInput>false</RequiresUserInput>
-                </SynchronousCommand>
-            </FirstLogonCommands>
         </component>
     </settings>
     <settings pass="specialize">
@@ -147,15 +39,49 @@
             <SkipAutoActivation>true</SkipAutoActivation>
         </component>
         <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <InputLocale>{{ inputLocale }}</InputLocale>
-            <LayeredDriver>{{ layeredDriver }}</LayeredDriver>
-            <SystemLocale>{{ languagePack }}</SystemLocale>
-            <UILanguage>{{ languagePack }}</UILanguage>
-            <UILanguageFallback>{{ secondaryLanguage }}</UILanguageFallback>
-            <UserLocale>{{ languagePack }}</UserLocale>
+            <InputLocale>{{ .inputLocale }}</InputLocale>
+            <LayeredDriver>{{ .layeredDriver }}</LayeredDriver>
+            <SystemLocale>{{ .languagePack }}</SystemLocale>
+            <UILanguage>{{ .languagePack }}</UILanguage>
+            <UILanguageFallback>{{ .secondaryLanguage }}</UILanguageFallback>
+            <UserLocale>{{ .languagePack }}</UserLocale>
+        </component>
+        <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <ComputerName>{{ .hostName }}</ComputerName>
         </component>
         <component name="Microsoft-Windows-SQMApi" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <CEIPEnabled>0</CEIPEnabled>
+        </component>
+        <component name="Microsoft-Windows-TCPIP" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Interfaces>
+                <Interface wcm:action="add">
+                    <Identifier>{{ .macAddressNic1_dash_format }}</Identifier>
+                    <Ipv4Settings>
+                        <DhcpEnabled>true</DhcpEnabled>
+                        <Metric>10</Metric>
+                        <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
+                    </Ipv4Settings>
+                </Interface>
+                <Interface wcm:action="add">
+                    <Identifier>{{ .macAddressNic2_dash_format }}</Identifier>
+                    <Ipv4Settings>
+                        <DhcpEnabled>true</DhcpEnabled>
+                        <Metric>10</Metric>
+                        <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
+                    </Ipv4Settings>
+                </Interface>
+            </Interfaces>
+        </component>
+        <component name="Microsoft-Windows-UnattendedJoin" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Identification>
+                <Credentials>
+                    <Domain>{{ .domain }}</Domain>
+                    <Password>{{ .secure.domainAdminPassword }}</Password>
+                    <Username>{{ .domainAdminUser }}</Username>
+                </Credentials>
+                <JoinDomain>{{ .domain }}</JoinDomain>
+                <MachineObjectOU>{{ .organizationUnit }}</MachineObjectOU>
+            </Identification>
         </component>
     </settings>
     <settings pass="generalize">
@@ -228,7 +154,7 @@
             </DiskConfiguration>
             <UserData>
                 <AcceptEula>true</AcceptEula>
-                <Organization>{{ organization }}</Organization>
+                <Organization>{{ .organization }}</Organization>
                 <FullName>Administrator</FullName>
             </UserData>
             <WindowsDeploymentServices>

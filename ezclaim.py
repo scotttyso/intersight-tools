@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """Intersight Device Connector API configuration and device claim via the Intersight API."""
 
 #=============================================================================
@@ -14,15 +13,11 @@ try:
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
     from pathlib import Path
-    import argparse, json, logging, os, re, traceback, yaml
+    import argparse, logging, os, re, traceback, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
-
-class MyDumper(yaml.Dumper):
-    def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
 
 #=================================================================
 # Parse Arguments
@@ -33,16 +28,28 @@ def cli_arguments():
         '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
         help='The Intersight API key id for HTTP signature scheme.')
     Parser.add_argument(
+        '-dl', '--debug-level', default =0,
+        help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
+            '1. Shows the api request response status code '\
+            '5. Show URL String + Lower Options '\
+            '6. Adds Results + Lower Options '\
+            '7. Adds json payload + Lower Options '\
+            'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
+    Parser.add_argument(
         '-f', '--intersight-fqdn', default='intersight.com',
         help='The Intersight hostname for the API endpoint. The default is intersight.com.')
     Parser.add_argument(
         '-i', '--ignore-tls', action='store_false',
         help='Ignore TLS server-side certificate verification.  Default is False.')
-    Parser.add_argument( '-ilp', '--local-user-password-1',   help='Intersight Managed Mode Local User Password 1.' )
+    Parser.add_argument( '-ilp', '--local-user-password-1',   help='Password used to login to the device for claiming.' )
     Parser.add_argument(
         '-k', '--intersight-secret-key', default='~/Downloads/SecretKey.txt',
         help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    Parser.add_argument('-y', '--yaml-file', help = 'The input YAML File.', required= True)
+    Parser.add_argument( '-pxp', '--proxy-password',   help='Proxy password when using proxy and authentication is required.' )
+    Parser.add_argument(
+        '-y', '--yaml-file',
+        help = 'The input YAML File.  See Example YAML File at {script_directory}/examples/intersight/device_claim.yaml',
+        required= True)
     kwargs = DotMap()
     kwargs.args = Parser.parse_args()
     return kwargs
@@ -115,7 +122,8 @@ def main():
     try:
         kwargs.sensitive_var  = 'local_user_password_1'
         kwargs                = ezfunctions.sensitive_var_value(kwargs)
-        kwargs.yaml.password  = kwargs.var_value
+        kwargs.password       = kwargs.var_value
+        kwargs.yaml.password  = kwargs.password
         kwargs = claim_device.claim_targets(kwargs)
     except Exception as err:
         print("Exception:", str(err))
@@ -125,7 +133,9 @@ def main():
         if kwargs.return_code:
             sys.exit(kwargs.return_code)
         else: sys.exit(return_code)
-
+    #==============================================
+    # Send Notification Message and Exit
+    #==============================================
     pcolor.LightGray(f'\n{"-"*91}\n')
     pcolor.LightGray(f'  * Completed Device Claims.')
     pcolor.LightGray(f'\n{"-"*91}\n')

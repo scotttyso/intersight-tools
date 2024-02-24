@@ -49,7 +49,7 @@ def cli_arguments():
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')
     Parser.add_argument(
         '-dl', '--debug-level', default =0,
-        help ='The Amount of Debug output to Show: '\
+        help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
             '1. Shows the api request response status code '\
             '5. Show URL String + Lower Options '\
             '6. Adds Results + Lower Options '\

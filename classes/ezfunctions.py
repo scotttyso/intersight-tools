@@ -23,10 +23,10 @@ except ImportError as e:
 log_level = 2
 
 # Exception Classes
-class InsufficientArgs(Exception): pass
-class MyDumper(yaml.Dumper):
+class insufficient_args(Exception): pass
+class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
+        return super(yaml_dumper, self).increase_indent(flow, False)
 
 #=====================================================
 # pexpect - Login Function
@@ -115,7 +115,7 @@ def choose_policy(policy_type, kwargs):
 #======================================================
 # Function - Count the Number of Keys
 #======================================================
-def countKeys(ws, func):
+def count_keys(ws, func):
     count = 0
     for i in ws.rows:
         if any(i):
@@ -141,7 +141,7 @@ def create_yaml(orgs, kwargs):
         wr_file.write(f'#   {title1} - Variables\n')
         wr_file.write(f'#{dash_length}\n')
         if 'name_pfx_sfx' in dest_file: wr_file.write('# If a prefix/suffix policy is undefined default will be used\n')
-        wr_file.write(yaml.dump(idict, Dumper=MyDumper, default_flow_style=False))
+        wr_file.write(yaml.dump(idict, Dumper=yaml_dumper, default_flow_style=False))
         wr_file.close()
     for item in classes:
         dest_dir = os.path.join(kwargs.args.dir, ezdata[item].directory)
@@ -207,7 +207,7 @@ def create_wizard_yaml(kwargs):
         wr_file.write(f'#{dash_length}\n')
         wr_file.write(f'#   {title1} - Variables\n')
         wr_file.write(f'#{dash_length}\n')
-        wr_file.write(yaml.dump(dict, Dumper=MyDumper, default_flow_style=False))
+        wr_file.write(yaml.dump(dict, Dumper=yaml_dumper, default_flow_style=False))
         wr_file.close()
     dest_dir = os.path.join(kwargs.args.dir, 'wizard')
     if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
@@ -391,7 +391,7 @@ def ez_remove_empty(polVars):
 #======================================================
 # Function - find the Keys for each Section
 #======================================================
-def findKeys(ws, func_regex):
+def find_keys(ws, func_regex):
     func_list = {}
     for i in ws.rows:
         if any(i):
@@ -402,7 +402,7 @@ def findKeys(ws, func_regex):
 #======================================================
 # Function - Assign the Variables to the Keys
 #======================================================
-def findVars(ws, func, rows, count):
+def find_vars(ws, func, rows, count):
     var_list = []
     var_dict = {}
     for i in range(1, rows + 1):
@@ -462,7 +462,7 @@ def intersight_config(kwargs):
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
                     description= 'Intersight Secret Key File Location.',
                     default    = f'{kwargs.home}{os.sep}Downloads{os.sep}SecretKey.txt')
-                secret_path = variablePrompt(kwargs)
+                secret_path = variable_prompt(kwargs)
 
     #==============================================
     # Prompt User for Intersight FQDN
@@ -480,7 +480,7 @@ def intersight_config(kwargs):
             kwargs.jdata = kwargs.ezdata.ntp.allOf[1].properties.ntp_servers['items']
             kwargs.jdata.update(DotMap(description = 'Hostname of the Intersight FQDN',
                                        default = 'intersight.com', title = 'Intersight FQDN'))
-            kwargs.args.intersight_fqdn = variablePrompt(kwargs)
+            kwargs.args.intersight_fqdn = variable_prompt(kwargs)
             valid = True
     # Return kwargs
     return kwargs
@@ -540,7 +540,7 @@ def local_users_function(kwargs):
         for e in attribute_list:
             kwargs.jdata = kwargs.ezdata['local_user.users'].properties[e]
             kwargs.jdata.multi_select = False
-            attributes[e] = variablePrompt(kwargs)
+            attributes[e] = variable_prompt(kwargs)
         if kwargs.enforce_strong_password == True:
             print_with_textwrap(kwargs.ezdata['local_user.password_properties'].enforce_strong_password.description)
         kwargs.sensitive_var = f'local_user_password_{loop_count}'
@@ -551,7 +551,7 @@ def local_users_function(kwargs):
         # Show User Configuration
         #==============================================
         pcolor.Green(f'\n{"-"*108}\n')
-        pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+        pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
         pcolor.Green(f'\n{"-"*108}\n')
         #======================================================================
         # * Prompt User to Accept Configuration, If Accepted add to Dictionary
@@ -735,7 +735,7 @@ def process_kwargs(kwargs):
     if error_count > 0:
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following REQUIRED Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
-        raise InsufficientArgs(error_)
+        raise insufficient_args(error_)
 
     error_count = 0
     error_list = []
@@ -746,7 +746,7 @@ def process_kwargs(kwargs):
     if error_count > 0:
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following Optional Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
-        raise InsufficientArgs(error_)
+        raise insufficient_args(error_)
 
     # Load all required args values from kwargs
     error_count = 0
@@ -761,7 +761,7 @@ def process_kwargs(kwargs):
     if error_count > 0:
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following REQUIRED Key(s) Argument(s) are Blank:\nPlease Validate "%s"\n\n****End ERROR****\n' % (error_list)
-        raise InsufficientArgs(error_)
+        raise insufficient_args(error_)
 
     for item in kwargs['var_dict']:
         if item in optional_args.keys():
@@ -912,16 +912,16 @@ def snmp_trap_servers(kwargs):
         for e in attribute_list:
             kwargs.jdata = kwargs.ezdata['snmp.snmp_trap_destinations'].properties[e]
             kwargs.jdata.multi_select = False
-            attributes[e] = variablePrompt(kwargs)
+            attributes[e] = variable_prompt(kwargs)
         if len(kwargs.snmp_users) > 0:
             kwargs.jdata = kwargs.ezdata['snmp.snmp_trap_destinations'].properties['user']
             kwargs.jdata.enum = [e.name for e in kwargs.snmp_users]
             kwargs.jdata.multi_select = False
-            attributes.user = variablePrompt(kwargs)
+            attributes.user = variable_prompt(kwargs)
         else:
             kwargs.jdata = kwargs.ezdata['snmp.snmp_trap_destinations'].properties['trap_type']
             kwargs.jdata.multi_select = False
-            attributes.trap_type = variablePrompt(kwargs)
+            attributes.trap_type = variable_prompt(kwargs)
             kwargs.sensitive_var = f'snmp_trap_community_{loop_count}'
             kwargs = sensitive_var_value(kwargs)
             attributes.community_string = loop_count
@@ -930,7 +930,7 @@ def snmp_trap_servers(kwargs):
         # Show User Configuration
         #==============================================
         pcolor.Green(f'\n{"-"*108}\n')
-        pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+        pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
         pcolor.Green(f'\n{"-"*108}\n')
         #======================================================================
         # * Prompt User to Accept Configuration, If Accepted add to Dictionary
@@ -960,10 +960,10 @@ def snmp_users(kwargs):
         for e in ['auth_password', 'privacy_password', 'privacy_type']: attribute_list.remove(e)
         for e in attribute_list:
             kwargs.jdata = kwargs.ezdata['snmp.snmp_users'].properties[e]
-            attributes[e] = variablePrompt(kwargs)
+            attributes[e] = variable_prompt(kwargs)
         if attributes.security_level == 'AuthPriv':
             kwargs.jdata = kwargs.ezdata['snmp.snmp_users'].properties.privacy_type
-            attributes.privacy_type = variablePrompt(kwargs)
+            attributes.privacy_type = variable_prompt(kwargs)
         if re.search('Auth(No)?Priv', attributes.security_level):
             kwargs.sensitive_var = f'snmp_auth_password_{loop_count}'
             kwargs = sensitive_var_value(kwargs)
@@ -977,7 +977,7 @@ def snmp_users(kwargs):
         # Show User Configuration
         #==============================================
         pcolor.Green(f'\n{"-"*108}\n')
-        pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+        pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
         pcolor.Green(f'\n{"-"*108}\n')
         #======================================================================
         # * Prompt User to Accept Configuration, If Accepted add to Dictionary
@@ -1021,12 +1021,12 @@ def syslog_servers(kwargs):
             for e in attribute_list:
                 kwargs.jdata = kwargs.ezdata['syslog.remote_logging'].properties[e]
                 kwargs.jdata.multi_select = False
-                attributes[e] = variablePrompt(kwargs)
+                attributes[e] = variable_prompt(kwargs)
             #==============================================
             # Show User Configuration
             #==============================================
             pcolor.Green(f'\n{"-"*108}\n')
-            pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+            pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
             pcolor.Green(f'\n{"-"*108}\n')
             #======================================================================
             # * Prompt User to Accept Configuration, If Accepted add to Dictionary
@@ -1344,7 +1344,7 @@ def validate_strong_password(secure_value, kwargs):
 #======================================================
 # Function - Prompt for Answer to Question from List
 #======================================================
-def variableFromList(kwargs):
+def variable_from_list(kwargs):
     #==============================================
     # Set Function Variables
     #==============================================
@@ -1407,7 +1407,7 @@ def variableFromList(kwargs):
 #======================================================
 # Function - Prompt User for Answer to Question
 #======================================================
-def variablePrompt(kwargs):
+def variable_prompt(kwargs):
     #==============================================
     # Improper Value Notifications
     #==============================================
@@ -1433,7 +1433,7 @@ def variablePrompt(kwargs):
     #==============================================
     valid = False
     while valid == False:
-        if kwargs.jdata.get('enum'):  answer, valid = variableFromList(kwargs)
+        if kwargs.jdata.get('enum'):  answer, valid = variable_from_list(kwargs)
         elif kwargs.jdata.type == 'boolean':
             if default == True: default = 'Y'
             else: default = 'N'

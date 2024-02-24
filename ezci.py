@@ -57,7 +57,7 @@ def cli_arguments():
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')
     Parser.add_argument(
         '-dl', '--debug-level', default =0,
-        help ='The Amount of Debug output to Show: '\
+        help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
             '1. Shows the api request response status code '\
             '5. Show URL String + Lower Options '\
             '6. Adds Results + Lower Options '\
@@ -84,7 +84,7 @@ def cli_arguments():
     Parser.add_argument( '-p', '--pure-storage-password',   help='Pure Storage Login Password.' )
     Parser.add_argument( '-psa', '--pure-storage-snmp-auth', help='Pure Storage SNMP Auth Password.' )
     Parser.add_argument( '-psp', '--pure-storage-snmp-priv', help='Pure Storage SNMP Privilege Password.' )
-    Parser.add_argument( '-pxp', '--proxy-password',   help='Proxy Password.' )
+    Parser.add_argument( '-pxp', '--proxy-password',   help='Proxy password when using proxy and authentication is required.' )
     Parser.add_argument(
         '-s', '--deployment-step', default ='initial', required=True,
         help ='The steps in the proceedure to run. Options Are: '\
@@ -170,8 +170,9 @@ def main():
     #==============================================
     # Send Notification Message
     #==============================================
-    pcolor.Green(f'\n{"-"*91}\n\n  Begin Deployment for {kwargs.deployment_type}.')
-    pcolor.Green(f'  * Deployment Step is {kwargs.args.deployment_step}.\n\n{"-"*91}\n')
+    pcolor.Green(f'\n{"-"*108}\n\n  Begin Deployment for {kwargs.deployment_type}.')
+    pcolor.Green(f'  * Deployment Step is {kwargs.args.deployment_step}.')
+    pcolor.Green(f'\n{"-"*108}\n')
     #================================================
     # Import Stored Parameters and Add to kwargs
     #================================================
@@ -185,6 +186,18 @@ def main():
     for e in list(arg_dict.keys()):
         if re.search('cco|password|intersight', e):
             if not arg_dict[e] == None: os.environ[e] = arg_dict[e]
+    #=================================================================
+    # Dummy Step to Test Script
+    #=================================================================
+    if kwargs.args.deployment_step == 'dummy':
+        arg_dict = vars(kwargs.args)
+        for e in list(arg_dict.keys()):
+            print(f'{e} {"="*10}')
+            print(f'  * {arg_dict[e]}')
+            #if re.search('intersight|password', e):
+            #    if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
+            #    else: print(f'  * {arg_dict[e]}')
+            #else: print(f'  * {arg_dict[e]}')
     #==============================================
     # Get Intersight Configuration
     # - intersight_api_key_id
@@ -199,9 +212,9 @@ def main():
     for folder in kwargs.args.dir.split(os.sep):
         if folder == '': fcount = 0
         elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
-            pcolor.Red(f'\n{"-"*91}\n\n  !! ERROR !!\n  The Directory structure can only contain the following characters:')
+            pcolor.Red(f'\n{"-"*108}\n\n  !! ERROR !!\n  The Directory structure can only contain the following characters:')
             pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), or and underscore(_).')
-            pcolor.Red(f'  It can be a short path or a fully qualified path. {folder} failed this check.\n\n{"-"*91}\n')
+            pcolor.Red(f'  It can be a short path or a fully qualified path. {folder} failed this check.\n\n{"-"*108}\n')
             sys.exit(1)
     #==============================================
     # Load Previous Configurations
@@ -282,10 +295,11 @@ def main():
         arg_dict = vars(kwargs.args)
         for e in list(arg_dict.keys()):
             print(f'{e} {"="*10}')
-            if re.search('intersight|password', e):
-                if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
-                else: print(f'  * {arg_dict[e]}')
-            else: print(f'  * {arg_dict[e]}')
+            print(f'  * {arg_dict[e]}')
+            #if re.search('intersight|password', e):
+            #    if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
+            #    else: print(f'  * {arg_dict[e]}')
+            #else: print(f'  * {arg_dict[e]}')
     #=================================================================
     # Deploy Chassis/Server Pools/Policies/Profiles
     #=================================================================
@@ -334,7 +348,7 @@ def main():
                 for i in profile_list:
                     if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
             kwargs = ci.wizard('wizard').server_identities(kwargs)
-        if 'azurestack' == kwargs.args.deployment_type:
+        if 'azurestack' == kwargs.args.deployment_type and kwargs.imm_dict.wizard.install_source == 'wds':
             for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #==============================================
         # Create YAML Files
@@ -387,7 +401,8 @@ def main():
             if vmware == True:
                 kwargs = vsphere.api('esx').esx(kwargs)
                 kwargs = vsphere.api('powercli').powercli(kwargs)
-    pcolor.Green(f'\n{"-"*91}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*91}\n')
+    pcolor.Green(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...')
+    pcolor.Green(f'\n{"-"*108}\n')
     sys.exit(0)
 
 if __name__ == '__main__':

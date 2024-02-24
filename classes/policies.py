@@ -3921,7 +3921,7 @@ def port_list_fc(self, **kwargs):
                     kwargs.jdata = DotMap(
                         default = port_list[0], enum = port_list, multi_select = True, title = 'Unified Port',
                         description = f'    Port(s) for {port_type}.\n')
-                    port_list = ezfunctions.variablePrompt(kwargs)
+                    port_list = ezfunctions.variable_prompt(kwargs)
 
                     # Prompt User for the Admin Speed of the Port
                     kwargs.multi_select = False
@@ -3965,7 +3965,7 @@ def port_list_fc(self, **kwargs):
                         kwargs.jdata = DotMap(
                             default = vsan_list[0], enum = vsan_list, multi_select = False, title = 'VSAN',
                             description = f'    VSAN for the Fibre-Channel {fc_type} Port.\n')
-                        vsan_x = ezfunctions.variablePrompt(kwargs)
+                        vsan_x = ezfunctions.variable_prompt(kwargs)
                         for vs in vsan_x: vsan = vs
                         vsans.update({fabric:vsan})
                     if port_type == 'FC Uplink Port-Channels':

@@ -11,7 +11,7 @@ try:
     from dotmap import DotMap
     from time import sleep
     from xml.etree import ElementTree
-    import json, re, requests, subprocess, urllib3
+    import re, requests, subprocess, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -27,7 +27,6 @@ def requests_op(op, uri, header, ro_json, body):
         else:
             ro_json.ApiError = f"unsupported op {op}"
             break
-
         if re.match(r'2..', str(resp.status_code)):
             ro_json.pop('ApiError', None)
             if op == 'get':
@@ -51,9 +50,9 @@ class device_connector(object):
         self.device = device
         if self.device.device_type == 'ucspe': hmethod = 'http'
         else: hmethod = 'https'
-        self.connector_uri= f"{hmethod}://{self.device.hostname}/connector"
-        self.systems_uri  = f"{self.connector_uri}/Systems"
-        self.mgmt_if_uri  = f"{hmethod}://{self.device.hostname}/visore.html?f=class&q=mgmtIf"
+        self.connector_uri = f"{hmethod}://{self.device.hostname}/connector"
+        self.systems_uri   = f"{self.connector_uri}/Systems"
+        self.mgmt_if_uri   = f"{hmethod}://{self.device.hostname}/visore.html?f=class&q=mgmtIf"
 
     def get_status(self):
         """Check current connection status."""
@@ -92,12 +91,10 @@ class device_connector(object):
     def configure_proxy(self, ro_json, result):
         """Configure the Device Connector proxy if proxy settings (hostname, port) were provided)."""
         # put proxy settings.  If no settings were provided the system settings are not changed
-        if self.device.get('proxy_host') and self.device.get('proxy_port'):
+        if len(self.device.proxy_host) > 0 and len(self.device.proxy_port) > 0:
             # setup defaults for proxy settings
-            if not self.device.get('proxy_password'):
-                self.device.proxy_password = ''
-            if not self.device.get('proxy_username'):
-                self.device.proxy_username = ''
+            if not self.device.get('proxy_password'): self.device.proxy_password = ''
+            if not self.device.get('proxy_username'): self.device.proxy_username = ''
             proxy_payload = {
                 'ProxyHost': self.device.proxy_host,
                 'ProxyPassword': self.device.proxy_password,

@@ -63,7 +63,7 @@ file_share_witness:\n
   share_name: {{ if index $azurestack.file_share_witness "share_name" }}{{ $azurestack.file_share_witness.share_name }}{{ else }}''{{ end }}\n
   type: domain\n
 {{ end }}
-install_source: {{ if index .global.workflow.input "install_source" }}'{{ .global.workflow.input.install_source }}'{{ else }}intersight{{ end }}\n
+install_source: {{ if index .global.workflow.input "install_source" }}{{ .global.workflow.input.install_source }}{{ else }}intersight{{ end }}\n
 {{ if eq .global.workflow.input.install_source "wds" }}
 install_server:\n
   drivers_cd_mount: {{ if index .global.workflow.input "wds" }}'{{ .global.workflow.input.wds.drivers_cd_mount }}'{{ else }}'F:'{{ end }}\n
@@ -71,12 +71,12 @@ install_server:\n
   reminst_drive: {{ if index .global.workflow.input "wds" }}'{{ .global.workflow.input.wds.reminst_drive }}'{{ else }}'F:'{{ end }}\n
   reminst_share: {{ if index .global.workflow.input "wds" }}'{{ .global.workflow.input.wds.reminst_share }}'{{ else }}reminst{{ end }}\n
 {{ else }}
-os_install_image: {{ if index .global.workflow.input "iso_image" }}'{{ .global.workflow.input.iso_image }}'{{ else }}dummy123{{ end }}\n
-server_configuration_utility: {{ if index .global.workflow.input "scu_image" }}'{{ .global.workflow.input.scu_image }}'{{ else }}dummy123{{ end }}\n
+os_install_image: {{ if index .global.workflow.input "iso_image" }}{{ .global.workflow.input.iso_image }}{{ else }}dummy123{{ end }}\n
+server_configuration_utility: {{ if index .global.workflow.input "scu_image" }}{{ .global.workflow.input.scu_image }}{{ else }}dummy123{{ end }}\n
 {{ end }}
 windows_install:\n
   language_pack: {{ if index $windows_install "language_pack" }}'{{ $windows_install.language_pack }}'{{ else }}'English - United States'{{ end }}\n
-  layered_driver: {{ if index $windows_install "layered_driver" }}'{{ $windows_install.layered_driver }}'{{ else }}'0'{{ end }}\n
+  layered_driver: {{ if index $windows_install "layered_driver" }}{{ $windows_install.layered_driver }}{{ else }}0{{ end }}\n
 {{ if eq .global.workflow.input.config_proxy true }}
 proxy:\n
   url: {{ if index .global.workflow.input.proxy "url" }}{{ .global.workflow.input.proxy.url }}{{ else }}''{{ end }}\n
