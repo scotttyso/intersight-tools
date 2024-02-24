@@ -91,6 +91,7 @@ class device_connector(object):
     def configure_dns(self, result):
         """Configure the DNS Settings if Connection State is DNSMisconfigured)."""
         if len(self.device.dns_servers) > 0:
+            print('dns servers')
             # setup defaults for DNS servers
             dns_servers = self.device.dns_servers
             dns_preferred = dns_servers[0]
@@ -289,7 +290,7 @@ class imc_device_connector(device_connector, object):
                         'Referer': referer
                     }
                     self.logged_in = True
-                else: pcolor.Cyan("Unable to login: ", imc_login_uri)
+                else: pcolor.Cyan(f"Unable to login: {imc_login_uri}")
         except subprocess.CalledProcessError as sub_ret:
             pcolor.Cyan("Utils executable returns ", sub_ret.returncode, sub_ret.output)
 

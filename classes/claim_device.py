@@ -38,6 +38,7 @@ def claim_targets(kwargs):
             kwargs.org = i.organization
             device = DotMap(
                 device_type    = i.device_type,
+                dns_servers    = i.dns_servers,
                 hostname       = e,
                 password       = kwargs.password,
                 proxy_host     = i.proxy_host,
@@ -111,6 +112,7 @@ def claim_targets(kwargs):
             # wait for a connection to establish before checking claim state
             for _ in range(10):
                 if ro_json.ConnectionState != 'Connected':
+                    print(f'conn state is "{ro_json.ConnectionState}"')
                     if ro_json.ConnectionState == 'DNS Misconfigured': result = dc_obj.configure_dns(result)
                     else: sleep(1); ro_json = dc_obj.get_status()
 
