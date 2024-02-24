@@ -358,6 +358,7 @@ class imm(object):
             kwargs.yaml.device_list = [DotMap(
                 device_type    = 'imc',
                 devices        = devices,
+                dns_servers    = kwargs.dns_servers,
                 password       = password,
                 proxy          = kwargs.proxy,
                 organization   = kwargs.org,

@@ -88,6 +88,35 @@ class device_connector(object):
             if ro_json['ReadOnlyMode'] == self.device.read_only: break
         return ro_json
 
+    def configure_dns(self, result):
+        """Configure the DNS Settings if Connection State is DNSMisconfigured)."""
+        if len(self.device.dns_servers) > 0:
+            # setup defaults for DNS servers
+            dns_servers = self.device.dns_servers
+            dns_preferred = dns_servers[0]
+            if len(dns_servers) > 1: dns_alternate = dns_servers[1]
+            else: dns_alternate = ''
+            for _ in range(4):
+                xml_body = f"<configConfMo cookie=\"{self.xml_cookie}\" inHierarchical=\"false\" classId=\"mgmtIf\"/><inConfig><mgmtIf dn=\"sys/rack-unit-1/mgmt/if-1\" dnsPreferred=\"{dns_preferred}\" dnsAlternate=\"{dns_alternate}\"/></inConfig></configConfMo>"
+                resp = requests.post(url=self.xml_uri, verify=False, data=xml_body)
+                if re.match(r'2..', str(resp.status_code)):
+                    xml_tree = ElementTree.fromstring(resp.content)
+                    for child in xml_tree:
+                        for subchild in child:
+                            xdict = subchild.attrib
+                            if xdict.get('dhcpEnable'):
+                                result[self.device.hostname].dns_alternate  = xdict['dnsPreferred']
+                                result[self.device.hostname].dns_preferred  = xdict['dnsAlternate']
+                                result[self.device.hostname].changed = True
+                    break
+                else:
+                    pcolor.Red(resp.status_code)
+                    pcolor.Red('DNS Configuration Failed.  device_connector.py line 114')
+                    break
+            if not re.match(r'2..', str(resp.status_code)):
+                result.ApiError = f"post {self.xml_uri} {resp.status_code} management interface."
+        return result
+
     def configure_proxy(self, ro_json, result):
         """Configure the Device Connector proxy if proxy settings (hostname, port) were provided)."""
         # put proxy settings.  If no settings were provided the system settings are not changed
