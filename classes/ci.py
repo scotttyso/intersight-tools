@@ -46,7 +46,7 @@ class imm(object):
         for i in btemplates:
             pol_vars = dict(
                 baud_rate           = '115200',
-                bios_template       = i,
+                bios_template       = str(i),
                 console_redirection = f'com-0',
                 description         = f'{i} {descr} Policy',
                 name                = i,
@@ -803,6 +803,7 @@ class imm(object):
         pol_vars = dict(cco_password = 1, cco_user = 1)
         # Add Policy for Firmware Authentication
         kwargs.class_path = f'policies,firmware_authenticate'
+        kwargs.append_type = 'map'
         kwargs = ezfunctions.ez_append(pol_vars, kwargs)
 
         #=====================================================
@@ -1667,7 +1668,7 @@ class imm(object):
                 attach_template      = True,
                 target_platform      = 'FIAttached',
                 targets              = [],
-                ucs_server_template  = template
+                ucs_server_template  = str(template)
             )
             if len(kwargs.domain) > 0: idict = kwargs.domain
             else: idict = kwargs.imm; pol_vars['target_platform'] = 'Standalone'
@@ -1889,6 +1890,7 @@ class imm(object):
         for k, v in kwargs.servers.items(): server_profiles.append(v.template)
         server_profiles = list(numpy.unique(numpy.array(server_profiles)))
         for p in server_profiles:
+            p = str(p)
             boot_type = re.search('-(iscsi|fcp|m2|raid)-', p).group(1)
             if 'vic' in p:
                 bios_policy = p.split('-vic')[0] + '-virtual'

@@ -161,6 +161,8 @@ def create_yaml(orgs, kwargs):
                             elif not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
                         if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
+                    idict = json.dumps(idict)
+                    idict = json.loads(idict)
                     title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
                     if i == 'pool_types': dest_file = 'pools.ezi.yaml'
                     elif i == 'domain_profile': dest_file = 'domain.ezi.yaml'
@@ -319,47 +321,49 @@ def exit_loop_default_yes(loop_count, policy_type):
 #========================================================
 # Function to Append the imm_dict Dictionary
 #========================================================
-def ez_append(polVars, kwargs):
+def ez_append(pol_vars, kwargs):
     class_path= kwargs.class_path
     p         = class_path.split(',')
     if kwargs.use_shared_org == True and re.search('^policies|pools', class_path) and kwargs.org != 'default':
         org   = kwargs.shared_org
     else: org = kwargs.org
-    polVars   = ez_remove_empty(polVars)
-    polVars   = DotMap(polVars)
+    pol_vars   = ez_remove_empty(pol_vars)
+    pol_vars   = DotMap(pol_vars)
     # Confirm the Key Exists
-    if not kwargs.imm_dict.orgs.get(org):
-        kwargs.imm_dict.orgs[org] = DotMap()
-    if len(p) >= 2:
-        if not kwargs.imm_dict.orgs[org].get(p[0]): kwargs.imm_dict.orgs[org][p[0]] = DotMap()
-    if len(p) >= 3:
-        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap()
-    if len(p) >= 4:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = DotMap()
+    #if not kwargs.imm_dict.orgs.get(org): kwargs.imm_dict.orgs[org] = DotMap()
+    #if len(p) >= 2:
+    #    if not kwargs.imm_dict.orgs[org].get(p[0]): kwargs.imm_dict.orgs[org][p[0]] = DotMap()
+    #if len(p) >= 3:
+    #    if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap()
+    #if len(p) >= 4:
+    #    if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = DotMap()
     if len(p) == 2:
-        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = [deepcopy(polVars)]
-        else: kwargs.imm_dict.orgs[org][p[0]][p[1]].append(deepcopy(polVars))
+        if kwargs.append_type == 'map': kwargs.imm_dict.orgs[org][p[0]][p[1]] = deepcopy(pol_vars)
+        else:
+            if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = [deepcopy(pol_vars)]
+            else: kwargs.imm_dict.orgs[org][p[0]][p[1]].append(deepcopy(pol_vars))
+            #kwargs.imm_dict.orgs[org][p[0]][p[1]].append(deepcopy(pol_vars))
     elif len(p) == 3:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = [deepcopy(polVars)]
-        else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].append(deepcopy(polVars))
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = [deepcopy(pol_vars)]
+        else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].append(deepcopy(pol_vars))
     elif len(p) == 4:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = [deepcopy(polVars)]
-        else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].append(deepcopy(polVars))
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = [deepcopy(pol_vars)]
+        else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].append(deepcopy(pol_vars))
     elif len(p) == 5:
-        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = DotMap()
+        #if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = DotMap()
         if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].get(p[4]):
-            kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]] = [deepcopy(polVars)]
-        else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]].append(deepcopy(polVars))
-
+            kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]] = [deepcopy(pol_vars)]
+        else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]].append(deepcopy(pol_vars))
+    kwargs.append_type == 'list'
     return kwargs
 
 #========================================================
 # Function to Append the imm_dict Dictionary
 #========================================================
-def ez_append_wizard(polVars, kwargs):
+def ez_append_wizard(pol_vars, kwargs):
     class_path = kwargs['class_path']
     p = class_path.split(',')
-    polVars = ez_remove_empty(polVars)
+    pol_vars = ez_remove_empty(pol_vars)
     # Confirm the Key Exists
     if not kwargs.imm_dict.get('wizard'): kwargs.imm_dict.wizard = {}
     if len(p) >= 2:
@@ -373,20 +377,20 @@ def ez_append_wizard(polVars, kwargs):
     elif len(p) == 3:
         if not kwargs.imm_dict.wizard[p[0]][p[1]].get(p[2]): kwargs.imm_dict.wizard[p[0]][p[1]].update(deepcopy({p[2]:[]}))
     # append the Dictionary
-    if len(p) == 1: kwargs.imm_dict.wizard[p[0]].append(deepcopy(polVars))
-    if len(p) == 2: kwargs.imm_dict.wizard[p[0]][p[1]].append(deepcopy(polVars))
-    elif len(p) == 3: kwargs.imm_dict.wizard[p[0]][p[1]][p[2]].append(deepcopy(polVars))
+    if len(p) == 1: kwargs.imm_dict.wizard[p[0]].append(deepcopy(pol_vars))
+    if len(p) == 2: kwargs.imm_dict.wizard[p[0]][p[1]].append(deepcopy(pol_vars))
+    elif len(p) == 3: kwargs.imm_dict.wizard[p[0]][p[1]][p[2]].append(deepcopy(pol_vars))
     return kwargs
 
 #========================================================
 # Function to Remove Empty Arguments
 #========================================================
-def ez_remove_empty(polVars):
+def ez_remove_empty(pol_vars):
     pop_list = []
-    for k,v in polVars.items():
+    for k,v in pol_vars.items():
         if v == None: pop_list.append(k)
-    for i in pop_list: polVars.pop(i)
-    return polVars
+    for i in pop_list: pol_vars.pop(i)
+    return pol_vars
 
 #======================================================
 # Function - find the Keys for each Section
@@ -767,8 +771,8 @@ def process_kwargs(kwargs):
         if item in optional_args.keys():
             optional_args[item] = kwargs['var_dict'][item]
     # Combine option and required dicts for Jinja template render
-    polVars = {**required_args, **optional_args}
-    return(polVars)
+    pol_vars = {**required_args, **optional_args}
+    return(pol_vars)
 
 #======================================================
 # Function - Read Excel Workbook Data
@@ -1100,16 +1104,16 @@ def terraform_provider_config(kwargs):
 # Function - Prompt User for Sensitive Variables
 #======================================================
 def tfc_sensitive_variables(var_value, kwargs):
-    polVars = DotMap(Variable = var_value)
-    polVars.Description = ("".join(var_value.split('_'))).title()
-    polVars.Description = mod_pol_description(polVars.Description)
+    pol_vars = DotMap(Variable = var_value)
+    pol_vars.Description = ("".join(var_value.split('_'))).title()
+    pol_vars.Description = mod_pol_description(pol_vars.Description)
     kwargs = sensitive_var_value(kwargs)
-    polVars.varValue = kwargs.var_value
-    polVars.varId = var_value
-    polVars.varKey = var_value
-    polVars.Sensitive = True
-    pcolor.Cyan('* Adding "{}" to "{}"').format(polVars.description, kwargs.workspaceName)
-    return polVars
+    pol_vars.varValue = kwargs.var_value
+    pol_vars.varId = var_value
+    pol_vars.varKey = var_value
+    pol_vars.Sensitive = True
+    pcolor.Cyan('* Adding "{}" to "{}"').format(pol_vars.description, kwargs.workspaceName)
+    return pol_vars
 
 #==========================================================
 # Function - Prompt User for Chassis/Server Serial Numbers
@@ -1148,20 +1152,20 @@ def ucs_domain_serials(kwargs):
     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
     valid = False
     while valid == False:
-        polVars = {}
+        pol_vars = {}
         fabrics = ['A','B']
         for x in fabrics:
-            polVars[f'serial_{x}'] = input(f'What is the Serial Number of Fabric {x}? [press enter to skip]: ')
-            if polVars[f'serial_{x}'] == '':
-                polVars[f'serial_{x}'] = 'unknown'
+            pol_vars[f'serial_{x}'] = input(f'What is the Serial Number of Fabric {x}? [press enter to skip]: ')
+            if pol_vars[f'serial_{x}'] == '':
+                pol_vars[f'serial_{x}'] = 'unknown'
                 valid = True
-            elif re.fullmatch(r'^[A-Z]{3}[2-3][\d]([0][1-9]|[1-4][0-9]|[5][1-3])[\dA-Z]{4}$', polVars[f'serial_{x}']):
+            elif re.fullmatch(r'^[A-Z]{3}[2-3][\d]([0][1-9]|[1-4][0-9]|[5][1-3])[\dA-Z]{4}$', pol_vars[f'serial_{x}']):
                 valid = True
             else:
                 pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
-                pcolor.Red('  Error!! Invalid Serial Number.  "{}" is not a valid serial.').format(polVars[f'serial_{x}'])
+                pcolor.Red('  Error!! Invalid Serial Number.  "{}" is not a valid serial.').format(pol_vars[f'serial_{x}'])
                 pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
-    serials = [polVars['serial_A'], polVars['serial_B']]
+    serials = [pol_vars['serial_A'], pol_vars['serial_B']]
     return serials
 
 #========================================================
@@ -1558,7 +1562,7 @@ def vlan_pool(name):
 #========================================================
 # Function to Determine which sites to write files to.
 #========================================================
-def write_to_repo_folder(polVars, kwargs):
+def write_to_repo_folder(pol_vars, kwargs):
     baseRepo   = kwargs.args.dir
     dest_file  = kwargs.dest_file
 
@@ -1579,8 +1583,8 @@ def write_to_repo_folder(polVars, kwargs):
     wr_file = open(tf_file, 'w')
 
     # Render Payload and Write to File
-    polVars = json.loads(json.dumps(polVars))
-    polVars = {'keys':polVars}
-    payload = template.render(polVars)
+    pol_vars = json.loads(json.dumps(pol_vars))
+    pol_vars = {'keys':pol_vars}
+    payload = template.render(pol_vars)
     wr_file.write(payload)
     wr_file.close()

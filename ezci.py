@@ -316,8 +316,6 @@ def main():
         #==============================================
         kwargs = remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
-        if 'azurestack' == kwargs.args.deployment_type:
-            for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #==============================================
         # Pools
         #==============================================
