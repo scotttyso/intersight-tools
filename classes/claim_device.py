@@ -111,7 +111,7 @@ def claim_targets(kwargs):
             # wait for a connection to establish before checking claim state
             for _ in range(10):
                 if ro_json.ConnectionState != 'Connected':
-                    if ro_json.ConnectionState == 'DNS Misconfigured': dc_obj.configure_dns()
+                    if ro_json.ConnectionState == 'DNS Misconfigured': result = dc_obj.configure_dns(result)
                     else: sleep(1); ro_json = dc_obj.get_status()
 
             result[device.hostname].msg += f"#AdminState: {ro_json.AdminState}"
