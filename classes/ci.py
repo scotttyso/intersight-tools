@@ -354,6 +354,7 @@ class imm(object):
                 kwargs.proxy.host = proxy_data.group(2)
                 kwargs.proxy.port = proxy_data.group(3)
             else: kwargs.proxy = DotMap(host = '', password = '', port = '', username = '')
+            print(kwargs.proxy)
             kwargs.yaml.device_list = [DotMap(
                 device_type    = 'imc',
                 devices        = devices,

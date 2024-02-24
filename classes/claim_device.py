@@ -29,7 +29,7 @@ def claim_targets(kwargs):
     resource_groups   = kwargs.pmoids
     # Loop Through Device List
     for i in kwargs.yaml.device_list:
-        if len(i.username) > 0:
+        if len(i.proxy_username) > 0:
             kwargs.sensitive_var  = 'proxy_password'
             kwargs                = ezfunctions.sensitive_var_value(kwargs)
             proxy_password        = kwargs.var_value
