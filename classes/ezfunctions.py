@@ -154,15 +154,15 @@ def create_yaml(orgs, kwargs):
                         if not idict.get(org): idict[org] = {}
                         if not idict[org].get(item): idict[org][item] = {}
                         ikeys = ezdata[i].enum
-                        pkeys = list(kwargs.imm_dict.orgs[org][item].keys())
                         idict[org][item] = dict(sorted(deepcopy(kwargs.imm_dict.orgs[org][item].toDict()).items()))
+                        pkeys = list(kwargs.imm_dict.orgs[org][item].keys())
                         for x in pkeys:
                             if not x in ikeys: idict[org][item].pop(x)
                             elif not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
                         if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
-                    idict = json.dumps(idict)
-                    idict = json.loads(idict)
+                    #idict = json.dumps(idict)
+                    #idict = json.loads(idict)
                     title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
                     if i == 'pool_types': dest_file = 'pools.ezi.yaml'
                     elif i == 'domain_profile': dest_file = 'domain.ezi.yaml'
@@ -330,19 +330,18 @@ def ez_append(pol_vars, kwargs):
     pol_vars   = ez_remove_empty(pol_vars)
     pol_vars   = DotMap(pol_vars)
     # Confirm the Key Exists
-    #if not kwargs.imm_dict.orgs.get(org): kwargs.imm_dict.orgs[org] = DotMap()
-    #if len(p) >= 2:
-    #    if not kwargs.imm_dict.orgs[org].get(p[0]): kwargs.imm_dict.orgs[org][p[0]] = DotMap()
-    #if len(p) >= 3:
-    #    if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap()
-    #if len(p) >= 4:
-    #    if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = DotMap()
+    if not kwargs.imm_dict.orgs.get(org): kwargs.imm_dict.orgs[org] = DotMap()
+    if len(p) >= 2:
+        if not kwargs.imm_dict.orgs[org].get(p[0]): kwargs.imm_dict.orgs[org][p[0]] = DotMap()
+    if len(p) >= 3:
+        if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap()
+    if len(p) >= 4:
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = DotMap()
     if len(p) == 2:
-        if kwargs.append_type == 'map': kwargs.imm_dict.orgs[org][p[0]][p[1]] = deepcopy(pol_vars)
+        if kwargs.append_type == 'map': kwargs.imm_dict.orgs[org][p[0]][p[1]] = DotMap(pol_vars.toDict())
         else:
             if not kwargs.imm_dict.orgs[org][p[0]].get(p[1]): kwargs.imm_dict.orgs[org][p[0]][p[1]] = [deepcopy(pol_vars)]
             else: kwargs.imm_dict.orgs[org][p[0]][p[1]].append(deepcopy(pol_vars))
-            #kwargs.imm_dict.orgs[org][p[0]][p[1]].append(deepcopy(pol_vars))
     elif len(p) == 3:
         if not kwargs.imm_dict.orgs[org][p[0]][p[1]].get(p[2]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]] = [deepcopy(pol_vars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].append(deepcopy(pol_vars))
@@ -350,11 +349,11 @@ def ez_append(pol_vars, kwargs):
         if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = [deepcopy(pol_vars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].append(deepcopy(pol_vars))
     elif len(p) == 5:
-        #if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = DotMap()
+        if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]].get(p[3]): kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]] = DotMap()
         if not kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]].get(p[4]):
             kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]] = [deepcopy(pol_vars)]
         else: kwargs.imm_dict.orgs[org][p[0]][p[1]][p[2]][p[3]][p[4]].append(deepcopy(pol_vars))
-    kwargs.append_type == 'list'
+    kwargs.append_type = 'list'
     return kwargs
 
 #========================================================

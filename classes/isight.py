@@ -2411,6 +2411,7 @@ def deploy_domain_profiles(profiles, kwargs):
 # Function - Deploy Chassis/Server Profile if Action is Deploy
 #======================================================
 def deploy_chassis_server_profiles(profiles, kwargs):
+    print('staring profile deployments')
     pending_changes = False
     kwargs.profile_update = DotMap()
     for e in profiles:
@@ -2419,17 +2420,19 @@ def deploy_chassis_server_profiles(profiles, kwargs):
                 kwargs.profile_update[e.name] = e
                 kwargs.profile_update[e.name].pending_changes = 'Blank'
     if len(kwargs.profile_update) > 0:
+        print('length greater than 0')
         kwargs = api_get(False, list(kwargs.profile_update.keys()), kwargs.type, kwargs)
         profile_results = kwargs.results
         for e in list(kwargs.profile_update.keys()):
             indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
+            print(json.dumps(profile_results[indx], indent=4))
             if len(profile_results[indx].ConfigChanges.Changes) > 0 or re.search(
                 'Assigned|Failed|pending-changes', profile_results[indx].ConfigContext.ConfigState
             ) or re.search('Failed|Inconsistent', profile_results[indx].ConfigContext.ConfigStateSummary):
-                if pending_changes == False: pending_changes = True
+                pending_changes = True
                 kwargs.profile_update[e].pending_changes = 'Deploy'
             elif len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
-                if pending_changes == False: pending_changes = True
+                pending_changes = True
                 kwargs.profile_update[e].pending_changes = 'Activate'
         if pending_changes == True:
             pcolor.LightPurple(f'\n{"-"*108}\n')

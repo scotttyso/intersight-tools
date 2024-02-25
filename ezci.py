@@ -121,11 +121,12 @@ def remove_duplicates(orgs, plist, kwargs):
         for d in plist:
             idict[org][d] = {}
             for e in list(kwargs.imm_dict.orgs[org][d].keys()):
-                idict[org][d][e] = []
-                for i in kwargs.imm_dict.orgs[org][d][e]:
-                    if not i in idict[org][d][e]:
-                        idict[org][d][e].append(i)
-                kwargs.imm_dict.orgs[org][d][e] = deepcopy(idict[org][d][e])
+                if type(kwargs.imm_dict.orgs[org][d][e]) == list:
+                    idict[org][d][e] = []
+                    for i in kwargs.imm_dict.orgs[org][d][e]:
+                        if not i in idict[org][d][e]:
+                            idict[org][d][e].append(i)
+                    kwargs.imm_dict.orgs[org][d][e] = deepcopy(idict[org][d][e])
             kwargs.imm_dict.orgs[org][d] = DotMap(sorted(kwargs.imm_dict.orgs[org][d].items()))
     return kwargs
 
@@ -186,18 +187,6 @@ def main():
     for e in list(arg_dict.keys()):
         if re.search('cco|password|intersight', e):
             if not arg_dict[e] == None: os.environ[e] = arg_dict[e]
-    #=================================================================
-    # Dummy Step to Test Script
-    #=================================================================
-    if kwargs.args.deployment_step == 'dummy':
-        arg_dict = vars(kwargs.args)
-        for e in list(arg_dict.keys()):
-            print(f'{e} {"="*10}')
-            print(f'  * {arg_dict[e]}')
-            #if re.search('intersight|password', e):
-            #    if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
-            #    else: print(f'  * {arg_dict[e]}')
-            #else: print(f'  * {arg_dict[e]}')
     #==============================================
     # Get Intersight Configuration
     # - intersight_api_key_id
@@ -295,12 +284,10 @@ def main():
     elif kwargs.args.deployment_step == 'dummy':
         arg_dict = vars(kwargs.args)
         for e in list(arg_dict.keys()):
-            print(f'{e} {"="*10}')
-            print(f'  * {arg_dict[e]}')
-            #if re.search('intersight|password', e):
-            #    if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
-            #    else: print(f'  * {arg_dict[e]}')
-            #else: print(f'  * {arg_dict[e]}')
+            if re.search('intersight|password', e):
+                if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
+                else: print(f'  * {arg_dict[e]}')
+            else: print(f'  * {arg_dict[e]}')
     #=================================================================
     # Deploy Chassis/Server Pools/Policies/Profiles
     #=================================================================
