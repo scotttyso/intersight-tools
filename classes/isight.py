@@ -2411,7 +2411,7 @@ def deploy_domain_profiles(profiles, kwargs):
 # Function - Deploy Chassis/Server Profile if Action is Deploy
 #======================================================
 def deploy_chassis_server_profiles(profiles, kwargs):
-    print('staring profile deployments')
+    cregex = re.compile('Analyzing|Assigned|Failed|Inconsistent|Validating')
     pending_changes = False
     kwargs.profile_update = DotMap()
     for e in profiles:
@@ -2420,15 +2420,15 @@ def deploy_chassis_server_profiles(profiles, kwargs):
                 kwargs.profile_update[e.name] = e
                 kwargs.profile_update[e.name].pending_changes = 'Blank'
     if len(kwargs.profile_update) > 0:
-        print('length greater than 0')
         kwargs = api_get(False, list(kwargs.profile_update.keys()), kwargs.type, kwargs)
         profile_results = kwargs.results
         for e in list(kwargs.profile_update.keys()):
             indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
-            print(json.dumps(profile_results[indx], indent=4))
-            if len(profile_results[indx].ConfigChanges.Changes) > 0 or re.search(
-                'Assigned|Failed|pending-changes', profile_results[indx].ConfigContext.ConfigState
-            ) or re.search('Failed|Inconsistent', profile_results[indx].ConfigContext.ConfigStateSummary):
+            changes  = profile_results[indx].ConfigChanges.Changes
+            cstate   = profile_results[indx].ConfigContext.ConfigState
+            csummary = profile_results[indx].ConfigContext.ConfigStateSummary
+            isummary = profile_results[indx].ConfigChangeContext.InitialConfigContext.ConfigStateSummary
+            if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary) or re.search(cregex, isummary):
                 pending_changes = True
                 kwargs.profile_update[e].pending_changes = 'Deploy'
             elif len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
@@ -2474,6 +2474,7 @@ def deploy_chassis_server_profiles(profiles, kwargs):
                 if len(names) > 0:
                     kwargs = api_get(False, names, kwargs.type, kwargs)
                     profile_results = kwargs.results
+                pending_activations = False
                 for e in list(kwargs.profile_update.keys()):
                     if not kwargs.profile_update[e].pending_changes == 'Blank':
                         indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
@@ -2483,11 +2484,13 @@ def deploy_chassis_server_profiles(profiles, kwargs):
                             kwargs.method = 'patch'
                             kwargs.pmoid  = kwargs.isight[kwargs.org].profile[kwargs.type][e]
                             kwargs = api(kwargs.qtype).calls(kwargs)
+                            pending_activations = True
                         else:
                             pcolor.LightPurple(f'    - Skipping Org: {kwargs.org}; Profile Activation for `{e}`.  No Pending Changes.')
                             kwargs.profile_update[e].pending_changes = 'Blank'
-                pcolor.LightPurple(f'\n{"-"*108}\n')
-                pcolor.LightPurple('    * Pending Activitions.  Sleeping for 300 Seconds'); time.sleep(300)
+                if pending_activations == True:
+                    pcolor.LightPurple(f'\n{"-"*108}\n')
+                    pcolor.LightPurple('    * Pending Activitions.  Sleeping for 300 Seconds'); time.sleep(300)
                 for e in list(kwargs.profile_update.keys()):
                     if not kwargs.profile_update[e].pending_changes == 'Blank':
                         deploy_complete = False
@@ -2501,6 +2504,7 @@ def deploy_chassis_server_profiles(profiles, kwargs):
                                 pcolor.Green(f'    - Completed Profile Activiation for `{e}`.')
                                 deploy_complete = True
                             else:  pcolor.Cyan(f'      * Activiation Still Occuring on `{e}`.  Waiting 120 seconds.'); time.sleep(120)
+                    else: pcolor.Green(f'    - Completed Profile Deployment for `{e}`.')
             pcolor.LightPurple(f'\n{"-"*108}\n')
     return kwargs
 
