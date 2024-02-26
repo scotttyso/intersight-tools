@@ -2669,9 +2669,9 @@ class wizard(object):
                 kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
                 kwargs.os_sw_moid  = moid
             else:
-                pcolor.Cyan(f'\n{"*" * 91}')
+                pcolor.Cyan(f'\n{"*" * 108}')
                 pcolor.Red(f'Unsure which OS this is:\n  * Vendor: {e.Vendor}\n  * OS Type: {v.os_type}.\n\nExiting... (cy.py Line 2670)')
-                pcolor.Cyan(f'\n{"*" * 91}')
+                pcolor.Cyan(f'\n{"*" * 108}')
                 sys.exit(1)
         #==========================================
         # Install Operating System on Servers
@@ -2697,21 +2697,22 @@ class wizard(object):
                 kwargs.qtype   = self.type
                 kwargs.uri     = 'os/Installs'
                 if v.boot_volume == 'san':
-                    pcolor.Green(f"{'-'*91}\n"\
+                    pcolor.Green(f"{'-'*108}\n"\
                             f"      * host {k}\n"\
                             f"         initiator: {v.wwpns[kwargs.wwpn].wwpn}\n"\
                             f"         target: {kwargs.san_target}\n"\
                             f"         mac: {kwargs.mgmt_mac_a}\n"\
-                            f"{'-'*91}\n")
+                            f"{'-'*108}\n")
                 else:
-                    pcolor.Green(f"{'-'*91}\n"\
+                    pcolor.Green(f"{'-'*108}\n"\
                             f"      * host {k}:\n"\
                             f"         target: {v.boot_volume}\n"\
                             f"         mac: {kwargs.mgmt_mac_a}\n"\
-                            f"{'-'*91}\n")
+                            f"{'-'*108}\n")
                 kwargs = isight.api(self.type).calls(kwargs)
                 kwargs.server_profiles[k].os_install = DotMap(moid=kwargs.pmoid,workflow='')
-        pcolor.Cyan(f'\n{"*" * 91}\nSleeping for 10 Minutes to pause for Workflow/Infos Lookup.\n{"*" * 91}\n')
+        pcolor.Cyan(f'\n{"*" * 108}\n\nSleeping for 10 Minutes to pause for Workflow/Infos Lookup.')
+        pcolor.Cyan(f'\n{"*" * 108}\n')
         time.sleep(600)
         #=================================================
         # Monitor OS Installation until Complete

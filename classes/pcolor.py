@@ -5,14 +5,14 @@ wrap = textwrap.TextWrapper()
 #=============================================================================
 def print_process(cchar, ptext):
     if len(ptext) <= 109: print(f"\033[{cchar} {ptext}\033[00m")
-    elif re.search(r'^\n[\+\-]', ptext): print(f"\033[{cchar} {ptext}\033[00m")
+    elif re.search(r'^\n[\+\-\*]', ptext): print(f"\033[{cchar} {ptext}\033[00m")
     elif re.search(r'^$', ptext): print(f"\033[{cchar} {ptext}\033[00m")
     elif re.search(r'^\{', ptext): print(f"\033[{cchar} {ptext}\033[00m")
     elif re.search('^([ ]+)[\\*|\\-]([ ]+)?[a-zA-Z0-9]', ptext):
         indent = len(re.search('^([ ]+)[\\*|\\-]([ ]+)?', ptext).group(1))
         sub_indent = ' ' * (indent) + '   '
         print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
-    elif re.search('^[\\*|\\-] [a-zA-Z0-9]', ptext):
+    elif re.search(r'^[\*|\-] [a-zA-Z0-9]', ptext):
         indent = 2
         sub_indent = ' ' * indent
         print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
