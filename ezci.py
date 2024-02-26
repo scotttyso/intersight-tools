@@ -233,7 +233,6 @@ def main():
     #=================================================================
     if 'flashstack' in kwargs.args.deployment_type: kwargs.protocols = ['fcp', 'iscsi', 'nvme-roce']
     elif 'flexpod' in kwargs.args.deployment_type: kwargs.protocols = ['fcp', 'iscsi', 'nfs', 'nvme-tcp']
-
     if kwargs.args.deployment_step == 'initial':
         #==============================================
         # Configure Switches if configure Set to True
@@ -301,7 +300,7 @@ def main():
         #==============================================
         # Create YAML Files
         #==============================================
-        kwargs = remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates'], kwargs)
+        kwargs = remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates', 'wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
         #==============================================
         # Pools
@@ -348,6 +347,8 @@ def main():
         # Loop Through the Orgs
         #==============================================
         orgs = list(kwargs.imm_dict.orgs.keys())
+        kwargs = remove_duplicates(orgs, ['wizard'], kwargs)
+        ezfunctions.create_yaml(orgs, kwargs)
         for org in orgs:
             kwargs.org = org
             #=====================================================

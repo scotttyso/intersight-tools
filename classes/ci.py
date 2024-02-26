@@ -2623,7 +2623,6 @@ class wizard(object):
             #=======================================
             # Get Operating System ISO Repositories
             #=======================================
-            # Get User Input Software Configuration Utility
             kwargs.method   = 'get_by_moid'
             kwargs.pmoid    = kwargs.imm_dict.wizard.os_install_image
             kwargs.qtype    = 'operating_system'
@@ -2654,9 +2653,9 @@ class wizard(object):
                     kwargs.distributions[version] = DotMap(moid = kwargs.results[0].Moid)
                 kwargs.distribution_moid = kwargs.distributions[version].moid
                 if not kwargs.os_cfg_moids.get(template_name):
-                    unfile = open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')
+                    unatteded_file = (open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')).read()
                     #kwargs.file_content = resp.content.decode("utf-8")
-                    kwargs.file_content = unfile
+                    kwargs.file_content = unatteded_file
                     kwargs.api_body     = os_configuration_file(kwargs)
                     kwargs.method       = 'post'
                     kwargs.qtype        = 'os_configuration'

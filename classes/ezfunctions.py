@@ -497,9 +497,9 @@ def jprint(jDict): pcolor.LightGray(json.dumps(jDict, indent=4))
 # Function - Load Previous YAML Files
 #======================================================
 def load_previous_configurations(kwargs):
-    ezvars   = kwargs.ezdata.ezimm_class.properties
-    vclasses = kwargs.ezdata.ezimm_class.properties.classes.enum
-    dir_check= 0
+    ezvars    = kwargs.ezdata.ezimm_class.properties
+    vclasses  = kwargs.ezdata.ezimm_class.properties.classes.enum
+    dir_check = 0
     if os.path.isdir(kwargs.args.dir):
         dir_list = os.listdir(kwargs.args.dir)
         for i in dir_list:
