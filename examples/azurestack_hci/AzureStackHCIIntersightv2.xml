@@ -52,26 +52,6 @@
         <component name="Microsoft-Windows-SQMApi" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <CEIPEnabled>0</CEIPEnabled>
         </component>
-        <component name="Microsoft-Windows-TCPIP" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Interfaces>
-                <Interface wcm:action="add">
-                    <Identifier>{{ .macAddressNic1_dash_format }}</Identifier>
-                    <Ipv4Settings>
-                        <DhcpEnabled>true</DhcpEnabled>
-                        <Metric>10</Metric>
-                        <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
-                    </Ipv4Settings>
-                </Interface>
-                <Interface wcm:action="add">
-                    <Identifier>{{ .macAddressNic2_dash_format }}</Identifier>
-                    <Ipv4Settings>
-                        <DhcpEnabled>true</DhcpEnabled>
-                        <Metric>10</Metric>
-                        <RouterDiscoveryEnabled>false</RouterDiscoveryEnabled>
-                    </Ipv4Settings>
-                </Interface>
-            </Interfaces>
-        </component>
         <component name="Microsoft-Windows-UnattendedJoin" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <Identification>
                 <Credentials>
@@ -97,86 +77,21 @@
             <InputLocale>0409:00000409</InputLocale>
         </component>
         <component name="Microsoft-Windows-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <DiskConfiguration>
-                <Disk wcm:action="add">
-                    <CreatePartitions>
-                        <CreatePartition wcm:action="add">
-                            <Order>1</Order>
-                            <Size>100</Size>
-                            <Type>EFI</Type>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Order>2</Order>
-                            <Size>16</Size>
-                            <Type>MSR</Type>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Order>3</Order>
-                            <Size>573</Size>
-                            <Type>Primary</Type>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Extend>true</Extend>
-                            <Order>4</Order>
-                            <Type>Primary</Type>
-                        </CreatePartition>
-                    </CreatePartitions>
-                    <WillWipeDisk>true</WillWipeDisk>
-                    <DiskID>0</DiskID>
-                    <ModifyPartitions>
-                        <ModifyPartition wcm:action="add">
-                            <Format>FAT32</Format>
-                            <Label>System</Label>
-                            <Order>1</Order>
-                            <PartitionID>1</PartitionID>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Format>NTFS</Format>
-                            <Label>Recovery</Label>
-                            <Order>2</Order>
-                            <PartitionID>3</PartitionID>
-                            <TypeID>DE94BBA4-06D1-4D40-A16A-BFD50179D6AC</TypeID>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Order>3</Order>
-                            <PartitionID>3</PartitionID>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Label>Windows</Label>
-                            <Letter>C</Letter>
-                            <Format>NTFS</Format>
-                            <Order>4</Order>
-                            <PartitionID>4</PartitionID>
-                        </ModifyPartition>
-                    </ModifyPartitions>
-                </Disk>
-                <WillShowUI>OnError</WillShowUI>
-            </DiskConfiguration>
+            <ImageInstall>
+                <OSImage>
+                    <InstallTo>
+                        <DiskID>DISKIDPLACEHOLDER</DiskID>
+                        <PartitionID>PARTITIONPLACEHOLDER</PartitionID>
+                    </InstallTo>
+                    <InstallToAvailablePartition>false</InstallToAvailablePartition>
+                    <WillShowUI>OnError</WillShowUI>
+                </OSImage>
+            </ImageInstall>
             <UserData>
                 <AcceptEula>true</AcceptEula>
                 <Organization>{{ .organization }}</Organization>
                 <FullName>Administrator</FullName>
             </UserData>
-            <WindowsDeploymentServices>
-                <ImageSelection>
-                    <InstallImage>
-                        <ImageName>Azure Stack HCI SERVERAZURESTACKHCICORE</ImageName>
-                        <ImageGroup>AzureStackHCI22H2</ImageGroup>
-                        <Filename>install.wim</Filename>
-                    </InstallImage>
-                    <InstallTo>
-                        <DiskID>0</DiskID>
-                        <PartitionID>4</PartitionID>
-                    </InstallTo>
-                </ImageSelection>
-                <Login>
-                    <Credentials>
-                        <Domain>{{ domain }}</Domain>
-                        <Password>{{ domainPassword }}</Password>
-                        <Username>{{ domainAdministrator }}</Username>
-                    </Credentials>
-                </Login>
-            </WindowsDeploymentServices>
         </component>
     </settings>
     <settings pass="offlineServicing">

@@ -8,6 +8,7 @@ try:
     from copy import deepcopy
     from dotmap import DotMap
     from operator import itemgetter
+    from stringcase import snakecase
     import ipaddress, jinja2, json, numpy, os, re, requests, shutil, time, urllib3, uuid
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -2548,16 +2549,13 @@ class wizard(object):
             #==================================
             if v.os_type == 'Windows':
                 sensitive_list = ['windows_admin_password', 'windows_domain_password']
-                for i in sensitive_list:
-                    kwargs.sensitive_var = i
-                    kwargs = ezfunctions.sensitive_var_value(kwargs)
-                    kwargs[i] = kwargs.var_value
                 kwargs = windows_languages(v, kwargs)
                 kwargs = windows_timezones(kwargs)
-            elif v.os_type == 'VMware':
-                kwargs.sensitive_var = 'vmware_esxi_password'
+            elif v.os_type == 'VMware': sensitive_list = ['vmware_esxi_password']
+            for i in sensitive_list:
+                kwargs.sensitive_var = i
                 kwargs = ezfunctions.sensitive_var_value(kwargs)
-                kwargs.vmware_esxi_password = kwargs.var_value
+                kwargs[i] = kwargs.var_value
             if v.boot_volume == 'm2':
                 if not v.storage_controllers.get('UCS-M2-HWRAID'):
                     pcolor.Red(f"!!! ERROR !!!\n  Could not determine the Controller Slot for:")
@@ -2653,9 +2651,12 @@ class wizard(object):
                     kwargs.distributions[version] = DotMap(moid = kwargs.results[0].Moid)
                 kwargs.distribution_moid = kwargs.distributions[version].moid
                 if not kwargs.os_cfg_moids.get(template_name):
-                    unatteded_file = (open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')).read()
-                    #kwargs.file_content = resp.content.decode("utf-8")
-                    kwargs.file_content = unatteded_file
+                    file_content = (open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')).read()
+                    for e in ['LayeredDriver:layeredDriver', 'UILanguageFallback:secondaryLanguage']:
+                        elist = e.split(':')
+                        rstring = '            <%s>{{ .%s }}</%s>\n' % (elist[0], elist[1], elist[0])
+                        if kwargs.language[snakecase(x[1])] == '': file_content = file_content.replace(rstring, '')
+                    kwargs.file_content = file_content
                     kwargs.api_body     = os_configuration_file(kwargs)
                     kwargs.method       = 'post'
                     kwargs.qtype        = 'os_configuration'
@@ -2697,18 +2698,11 @@ class wizard(object):
                 kwargs.qtype   = self.type
                 kwargs.uri     = 'os/Installs'
                 if v.boot_volume == 'san':
-                    pcolor.Green(f"{'-'*108}\n"\
-                            f"      * host {k}\n"\
-                            f"         initiator: {v.wwpns[kwargs.wwpn].wwpn}\n"\
-                            f"         target: {kwargs.san_target}\n"\
-                            f"         mac: {kwargs.mgmt_mac_a}\n"\
-                            f"{'-'*108}\n")
+                    pcolor.Green(f"\n{'-'*108}\n      * host {k}\ninitiator: {v.wwpns[kwargs.wwpn].wwpn}\ntarget: {kwargs.san_target}\nmac: {kwargs.mgmt_mac_a}\n")
+                    pcolor.Green(f"\n{'-'*108}\n")
                 else:
-                    pcolor.Green(f"{'-'*108}\n"\
-                            f"      * host {k}:\n"\
-                            f"         target: {v.boot_volume}\n"\
-                            f"         mac: {kwargs.mgmt_mac_a}\n"\
-                            f"{'-'*108}\n")
+                    pcolor.Green(f"\n{'-'*108}\n      * host {k}:\ntarget: {v.boot_volume}\nmac: {kwargs.mgmt_mac_a}\n")
+                    pcolor.Green(f"\n{'-'*108}\n")
                 kwargs = isight.api(self.type).calls(kwargs)
                 kwargs.server_profiles[k].os_install = DotMap(moid=kwargs.pmoid,workflow='')
         pcolor.Cyan(f'\n{"*" * 108}\n\nSleeping for 10 Minutes to pause for Workflow/Infos Lookup.')
@@ -3023,8 +3017,8 @@ class wizard(object):
             timeZone                   = kwargs.windows_timezone,
         )
         jtemplate = template.render(jargs)
-        #for x in ['LayeredDriver', 'UILanguageFallback']:
-        #    if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
+        for x in ['LayeredDriver', 'UILanguageFallback']:
+            if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
         cwd = os.getcwd()
         new_dir = 'AzureStack'
         if not os.path.exists(f'{cwd}{os.sep}{new_dir}'):
@@ -3280,6 +3274,8 @@ def windows_installation_body(k, v, kwargs):
         #".macAddressNic1_dash_format": mac_a,
         #".macAddressNic2_dash_format": mac_b,
     }
+    for x in ['layeredDriver', 'secondaryLanguage']:
+        if kwargs.language[snakecase(x)] == '': answers_dict.pop(f".{x}")
     answers_dict = dict(sorted(answers_dict.items()))
     for k,v in answers_dict.items(): api_body["AdditionalParameters"].append(os_placeholders(k, v))
     return api_body
