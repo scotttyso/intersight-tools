@@ -107,4 +107,5 @@
             <fDenyTSConnections>false</fDenyTSConnections>
         </component>
     </settings>
+    <cpi:offlineImage cpi:source="wim:c:/users/administrator/desktop/install.wim#Azure Stack HCI SERVERAZURESTACKHCICORE" xmlns:cpi="urn:schemas-microsoft-com:cpi" />
 </unattend>

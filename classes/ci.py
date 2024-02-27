@@ -2650,19 +2650,19 @@ class wizard(object):
                     kwargs            = isight.api(kwargs.qtype).calls(kwargs)
                     kwargs.distributions[version] = DotMap(moid = kwargs.results[0].Moid)
                 kwargs.distribution_moid = kwargs.distributions[version].moid
-                if not kwargs.os_cfg_moids.get(template_name):
-                    file_content = (open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')).read()
-                    for e in ['LayeredDriver:layeredDriver', 'UILanguageFallback:secondaryLanguage']:
-                        elist = e.split(':')
-                        rstring = '            <%s>{{ .%s }}</%s>\n' % (elist[0], elist[1], elist[0])
-                        if kwargs.language[snakecase(x[1])] == '': file_content = file_content.replace(rstring, '')
-                    kwargs.file_content = file_content
-                    kwargs.api_body     = os_configuration_file(kwargs)
-                    kwargs.method       = 'post'
-                    kwargs.qtype        = 'os_configuration'
-                    kwargs.uri          = 'os/ConfigurationFiles'
-                    kwargs              = isight.api(kwargs.qtype).calls(kwargs)
-                    kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
+                #if not kwargs.os_cfg_moids.get(template_name):
+                file_content = (open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')).read()
+                for e in ['LayeredDriver:layeredDriver', 'UILanguageFallback:secondaryLanguage']:
+                    elist = e.split(':')
+                    rstring = '            <%s>{{ .%s }}</%s>\n' % (elist[0], elist[1], elist[0])
+                    if kwargs.language[snakecase(elist[1])] == '': file_content = file_content.replace(rstring, '')
+                kwargs.file_content = file_content
+                kwargs.api_body     = os_configuration_file(kwargs)
+                kwargs.method       = 'post'
+                kwargs.qtype        = 'os_configuration'
+                kwargs.uri          = 'os/ConfigurationFiles'
+                kwargs              = isight.api(kwargs.qtype).calls(kwargs)
+                kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
                 kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
                 kwargs.os_sw_moid = moid
             elif e.Vendor == v.os_type:
@@ -2698,16 +2698,17 @@ class wizard(object):
                 kwargs.qtype   = self.type
                 kwargs.uri     = 'os/Installs'
                 if v.boot_volume == 'san':
-                    pcolor.Green(f"\n{'-'*108}\n      * host {k}\ninitiator: {v.wwpns[kwargs.wwpn].wwpn}\ntarget: {kwargs.san_target}\nmac: {kwargs.mgmt_mac_a}\n")
+                    pcolor.Green(f"\n{'-'*108}\n\n      * host {k}\n        initiator: {v.wwpns[kwargs.wwpn].wwpn}"\
+                                 f"\n        target: {kwargs.san_target}\n        mac: {kwargs.mgmt_mac_a}")
                     pcolor.Green(f"\n{'-'*108}\n")
                 else:
-                    pcolor.Green(f"\n{'-'*108}\n      * host {k}:\ntarget: {v.boot_volume}\nmac: {kwargs.mgmt_mac_a}\n")
+                    pcolor.Green(f"\n{'-'*108}\n\n      * host {k}:\n        target: {v.boot_volume}\n        mac: {kwargs.mgmt_mac_a}")
                     pcolor.Green(f"\n{'-'*108}\n")
                 kwargs = isight.api(self.type).calls(kwargs)
                 kwargs.server_profiles[k].os_install = DotMap(moid=kwargs.pmoid,workflow='')
-        pcolor.Cyan(f'\n{"*" * 108}\n\nSleeping for 10 Minutes to pause for Workflow/Infos Lookup.')
+        pcolor.Cyan(f'\n{"*" * 108}\n\nSleeping for 20 Minutes to pause for Workflow/Infos Lookup.')
         pcolor.Cyan(f'\n{"*" * 108}\n')
-        time.sleep(600)
+        time.sleep(1200)
         #=================================================
         # Monitor OS Installation until Complete
         #=================================================
@@ -2717,11 +2718,10 @@ class wizard(object):
                 if len(v.os_install.moid) > 0: kwargs.names.append(v.os_install.moid)
         kwargs.method = 'get'
         kwargs.qtype  = 'workflow_os_install'
+        kwargs.uri    = 'os/Installs'
         kwargs = isight.api(self.type).calls(kwargs)
         install_workflows = kwargs.pmoids
-        print(kwargs.names)
-        print(install_workflows)
-        print(json.dumps(kwargs.results))
+        install_workflow_results = kwargs.results
         for k,v in kwargs.server_profiles.items():
             v.install_success = False
             v.os_install.workflow = install_workflows[f'InstallServerOS{v.os_install.moid}'].workflow_moid
@@ -2733,16 +2733,16 @@ class wizard(object):
                     kwargs.qtype  = 'workflow_info'
                     kwargs.uri    = 'workflow/WorkflowInfos'
                     kwargs = isight.api(self.type).calls(kwargs)
-                    if kwargs.results.Status == 'COMPLETED':
+                    if kwargs.results.WorkflowStatus == 'Completed':
                         install_complete = True; v.install_success  = True
                         pcolor.Green(f'    - Completed Operating System Installation for {k}.')
-                    elif re.search('(FAILED|TERMINATED|TIME_OUT)', kwargs.results.Status):
+                    elif re.search('(Failed|Terminated)', kwargs.results.WorkflowStatus):
                         kwargs.upgrade.failed.update({k:v.moid})
                         pcolor.Red(f'!!! FAILED !!! Operating System Installation for Server Profile {k} failed.')
-                        install_complete= True; os_install_fail_count += 1
+                        install_complete = True; os_install_fail_count += 1
                     else:
                         progress= kwargs.results.Progress
-                        status  = kwargs.results.Status
+                        status  = kwargs.results.WorkflowStatus
                         pcolor.Cyan(f'      * Operating System Installation for {k}.')
                         pcolor.Cyan(f'        Status is {status} Progress is {progress}, Waiting 120 seconds.')
                         time.sleep(120)
@@ -2761,10 +2761,10 @@ class wizard(object):
                     if os_installed == False:
                         tag_body.append({'Key':'os_installed','Value':v.os_type})
                     tags = list({v['Key']:v for v in tags}.values())
-                    kwargs.api_body={'Tags':tag_body}
-                    kwargs.method = 'patch'
-                    kwargs.pmoid  = v.hardware_moid
-                    kwargs.qtype  = 'update_tags'
+                    kwargs.api_body = {'Tags':tag_body}
+                    kwargs.method   = 'patch'
+                    kwargs.pmoid    = v.hardware_moid
+                    kwargs.qtype    = 'update_tags'
                     kwargs.tag_server_profile = k
                     if v.object_type == 'compute.Blade': kwargs.uri = 'compute/Blades'
                     else: kwargs.uri = 'compute/RackUnits'
@@ -2772,6 +2772,9 @@ class wizard(object):
             elif v.os_installed == False:
                 os_install_fail_count += 1
                 pcolor.Red(f'      * Something went wrong with the OS Install Request for {k}. Please Validate the Server.')
+                print(kwargs.names)
+                print(install_workflows)
+                print(json.dumps(install_workflow_results, indent=4))
             else: pcolor.Cyan(f'      * Skipping Operating System Install for {k}.')
         #=====================================================
         # Send End Notification and return kwargs
@@ -2779,9 +2782,8 @@ class wizard(object):
         validating.end_section(self.type, 'Install')
         if os_install_fail_count > 0:
             for k,v in kwargs.server_profiles.items():
-                if not v.install_success == True:
-                    pcolor.Red(f'      * OS Install Failed for `{k}`.  Please Validate the Logs.')
-            exit(1)
+                if not v.install_success == True: pcolor.Red(f'      * OS Install Failed for `{k}`.  Please Validate the Logs.')
+            sys.exit(1)
         return kwargs
 
     #=============================================================================
