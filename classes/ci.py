@@ -3261,7 +3261,7 @@ def windows_installation_body(k, v, kwargs):
         ".hostName": k,
         ".domain": v.active_directory.domain,
         ".organization": organization,
-        ".organizationUnit": org_unit,
+        ".organizationalUnit": org_unit,
         ".secure.administratorPassword": kwargs.windows_admin_password,
         ".domainAdminUser": v.active_directory.administrator,
         ".secure.domainAdminPassword": kwargs.windows_domain_password,
