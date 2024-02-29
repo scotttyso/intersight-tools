@@ -2716,6 +2716,9 @@ class wizard(object):
         for k,v in kwargs.server_profiles.items():
             if v.os_installed == False:
                 if len(v.os_install.moid) > 0: kwargs.names.append(v.os_install.moid)
+        #from datetime import datetime
+        #tdate = datetime.today().strftime('%Y-%m-%d')
+        #kwargs.api_filter = f'CreateTime gt {tdate}T00:00:00.000Z and CreateTime lt {tdate}T23:59:00.000Z'
         kwargs.method = 'get'
         kwargs.qtype  = 'workflow_os_install'
         kwargs.uri    = 'os/Installs'
@@ -2723,9 +2726,11 @@ class wizard(object):
         install_workflows = kwargs.pmoids
         install_workflow_results = kwargs.results
         for k,v in kwargs.server_profiles.items():
+            indx = next((index for (index, d) in enumerate(install_workflow_results) if d['Moid'] == v.os_install.moid), None)
             v.install_success = False
-            v.os_install.workflow = install_workflows[f'InstallServerOS{v.os_install.moid}'].workflow_moid
-            if v.os_installed == False and len(v.os_install_workflow) > 0:
+            if indx != None:
+                v.os_install.workflow = install_workflow_results[indx].WorkflowInfo.Moid
+            if v.os_install.moid == False and len(v.os_install.workflow) > 0:
                 install_complete = False
                 while install_complete == False:
                     kwargs.method = 'get_by_moid'
@@ -2772,15 +2777,15 @@ class wizard(object):
             elif v.os_installed == False:
                 os_install_fail_count += 1
                 pcolor.Red(f'      * Something went wrong with the OS Install Request for {k}. Please Validate the Server.')
-                print(kwargs.names)
-                print(install_workflows)
-                print(json.dumps(install_workflow_results, indent=4))
             else: pcolor.Cyan(f'      * Skipping Operating System Install for {k}.')
         #=====================================================
         # Send End Notification and return kwargs
         #=====================================================
         validating.end_section(self.type, 'Install')
         if os_install_fail_count > 0:
+            pcolor.Yellow(kwargs.names)
+            pcolor.Yellow(install_workflows)
+            pcolor.Yellow(json.dumps(install_workflow_results, indent=4))
             for k,v in kwargs.server_profiles.items():
                 if not v.install_success == True: pcolor.Red(f'      * OS Install Failed for `{k}`.  Please Validate the Logs.')
             sys.exit(1)
