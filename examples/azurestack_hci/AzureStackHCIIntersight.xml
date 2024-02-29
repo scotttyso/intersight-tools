@@ -60,7 +60,7 @@
                     <Username>{{ .domainAdminUser }}</Username>
                 </Credentials>
                 <JoinDomain>{{ .domain }}</JoinDomain>
-                <MachineObjectOU>{{ .organizationUnit }}</MachineObjectOU>
+                <MachineObjectOU>{{ .organizationalUnit }}</MachineObjectOU>
             </Identification>
         </component>
     </settings>
