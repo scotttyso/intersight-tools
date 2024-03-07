@@ -2987,52 +2987,52 @@ class wizard(object):
         kwargs.org_moid = kwargs.org_moids[kwargs.org].moid
         kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
         kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
-        #==========================================
-        # Get Physical Server Tags to Check for
-        # Existing OS Install
-        #==========================================
-        kwargs.repo_server = kwargs.imm_dict.wizard.imm_transition
         kwargs = windows_languages(kwargs.imm_dict.wizard.windows_install, kwargs)
         kwargs = windows_timezones(kwargs)
+        #=====================================================
+        # Get Physical Server Tags to Check for
+        # Existing OS Install
+        #=====================================================
+        kwargs.repo_server = kwargs.imm_dict.wizard.imm_transition
         for v in ['imm_transition_password', 'windows_admin_password', 'windows_domain_password']:
             kwargs.sensitive_var = v
             kwargs  = ezfunctions.sensitive_var_value(kwargs)
             kwargs[v]=kwargs.var_value
         tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci')
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
-        template = tenviro.get_template('AzureStackHCI.xml')
-        ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
-        org_unit = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
-        install_server = kwargs.imm_dict.wizard.install_server.hostname
-        share_path     = kwargs.imm_dict.wizard.install_server.reminst_share
-        jargs = dict(
-            administratorPassword  = kwargs['windows_admin_password'],
-            domain                 = kwargs.imm_dict.wizard.azurestack[0].active_directory.domain,
-            domainAdministrator    = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
-            domainPassword         = kwargs['windows_domain_password'],
-            organization           = kwargs.imm_dict.wizard.azurestack[0].organization,
-            organizationalUnit     = org_unit,
-            sharePath              = f'\\\\{install_server}\\{share_path}',
-            # Language
-            inputLocale           = kwargs.language.input_local,
-            languagePack          = kwargs.language.ui_language,
-            layeredDriver         = kwargs.language.layered_driver,
-            secondaryLanguage     = kwargs.language.secondary_language,
-            # Timezone
-            disableAutoDaylightTimeSet = kwargs.disable_daylight,
-            timeZone                   = kwargs.windows_timezone,
-        )
-        jtemplate = template.render(jargs)
-        for x in ['LayeredDriver', 'UILanguageFallback']:
-            if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
-        cwd = os.getcwd()
-        new_dir = 'AzureStack'
-        if not os.path.exists(f'{cwd}{os.sep}{new_dir}'):
-            os.makedirs(f'{cwd}{os.sep}{new_dir}')
-        
-        file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}AzureStackHCI.xml', 'w')
-        file.write(jtemplate)
-        file.close()
+        if kwargs.imm_dict.wizard.install_source == 'wds':
+            template = tenviro.get_template('AzureStackHCI.xml')
+            ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
+            org_unit = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
+            install_server = kwargs.imm_dict.wizard.install_server.hostname
+            share_path     = kwargs.imm_dict.wizard.install_server.reminst_share
+            jargs = dict(
+                administratorPassword  = kwargs['windows_admin_password'],
+                domain                 = kwargs.imm_dict.wizard.azurestack[0].active_directory.domain,
+                domainAdministrator    = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
+                domainPassword         = kwargs['windows_domain_password'],
+                organization           = kwargs.imm_dict.wizard.azurestack[0].organization,
+                organizationalUnit     = org_unit,
+                sharePath              = f'\\\\{install_server}\\{share_path}',
+                # Language
+                inputLocale           = kwargs.language.input_local,
+                languagePack          = kwargs.language.ui_language,
+                layeredDriver         = kwargs.language.layered_driver,
+                secondaryLanguage     = kwargs.language.secondary_language,
+                # Timezone
+                disableAutoDaylightTimeSet = kwargs.disable_daylight,
+                timeZone                   = kwargs.windows_timezone,
+            )
+            jtemplate = template.render(jargs)
+            for x in ['LayeredDriver', 'UILanguageFallback']:
+                if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
+            cwd = os.getcwd()
+            new_dir = 'AzureStack'
+            if not os.path.exists(f'{cwd}{os.sep}{new_dir}'):
+                os.makedirs(f'{cwd}{os.sep}{new_dir}')
+            file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}AzureStackHCI.xml', 'w')
+            file.write(jtemplate)
+            file.close()
         models = []
         for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
             if e.get('model'): models.append(e.model)
@@ -3076,7 +3076,9 @@ class wizard(object):
         azs_file_name = 'azure_stack_hci_files'
         shutil.make_archive(f'{cwd}{os.sep}{azs_file_name}', 'zip', f'{cwd}{os.sep}{new_dir}')
         azs_file_name = 'azure_stack_hci_files.zip'
+        #=====================================================
         # LOGIN TO IMM TRANSITION API
+        #=====================================================
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
@@ -3085,7 +3087,9 @@ class wizard(object):
         if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
         jdata = json.loads(r.text)
         token = jdata['token']
+        #=====================================================
         # GET EXISTING FILES FROM THE SOFTWARE REPOSITORY
+        #=====================================================
         try: r = s.get(url = f'{url}/api/v1/repo/files', headers={'x-access-token': token}, verify=False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if not r.ok: pcolor.Red(r.text); sys.exit(1)
@@ -3096,7 +3100,9 @@ class wizard(object):
             try: r = s.delete(url = f'{url}/api/v1/repo/files/{azs_file_name}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if not r.ok: pcolor.Red(r.text); sys.exit(1)
+        #=====================================================
         # CREATE ZIP FILE IN THE SOFTWARE REPOSITORY
+        #=====================================================
         file = open(f'{cwd}{os.sep}{azs_file_name}', 'rb')
         files = {'file': file}
         values = {'uuid':str(uuid.uuid4())}
@@ -3107,17 +3113,23 @@ class wizard(object):
             pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if not r.ok: pcolor.Red(r.text); sys.exit(1)
         file.close()
+        #=====================================================
         # LOGOUT OF THE API
+        #=====================================================
         for uri in ['logout']:
             try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if 'repo' in uri: jdata = json.loads(r.text)
             if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
+        #=====================================================
         # REMOVE FOLDER and ZIP FILE
+        #=====================================================
         try: shutil.rmtree(new_dir)
         except OSError as e: print("Error: %s - %s." % (e.filename, e.strerror))
         os.remove(f'{cwd}{os.sep}{azs_file_name}')
+        #=====================================================
         # END SECTION
+        #=====================================================
         validating.end_section(self.type, 'preparation')
         return kwargs
 

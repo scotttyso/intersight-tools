@@ -1869,7 +1869,7 @@ class imm(object):
                         else: kwargs = policy_list(k, v, ptype, kwargs)
         for e in list(kwargs.cp.keys()):
             if len(kwargs.cp[e].names) > 0:
-                names  = list(numpy.unique(numpy.array(names)))
+                names  = list(numpy.unique(numpy.array(kwargs.cp[e].names)))
                 kwargs = api_get(False, names, e, kwargs)
         #=====================================================
         # Create API Body for vNICs
@@ -2371,13 +2371,13 @@ def deploy_domain_profiles(profiles, kwargs):
                     kwargs.qtype  = 'switch'
                     kwargs.uri    = kwargs.ezdata['domain'].intersight_uri_switch
                     kwargs = api(kwargs.qtype).calls(kwargs)
-                    results= kwargs.results
-                    if len(results.ConfigChanges.Changes) > 0 or results.ConfigContext.ConfigState == 'Assigned':
+                    r = kwargs.results
+                    if len(r.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", r.ConfigContext.ConfigState):
                         deploy_profiles = True
                         kwargs.cluster_update[item.name].pending_changes = True; break
     pending_changes = False
-    for e in kwargs.cluster_pending.keys():
-        if kwargs[e].cluster_pending == True: pending_changes = True
+    for e in kwargs.cluster_update.keys():
+        if kwargs.cluster_update[e].pending_changes == True: pending_changes = True
     if deploy_profiles == True: pcolor.LightPurple(f'\n{"-"*108}\n')
     if pending_changes == True: pcolor.Cyan('      * Sleeping for 120 Seconds'); time.sleep(120)
     for item in profiles:

@@ -333,7 +333,7 @@ def main():
                 for i in profile_list:
                     if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
             kwargs = ci.wizard('wizard').server_identities(kwargs)
-        if 'azurestack' == kwargs.args.deployment_type and kwargs.imm_dict.wizard.install_source == 'wds':
+        if 'azurestack' == kwargs.args.deployment_type:
             for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #==============================================
         # Create YAML Files
