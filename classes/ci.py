@@ -2730,7 +2730,6 @@ class wizard(object):
             v.install_success = False
             if indx != None:
                 v.os_install.workflow = install_workflow_results[indx].WorkflowInfo.Moid
-            if v.os_install.moid == False and len(v.os_install.workflow) > 0:
                 install_complete = False
                 while install_complete == False:
                     kwargs.method = 'get_by_moid'
