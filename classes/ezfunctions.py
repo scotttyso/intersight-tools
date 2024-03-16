@@ -6,10 +6,12 @@ import sys
 try:
     from classes import pcolor, validating
     from copy import deepcopy
+    from Crypto.PublicKey import RSA
     from datetime import datetime, timedelta
     from dotmap import DotMap
     from git import cmd, Repo
     from openpyxl import load_workbook
+    from OpenSSL import crypto
     from pathlib import Path
     import ipaddress, itertools, jinja2, json, os, pexpect, pkg_resources, pytz, re, requests
     import shutil, subprocess, stdiomask, string, textwrap, validators, yaml
@@ -324,11 +326,10 @@ def exit_loop_default_yes(loop_count, policy_type):
 def ez_append(pol_vars, kwargs):
     class_path= kwargs.class_path
     p         = class_path.split(',')
-    if kwargs.use_shared_org == True and re.search('^policies|pools', class_path) and kwargs.org != 'default':
+    if kwargs.use_shared_org == True and re.search('^policies|pools', class_path):
         org   = kwargs.shared_org
     else: org = kwargs.org
-    pol_vars   = ez_remove_empty(pol_vars)
-    pol_vars   = DotMap(pol_vars)
+    pol_vars = DotMap(ez_remove_empty(pol_vars))
     # Confirm the Key Exists
     if not kwargs.imm_dict.orgs.get(org): kwargs.imm_dict.orgs[org] = DotMap()
     if len(p) >= 2:
@@ -434,7 +435,6 @@ def intersight_config(kwargs):
         kwargs.sensitive_var = 'intersight_api_key_id'
         kwargs = sensitive_var_value(kwargs)
         kwargs.args.intersight_api_key_id = kwargs.var_value
-
     #==============================================
     # Prompt User for Intersight SecretKey File
     #==============================================
@@ -454,19 +454,24 @@ def intersight_config(kwargs):
             if not secret_path == '':
                 if not os.path.isfile(secret_path): pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key not found.')
                 else:
-                    secret_file = open(secret_path, 'r'); count = 0
-                    if '-----BEGIN RSA PRIVATE KEY-----' in secret_file.read(): count += 1
-                    secret_file.seek(0)
-                    if '-----END RSA PRIVATE KEY-----' in secret_file.read(): count += 1
-                    if count == 2: kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
-                    else: pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key does not seem to contain a Valid Secret Key.')
+                    try:
+                        is_key = RSA.RsaKey.has_private(RSA.import_key(open(secret_path).read()))
+                    except Exception as e:
+                        pcolor.Red(e)
+                        pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
+                        pcolor.Red(f'\n{"-"*108}\n')
+                        sys.exit(1)
+                    if is_key == True: kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
+                    else:
+                        pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
+                        pcolor.Red(f'\n{"-"*108}\n')
+                        sys.exit(1)
             if not valid == True:
                 kwargs.jdata = DotMap(
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
                     description= 'Intersight Secret Key File Location.',
                     default    = f'{kwargs.home}{os.sep}Downloads{os.sep}SecretKey.txt')
                 secret_path = variable_prompt(kwargs)
-
     #==============================================
     # Prompt User for Intersight FQDN
     #==============================================
@@ -487,11 +492,6 @@ def intersight_config(kwargs):
             valid = True
     # Return kwargs
     return kwargs
-
-#======================================================
-# Function - Print with json dumps
-#======================================================
-def jprint(jDict): pcolor.LightGray(json.dumps(jDict, indent=4))
 
 #======================================================
 # Function - Load Previous YAML Files
@@ -594,35 +594,40 @@ def merge_easy_imm_repository(kwargs):
 # Function - Message for Invalid List Selection
 #======================================================
 def message_invalid_selection():
-    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.')
+    pcolor.Red(f'\n{"-"*108}\n')
 
 #======================================================
 # Function - Message for Invalid Selection Y or N
 #======================================================
 def message_invalid_y_or_n(length):
-    if length == 'short': dashRep = '-'*54
-    else: dashRep = '-'*91
-    pcolor.Red(f'\n{dashRep}\n\n  !!!Error!!! Invalid Value.  Please enter `Y` or `N`.\n\n{dashRep}\n')
+    if length == 'short': dash_rep = '-'*54
+    else: dash_rep = '-'*108
+    pcolor.Red(f'\n{dash_rep}\n\n  !!!Error!!! Invalid Value.  Please enter `Y` or `N`.')
+    pcolor.Red(f'\n{dash_rep}\n')
 
 #======================================================
 # Function - Message Invalid FCoE VLAN
 #======================================================
 def message_fcoe_vlan(fcoe_id, vlan_policy):
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The FCoE VLAN `{fcoe_id}` is already assigned to the VLAN Policy')
-    pcolor.Red(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.\n\n{"-"*108}\n')
+    pcolor.Red(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.')
+    pcolor.Red(f'\n{"-"*108}\n')
 
 #======================================================
 # Function(s) - Message Invalid Native VLAN
 #======================================================
 def message_invalid_native_vlan(nativeVlan, VlanList):
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The Native VLAN `{nativeVlan}` was not in the VLAN Policy List.')
-    pcolor.Red(f'  VLAN Policy List is: "{VlanList}"\n\n{"-"*108}\n')
+    pcolor.Red(f'  VLAN Policy List is: "{VlanList}"')
+    pcolor.Red(f'\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Invalid VLAN/VSAN
 #======================================================
 def message_invalid_vxan():
-    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.\n\n{"-"*108}\n')
+    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.')
+    pcolor.Red(f'\n{"-"*108}\n')
 
 #======================================================
 # Function - Message Invalid VLAN
@@ -634,7 +639,9 @@ def message_invalid_vsan_id(vsan_policy, vsan_id, vsan_list):
 #======================================================
 # Function - Message Starting Over
 #======================================================
-def message_starting_over(policy_type):  pcolor.Cyan(f'\n{"-"*54}\n\n  Starting `{policy_type}` Section over.\n\n{"-"*54}\n')
+def message_starting_over(policy_type):
+    pcolor.Cyan(f'\n{"-"*54}\n\n  Starting `{policy_type}` Section over.')
+    pcolor.Cyan(f'\n{"-"*54}\n')
 
 #======================================================
 # Function - Change Policy Description to Sentence
@@ -724,51 +731,44 @@ def print_with_textwrap(description):
 # Function - Validate input for each method
 #======================================================
 def process_kwargs(kwargs):
+    #======================================================
     # Validate User Input
+    #======================================================
     json_data = kwargs['validateData']
     validate_args(kwargs)
-    error_count = 0
-    error_list = []
+    error_count = 0; error_list = []
     optional_args = json_data['optional_args']
     required_args = json_data['required_args']
     for item in required_args:
-        if item not in kwargs['var_dict'].keys():
-            error_count =+ 1
-            error_list += [item]
+        if item not in kwargs['var_dict'].keys(): error_count =+ 1; error_list += [item]
     if error_count > 0:
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following REQUIRED Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-
-    error_count = 0
-    error_list = []
+    #======================================================
+    # Load all optional args values from kwargs
+    #======================================================
+    error_count = 0; error_list = []
     for item in optional_args:
-        if item not in kwargs['var_dict'].keys():
-            error_count =+ 1
-            error_list += [item]
+        if item not in kwargs['var_dict'].keys(): error_count =+ 1; error_list += [item]
     if error_count > 0:
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following Optional Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-
+    #======================================================
     # Load all required args values from kwargs
-    error_count = 0
-    error_list = []
+    #======================================================
+    error_count = 0; error_list = []
     for item in kwargs['var_dict']:
         if item in required_args.keys():
             required_args[item] = kwargs['var_dict'][item]
-            if required_args[item] == None:
-                error_count =+ 1
-                error_list += [item]
-
+            if required_args[item] == None: error_count =+ 1; error_list += [item]
     if error_count > 0:
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following REQUIRED Key(s) Argument(s) are Blank:\nPlease Validate "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-
     for item in kwargs['var_dict']:
-        if item in optional_args.keys():
-            optional_args[item] = kwargs['var_dict'][item]
+        if item in optional_args.keys(): optional_args[item] = kwargs['var_dict'][item]
     # Combine option and required dicts for Jinja template render
     pol_vars = {**required_args, **optional_args}
     return(pol_vars)
@@ -781,7 +781,8 @@ def read_in(excel_workbook, kwargs):
         kwargs['wb'] = load_workbook(excel_workbook)
         pcolor.Cyan("Workbook Loaded.")
     except Exception as e:
-        pcolor.Red(f'\n{"-"*108}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!\n\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!')
+        pcolor.Red(f'\n{"-"*108}\n')
         sys.exit(e)
     return kwargs
 
@@ -793,7 +794,8 @@ def repo_url_test(file, pargs):
     try:
         r = requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
     except requests.RequestException as e:
-        pcolor.Red(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n\n{"-"*108}\n')
+        pcolor.Red(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}')
+        pcolor.Red(f'\n{"-"*108}\n')
         sys.exit(1)
     return repo_url
 
@@ -839,15 +841,30 @@ def sensitive_var_value(kwargs):
                     password2 = stdiomask.getpass(prompt=f"Re-Enter the value for {kwargs.sensitive_var}: ")
                     if password1 == password2: secure_value = password1; valid_pass = True
                     else: pcolor.Red('!!! ERROR !!! Sensitive Values did not match.  Please re-enter...')
-
+            #==============================================
             # Validate Sensitive Passwords
-            cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
+            #==============================================
+            #cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
             sattributes = kwargs.ezdata.sensitive_variables
             if re.search('(certificate|private_key)', sensitive_var):
-                if not re.search(cert_regex, secure_value): valid = True
-                else:
+                try:
+                    if re.search('certficate', sensitive_var):
+                        pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(secure_value).read())
+                        expiration_date = pem.get_notAfter().decode('utf-8')
+                        formatted_date  = datetime.strptime(expiration_date, '%Y%m%d%H%M%SZ')
+                        pcolor.Cyan(f'{sensitive_var} Certficate Expiration is {formatted_date}')
+                        pem = True
+                    else:
+                        pem = RSA.RsaKey.has_private(RSA.import_key(open(secure_value).read()))
+                except Exception as e:
+                    pcolor.Red(e)
+                    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')
                     pcolor.Red(f'\n{"-"*108}\n')
-                    pcolor.Red(f'    !!! ERROR !!!\n  Invalid Value for the {sensitive_var}.  Please re-enter the {sensitive_var}.')
+                    sys.exit(1)
+                if pem == True: valid = True
+                #if re.search(cert_regex, secure_value): valid = True
+                else:
+                    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')
                     pcolor.Red(f'\n{"-"*108}\n')
             elif re.search('intersight_api_key_id', sensitive_var):
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.intersight_api_key_id
@@ -877,21 +894,24 @@ def sensitive_var_value(kwargs):
             elif 'vmedia' in sensitive_var:
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.vmedia_password
                 valid = validate_sensitive(secure_value, kwargs)
-
+        #==============================================
         # Add Policy Variables to imm_dict
+        #==============================================
         if kwargs.get('org'):
             org = kwargs.org
             if not kwargs.imm_dict.orgs.get(org):
                 kwargs.imm_dict.orgs[org] = DotMap()
-                if not kwargs.imm_dict.orgs[org].get('sensitive_vars'):
-                    kwargs.imm_dict.orgs[org].sensitive_vars = []
+                if not kwargs.imm_dict.orgs[org].get('sensitive_vars'): kwargs.imm_dict.orgs[org].sensitive_vars = []
                 kwargs.imm_dict.orgs[org].sensitive_vars.append(sensitive_var)
-
+        #==============================================
         # Add the Variable to the Environment
+        #==============================================
         os.environ[sensitive_var] = '%s' % (secure_value)
         kwargs.var_value = secure_value
     else:
+        #==============================================
         # Add the Variable to the Environment
+        #==============================================
         if not kwargs.get('multi_line_input'): kwargs.var_value = os.environ.get(sensitive_var)
         else: kwargs.var_value = (os.environ.get(sensitive_var)).replace('\n', '\\n')
     return kwargs
@@ -1000,9 +1020,11 @@ def snmp_users(kwargs):
 def stdout_log(ws, row_num):
     if log_level == 0: return
     elif ((log_level == (1) or log_level == (2)) and (ws) and (row_num is None)) and row_num == 'begin':
-        pcolor.Cyan(f'\n{"-"*108}\n\n   Begin Worksheet "{ws.title}" evaluation...\n\n{"-"*108}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n   Begin Worksheet "{ws.title}" evaluation...')
+        pcolor.Cyan(f'\n{"-"*108}\n')
     elif (log_level == (1) or log_level == (2)) and row_num == 'end':
-        pcolor.Cyan(f'\n{"-"*108}\n\n   Completed Worksheet "{ws.title}" evaluation...\n\n{"-"*108}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n   Completed Worksheet "{ws.title}" evaluation...')
+        pcolor.Cyan(f'\n{"-"*108}\n')
     elif log_level == (2) and (ws) and (row_num is not None):
         pcolor.Cyan(f'    - Evaluating Row{" "*(4-len(row_num))}{row_num}...')
     else: return
@@ -1059,10 +1081,10 @@ def subnet_list(kwargs):
 #======================================================
 def terraform_fmt(folder):
     # Run terraform fmt to cleanup the formating for all of the auto.tfvar files and tf files if needed
-    pcolor.Cyan(f'\n-----------------------------------------------------------------------------\n')
+    pcolor.Cyan(f'\n{"-"*108}\n')
     pcolor.Cyan(f'  Running "terraform fmt" in folder "{folder}",')
     pcolor.Cyan(f'  to correct variable formatting!')
-    pcolor.Cyan(f'\n-----------------------------------------------------------------------------\n')
+    pcolor.Cyan(f'\n{"-"*108}\n')
     p = subprocess.Popen(['terraform', 'fmt', folder], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     pcolor.Cyan('Format updated for the following Files:')
     for line in iter(p.stdout.readline, b''):
@@ -1124,18 +1146,17 @@ def ucs_serial(kwargs):
     yaml_file   = kwargs.yaml_file
     valid = False
     while valid == False:
-        pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         pcolor.Cyan(f'  Note: If you do not have the Serial Number(s) at this time you can manually add it to:')
         pcolor.Cyan(f'    - {baseRepo}{os.sep}{org}{os.sep}profiles{os.sep}{yaml_file}.yaml')
         pcolor.Cyan(f'      file later.')
-        pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         serial = input(f'What is the Serial Number of the {device_type}? [press enter to skip]: ')
         if serial == '': serial = 'unknown'; valid = True
         elif re.fullmatch(r'^[A-Z]{3}[2-3][\d]([0][1-9]|[1-4][0-9]|[5][1-3])[\dA-Z]{4}$', serial): valid = True
         else:
-            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
-            pcolor.Red(f'  Error!! Invalid Serial Number.  "{serial}" is not a valid serial.')
-            pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+            pcolor.Red(f'\n{"-"*108}\n  Error!! Invalid Serial Number.  "{serial}" is not a valid serial.')
+            pcolor.Red(f'\n{"-"*108}\n')
     return serial
 
 #======================================================
@@ -1144,11 +1165,11 @@ def ucs_serial(kwargs):
 def ucs_domain_serials(kwargs):
     baseRepo = kwargs['args'].dir
     org = kwargs['org']
-    pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.Cyan(f'\n{"-"*108}\n')
     pcolor.Cyan(f'  Note: If you do not have the Serial Numbers at this time you can manually add them here:\n')
     pcolor.Cyan(f'    * {baseRepo}{os.sep}{org}{os.sep}profiles{os.sep}domain.yaml\n')
     pcolor.Cyan(f'  After the Wizard has completed.')
-    pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
+    pcolor.Cyan(f'\n{"-"*108}\n')
     valid = False
     while valid == False:
         pol_vars = {}
@@ -1161,9 +1182,9 @@ def ucs_domain_serials(kwargs):
             elif re.fullmatch(r'^[A-Z]{3}[2-3][\d]([0][1-9]|[1-4][0-9]|[5][1-3])[\dA-Z]{4}$', pol_vars[f'serial_{x}']):
                 valid = True
             else:
-                pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+                pcolor.Red(f'\n{"-"*108}\n')
                 pcolor.Red('  Error!! Invalid Serial Number.  "{}" is not a valid serial.').format(pol_vars[f'serial_{x}'])
-                pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
+                pcolor.Red(f'\n{"-"*108}\n')
     serials = [pol_vars['serial_A'], pol_vars['serial_B']]
     return serials
 
@@ -1281,6 +1302,9 @@ def validate_vlan_in_policy(vlan_policy_list, vlan_id):
             pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
             return valid
 
+#======================================================
+# Function - Validate IPMI Key value
+#======================================================
 def validate_ipmi_key(varValue):
     valid_count = 0
     varValue = varValue.capitalize()
@@ -1288,12 +1312,12 @@ def validate_ipmi_key(varValue):
     if not validators.length(varValue, min=2, max=40): valid_count += 1
     if not len(varValue) % 2 == 0: valid_count += 1
     if not valid_count == 0:
-        pcolor.Red(f'\n-----------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f'   Error with ipmi_key!!  The encryption key should have an even number of ')
         pcolor.Red(f'   hexadecimal characters and not exceed 40 characters.\n')
         pcolor.Red(f'   Valid Hex Characters are:')
         pcolor.Red(f'    - {string.hexdigits}')
-        pcolor.Red(f'\n-----------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
         return False
     else: return True
 
@@ -1304,16 +1328,16 @@ def validate_sensitive(secure_value, kwargs):
     invalid_count = 0
     if not validators.length(secure_value, min=int(kwargs.jdata.minLength), max=int(kwargs.jdata.maxLength)):
         invalid_count += 1
-        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f'   !!! {kwargs.sensitive_var} is Invalid!!!')
         pcolor.Red(f'   Length Must be between {kwargs.jdata.minLength} and {kwargs.jdata.maxLength} characters.')
-        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
     if not re.search(kwargs.jdata.pattern, secure_value):
         invalid_count += 1
-        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f'   !!! Invalid Characters in {kwargs.sensitive_var}.  The allowed characters are:')
         pcolor.Red(f'   - "{kwargs.jdata.pattern}"')
-        pcolor.Red(f'\n--------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
     if invalid_count == 0: return True
     else: return False
 
@@ -1331,7 +1355,7 @@ def validate_strong_password(secure_value, kwargs):
     if re.search(r'[0-9]', secure_value): valid_count += 1
     if re.search(r'[\!\@\#\$\%\^\&\*\-\_\+\=]', secure_value): valid_count += 1
     if not invalid_count == 0 and valid_count >= 4:
-        pcolor.Red(f'\n---------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f"   Error with {kwargs.sensitive_var}! The password failed one of the following complexity rules:")
         pcolor.Red(f'     - The password must have a minimum of 8 and a maximum of 20 characters.')
         pcolor.Red(f"     - The password must not contain the User's Name.")
@@ -1340,7 +1364,7 @@ def validate_strong_password(secure_value, kwargs):
         pcolor.Red(f'       * English lowercase characters (a through z).')
         pcolor.Red(f'       * Base 10 digits (0 through 9).')
         pcolor.Red(f'       * Non-alphabetic characters (! , @, #, $, %, ^, &, *, -, _, +, =)')
-        pcolor.Red(f'\n---------------------------------------------------------------------------------------\n')
+        pcolor.Red(f'\n{"-"*108}\n')
         return False
     else: return True
 
@@ -1485,11 +1509,11 @@ def variable_prompt(kwargs):
 # Function - Collapse VLAN List
 #======================================================
 def vlan_list_format(vlan_list_expanded):
-    vlan_list  = sorted(vlan_list_expanded)
-    vlanGroups = itertools.groupby(vlan_list, key=lambda item, c=itertools.count():item-next(c))
-    tempvlans  = [list(g) for k, g in vlanGroups]
-    vlanList   = [str(x[0]) if len(x) == 1 else "{}-{}".format(x[0],x[-1]) for x in tempvlans]
-    vlan_list  = ",".join(vlanList)
+    vlan_list = sorted(vlan_list_expanded)
+    vgroups   = itertools.groupby(vlan_list, key=lambda item, c=itertools.count():item-next(c))
+    tempvlans = [list(g) for k, g in vgroups]
+    vlanList  = [str(x[0]) if len(x) == 1 else "{}-{}".format(x[0],x[-1]) for x in tempvlans]
+    vlan_list = ",".join(vlanList)
     return vlan_list
 
 #======================================================
