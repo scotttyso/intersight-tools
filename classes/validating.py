@@ -39,16 +39,16 @@ def completed_item(ptype, kwargs):
     elif iresults.get('VirtualDrives'): name = f"DriveGroup {iresults['Name']}"
     elif iresults.get('VlanId'):        name = f"VLAN {iresults['VlanId']}"
     elif iresults.get('VsanId'):        name = f"VSAN {iresults['VsanId']}"
-    elif 'user_role' in ptype:          name = f"Role for {kwargs.qtype}"
-    elif 'upgrade' in kwargs.qtype:     name = f".  Performing Firmware Upgrade on {kwargs.serial} - {kwargs.server} Server Profile"
+    elif 'user_role' in ptype:          name = f"Role for {ptype}"
+    elif 'upgrade' in ptype:     name = f".  Performing Firmware Upgrade on {kwargs.serial} - {kwargs.server} Server Profile"
     elif iresults.get('UserId'):        name = f"{iresults['UserId']} CCO User Authentication"
-    elif 'eula' in kwargs.qtype:        name = f"Account EULA Acceptance"
+    elif 'eula' in ptype:        name = f"Account EULA Acceptance"
     elif iresults.get('Action'):
         if iresults['Action'] == 'Deploy': name = f"Deploy Profile {pmoid}"
         else: name = iresults['Name']
     elif iresults.get('ScheduledActions'): name = f"Activating Profile {pmoid}"
     elif iresults.get('Targets'):          name = iresults['Targets'][0]['Name']
-    elif 'update_tags' in kwargs.qtype:    name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
+    elif 'update_tags' in ptype:    name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
     elif iresults.get('Identity'):         name = f"Reservation: `{iresults.Identity}`"
     elif iresults.get('Name'):             name = iresults['Name']
     elif iresults.get('EndPointRole'):
@@ -68,9 +68,9 @@ def completed_item(ptype, kwargs):
         else:
             pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org} > {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
-    elif re.search('(eula|upgrade)', kwargs.qtype) and kwargs.qtype == 'firmware':
-        if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
-        else: pcolor.LightPurple(f'      * Completed {method.upper()} for {kwargs.qtype} {name}.')
+    elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
+        if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {ptype} {name}.')
+        else: pcolor.LightPurple(f'      * Completed {method.upper()} for {ptype} {name}.')
     elif 'Reservation' in name: pcolor.Green(f'    - Completed POST for {name} - Moid: {pmoid}')
     elif 'bulk/MoMergers' == kwargs.uri:
         if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
@@ -117,9 +117,9 @@ def error_pool_doesnt_exist(org, pool_type, pool_name, profile):
     pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 
-def error_required_argument_missing(kwargs):
+def error_required_argument_missing(ptype, kwargs):
     pcolor.LightGray(f'\n{"-"*108}\n')
-    pcolor.Yellow(f'   !!! ERROR !!! {kwargs.type}: `{kwargs.name}` missing required argument {kwargs.argument}')
+    pcolor.Yellow(f'   !!! ERROR !!! {ptype}: `{kwargs.name}` missing required argument {kwargs.argument}')
     pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 

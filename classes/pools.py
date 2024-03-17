@@ -14,9 +14,9 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 
-class MyDumper(yaml.Dumper):
+class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
+        return super(yaml_dumper, self).increase_indent(flow, False)
 
 class pools(object):
     def __init__(self, name_prefix, org, type):
@@ -144,7 +144,7 @@ class pools(object):
                             valid = validating.error_subnet_check(**kwargs)
                             ipv4_block = {'from':str(kwargs.pool_from), 'size':pool_size}
                             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                            pcolor.Cyan(textwrap.indent(yaml.dump(ipv4_block, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                            pcolor.Cyan(textwrap.indent(yaml.dump(ipv4_block, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                             pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                             valid_confirm = False
                             while valid_confirm == False:
@@ -246,7 +246,7 @@ class pools(object):
                             valid = validating.error_subnet_check(**kwargs)
                             ipv6_block = {'from':str(kwargs.pool_from), 'size':pool_size}
                             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                            pcolor.Cyan(textwrap.indent(yaml.dump(ipv6_block, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                            pcolor.Cyan(textwrap.indent(yaml.dump(ipv6_block, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                             pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                             valid_confirm = False
                             while valid_confirm == False:
@@ -267,7 +267,7 @@ class pools(object):
                                     valid_confirm = True
                                 else: ezfunctions.message_invalid_y_or_n('short')
                     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -381,7 +381,7 @@ class pools(object):
                         if valid_starting_iqn == True and valid_ending_iqn == True: valid = True
                     polVars.iqn_blocks = [{'from':pool_from, 'size':pool_size, 'suffix':suffix}]
                     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -478,7 +478,7 @@ class pools(object):
                 pool_to = pool_to.upper()
                 polVars.mac_blocks = [{'from':pool_from, 'size':pool_size}]
                 pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -565,7 +565,7 @@ class pools(object):
                     kwargs.jData.varType = 'Server Type'
                     polVars.server_type = ezfunctions.variablesFromAPI(**kwargs)
                     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -663,7 +663,7 @@ class pools(object):
                     pool_to = pool_to.upper()
                     polVars.uuid_blocks = [{'from':pool_from, 'size':pool_size}]
                     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -751,7 +751,7 @@ class pools(object):
                     pool_to = pool_to.upper()
                     polVars.id_blocks = [{'from':pool_from, 'size':pool_size}]
                     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -844,7 +844,7 @@ class pools(object):
                     pool_to = pool_to.upper()
                     polVars.id_blocks = [{'from':pool_from, 'size':pool_size}]
                     pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
-                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    pcolor.Cyan(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     pcolor.Cyan(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:

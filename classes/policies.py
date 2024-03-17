@@ -14,9 +14,9 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 
-class MyDumper(yaml.Dumper):
+class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
+        return super(yaml_dumper, self).increase_indent(flow, False)
 
 class policies(object):
     def __init__(self, name_prefix, org, type):
@@ -105,7 +105,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -177,7 +177,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -445,7 +445,7 @@ class policies(object):
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
                                 print(f'\n{"-"*108}\n')
-                                print(textwrap.indent(yaml.dump(boot_device, Dumper=MyDumper, default_flow_style=False
+                                print(textwrap.indent(yaml.dump(boot_device, Dumper=yaml_dumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
                                 print(f'{"-"*108}\n')
                                 valid_confirm = False
@@ -471,7 +471,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -569,7 +569,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -653,7 +653,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -823,7 +823,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -905,7 +905,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -1181,7 +1181,7 @@ class policies(object):
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
                                 print(f'\n{"-"*108}\n')
-                                print(textwrap.indent(yaml.dump(ldap_group, Dumper=MyDumper, default_flow_style=False
+                                print(textwrap.indent(yaml.dump(ldap_group, Dumper=yaml_dumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
                                 print(f'{"-"*108}\n')
                                 valid_confirm = False
@@ -1240,7 +1240,7 @@ class policies(object):
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
                                 print(f'\n{"-"*108}\n')
-                                print(textwrap.indent(yaml.dump(ldap_server, Dumper=MyDumper, default_flow_style=False
+                                print(textwrap.indent(yaml.dump(ldap_server, Dumper=yaml_dumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
                                 print(f'{"-"*108}\n')
                                 valid_confirm = False
@@ -1267,7 +1267,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -1420,7 +1420,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -1530,7 +1530,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -1627,7 +1627,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -1810,7 +1810,7 @@ class policies(object):
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
                                 print(f'\n{"-"*108}\n')
-                                print(textwrap.indent(yaml.dump(namespace, Dumper=MyDumper, default_flow_style=False
+                                print(textwrap.indent(yaml.dump(namespace, Dumper=yaml_dumper, default_flow_style=False
                                 ), ' '*4, predicate=None))
                                 print(f'{"-"*108}\n')
                                 valid_confirm = False
@@ -1835,7 +1835,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -1924,7 +1924,7 @@ class policies(object):
                 #==============================================
                 # Prompt User for Fibre-Channel Configuration
                 #==============================================
-                kwargs = port_modes_fc(**kwargs)
+                kwargs = port_modes(**kwargs)
                 #==============================================
                 # Prompt User for Appliance Port-Channel(s)
                 #==============================================
@@ -1959,7 +1959,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -2081,7 +2081,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -2225,7 +2225,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -2314,7 +2314,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -2417,7 +2417,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -2584,7 +2584,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -2664,7 +2664,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -2909,7 +2909,7 @@ class policies(object):
                                 # Print Policy and Prompt User to Accept
                                 #==============================================
                                 print(f'\n{"-"*108}\n')
-                                print(textwrap.indent(yaml.dump(vdrive, Dumper=MyDumper, default_flow_style=False
+                                print(textwrap.indent(yaml.dump(vdrive, Dumper=yaml_dumper, default_flow_style=False
                                 ), " "*4, predicate=None))
                                 print(f'{"-"*108}\n')
                                 pol_type = 'Virtual Drive Configuration'
@@ -2935,7 +2935,7 @@ class policies(object):
                             # Print Policy and Prompt User to Accept
                             #==============================================
                             print(f'\n{"-"*108}\n')
-                            print(textwrap.indent(yaml.dump(drive_group, Dumper=MyDumper, default_flow_style=False
+                            print(textwrap.indent(yaml.dump(drive_group, Dumper=yaml_dumper, default_flow_style=False
                             ), " "*4, predicate=None))
                             print(f'{"-"*108}\n')
                             pol_type = 'Drive Group Configuration'
@@ -3019,7 +3019,7 @@ class policies(object):
                             # Print Policy and Prompt User to Accept
                             #==============================================
                             print(f'\n{"-"*108}\n')
-                            print(textwrap.indent(yaml.dump(polVars.single_drive_raid_configuration, Dumper=MyDumper, default_flow_style=False), " "*4, predicate=None))
+                            print(textwrap.indent(yaml.dump(polVars.single_drive_raid_configuration, Dumper=yaml_dumper, default_flow_style=False), " "*4, predicate=None))
                             print(f'{"-"*108}\n')
                             valid_confirm = False
                             while valid_confirm == False:
@@ -3037,7 +3037,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -3114,7 +3114,7 @@ class policies(object):
                     # Print Policy and Prompt User to Accept
                     #==============================================
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                    print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
@@ -3192,7 +3192,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -3314,7 +3314,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -3560,7 +3560,7 @@ class policies(object):
                             # Print Policy and Prompt User to Accept
                             #==============================================
                             print(f'\n{"-"*108}\n')
-                            print(textwrap.indent(yaml.dump(vmedia_map, Dumper=MyDumper, default_flow_style=False
+                            print(textwrap.indent(yaml.dump(vmedia_map, Dumper=yaml_dumper, default_flow_style=False
                             ), ' '*4, predicate=None))
                             print(f'{"-"*108}\n')
                             valid_confirm = False
@@ -3584,7 +3584,7 @@ class policies(object):
                 # Print Policy and Prompt User to Accept
                 #==============================================
                 print(f'\n-------------------------------------------------------------------------------------------\n')
-                print(textwrap.indent(yaml.dump(polVars, Dumper=MyDumper, default_flow_style=False), ' '*4, predicate=None))
+                print(textwrap.indent(yaml.dump(polVars, Dumper=yaml_dumper, default_flow_style=False), ' '*4, predicate=None))
                 print(f'-------------------------------------------------------------------------------------------\n')
                 valid_confirm = False
                 while valid_confirm == False:
@@ -3842,7 +3842,7 @@ def port_list_eth(self, **kwargs):
                                 }
                             elif port_type == 'Server Ports': port_config = {'port_list':original_port_list}
                             print(f'\n-------------------------------------------------------------------------------------------\n')
-                            print(textwrap.indent(yaml.dump({port_type:port_config}, Dumper=MyDumper, default_flow_style=False
+                            print(textwrap.indent(yaml.dump({port_type:port_config}, Dumper=yaml_dumper, default_flow_style=False
                             ), " "*4, predicate=None))
                             print(f'-------------------------------------------------------------------------------------------\n')
                             valid_confirm = False
@@ -3989,7 +3989,7 @@ def port_list_fc(self, **kwargs):
                             'slot_id':1, 'vsan_id':[vsans.get("Fabric_A"), vsans.get("Fabric_B")]
                         }
                     print(f'\n-------------------------------------------------------------------------------------------\n')
-                    print(textwrap.indent(yaml.dump({port_type:port_config}, Dumper=MyDumper, default_flow_style=False
+                    print(textwrap.indent(yaml.dump({port_type:port_config}, Dumper=yaml_dumper, default_flow_style=False
                     ), " "*4, predicate=None))
                     print(f'-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
@@ -4025,41 +4025,37 @@ def port_list_fc(self, **kwargs):
 #==============================================
 # Port Mode Port Policy Function
 #==============================================
-def port_modes_fc(**kwargs):
-    ezData             = kwargs.ezData
+def port_modes(kwargs):
     fc_converted_ports = []
     port_modes         = []
     ports_in_use       = []
-    kwargs.port_modes = []
-    valid = False
-    while valid == False:
-        fc_mode = input('Do you want to convert ports to Fibre-Channel Mode?  Enter "Y" or "N" [Y]: ')
-        if fc_mode == '' or fc_mode == 'Y':
-            if kwargs.device_model == 'UCS-FI-6536':
-                jsonVars   = ezData.ezimm.allOf[1].properties.policies.fabric.PortPolicy_Gen5
-            else: jsonVars = ezData.ezimm.allOf[1].properties.policies.fabric.PortPolicy_Gen4
-            kwargs.jData = deepcopy(jsonVars.unifiedPorts)
-            kwargs.jData.dontsort = True
-            kwargs.jData.varType = 'Unified Port Ranges'
-            fc_ports = ezfunctions.variablesFromAPI(**kwargs)
-            x = fc_ports.split('-')
-            fc_ports = [int(x[0]),int(x[1])]
-            for i in range(int(x[0]), int(x[1]) + 1):
-                ports_in_use.append(i)
-                fc_converted_ports.append(i)
-            if kwargs.device_model == 'UCS-FI-6536':
-                port_modes = {'custom_mode':'BreakoutFibreChannel32G','port_list':fc_ports,}
-            else: port_modes = {'custom_mode':'FibreChannel','port_list':fc_ports,}
-            valid = True
-        elif fc_mode == 'N':
-            fc_ports = []
-            port_modes = []
-            valid = True
-        else: ezfunctions.message_invalid_y_or_n('short')
-    # Return kwargs
+    kwargs.port_modes  = []
+    kwargs.jdata = DotMap(
+        default     = False,
+        description = f'Do you want to convert ports to Fibre-Channel Mode?',
+        title       = 'FC Port Mode',
+        type        = 'boolean')
+    fc_mode = ezfunctions.variable_prompt(kwargs)
+    if fc_mode == True:
+        pcolor.Yellow('Ports with FC Optics installed.')
+        for e in kwargs.fc_ports:
+            pcolor.Yellow(f'  * PortId: {e.port}, optic: {e.optic}')
+        if kwargs.domain.type == 'UCS-FI-6536':
+            kwargs.jdata   = kwargs.ezwizard.fabric.properties.port_mode_gen5
+        else: kwargs.jdata = kwargs.ezwizard.fabric.properties.port_mode_gen4
+        fc_ports = ezfunctions.variable_prompt(**kwargs)
+        x = fc_ports.split('-')
+        fc_ports = [int(x[0]),int(x[1])]
+        for i in range(int(x[0]), int(x[1]) + 1):
+            ports_in_use.append(i)
+            fc_converted_ports.append(i)
+        if kwargs.device_model == 'UCS-FI-6536':
+            port_modes = {'custom_mode':'BreakoutFibreChannel32G','port_list':fc_ports,}
+        else: port_modes = {'custom_mode':'FibreChannel','port_list':fc_ports,}
     kwargs.fc_converted_ports = fc_converted_ports
     kwargs.fc_mode  = fc_mode
     kwargs.fc_ports = fc_ports
     kwargs.port_modes.append(port_modes)
     kwargs.ports_in_use = ports_in_use
+    # Return kwargs
     return kwargs

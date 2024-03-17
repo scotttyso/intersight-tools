@@ -13,10 +13,10 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 
-# Exception Classes
-class MyDumper(yaml.Dumper):
+# YAML Format Class
+class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, indentless)
+        return super(yaml_dumper, self).increase_indent(flow, False)
 
 #=================================================================
 # Function: Prompt User with Existing Pools/Policies/Profiles
@@ -28,7 +28,7 @@ def existing_object(ptype, item, kwargs):
     # Show User Configuration
     #==============================================
     pcolor.Green(f'\n{"-"*108}\n  Found Existing Configuration:\n')
-    pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+    pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
     pcolor.Green(f'\n{"-"*108}\n')
     kwargs.jdata = DotMap(
         default     = False,
@@ -81,9 +81,9 @@ def existing_object(ptype, item, kwargs):
 #=================================================================
 def main_menu_assignment_method(kwargs):
     description = 'Select the Method you will use to assign server profiles:\n'
-    d1 = '* Chassis/Slot:  Assign Server Profiles to Chassis/Slot.\n'
-    d2 = '* Resource Pool: Assign Server Profiles to Resource Pools.\n'
-    d3 = '* Serial:        Assign Server Profiles based on the Server Serial Number.'
+    d1 = ' * Chassis/Slot:  Assign Server Profiles to Chassis/Slot.\n'
+    d2 = ' * Resource Pool: Assign Server Profiles to Resource Pools.\n'
+    d3 = ' * Serial:        Assign Server Profiles based on the Server Serial Number.'
     if kwargs.target_platform == 'FIAttached':
         description = description + d1 + d2 + d3
         enum_list   = ['Chassis/Slot', 'Resource Pool', 'Serial']
@@ -110,7 +110,8 @@ def main_menu_discovery(kwargs):
         title        = 'Discovery Status',
         type         = 'boolean'
     )
-    kwargs.imm_dict.orgs[kwargs.org].wizard.discovery = ezfunctions.variable_prompt(kwargs)
+    kwargs.discovery = ezfunctions.variable_prompt(kwargs)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.discovery = kwargs.discovery
     return kwargs
 
 #=================================================================
@@ -118,9 +119,9 @@ def main_menu_discovery(kwargs):
 #=================================================================
 def main_menu_build_type(kwargs):
     description = 'Choose the Automation Method.\n'\
-    '* Interactive: This Wizard will Prompt the User for all Pool, Policy, and Profile settings.\n'\
-    '* Machine: This Wizard will Discover the Inventory, and configure based on Best Practices, '\
-        'only prompting for information unique to an environment.'
+    ' * Interactive: This Wizard will Prompt the User for all Pool, Policy, and Profile settings.\n'\
+    ' * Machine: This Wizard will Discover the Inventory, and configure based on Best Practices, '\
+        'only prompting for information unique to an environment.\n'
     kwargs.jdata = DotMap(
         enum         = ['Interactive', 'Machine'],
         default      = 'Machine',
@@ -140,8 +141,8 @@ def main_menu_deployment_method(kwargs):
     if re.search('Python|Terraform', deployment_method): kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_method = deployment_method
     else:
         description = 'Choose the Automation Language You want to use to deploy to Intersight.\n'\
-        '* Python: This Wizard will Create the YAML Files and Deploy to Intersight.\n'\
-        '* Terraform: This Wizard will only Create the YAML Files.  Terraform will be used to Manage Deployment and IaC.'
+        ' * Python: This Wizard will Create the YAML Files and Deploy to Intersight.\n'\
+        ' * Terraform: This Wizard will only Create the YAML Files.  Terraform will be used to Manage Deployment and IaC.\n'
         kwargs.jdata = DotMap(
             enum         = ['Python', 'Terraform'],
             default      = 'Python',
@@ -157,12 +158,12 @@ def main_menu_deployment_method(kwargs):
 #=================================================================
 def main_menu_deployment_type(kwargs):
     description = 'Select the Option to Perform:\n'\
-    '* FIAttached: Build Pools/Policies/Profiles for a Domain.\n'\
-    '* Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n'\
-    '* Profile:    Deploy a Profile from an Existing Server Profile Template.\n'\
-    '* Individual: Select Individual Pools, Policies, Profiles to Build.\n'\
-    '* Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n'\
-    '* Exit:       Cancel the Wizard'
+    ' * FIAttached: Build Pools/Policies/Profiles for a Domain.\n'\
+    ' * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n'\
+    ' * Profile:    Deploy a Profile from an Existing Server Profile Template.\n'\
+    ' * Individual: Select Individual Pools, Policies, Profiles to Build.\n'\
+    ' * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n'\
+    ' * Exit:       Cancel the Wizard'
     kwargs.jdata = DotMap(
         enum         = ['FIAttached', 'Standalone', 'Profile', 'Individual', 'Deploy', 'Exit'],
         default      = 'FIAttached',
@@ -328,6 +329,40 @@ def previous_configuration(kwargs):
     return kwargs
 
 #=================================================================
+# Function: Prompt User for Fibre-Channel Port Mode
+#=================================================================
+def port_mode_fc(kwargs):
+    kwargs.fc_converted_ports = []
+    kwargs.port_modes         = []
+    kwargs.ports_in_use       = []
+    kwargs.port_modes         = []
+    kwargs.jdata = DotMap(
+        default     = True,
+        description = f'Do you want to convert ports to Fibre-Channel Mode?',
+        title       = 'FC Port Mode',
+        type        = 'boolean')
+    kwargs.fc_mode = ezfunctions.variable_prompt(kwargs)
+    if kwargs.fc_mode == True:
+        if len(kwargs.fc_ports) > 0:
+            pcolor.Yellow(f'\n{"-"*51}\n\nPorts with FC Optics installed.')
+            for e in kwargs.fc_ports: pcolor.Yellow(f'  * slot_id: {e.slot_id}, port_id: {e.port_id}, transceiver: {e.transceiver}')
+        if kwargs.domain.type == 'UCS-FI-6536':
+            kwargs.jdata   = kwargs.ezwizard.fabric.properties.port_mode_gen5
+        else: kwargs.jdata = kwargs.ezwizard.fabric.properties.port_mode_gen4
+        fc_ports = ezfunctions.variable_prompt(kwargs)
+        x = fc_ports.split('-')
+        kwargs.fc_ports = [int(x[0]),int(x[1])]
+        for i in range(int(x[0]), int(x[1]) + 1):
+            kwargs.ports_in_use.append(i)
+            kwargs.fc_converted_ports.append(i)
+        if kwargs.domain.type == 'UCS-FI-6536':
+            port_modes = {'custom_mode':'BreakoutFibreChannel32G','port_list':kwargs.fc_ports,}
+        else: port_modes = {'custom_mode':'FibreChannel','port_list':kwargs.fc_ports,}
+    kwargs.port_modes.append(port_modes)
+    # Return kwargs
+    return kwargs
+
+#=================================================================
 # Function: Prompt User to Configure
 #=================================================================
 def prompt_user_for_sub_item(item, kwargs):
@@ -345,7 +380,13 @@ def prompt_user_for_sub_item(item, kwargs):
 #=================================================================
 def prompt_user_to_accept(item, idict, kwargs):
     pcolor.Green(f'\n{"-"*108}\n')
-    pcolor.Green(textwrap.indent(yaml.dump(idict.toDict(), Dumper=MyDumper, default_flow_style=False), prefix=" "*3, predicate=None))
+    yfile = open('yaml.txt', 'w')
+    yfile.write(yaml.dump(idict.toDict(), Dumper=yaml_dumper, default_flow_style=False))
+    yfile.close()
+    yfile = open('yaml.txt', 'r')
+    for line in yfile: pcolor.Green(f'{" "*3}{line.rstrip()}')
+    yfile.close()
+    os.remove('yaml.txt')
     pcolor.Green(f'\n{"-"*108}\n')
     kwargs.jdata = DotMap(
         default      = True,
@@ -363,7 +404,7 @@ def promp_user_to_add(item, kwargs):
     ptype = kwargs.ezdata[item].intersight_type
     kwargs.jdata = DotMap(
         default      = False,
-        description  = f'Do You want to configure additional {item}s?',
+        description  = f'Do You want to configure additional {item}?',
         title        = item,
         type         = 'boolean'
     )
@@ -375,13 +416,18 @@ def promp_user_to_add(item, kwargs):
 #=================================================================
 def prompt_user_to_configure(item, ptype, kwargs):
     ptitle = ezfunctions.mod_pol_description((item.replace('_', ' ')).title())
+    if re.search('a|e|i|o|u', ptitle, re.IGNORECASE):
+        descr  = f'Do You want to configure {ptitle} {ptype.title()}s?'
+    else: descr  = f'Do You want to configure {ptitle} {ptype.title()}s?'
     kwargs.jdata = DotMap(
         default      = True,
-        description  = f'Do You want to configure a {ptitle} {ptype.title()}s?',
+        description  = descr,
         title        = f'{ptitle} {ptype.title()}',
         type         = 'boolean'
     )
     answer = ezfunctions.variable_prompt(kwargs)
+    print(answer)
+    exit()
     return answer
 
 #=================================================================
@@ -398,8 +444,8 @@ def prompt_user_item(k, v, kwargs):
 #=================================================================
 def target_platform(kwargs):
     description = 'Select the Server Profile Target Platform.  Options are:\n'\
-    '* FIAttached: Build Pools/Policies/Profiles for a Domain.\n'\
-    '* Standalone: Build Pools/Policies/Profiles for Standalone Servers.\n'
+    ' * FIAttached: Build Pools/Policies/Profiles for a Domain.\n'\
+    ' * Standalone: Build Pools/Policies/Profiles for Standalone Servers.\n'
     kwargs.jdata = DotMap(
         enum         = ['FIAttached', 'Standalone'],
         default      = 'FIAttached',

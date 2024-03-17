@@ -325,20 +325,23 @@ def create_terraform_workspaces(orgs, kwargs):
 #=================================================================
 # Function: Main Menu
 #=================================================================
-def main_menu(kwargs):
+def menu(kwargs):
     pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Configuration Wizard!\n\n{"-"*108}\n')
     kwargs = questions.previous_configuration(kwargs)
     kwargs.main_menu_list = []
     kwargs = questions.main_menu_deployment_type(kwargs)
     def running_thru_orgs(kwargs):
+        kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_type = kwargs.deployment_type
         if kwargs.deployment_type == 'Individual':
             kwargs.imm_dict.orgs[kwargs.org].wizard.build_type = 'Interactive'
         if kwargs.deployment_type == 'Profile':
             kwargs.imm_dict.orgs[kwargs.org].wizard.build_type = 'Machine'
         if not kwargs.imm_dict.orgs[kwargs.org].wizard.build_type:
             kwargs = questions.main_menu_build_type(kwargs)
+        else: kwargs.build_type = kwargs.imm_dict.orgs[kwargs.org].wizard.build_type
         if not kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_method:
             kwargs = questions.main_menu_deployment_method(kwargs)
+        else: kwargs.build_type = kwargs.imm_dict.orgs[kwargs.org].wizard.build_type
         if re.search('Individual|Profile', kwargs.deployment_type):
             if not kwargs.imm_dict.orgs[kwargs.org].wizard.target_platform:
                 kwargs = questions.target_platform(kwargs)
@@ -351,6 +354,7 @@ def main_menu(kwargs):
             if kwargs.imm_dict.orgs[kwargs.org].wizard.build_type == 'Machine':
                 if not kwargs.imm_dict.orgs[kwargs.org].wizard.discovery:
                     kwargs = questions.main_menu_discovery(kwargs)
+                else: kwargs.discovery = kwargs.imm_dict.orgs[kwargs.org].wizard.discovery
         if not 'name_prefix' in list(kwargs.imm_dict.orgs[kwargs.org].wizard.keys()): kwargs = questions.main_menu_name_prefix(kwargs)
         if not 'name_suffix' in list(kwargs.imm_dict.orgs[kwargs.org].wizard.keys()): kwargs = questions.main_menu_name_suffix(kwargs)
         for p in ['pools', 'policies']:
@@ -396,7 +400,6 @@ def main_menu(kwargs):
                         for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.items(): kwargs[k] = v
                     kwargs = running_thru_orgs(kwargs)
             else: kwargs = running_thru_orgs(kwargs)
-
     return kwargs
 
 
@@ -407,13 +410,18 @@ def process_wizard(kwargs):
     #==============================================
     # Process List from Main Menu
     #==============================================
-    for p in kwargs.main_menu_list:
-        profile_list = ['chassis', 'domain', 'server', 'server_template']
-        #==============================================
-        # Intersight Pools/Policies
-        #==============================================
-        if p in kwargs.pool_list or p in kwargs.policy_list or p in profile_list:
-            kwargs = build.build_imm(p).ezimm(kwargs)
+    if kwargs.build_type == 'Interactive':
+        for p in kwargs.main_menu_list:
+            profile_list = ['chassis', 'domain', 'server', 'server_template']
+            #==============================================
+            # Intersight Pools/Policies
+            #==============================================
+            if p in kwargs.pool_list or p in kwargs.policy_list or p in profile_list:
+                kwargs = build.intersight(p).ezimm(kwargs)
+    elif kwargs.build_type == 'Machine':
+        if kwargs.deployment_type == 'FIAttached' and kwargs.discovery == True:
+            kwargs = build.intersight('domain').domain_discovery(kwargs)
+        kwargs = build.intersight('quick_start').quick_start(kwargs)
     return kwargs
 
 #==============================================
@@ -453,8 +461,9 @@ def main():
     # Import Stored Parameters and Add to kwargs
     #================================================
     ezdata = materialize(RefDict(f'{script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
-    kwargs.ez_tags = {'Key':'ezimm','Value':ezdata['info']['version']}
-    kwargs.ezdata  = DotMap(ezdata['components']['schemas'])
+    kwargs.ez_tags  = {'Key':'ezimm','Value':ezdata['info']['version']}
+    kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
+    kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
     #==============================================
     # Get Intersight Configuration
     # - apikey
@@ -511,7 +520,7 @@ def main():
         #==============================================
         # Prompt User for Main Menu
         #==============================================
-        kwargs = main_menu(kwargs)
+        kwargs = menu(kwargs)
         if not re.search('Exit|Deploy', kwargs.deployment_type):
             kwargs = process_wizard(kwargs)
         kwargs.orgs = list(kwargs.imm_dict.orgs.keys())

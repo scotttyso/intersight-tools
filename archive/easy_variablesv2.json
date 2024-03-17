@@ -500,7 +500,9 @@
                                         "description": "The Port Range to convert to Fibre-Channel Mode.",
                                         "enum":[
                                             "33-36",
-                                            "35-36"
+                                            "34-36",
+                                            "35-36",
+                                            "36"
                                         ],
                                         "default": "35-36"
                                     }

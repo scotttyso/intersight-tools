@@ -207,10 +207,8 @@ def create_wizard_yaml(kwargs):
         wr_file = open(os.path.join(dest_dir, dest_file), 'w')
         wr_file.write('---\n')
         wr_file = open(os.path.join(dest_dir, dest_file), 'a')
-        dash_length = '='*(len(title1) + 20)
-        wr_file.write(f'#{dash_length}\n')
-        wr_file.write(f'#   {title1} - Variables\n')
-        wr_file.write(f'#{dash_length}\n')
+        dlength = '='*(len(title1) + 20)
+        wr_file.write(f'#{dlength}\n#   {title1} - Variables\n#{dlength}\n')
         wr_file.write(yaml.dump(dict, Dumper=yaml_dumper, default_flow_style=False))
         wr_file.close()
     dest_dir = os.path.join(kwargs.args.dir, 'wizard')
@@ -219,16 +217,10 @@ def create_wizard_yaml(kwargs):
     item = 'wizard'
     if kwargs.imm_dict.orgs[org].get(item):
         if len(kwargs.imm_dict.orgs[org][item]) > 0:
-            itemDict = deepcopy(kwargs.imm_dict.orgs[org][item].toDict())
-            idict[org][item] = itemDict
-            idict = json.dumps(idict.toDict())
-            idict = json.loads(idict)
-            if type(idict[org][item]) == list: idict[org][item] = list({v['name']:v for v in value}.values())
-            else:
-                newdict = deepcopy(idict)
-                for key, value in newdict[org][item].items():
-                    if type(value) == str: idict[org][item][key] = value
-                    else: idict[org][item][key] = list({v['name']:v for v in value}.values())
+            idict = {}
+            if not idict.get(org): idict[org] = {}
+            if not idict[org].get(item): idict[org][item] = {}
+            idict[org][item] = dict(sorted(deepcopy(kwargs.imm_dict.orgs[org][item].toDict()).items()))
             dest_file = f"{org}_{item}.yaml"
             title1 = str.title(item.replace('_', ' '))
             write_file(dest_dir, dest_file, idict, title1)
@@ -520,9 +512,14 @@ def load_previous_configurations(kwargs):
                         if not data == None:
                             for key, value in data.items():
                                 if not kwargs.imm_dict.orgs.get(key): kwargs.imm_dict.orgs[key] = {}
-                                for k, v in value.items():
-                                    if not kwargs.imm_dict.orgs[key].get(k): kwargs.imm_dict.orgs[key][k] = {}
-                                    kwargs.imm_dict.orgs[key][k].update(deepcopy(v))
+                                if type(value) == dict:
+                                    for k, v in value.items():
+                                        if not kwargs.imm_dict.orgs[key].get(k): kwargs.imm_dict.orgs[key][k] = {}
+                                        kwargs.imm_dict.orgs[key][k].update(deepcopy(v))
+                                elif type(value) == str or type(value) == bool or type(value) == list: kwargs.imm_dict.orgs[key] = value
+                                else:
+                                    print(f'failed to match type {type(value)}')
+                                    sys.exit(1)
     # Return kwargs
     return kwargs
 
@@ -1389,12 +1386,10 @@ def variable_from_list(kwargs):
         pcolor.LightPurple(f'\n{"-"*108}\n')
         if '\n' in description:
             description = description.split('\n')
-            for line in description:
-                if '*' in line: pcolor.LightGray(textwrap.fill(f' {line}',width=104, subsequent_indent='    '))
-                else: pcolor.LightGray(textwrap.fill(f'{line}',104, subsequent_indent=' '))
-        else: pcolor.LightGray(textwrap.fill(f'{description}',104, subsequent_indent=' '))
+            for line in description: pcolor.LightGray(line)
+        else: pcolor.LightGray(description)
         if kwargs.jdata.get('multi_select') == True:
-            pcolor.Yellow('\n     Note: Answer can be:\n       * Single: 1 or 5\n       * Multiple: `1,2,3` or `1-3,5-6` in example')
+            pcolor.Yellow('\n     Note: Answer can be:\n       * Single: 1\n       * Multiple: `1,2,3` or `1-3,5-6`')
         if kwargs.jdata.get('multi_select') == True: pcolor.Yellow(f'    Select Option(s) Below:')
         else: pcolor.Yellow(f'\n    Select an Option Below:')
         for index, value in enumerate(vars):
@@ -1464,7 +1459,7 @@ def variable_prompt(kwargs):
         elif kwargs.jdata.type == 'boolean':
             if default == True: default = 'Y'
             else: default = 'N'
-            answer = input(f'Enter `Y` for `True` or `N` for `False` for {title}. [{default}]:')
+            answer = input(f'Enter `Y` for `True` or `N` for `False` for `{title}`. [{default}]:')
             if answer == '':
                 if default == 'Y': answer = True
                 elif default == 'N': answer = False

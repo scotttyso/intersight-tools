@@ -15,6 +15,7 @@ ordered_set
 phonenumbers
 pycryptodome
 pyexpect
+pyopenssl==22.0.0
 pytz
 pyvmomi
 requests

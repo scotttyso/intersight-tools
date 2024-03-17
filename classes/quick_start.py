@@ -1,4 +1,5 @@
 from classes import lansan
+from classes import isight
 from classes import policies
 from classes import pools
 from copy import deepcopy
@@ -12,9 +13,22 @@ import textwrap
 import validating
 import yaml
 
-class MyDumper(yaml.Dumper):
+class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
-        return super(MyDumper, self).increase_indent(flow, False)
+        return super(yaml_dumper, self).increase_indent(flow, False)
+
+class wizard(object):
+    def __init__(self, type):
+        self.type = type
+
+    #==============================================
+    # BIOS Policy
+    #==============================================
+    def fis(self, **kwargs):
+        kwargs.api_filter = ''
+        kwargs.top1000    = True
+        kwargs.uri        = 'network/ElementSummaries'
+        kwargs = isight.api('fabric_interconnects').calls(kwargs)
 
 class quick_start(object):
     def __init__(self, name_prefix, org, type):
@@ -457,11 +471,11 @@ class quick_start(object):
                     print(f'  Device Model: {device_model}')
                     print(f'  Serials: {serials}')
                     print(f'  Port Policy:')
-                    print(textwrap.indent(yaml.dump(kwargs.port_policy, Dumper=MyDumper, default_flow_style=False
+                    print(textwrap.indent(yaml.dump(kwargs.port_policy, Dumper=yaml_dumper, default_flow_style=False
                     ), " "*4, predicate=None))
                     print(f'  System MTU: {mtu}')
                     print(f'  NTP Variables:')
-                    print(textwrap.indent(yaml.dump(ntp_servers, Dumper=MyDumper, default_flow_style=False
+                    print(textwrap.indent(yaml.dump(ntp_servers, Dumper=yaml_dumper, default_flow_style=False
                     ), " "*3, predicate=None))
                     print(f'    timezone: {timezone}')
                     print(f'  VLAN Pool: {VlanList}')
@@ -1276,21 +1290,21 @@ class quick_start(object):
                     print(f'\n-------------------------------------------------------------------------------------------\n')
                     print(f'  Policy Variables:')
                     if len(kwargs.local_users) > 0:
-                        print(textwrap.indent(yaml.dump(kwargs.local_users, Dumper=MyDumper, default_flow_style=False
+                        print(textwrap.indent(yaml.dump(kwargs.local_users, Dumper=yaml_dumper, default_flow_style=False
                         ), " "*3, predicate=None))
                     print(f'    System Contact   = "{kwargs["system_contact"]}"')
                     print(f'    System Locaction = "{kwargs["system_location"]}"')
                     print(f'    SNMP Trap Destinations:')
                     if len(kwargs.snmp_traps) > 0:
                         print(textwrap.indent(yaml.dump({'snmp_traps':kwargs.snmp_traps
-                        }, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+                        }, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
                     print(f'    SNMP Users:')
                     if len(kwargs.snmp_users) > 0:
                         print(textwrap.indent(yaml.dump({'snmp_users':kwargs.snmp_users
-                        }, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+                        }, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
                     print(f'    Syslog Remote Clients:')
                     print(textwrap.indent(yaml.dump({'remote_logging':kwargs.remote_logging
-                    }, Dumper=MyDumper, default_flow_style=False), " "*3, predicate=None))
+                    }, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
                     print(f'\n-------------------------------------------------------------------------------------------\n')
                     valid_confirm = False
                     while valid_confirm == False:
