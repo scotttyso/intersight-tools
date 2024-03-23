@@ -352,9 +352,7 @@ def promp_user_to_add(item, kwargs):
 #=================================================================
 def prompt_user_to_configure(item, ptype, kwargs):
     ptitle = ezfunctions.mod_pol_description((item.replace('_', ' ')).title())
-    if re.search('a|e|i|o|u', ptitle, re.IGNORECASE):
-        descr  = f'Do You want to configure {ptitle} {ptype.title()}s?'
-    else: descr  = f'Do You want to configure {ptitle} {ptype.title()}s?'
+    descr  = f'Do You want to configure {ptitle} {ptype.title()}s?'
     kwargs.jdata = DotMap(
         default      = True,
         description  = descr,
