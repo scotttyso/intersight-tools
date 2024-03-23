@@ -20,19 +20,21 @@ except ImportError as e:
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
-
+#=================================================================
 # Log levels 0 = None, 1 = Class only, 2 = Line
+#=================================================================
 log_level = 2
-
+#=================================================================
 # Exception Classes
+#=================================================================
 class insufficient_args(Exception): pass
 class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(yaml_dumper, self).increase_indent(flow, False)
 
-#=====================================================
+#=================================================================
 # pexpect - Login Function
-#=====================================================
+#=================================================================
 def child_login(kwargs):
     kwargs.sensitive_var = kwargs.password
     kwargs   = sensitive_var_value(kwargs)
@@ -40,9 +42,9 @@ def child_login(kwargs):
     kwargs.password = password
     log_dir = os.path.join(str(Path.home()), 'Logs')
     if not os.path.isdir(log_dir): os.mkdir(log_dir)
-    #=====================================================
+    #=================================================================
     # Launch Local Shell
-    #=====================================================
+    #=================================================================
     if kwargs.op_system == 'Windows':
         from pexpect import popen_spawn
         child = popen_spawn.PopenSpawn('cmd', encoding='utf-8', timeout=1)
@@ -50,9 +52,9 @@ def child_login(kwargs):
         system_shell = os.environ['SHELL']
         child = pexpect.spawn(system_shell, encoding='utf-8')
     child.logfile_read = sys.stdout
-    #=====================================================
+    #=================================================================
     # Test Connectivity with Ping and then Login
-    #=====================================================
+    #=================================================================
     if kwargs.op_system == 'Windows':
         child.sendline(f'ping -n 2 {kwargs.hostname}')
         child.expect(f'ping -n 2 {kwargs.hostname}')
@@ -84,9 +86,9 @@ def child_login(kwargs):
     # Return values
     return child, kwargs
 
-#======================================================
+#=================================================================
 # Function - Format Policy Description
-#======================================================
+#=================================================================
 def choose_policy(policy_type, kwargs):
     policy_descr = mod_pol_description(policy_type)
     policy_list = []
@@ -114,9 +116,9 @@ def choose_policy(policy_type, kwargs):
             elif int(policyOption) == 100: kwargs['policy'] = 'create_policy'; valid = True; return kwargs
         else: message_invalid_selection()
 
-#======================================================
+#=================================================================
 # Function - Count the Number of Keys
-#======================================================
+#=================================================================
 def count_keys(ws, func):
     count = 0
     for i in ws.rows:
@@ -124,9 +126,9 @@ def count_keys(ws, func):
             if str(i[0].value) == func: count += 1
     return count
 
-#==========================================================
+#=================================================================
 # Function for Processing easyDict and Creating YAML Files
-#==========================================================
+#=================================================================
 def create_yaml(orgs, kwargs):
     ezdata  = kwargs.ezdata.ezimm_class.properties
     classes = kwargs.ezdata.ezimm_class.properties.classes.enum
@@ -163,8 +165,6 @@ def create_yaml(orgs, kwargs):
                             elif not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
                         if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
-                    #idict = json.dumps(idict)
-                    #idict = json.loads(idict)
                     title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
                     if i == 'pool_types': dest_file = 'pools.ezi.yaml'
                     elif i == 'domain_profile': dest_file = 'domain.ezi.yaml'
@@ -195,39 +195,9 @@ def create_yaml(orgs, kwargs):
                     else: title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((i).replace('_', ' '))}")
                     write_file(dest_dir, f"{i}.yaml", idict, title1)
 
-#==========================================================
-# Function for Processing Wizard Data and Creating YAML Files
-#==========================================================
-def create_wizard_yaml(kwargs):
-    org = kwargs.org
-    def write_file(dest_dir, dest_file, dict, title1):
-        if not os.path.exists(os.path.join(dest_dir, dest_file)):
-            create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'
-            os.system(create_file)
-        wr_file = open(os.path.join(dest_dir, dest_file), 'w')
-        wr_file.write('---\n')
-        wr_file = open(os.path.join(dest_dir, dest_file), 'a')
-        dlength = '='*(len(title1) + 20)
-        wr_file.write(f'#{dlength}\n#   {title1} - Variables\n#{dlength}\n')
-        wr_file.write(yaml.dump(dict, Dumper=yaml_dumper, default_flow_style=False))
-        wr_file.close()
-    dest_dir = os.path.join(kwargs.args.dir, 'wizard')
-    if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
-    idict = deepcopy(DotMap())
-    item = 'wizard'
-    if kwargs.imm_dict.orgs[org].get(item):
-        if len(kwargs.imm_dict.orgs[org][item]) > 0:
-            idict = {}
-            if not idict.get(org): idict[org] = {}
-            if not idict[org].get(item): idict[org][item] = {}
-            idict[org][item] = dict(sorted(deepcopy(kwargs.imm_dict.orgs[org][item].toDict()).items()))
-            dest_file = f"{org}_{item}.yaml"
-            title1 = str.title(item.replace('_', ' '))
-            write_file(dest_dir, dest_file, idict, title1)
-                        
-#=====================================================
+#=================================================================
 # Determine if Timezone Uses Daylight Savings
-#=====================================================
+#=================================================================
 def disable_daylight_savings(zonename):
     tz = pytz.timezone(zonename)
     june = pytz.utc.localize(datetime(2023, 6, 2, 12, 1, tzinfo=None))
@@ -241,9 +211,9 @@ def disable_daylight_savings(zonename):
         pcolor.Red(f'unknown Timezone Result for {zonename}')
         sys.exit(1)
 
-#======================================================
+#=================================================================
 # Function - Prompt User with question
-#======================================================
+#=================================================================
 def exit_confirm_loop(kwargs):
     question = 'Y'
     valid_confirm = False
@@ -268,9 +238,9 @@ def exit_confirm_loop(kwargs):
         else: message_invalid_y_or_n('long')
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Ask User to Configure Additional Policy
-#======================================================
+#=================================================================
 def exit_default(policy_type, y_or_n):
     valid_exit = False
     while valid_exit == False:
@@ -281,9 +251,9 @@ def exit_default(policy_type, y_or_n):
         else: message_invalid_y_or_n('short')
     return configure_loop, policy_loop
 
-#======================================================
+#=================================================================
 # Function - Ask User to Configure Additional Policy
-#======================================================
+#=================================================================
 def exit_default_del_tfc(policy_type, y_or_n):
     valid_exit = False
     while valid_exit == False:
@@ -294,9 +264,9 @@ def exit_default_del_tfc(policy_type, y_or_n):
         else: message_invalid_y_or_n('short')
     return configure_loop, policy_loop
 
-#======================================================
+#=================================================================
 # Function - Prompt User with question
-#======================================================
+#=================================================================
 def exit_loop_default_yes(loop_count, policy_type):
     valid_exit = False
     while valid_exit == False:
@@ -312,9 +282,9 @@ def exit_loop_default_yes(loop_count, policy_type):
         else: message_invalid_y_or_n('short')
     return configure_loop, loop_count, policy_loop
 
-#========================================================
+#=================================================================
 # Function to Append the imm_dict Dictionary
-#========================================================
+#=================================================================
 def ez_append(pol_vars, kwargs):
     class_path= kwargs.class_path
     p         = class_path.split(',')
@@ -349,9 +319,9 @@ def ez_append(pol_vars, kwargs):
     kwargs.append_type = 'list'
     return kwargs
 
-#========================================================
+#=================================================================
 # Function to Append the imm_dict Dictionary
-#========================================================
+#=================================================================
 def ez_append_wizard(pol_vars, kwargs):
     class_path = kwargs['class_path']
     p = class_path.split(',')
@@ -374,9 +344,9 @@ def ez_append_wizard(pol_vars, kwargs):
     elif len(p) == 3: kwargs.imm_dict.wizard[p[0]][p[1]][p[2]].append(deepcopy(pol_vars))
     return kwargs
 
-#========================================================
+#=================================================================
 # Function to Remove Empty Arguments
-#========================================================
+#=================================================================
 def ez_remove_empty(pol_vars):
     pop_list = []
     for k,v in pol_vars.items():
@@ -384,9 +354,9 @@ def ez_remove_empty(pol_vars):
     for i in pop_list: pol_vars.pop(i)
     return pol_vars
 
-#======================================================
+#=================================================================
 # Function - find the Keys for each Section
-#======================================================
+#=================================================================
 def find_keys(ws, func_regex):
     func_list = {}
     for i in ws.rows:
@@ -395,9 +365,9 @@ def find_keys(ws, func_regex):
     func_list = DotMap(dict(sorted(func_list.items())))
     return func_list
 
-#======================================================
+#=================================================================
 # Function - Assign the Variables to the Keys
-#======================================================
+#=================================================================
 def find_vars(ws, func, rows, count):
     var_list = []
     var_dict = {}
@@ -418,9 +388,9 @@ def find_vars(ws, func, rows, count):
         vcount += 1
     return var_dict
 
-#========================================================
+#=================================================================
 # Function - Prompt User for the Intersight Configurtion
-#========================================================
+#=================================================================
 def intersight_config(kwargs):
     kwargs.jdata = DotMap()
     if kwargs.args.intersight_api_key_id == None:
@@ -485,9 +455,9 @@ def intersight_config(kwargs):
     # Return kwargs
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Load Previous YAML Files
-#======================================================
+#=================================================================
 def load_previous_configurations(kwargs):
     ezvars    = kwargs.ezdata.ezimm_class.properties
     vclasses  = kwargs.ezdata.ezimm_class.properties.classes.enum
@@ -523,9 +493,9 @@ def load_previous_configurations(kwargs):
     # Return kwargs
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Local User Policy - Users
-#======================================================
+#=================================================================
 def local_users_function(kwargs):
     loop_count = 1
     kwargs.local_users = []
@@ -542,7 +512,7 @@ def local_users_function(kwargs):
             kwargs.jdata.multi_select = False
             attributes[e] = variable_prompt(kwargs)
         if kwargs.enforce_strong_password == True:
-            print_with_textwrap(kwargs.ezdata['local_user.password_properties'].enforce_strong_password.description)
+            pcolor.LightPurple(kwargs.ezdata.local_user.password_properties.enforce_strong_password.description)
         kwargs.sensitive_var = f'local_user_password_{loop_count}'
         kwargs = sensitive_var_value(kwargs)
         attributes.password = loop_count
@@ -565,9 +535,9 @@ def local_users_function(kwargs):
         valid_config = kwargs.configure_additional
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Merge Easy IMM Repository to Dest Folder
-#======================================================
+#=================================================================
 def merge_easy_imm_repository(kwargs):
     # Download the Easy IMM Comprehensive Example Base Repo
     baseRepo= kwargs.args.dir
@@ -587,62 +557,62 @@ def merge_easy_imm_repository(kwargs):
         for fname in copy_files:
             if not os.path.isdir(os.path.join(src_dir, fname)): shutil.copy2(os.path.join(src_dir, fname), dest_dir)
 
-#======================================================
+#=================================================================
 # Function - Message for Invalid List Selection
-#======================================================
+#=================================================================
 def message_invalid_selection():
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! Invalid Selection.  Please Select a valid Option from the List.')
     pcolor.Red(f'\n{"-"*108}\n')
 
-#======================================================
+#=================================================================
 # Function - Message for Invalid Selection Y or N
-#======================================================
+#=================================================================
 def message_invalid_y_or_n(length):
     if length == 'short': dash_rep = '-'*54
     else: dash_rep = '-'*108
     pcolor.Red(f'\n{dash_rep}\n\n  !!!Error!!! Invalid Value.  Please enter `Y` or `N`.')
     pcolor.Red(f'\n{dash_rep}\n')
 
-#======================================================
+#=================================================================
 # Function - Message Invalid FCoE VLAN
-#======================================================
+#=================================================================
 def message_fcoe_vlan(fcoe_id, vlan_policy):
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The FCoE VLAN `{fcoe_id}` is already assigned to the VLAN Policy')
     pcolor.Red(f'  {vlan_policy}.  Please choose a VLAN id that is not already in use.')
     pcolor.Red(f'\n{"-"*108}\n')
 
-#======================================================
+#=================================================================
 # Function(s) - Message Invalid Native VLAN
-#======================================================
+#=================================================================
 def message_invalid_native_vlan(nativeVlan, VlanList):
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The Native VLAN `{nativeVlan}` was not in the VLAN Policy List.')
     pcolor.Red(f'  VLAN Policy List is: "{VlanList}"')
     pcolor.Red(f'\n{"-"*108}\n')
 
-#======================================================
+#=================================================================
 # Function - Message Invalid VLAN/VSAN
-#======================================================
+#=================================================================
 def message_invalid_vxan():
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Invalid Entry.  Please Enter a valid ID in the range of 1-4094.')
     pcolor.Red(f'\n{"-"*108}\n')
 
-#======================================================
+#=================================================================
 # Function - Message Invalid VLAN
-#======================================================
+#=================================================================
 def message_invalid_vsan_id(vsan_policy, vsan_id, vsan_list):
     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  The VSAN `{vsan_id}` is not in the VSAN Policy `{vsan_policy}`.')
     pcolor.Red(f'  Options are: {vsan_list}.\n\n{"-"*108}\n')
 
-#======================================================
+#=================================================================
 # Function - Message Starting Over
-#======================================================
+#=================================================================
 def message_starting_over(policy_type):
     pcolor.Cyan(f'\n{"-"*54}\n\n  Starting `{policy_type}` Section over.')
     pcolor.Cyan(f'\n{"-"*54}\n')
 
-#======================================================
+#=================================================================
 # Function - Change Policy Description to Sentence
-#======================================================
+#=================================================================
 def mod_pol_description(pol_description):
     pdescr = str.title(pol_description.replace('_', ' '))
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
@@ -650,9 +620,9 @@ def mod_pol_description(pol_description):
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
     return pdescr.replace('Vlan', 'VLAN')
 
-#======================================================
+#=================================================================
 # Function - Change Policy Description to Sentence
-#======================================================
+#=================================================================
 def name_prefix_suffix(policy, kwargs):
     name_prefix = ''
     name_suffix = ''
@@ -679,17 +649,17 @@ def name_prefix_suffix(policy, kwargs):
                     name_suffix = kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix['default']
     return name_prefix, name_suffix
 
-#======================================================
+#=================================================================
 # Function - Naming Rule
-#======================================================
+#=================================================================
 def naming_rule(name_prefix, name_suffix, org):
     if not name_prefix == '':  name = f'{name_prefix}_{name_suffix}'
     else: name = f'{org}_{name_suffix}'
     return name
 
-#======================================================
+#=================================================================
 # Function - Naming Rule Fabric Policy
-#======================================================
+#=================================================================
 def naming_rule_fabric(loop_count, name_prefix, org):
     letter = chr(ord('@')+loop_count+1)
     if not name_prefix == '':   name = f'{name_prefix}-{letter.lower()}'
@@ -697,9 +667,9 @@ def naming_rule_fabric(loop_count, name_prefix, org):
     else: name = f'fabric-{letter.lower()}'
     return name
 
-#======================================================
+#=================================================================
 # Function - Get Policies from Dictionary
-#======================================================
+#=================================================================
 def policies_parse(ptype, policy_type, kwargs):
     org  = kwargs.org
     kwargs.policies = []
@@ -710,27 +680,13 @@ def policies_parse(ptype, policy_type, kwargs):
     else: kwargs.policies = {policy_type:{}}
     return kwargs
 
-#======================================================
-# Function - Print with Textwrap
-#======================================================
-def print_with_textwrap(description):
-    pcolor.LightPurple(f'\n{"-"*108}\n')
-    if '\n' in description:
-        new_descr = description.split('\n')
-        for line in new_descr:
-            if '* ' in line: pcolor.LightGray(textwrap.fill(f'{line}',width=104, subsequent_indent='    '))
-            elif '  - ' in line: pcolor.LightGray(textwrap.fill(f'{line}',width=104, subsequent_indent='      '))
-            else: pcolor.LightGray(textwrap.fill(f'{line}',104, subsequent_indent=' '))
-    else: pcolor.LightGray(textwrap.fill(f'{description}',104, subsequent_indent=' '))
-    pcolor.LightPurple(f'\n{"-"*108}\n')
-
-#======================================================
+#=================================================================
 # Function - Validate input for each method
-#======================================================
+#=================================================================
 def process_kwargs(kwargs):
-    #======================================================
+    #=================================================================
     # Validate User Input
-    #======================================================
+    #=================================================================
     json_data = kwargs['validateData']
     validate_args(kwargs)
     error_count = 0; error_list = []
@@ -742,9 +698,9 @@ def process_kwargs(kwargs):
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following REQUIRED Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-    #======================================================
+    #=================================================================
     # Load all optional args values from kwargs
-    #======================================================
+    #=================================================================
     error_count = 0; error_list = []
     for item in optional_args:
         if item not in kwargs['var_dict'].keys(): error_count =+ 1; error_list += [item]
@@ -752,9 +708,9 @@ def process_kwargs(kwargs):
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following Optional Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-    #======================================================
+    #=================================================================
     # Load all required args values from kwargs
-    #======================================================
+    #=================================================================
     error_count = 0; error_list = []
     for item in kwargs['var_dict']:
         if item in required_args.keys():
@@ -770,9 +726,9 @@ def process_kwargs(kwargs):
     pol_vars = {**required_args, **optional_args}
     return(pol_vars)
 
-#======================================================
+#=================================================================
 # Function - Read Excel Workbook Data
-#======================================================
+#=================================================================
 def read_in(excel_workbook, kwargs):
     try:
         kwargs['wb'] = load_workbook(excel_workbook)
@@ -783,9 +739,27 @@ def read_in(excel_workbook, kwargs):
         sys.exit(e)
     return kwargs
 
-#======================================================
+#=================================================================
+# Remove Duplicate Entries in Python Dictionary
+#=================================================================
+def remove_duplicates(orgs, plist, kwargs):
+    idict = {}
+    for org in orgs:
+        idict[org] = {}
+        for d in plist:
+            idict[org][d] = {}
+            for e in list(kwargs.imm_dict.orgs[org][d].keys()):
+                if type(kwargs.imm_dict.orgs[org][d][e]) == list:
+                    idict[org][d][e] = []
+                    for i in kwargs.imm_dict.orgs[org][d][e]:
+                        if not i in idict[org][d][e]: idict[org][d][e].append(i)
+                    kwargs.imm_dict.orgs[org][d][e] = deepcopy(idict[org][d][e])
+            kwargs.imm_dict.orgs[org][d] = DotMap(sorted(kwargs.imm_dict.orgs[org][d].items()))
+    return kwargs
+
+#=================================================================
 # Validate File is in Repo URL
-#======================================================
+#=================================================================
 def repo_url_test(file, pargs):
     repo_url = f'https://{pargs.repository_server}{pargs.repository_path}{file}'
     try:
@@ -796,9 +770,9 @@ def repo_url_test(file, pargs):
         sys.exit(1)
     return repo_url
 
-#======================================================
+#=================================================================
 # Function - Prompt User for Sensitive Values
-#======================================================
+#=================================================================
 def sensitive_var_value(kwargs):
     sensitive_var = kwargs.sensitive_var
     #=======================================================================================================
@@ -913,9 +887,9 @@ def sensitive_var_value(kwargs):
         else: kwargs.var_value = (os.environ.get(sensitive_var)).replace('\n', '\\n')
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Wizard for SNMP Trap Servers
-#======================================================
+#=================================================================
 def snmp_trap_servers(kwargs):
     loop_count = 1
     kwargs.snmp_traps = []
@@ -964,9 +938,9 @@ def snmp_trap_servers(kwargs):
         valid_config = kwargs.configure_additional
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Wizard for SNMP Users
-#======================================================
+#=================================================================
 def snmp_users(kwargs):
     loop_count = 1
     kwargs.snmp_users = []
@@ -1011,9 +985,9 @@ def snmp_users(kwargs):
         valid_users = kwargs.configure_additional
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Define stdout_log output
-#======================================================
+#=================================================================
 def stdout_log(ws, row_num):
     if log_level == 0: return
     elif ((log_level == (1) or log_level == (2)) and (ws) and (row_num is None)) and row_num == 'begin':
@@ -1026,9 +1000,9 @@ def stdout_log(ws, row_num):
         pcolor.Cyan(f'    - Evaluating Row{" "*(4-len(row_num))}{row_num}...')
     else: return
 
-#======================================================
+#=================================================================
 # Function - Wizard for Syslog Servers
-#======================================================
+#=================================================================
 def syslog_servers(kwargs):
     kwargs.remote_logging = []
     loop_count = 0
@@ -1064,18 +1038,18 @@ def syslog_servers(kwargs):
         else: valid_config = True
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Create a List of Subnet Hosts
-#======================================================
+#=================================================================
 def subnet_list(kwargs):
     if kwargs.ip_version == 'v4': prefix = kwargs.subnetMask
     else: prefix = kwargs.prefix
     gateway = kwargs.defaultGateway
     return list(ipaddress.ip_network(f"{gateway}/{prefix}", strict=False).hosts())
 
-#======================================================
+#=================================================================
 # Function - Format Terraform Files
-#======================================================
+#=================================================================
 def terraform_fmt(folder):
     # Run terraform fmt to cleanup the formating for all of the auto.tfvar files and tf files if needed
     pcolor.Cyan(f'\n{"-"*108}\n')
@@ -1089,9 +1063,9 @@ def terraform_fmt(folder):
         line = line.strip()
         pcolor.Cyan(f'- {line}')
 
-#========================================================
+#=================================================================
 # Function to Pull Latest Versions of Providers
-#========================================================
+#=================================================================
 def terraform_provider_config(kwargs):
     url_list = [
         'https://github.com/CiscoDevNet/terraform-provider-intersight/tags/',
@@ -1118,9 +1092,9 @@ def terraform_provider_config(kwargs):
     # Return kwargs
     return kwargs
     
-#======================================================
+#=================================================================
 # Function - Prompt User for Sensitive Variables
-#======================================================
+#=================================================================
 def tfc_sensitive_variables(var_value, kwargs):
     pol_vars = DotMap(Variable = var_value)
     pol_vars.Description = ("".join(var_value.split('_'))).title()
@@ -1133,9 +1107,9 @@ def tfc_sensitive_variables(var_value, kwargs):
     pcolor.Cyan('* Adding "{}" to "{}"').format(pol_vars.description, kwargs.workspaceName)
     return pol_vars
 
-#==========================================================
+#=================================================================
 # Function - Prompt User for Chassis/Server Serial Numbers
-#==========================================================
+#=================================================================
 def ucs_serial(kwargs):
     baseRepo    = kwargs.args.dir
     device_type = kwargs.device_type
@@ -1156,9 +1130,9 @@ def ucs_serial(kwargs):
             pcolor.Red(f'\n{"-"*108}\n')
     return serial
 
-#======================================================
+#=================================================================
 # Function - Prompt User for Domain Serial Numbers
-#======================================================
+#=================================================================
 def ucs_domain_serials(kwargs):
     baseRepo = kwargs['args'].dir
     org = kwargs['org']
@@ -1185,9 +1159,9 @@ def ucs_domain_serials(kwargs):
     serials = [pol_vars['serial_A'], pol_vars['serial_B']]
     return serials
 
-#========================================================
+#=================================================================
 # Function to Validate Worksheet User Input
-#========================================================
+#=================================================================
 def validate_args(json_data, kwargs):
     json_data = kwargs['validateData']
     for i in json_data['required_args']:
@@ -1281,9 +1255,9 @@ def validate_args(json_data, kwargs):
             else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 3."); sys.exit(1)
     return kwargs
 
-#======================================================
+#=================================================================
 # Function - Check VLAN exists in VLAN Policy
-#======================================================
+#=================================================================
 def validate_vlan_in_policy(vlan_policy_list, vlan_id):
     valid = False
     while valid == False:
@@ -1299,9 +1273,9 @@ def validate_vlan_in_policy(vlan_policy_list, vlan_id):
             pcolor.Red(f'\n-------------------------------------------------------------------------------------------\n')
             return valid
 
-#======================================================
+#=================================================================
 # Function - Validate IPMI Key value
-#======================================================
+#=================================================================
 def validate_ipmi_key(varValue):
     valid_count = 0
     varValue = varValue.capitalize()
@@ -1318,9 +1292,9 @@ def validate_ipmi_key(varValue):
         return False
     else: return True
 
-#======================================================
+#=================================================================
 # Function - Validate Sensitive Strings
-#======================================================
+#=================================================================
 def validate_sensitive(secure_value, kwargs):
     invalid_count = 0
     if not validators.length(secure_value, min=int(kwargs.jdata.minLength), max=int(kwargs.jdata.maxLength)):
@@ -1338,9 +1312,9 @@ def validate_sensitive(secure_value, kwargs):
     if invalid_count == 0: return True
     else: return False
 
-#======================================================
+#=================================================================
 # Function - Validate Sensitive Strings
-#======================================================
+#=================================================================
 def validate_strong_password(secure_value, kwargs):
     invalid_count = 0; valid_count = 0
     if re.search(kwargs.username, secure_value, re.IGNORECASE): invalid_count += 1
@@ -1365,9 +1339,9 @@ def validate_strong_password(secure_value, kwargs):
         return False
     else: return True
 
-#======================================================
+#=================================================================
 # Function - Prompt for Answer to Question from List
-#======================================================
+#=================================================================
 def variable_from_list(kwargs):
     #==============================================
     # Set Function Variables
@@ -1397,15 +1371,14 @@ def variable_from_list(kwargs):
             if value == default: default_index = index
             if index < 10: pcolor.Cyan(f'     {index}. {value}')
             else: pcolor.Cyan(f'    {index}. {value}')
-        pcolor.LightPurple(f'\n{"-"*108}\n')
         if kwargs.jdata.get('multi_select') == True:
             if not default == '':
-                var_selection   = input(f'Please Enter the Option Number(s) to select for {title}.  [{default_index}]: ')
-            else: var_selection = input(f'Please Enter the Option Number(s) to select for {title}: ')
+                var_selection   = input(f'\nPlease Enter the Option Number(s) to select for {title}.  [{default_index}]: ')
+            else: var_selection = input(f'\nPlease Enter the Option Number(s) to select for {title}: ')
         else:
             if not default == '':
-                var_selection   = input(f'Please Enter the Option Number to select for {title}.  [{default_index}]: ')
-            else: var_selection = input(f'Please Enter the Option Number to select for {title}: ')
+                var_selection   = input(f'\nPlease Enter the Option Number to select for {title}.  [{default_index}]: ')
+            else: var_selection = input(f'\nPlease Enter the Option Number to select for {title}: ')
         if not default == '' and var_selection == '':
             var_selection = default_index
         if kwargs.jdata.multi_select == False and re.search(r'^[0-9]+$', str(var_selection)):
@@ -1426,9 +1399,9 @@ def variable_from_list(kwargs):
         if valid == False: message_invalid_selection()
     return selection, valid
 
-#======================================================
+#=================================================================
 # Function - Prompt User for Answer to Question
-#======================================================
+#=================================================================
 def variable_prompt(kwargs):
     #==============================================
     # Improper Value Notifications
@@ -1449,7 +1422,7 @@ def variable_prompt(kwargs):
     #==============================================
     # Print `description` if not enum
     #==============================================
-    if not kwargs.jdata.get('enum'):  print_with_textwrap(description)
+    if not kwargs.jdata.get('enum'): pcolor.LightPurple(f'\n{"-"*108}\n'); pcolor.LightGray(f'{description}\n')
     #==============================================
     # Prompt User for Answer
     #==============================================
@@ -1459,7 +1432,7 @@ def variable_prompt(kwargs):
         elif kwargs.jdata.type == 'boolean':
             if default == True: default = 'Y'
             else: default = 'N'
-            answer = input(f'Enter `Y` for `True` or `N` for `False` for `{title}`. [{default}]:')
+            answer = input(f'\nEnter `Y` for `True` or `N` for `False` for `{title}`. [{default}]:')
             if answer == '':
                 if default == 'Y': answer = True
                 elif default == 'N': answer = False
@@ -1500,9 +1473,9 @@ def variable_prompt(kwargs):
     if kwargs.jdata.get('multi_select'): kwargs.jdata.pop('multi_select')
     return answer
 
-#======================================================
+#=================================================================
 # Function - Collapse VLAN List
-#======================================================
+#=================================================================
 def vlan_list_format(vlan_list_expanded):
     vlan_list = sorted(vlan_list_expanded)
     vgroups   = itertools.groupby(vlan_list, key=lambda item, c=itertools.count():item-next(c))
@@ -1511,9 +1484,9 @@ def vlan_list_format(vlan_list_expanded):
     vlan_list = ",".join(vlanList)
     return vlan_list
 
-#======================================================
+#=================================================================
 # Function - Expand VLAN List
-#======================================================
+#=================================================================
 def vlan_list_full(vlan_list):
     full_vlan_list = []
     if re.search(r',', str(vlan_list)):
@@ -1529,9 +1502,9 @@ def vlan_list_full(vlan_list):
     else: full_vlan_list.append(vlan_list)
     return full_vlan_list
 
-#======================================================
+#=================================================================
 # Function - To Request Native VLAN
-#======================================================
+#=================================================================
 def vlan_native_function(vlan_policy_list, vlan_list):
     native_count = 0
     nativeVlan = ''
@@ -1546,9 +1519,9 @@ def vlan_native_function(vlan_policy_list, vlan_list):
             else: nativeValid = True
     return nativeVlan
 
-#======================================================
+#=================================================================
 # Function - Prompt for VLANs and Configure Policy
-#======================================================
+#=================================================================
 def vlan_pool(name):
     valid = False
     while valid == False:
@@ -1577,30 +1550,34 @@ def vlan_pool(name):
             pcolor.Red(f'     1-10,20-30 - Ranges and Lists of VLANs\n\n{"-"*108}\n')
     return VlanList,vlanListExpanded
 
-#========================================================
+#=================================================================
 # Function to Determine which sites to write files to.
-#========================================================
+#=================================================================
 def write_to_repo_folder(pol_vars, kwargs):
     baseRepo   = kwargs.args.dir
     dest_file  = kwargs.dest_file
-
+    #=================================================================
     # Setup jinja2 Environment
+    #=================================================================
     template_path = pkg_resources.resource_filename(f'policies', 'templates/')
     templateLoader = jinja2.FileSystemLoader(searchpath=(template_path + 'provider/'))
     templateEnv = jinja2.Environment(loader=templateLoader)
-
+    #=================================================================
     # Define the Template Source
+    #=================================================================
     template = templateEnv.get_template(kwargs.template_file)
-
+    #=================================================================
     # Make sure the Destination Path and Folder Exist
+    #=================================================================
     if not os.path.isdir(os.path.join(baseRepo)): dest_path = f'{os.path.join(baseRepo)}'; os.makedirs(dest_path)
     dest_dir = os.path.join(baseRepo)
     if not os.path.exists(os.path.join(dest_dir, dest_file)):
         create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
     tf_file = os.path.join(dest_dir, dest_file)
     wr_file = open(tf_file, 'w')
-
+    #=================================================================
     # Render Payload and Write to File
+    #=================================================================
     pol_vars = json.loads(json.dumps(pol_vars))
     pol_vars = {'keys':pol_vars}
     payload = template.render(pol_vars)

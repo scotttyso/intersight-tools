@@ -28,6 +28,98 @@ class api(object):
     def __init__(self, type):
         self.type = type
 
+    #=============================================================================
+    # Function - Build Compute Dictionary
+    #=============================================================================
+    def build_compute_dictionary(self, i, kwargs):
+        kwargs.api_filter = f"Ancestors/any(t:t/Moid eq '{i.Moid}')"
+        kwargs.method     = 'get'
+        kwargs.uri        = 'processor/Units'
+        kwargs            = api('processor').calls(kwargs)
+        cpu               = kwargs.results[0]
+        kwargs.api_filter = f"Ancestors/any(t:t/Moid eq '{i.Moid}')"
+        kwargs.uri        = 'storage/Controllers'
+        kwargs            = api('storage_controllers').calls(kwargs)
+        storage           = kwargs.results
+        kwargs.api_filter = f"Ancestors/any(t:t/Moid eq '{i.Moid}')"
+        kwargs.uri        = 'equipment/Tpms'
+        kwargs            = api('tpm').calls(kwargs)
+        tpmd              = kwargs.results
+        if 'Intel' in cpu.Vendor: cv = 'intel'
+        else: cv = 'amd'
+        storage_controllers = DotMap()
+        for e in storage:
+            if len(e.Model) > 0:
+                mstring = 'Cisco Boot optimized M.2 Raid controller'
+                if e.Model == mstring: storage_controllers['UCS-M2-HWRAID'] = e.ControllerId
+                else: storage_controllers[e.Model] = e.ControllerId
+        kwargs.api_filter = f"Ancestors/any(t:t/Moid eq '{i.Moid}')"
+        kwargs.uri        = 'adapter/Units'
+        kwargs            = api('adapter').calls(kwargs)
+        vic               = kwargs.results
+        vics              = []
+        for e in vic:
+            if re.search('(V5)', e.Model):    vic_generation = 'gen5'
+            elif re.search('INTEL', e.Model): vic_generation = 'INTEL'
+            elif re.search('MLNX', e.Model):  vic_generation = 'MLNX'
+            else: vic_generation = 'gen4'
+            if 'MLOM' in e.PciSlot:
+                vic_slot = 'MLOM'
+                vics.append(DotMap(vic_gen = vic_generation, vic_slot = vic_slot))
+            elif not 'MEZZ' in e.PciSlot and 'SlotID' in e.PciSlot:
+                vic_slot = re.search('SlotID:(\\d)', e.PciSlot).group(1)
+                vics.append(DotMap(vic_gen = vic_generation, vic_slot = vic_slot))
+            elif re.search("\\d", str(e.PciSlot)):
+                vic_slot = int(e.PciSlot)
+                vics.append(DotMap(vic_gen = vic_generation, vic_slot = vic_slot))
+        sg = re.search('-(M[\\d])', i.Model).group(1)
+        if i.SourceObjectType == 'compute.RackUnit': ctype = 'rack'
+        else: ctype = 'blade'
+        if len(vics) > 0:
+            if type(vics[0].vic_slot) == str: vs1= (vics[0].vic_slot).lower()
+            else: vs1= vics[0].vic_slot
+            if len(vics) == 2:
+                if type(vics[1].vic_slot) == str: vs2= (vics[1].vic_slot).lower()
+                else: vs2= vics[1].vic_slot
+        if   kwargs.boot_volume.lower() == 'san': boot_type = 'fcp'
+        else: boot_type = kwargs.boot_volume.lower()
+        if self.type == 'azurestack':
+            if len(tpmd) > 0: tpm = 'tpm'; template = f"{sg}-{cv}-azure-{ctype}-{boot_type}-tpm"
+            else:             tpm = '';    template = f"{sg}-{cv}-azure-{ctype}-{boot_type}"
+        elif len(tpmd) > 0:
+            tpm = 'tpm'
+            if len(vics) > 1:
+                template   = f"{sg}-{cv}-tpm-{ctype}-{boot_type}-vic-{vics[0].vic_gen}-{vs1}-{vs2}"
+            else: template = f"{sg}-{cv}-tpm-{ctype}-{boot_type}-vic-{vics[0].vic_gen}-{vs1}"
+        else:
+            tpm = ''
+            if len(vics) > 1:
+                template   = f"{sg}-{cv}-{ctype}-{boot_type}-vic-{vics[0].vic_gen}-{vs1}-{vs2}"
+            else: template = f"{sg}-{cv}-{ctype}-{boot_type}-vic-{vics[0].vic_gen}-{vs1}"
+        kwargs.servers[i.Serial] = DotMap(
+            boot_volume           = kwargs.boot_volume.lower(),
+            chassis_id            = i.ChassisId,
+            chassis_moid          = i.Parent.Moid,
+            cpu                   = cv,
+            domain                = '',
+            firmware              = i.Firmware,
+            gen                   = sg,
+            management_ip_address = i.MgmtIpAddress,
+            model                 = i.Model,
+            moid                  = i.Moid,
+            object_type           = i.SourceObjectType,
+            serial                = i.Serial,
+            server_id             = i.ServerId,
+            slot                  = i.SlotId,
+            storage_controllers   = storage_controllers,
+            template              = template,
+            tpm                   = tpm,
+            vics                  = vics)
+        if type(kwargs.servers[i.Serial].chassis_id) == int:
+            for e in ['chassis_id', 'chassis_moid', 'domain', 'slot']: kwargs.servers[i.Serial].pop(e)
+        # Return kwargs
+        return kwargs
+
     #=======================================================
     # Perform API Calls to Intersight
     #=======================================================
@@ -140,7 +232,7 @@ class api(object):
             results_keys = list(api_results.keys())
             if 'Results' in results_keys: kwargs.results = api_results.Results
             else: kwargs.results = api_results
-            if not kwargs.skip_dict == True: kwargs.skip_dict = False
+            if not kwargs.build_skip == True: kwargs.build_skip = False
             if 'post' in kwargs.method:
                 if api_results.get('Responses'):
                     api_results['Results'] = deepcopy(api_results['Responses'])
@@ -151,7 +243,7 @@ class api(object):
                     kwargs.pmoid = api_results.Moid
                     if kwargs.api_body.get('Name'): kwargs.pmoids[kwargs.api_body['Name']] = kwargs.pmoid
             elif 'inventory' in kwargs.uri: icount = 0
-            elif not kwargs.get('build_skip'): kwargs.pmoids = api.build_pmoid_dictionary(self, api_results, kwargs)
+            elif kwargs.build_skip == False: kwargs.pmoids = api.build_pmoid_dictionary(self, api_results, kwargs)
             #=======================================================
             # Print Progress Notifications
             #=======================================================
@@ -229,8 +321,8 @@ class api(object):
                 chunked_list = list(); chunk_size = 1000
                 for i in range(0, len(kwargs.names), chunk_size):
                     chunked_list.append(kwargs.names[i:i+chunk_size])
-                results = []
-                moid_dict = {}
+                results     = []
+                moid_dict   = {}
                 parent_moid = kwargs.pmoid
                 for i in chunked_list:
                     kwargs.names = i
@@ -238,13 +330,33 @@ class api(object):
                     if re.search('leases|port.port|reservations|user_role|vhbas|vlans|vsans|vnics', self.type):
                         kwargs.pmoid = parent_moid
                     kwargs = api_calls(kwargs)
-                    results.append(kwargs.results)
+                    results.extend(kwargs.results)
                     moid_dict = dict(moid_dict, **kwargs.pmoids.toDict())
                 kwargs.pmoids = DotMap(moid_dict)
                 kwargs.results = results
             else:
-                kwargs.api_args = build_api_args(kwargs)
+                api_args = build_api_args(kwargs)
+                if '?' in api_args: kwargs.api_args = api_args + '&$count=True'
+                else: kwargs.api_args = api_args + '?$count=True'
                 kwargs = api_calls(kwargs)
+                if kwargs.results.Count <= 1000:
+                    kwargs.api_args = api_args
+                    kwargs = api_calls(kwargs)
+                else:
+                    get_count    = kwargs.results.Count
+                    moid_dict    = {}
+                    offset_count = 0
+                    results      = []
+                    while get_count > 0:
+                        if 'top=1000' in api_args: kwargs.api_args = api_args + f'&$skip={offset_count}'
+                        else: api_args + f'&$top=1000&$skip={offset_count}'
+                        kwargs = api_calls(kwargs)
+                        results.extend(kwargs.results)
+                        moid_dict    = dict(moid_dict, **kwargs.pmoids.toDict())
+                        get_count    = get_count - 1000
+                        offset_count = offset_count + 1000
+                    kwargs.pmoids = DotMap(moid_dict)
+                    kwargs.results = results
         else:
             kwargs.api_args = ''
             kwargs = api_calls(kwargs)
@@ -253,7 +365,6 @@ class api(object):
         #=======================================================
         if kwargs.get('api_filter'): kwargs.pop('api_filter')
         if kwargs.get('build_skip'): kwargs.pop('build_skip')
-        if kwargs.get('skip_dict'): kwargs.pop('skip_dict')
         if kwargs.get('top1000'): kwargs.pop('top1000')
         return kwargs
 
@@ -262,7 +373,7 @@ class api(object):
     #=====================================================
     def build_pmoid_dictionary(self, api_results, kwargs):
         api_dict = DotMap()
-        if not kwargs.skip_dict == True and api_results.get('Results'):
+        if not kwargs.build_skip == True and api_results.get('Results'):
             for i in api_results.Results:
                 if i.get('Body'): i = i.Body
                 if i.get('VlanId'): iname = str(i.VlanId)
@@ -329,6 +440,7 @@ class api(object):
         kwargs.uri       = 'organization/Organizations'
         kwargs           = api(self.type).calls(kwargs)
         kwargs.org_moids = kwargs.pmoids
+        for k, v in kwargs.org_moids.items(): kwargs.org_names[v.moid] = k
         return kwargs
 
     #=======================================================

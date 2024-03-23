@@ -112,25 +112,6 @@ def cli_arguments():
     return kwargs
 
 #=================================================================
-# Remove Duplicate Entries in Python Dictionary
-#=================================================================
-def remove_duplicates(orgs, plist, kwargs):
-    idict = {}
-    for org in orgs:
-        idict[org] = {}
-        for d in plist:
-            idict[org][d] = {}
-            for e in list(kwargs.imm_dict.orgs[org][d].keys()):
-                if type(kwargs.imm_dict.orgs[org][d][e]) == list:
-                    idict[org][d][e] = []
-                    for i in kwargs.imm_dict.orgs[org][d][e]:
-                        if not i in idict[org][d][e]:
-                            idict[org][d][e].append(i)
-                    kwargs.imm_dict.orgs[org][d][e] = deepcopy(idict[org][d][e])
-            kwargs.imm_dict.orgs[org][d] = DotMap(sorted(kwargs.imm_dict.orgs[org][d].items()))
-    return kwargs
-
-#=================================================================
 # The Main Module
 #=================================================================
 def main():
@@ -260,7 +241,7 @@ def main():
         # Create YAML Files
         #==============================================
         orgs = list(kwargs.imm_dict.orgs.keys())
-        kwargs = remove_duplicates(orgs, ['policies', 'profiles'], kwargs)
+        kwargs = ezfunctions.remove_duplicates(orgs, ['policies', 'profiles'], kwargs)
         if len(kwargs.imm_dict.orgs) > 0: ezfunctions.create_yaml(orgs, kwargs)
         #==============================================
         # Deploy Policies
@@ -300,7 +281,7 @@ def main():
         #==============================================
         # Create YAML Files
         #==============================================
-        kwargs = remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates', 'wizard'], kwargs)
+        kwargs = ezfunctions.remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates', 'wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
         #==============================================
         # Pools
@@ -347,7 +328,7 @@ def main():
         # Loop Through the Orgs
         #==============================================
         orgs = list(kwargs.imm_dict.orgs.keys())
-        kwargs = remove_duplicates(orgs, ['wizard'], kwargs)
+        kwargs = ezfunctions.remove_duplicates(orgs, ['wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
         for org in orgs:
             kwargs.org = org

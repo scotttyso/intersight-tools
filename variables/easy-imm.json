@@ -182,7 +182,7 @@
                         "minLength": 7,
                         "maxLength": 11,
                         "optional": true,
-                        "pattern": "^[A-Z]{3}[2-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}|unknown$",
+                        "pattern": "^[A-Z]{3}[1-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}|unknown$",
                         "title": "serial_number"
                     }
                 }
@@ -12264,6 +12264,48 @@
                     }
                 }
             },
+            "organization": {
+                "description": "Organization provides multi-tenancy within an account. Multiple organizations can be present under an account. Resources are associated to organization using resource groups. Organization can have heterogeneous resources. Resources can be shared among multiple organizations. Organizations are associated to user permissions and privileges can be specified to provide access control. User can have access to multiple organizations in same permission and with different privileges on each organization.",
+                "intersight_type": "organization",
+                "intersight_uri": "organization/Organizations",
+                "ObjectType": "organization.Organization",
+                "title": "organization - Intersight Uri: organization/Organizations",
+                "x-allOf-name": "organization.Organization",
+                "allOf": [
+                    {},
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "Organization provides multi-tenancy within an account. Multiple organizations can be present under an account. Resources are associated to organization using resource groups. Organization can have heterogeneous resources. Resources can be shared among multiple organizations. Organizations are associated to user permissions and privileges can be specified to provide access control. User can have access to multiple organizations in same permission and with different privileges on each organization.",
+                        "required": [
+                            "name"
+                        ],
+                        "title": "organization - Intersight Uri: organization/Organizations",
+                        "properties": {
+                            "description": {
+                                "type": "string",
+                                "default": "",
+                                "description": "The informative description about the usage of this organization.",
+                                "intersight_api": "Description",
+                                "minLength": 1,
+                                "maxLength": 1024,
+                                "pattern": "^$|^[a-zA-Z0-9]+[\\x00-\\xFF]*$",
+                                "title": "description"
+                            },
+                            "name": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The name of the organization. There can be multiple organizations under an account.",
+                                "intersight_api": "Name",
+                                "minLength": 1,
+                                "maxLength": 64,
+                                "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "name"
+                            }
+                        }
+                    }
+                ]
+            },
             "persistent_memory": {
                 "description": "The Persistent Memory policy defines the reusable Persistent Memory related configuration that can be applied on many servers. This policy allows the application of Persistent Memory Goals and creation of Persistent Memory Regions and Namespaces. The encryption of the Persistent Memory Modules can be enabled through this policy by providing a passphrase.",
                 "intersight_type": "policy",
@@ -12864,8 +12906,8 @@
                         "intersight_api": "VsanId",
                         "items": {
                             "type": "integer",
-                            "default": 3096,
-                            "description": "Virtual San Identifier associated to the FC Port-Channel.",
+                            "default": 1,
+                            "description": "Default is `1`.  Virtual San Identifier associated to the FC Port-Channel.",
                             "intersight_api": "VsanId",
                             "minLength": 1,
                             "maxLength": 4093,
@@ -13319,8 +13361,8 @@
                         "intersight_api": "VsanId",
                         "items": {
                             "type": "integer",
-                            "default": 3096,
-                            "description": "Default is `3096`.  Virtual San Identifier associated to the FC port.",
+                            "default": 1,
+                            "description": "Default is `1`.  Virtual San Identifier associated to the FC port.",
                             "intersight_api": "VsanId",
                             "minLength": 1,
                             "maxLength": 4093,
@@ -13390,8 +13432,8 @@
                         "intersight_api": "VsanId",
                         "items": {
                             "type": "integer",
-                            "default": 3096,
-                            "description": "Default is `3096`.  Virtual San Identifier associated to the FC port.",
+                            "default": 1,
+                            "description": "Default is `1`.  Virtual San Identifier associated to the FC port.",
                             "intersight_api": "VsanId",
                             "minLength": 1,
                             "maxLength": 4093,
@@ -13749,10 +13791,52 @@
                                     "intersight_api": "serial_number_list",
                                     "minLength": 11,
                                     "maxLength": 11,
-                                    "pattern": "^[A-Z]{3}[2-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$",
+                                    "pattern": "^[A-Z]{3}[1-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$",
                                     "title": "serial_number"
                                 },
                                 "title": "serial_number_list"
+                            }
+                        }
+                    }
+                ]
+            },
+            "resource_group": {
+                "description": "A group of REST resources, such as a group of compute.Blade MOs. A ResourceGroup can contain static members which are specified as a set of object references, or it can contain dynamic members, which are specified through OData query filters. A Resource can be part of multiple resource groups.",
+                "intersight_type": "organization",
+                "intersight_uri": "resource/Groups",
+                "ObjectType": "resource.Group",
+                "title": "resource_group - Intersight Uri: resource/Groups",
+                "x-allOf-name": "resource.Group",
+                "allOf": [
+                    {},
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "A group of REST resources, such as a group of compute.Blade MOs. A ResourceGroup can contain static members which are specified as a set of object references, or it can contain dynamic members, which are specified through OData query filters. A Resource can be part of multiple resource groups.",
+                        "required": [
+                            "name"
+                        ],
+                        "title": "organization - Intersight Uri: organization/Organizations",
+                        "properties": {
+                            "description": {
+                                "type": "string",
+                                "default": "",
+                                "description": "The informative description about the usage of this Resource Group.",
+                                "intersight_api": "Description",
+                                "minLength": 1,
+                                "maxLength": 1024,
+                                "pattern": "^$|^[a-zA-Z0-9]+[\\x00-\\xFF]*$",
+                                "title": "description"
+                            },
+                            "name": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The name of this resource group.",
+                                "intersight_api": "Name",
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,126})?[a-zA-Z0-9]$",
+                                "title": "name"
                             }
                         }
                     }
@@ -14867,7 +14951,7 @@
                         "minLength": 7,
                         "maxLength": 11,
                         "optional": true,
-                        "pattern": "^[A-Z]{3}[2-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$",
+                        "pattern": "^[A-Z]{3}[1-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$",
                         "title": "serial_number"
                     },
                     "slot_id": {
@@ -18663,6 +18747,98 @@
                         "maxLength": 255,
                         "pattern": "^[\\S]+$",
                         "title": "identities"
+                    }
+                }
+            },
+            "server": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Profile Deployement Wizard.",
+                "required": [
+                    "identities"
+                ],
+                "title": "Profile",
+                "properties": {
+                    "boot_volume": {
+                        "type": "string",
+                        "default": "M2",
+                        "description": "Boot Volume.\n  * iSCSI: OS will be installed on an iSCSI LUN.\n  * M2:    OS will be installed on the M2 HWRAID LUN.\n  * MRAID: OS will be installed on a local LUN.\n  * SAN:   OS will be installed on SAN attached LUN.",
+                        "enum": [
+                            "iSCSI",
+                            "M2",
+                            "MRAID",
+                            "SAN"
+                        ],
+                        "title": "Boot Volume"
+                    },
+                    "operating_system_vendor": {
+                        "type": "string",
+                        "default": "VMware",
+                        "description": "Select the Operating System Vendor(s) for this deployment.",
+                        "enum": [
+                            "CentOS",
+                            "Citrix",
+                            "Microsoft",
+                            "Nutanix",
+                            "Oracle",
+                            "Red Hat",
+                            "Rocky Linux",
+                            "SuSE",
+                            "Ubuntu",
+                            "VMware"
+                        ],
+                        "title": "Operating System Vendor"
+                    },
+                    "physical_server": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the server to assign to the profile.",
+                        "enum": [],
+                        "title": "Physical Server"
+                    },
+                    "profile_count": {
+                        "type": "integer",
+                        "default": 3,
+                        "description": "Number of profiles to create.",
+                        "maximum": 16,
+                        "minimum": 1,
+                        "title": "Profile Count"
+                    },
+                    "profile_name": {
+                        "type": "string",
+                        "default": "server",
+                        "description": "Name for server profile",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "Profile Name"
+                    },
+                    "profile_start": {
+                        "type": "string",
+                        "default": "server-01",
+                        "description": "What is the name for the first profile?",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "First Profile"
+                    },
+                    "profile_suffix": {
+                        "type": "integer",
+                        "default": 2,
+                        "description": "How Many Characters make up the suffix for ",
+                        "minimum": 1,
+                        "maximum": 6,
+                        "title": "Profile Suffix"
+                    },
+                    "profile_source": {
+                        "type": "string",
+                        "default": "server_template",
+                        "description": "Profile Source.\n  * server: Profiles will be cloned from a server profile and not attached to a server template.\n  * server_template: Profiles will be attached to a server profile template.",
+                        "enum": [
+                            "server",
+                            "server_template"
+                        ],
+                        "title": "Profile Source"
                     }
                 }
             }

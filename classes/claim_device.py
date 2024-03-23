@@ -24,9 +24,8 @@ def claim_targets(kwargs):
     # Get Intersight Resource Groups
     kwargs.api_filter = f"Name in ('{names}')"
     kwargs.method     = 'get'
-    kwargs.qtype      = 'resource_group'
     kwargs.uri        = 'resource/Groups'
-    kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+    kwargs            = isight.api('resource_group').calls(kwargs)
     resource_groups   = kwargs.pmoids
     # Loop Through Device List
     for i in kwargs.yaml.device_list:
@@ -142,9 +141,8 @@ def claim_targets(kwargs):
                 # Post claim_code and device_id
                 kwargs.api_body = {'SecurityToken': claim_code, 'SerialNumber': device_id}
                 kwargs.method   = 'post'
-                kwargs.qtype    = 'device_claim'
                 kwargs.uri      = 'asset/DeviceClaims'
-                kwargs          = isight.api(kwargs.qtype).calls(kwargs)
+                kwargs          = isight.api('device_claim').calls(kwargs)
                 reg_moid        = kwargs.results.Moid
                 result[device.hostname].reg_moid = reg_moid
                 result[device.hostname].changed  = True
@@ -152,9 +150,8 @@ def claim_targets(kwargs):
             else:
                 kwargs.method     = 'get'
                 kwargs.api_filter = f'contains(Serial,{device_id})'
-                kwargs.qtype      = 'device_registration'
                 kwargs.uri        = 'asset/DeviceRegistrations'
-                kwargs            = isight.api(kwargs.qtype).calls(kwargs)
+                kwargs            = isight.api('device_registration').calls(kwargs)
                 reg_moid          = kwargs.results[0].Moid
                 result[device.hostname].reg_moid = reg_moid
                 result[device.hostname].changed  = False
@@ -183,9 +180,8 @@ def claim_targets(kwargs):
             }] }
             kwargs.method = 'patch'
             kwargs.pmoid  = resource_groups[i.resource_group].moid
-            kwargs.qtype  = 'resource_group'
             kwargs.uri    = 'resource/Groups'
-            kwargs        = isight.api(kwargs.qtype).calls(kwargs)
+            kwargs        = isight.api('resource_group').calls(kwargs)
 
     pcolor.Cyan(f'\n{"-" * 60}\n {"-" * 5}')
     for key, value in result.items():
