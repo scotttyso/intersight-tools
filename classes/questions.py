@@ -118,10 +118,12 @@ def organization(kwargs):
     org_list = sorted(list(kwargs.org_moids.keys()), key=str.casefold)
     if not 'Profile' == kwargs.deployment_type: org_list.append('Create New')
     kwargs.jdata             = kwargs.ezdata.organization.allOf[1].properties.name
-    kwargs.jdata.description = 'Select an Existing Organization or `Create New`, for the organization to apply these changes within.'
     kwargs.jdata.enum        = org_list
     kwargs.jdata.sort        = False
     kwargs.jdata.title       = 'Intersight Organization'
+    if 'Create New' in org_list:
+        kwargs.jdata.description   = 'Select an Existing Organization or `Create New`, for the organization to apply these changes within.'
+    else: kwargs.jdata.description = 'Select an Existing Organization to apply these changes within.'
     kwargs.org               = ezfunctions.variable_prompt(kwargs)
     if kwargs.org == 'Create New':
         for e in ['description', 'name']:
