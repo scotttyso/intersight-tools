@@ -348,19 +348,23 @@ class intersight(object):
                         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
                 answer = questions.prompt_user_to_accept('profiles', kwargs.servers, kwargs)
                 if answer == True: accept_profiles = True
-            #==============================================
+            #=======================================================
             # Create YAML Files
-            #==============================================
+            #=======================================================
             kwargs.server_profiles = kwargs.servers
-            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles = kwargs.server_profiles
+            for k,v in kwargs.server_profiles.items():
+                pvars = v.toDict()
+                # Add Policy Variables to imm_dict
+                kwargs.class_path = f'wizard,server_profiles'
+                kwargs = ezfunctions.ez_append(pvars, kwargs)
             orgs   = list(kwargs.org_moids.keys())
             kwargs = ezfunctions.remove_duplicates(orgs, ['profiles', 'templates', 'wizard'], kwargs)
             ezfunctions.create_yaml(orgs, kwargs)
         if not kwargs.imm_dict.orgs[kwargs.org].profile.server:
-            #==============================================
+            #=======================================================
             # Create Profile Dictionary
-            #==============================================
-            kwargs.server_profiles = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles
+            #=======================================================
+            for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles: kwargs.server_profiles[k] = e
             profile_source = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_source
             profile_type   = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_type
             kwargs.method  = 'get'
@@ -396,19 +400,20 @@ class intersight(object):
                 kwargs.uri    = kwargs.ezdata.server_template.intersight_uri
                 kwargs = isight.api('server_template').calls(kwargs)
                 for e in kwargs.results: kwargs.isight[kwargs.org].profile['server_template'][e.Name] = e.Moid
-        #==============================================
+        #=======================================================
         # Create YAML Files
-        #==============================================
+        #=======================================================
         orgs   = list(kwargs.org_moids.keys())
         kwargs = ezfunctions.remove_duplicates(orgs, ['profiles', 'templates', 'wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
-        #==============================================
-        # Create Profile in Intersight
-        #==============================================
+        #=======================================================
+        # Create Profile in Intersight and Get Identities
+        #=======================================================
         kwargs = isight.imm('server').profiles(kwargs)
-        #==============================================
+        kwargs = isight.imm('wizard').server_identities(kwargs)
+        #=======================================================
         # Return kwargs
-        #==============================================
+        #=======================================================
         return kwargs
 
     #=================================================================

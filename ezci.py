@@ -31,7 +31,7 @@ import os, sys
 script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
-    from classes import ci, ezfunctions, isight, network, pcolor, vsphere
+    from classes import ci, ezfunctions, isight, netapp, network, pcolor, vsphere
     from copy import deepcopy
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
@@ -313,7 +313,11 @@ def main():
                 profile_list = ['chassis', 'server']
                 for i in profile_list:
                     if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
-            kwargs = ci.wizard('wizard').server_identities(kwargs)
+            kwargs = isight.imm('wizard').server_identities(kwargs)
+            #=====================================================
+            # Run Lun Creation Class
+            #=====================================================
+            if kwargs.args.deployment_type == 'flexpod': kwargs = netapp.build('lun').lun(kwargs)
         if 'azurestack' == kwargs.args.deployment_type:
             for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #==============================================

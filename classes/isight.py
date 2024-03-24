@@ -2190,6 +2190,126 @@ class imm(object):
             api_body['WwnnPool']['Moid'] = kwargs.isight[org].pool['wwnn'][pool]
         return api_body
 
+    #=============================================================================
+    # Function - Build Server Identies for Zoning host/igroups
+    #=============================================================================
+    def server_identities(self, kwargs):
+        #=====================================================
+        # Attach Server Profile Moid to Dict
+        #=====================================================
+        kwargs.server_profiles = DotMap(); hw_moids = []; profile_moids = []
+        for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
+            kwargs.server_profiles[e.name] = DotMap(e)
+            kwargs.server_profiles[e.name].hardware_moid = e.moid
+            hw_moids.append(e.moid)
+        kwargs.method = 'get'
+        kwargs.names  = list(kwargs.server_profiles.keys())
+        kwargs.uri    = 'server/Profiles'
+        kwargs        = api('server').calls(kwargs)
+        for k, v in kwargs.pmoids.items(): kwargs.server_profiles[k].moid = v.moid; profile_moids.append(v.moid)
+        #=====================================================
+        # Get vNICs & vHBAs Identifiers
+        #=====================================================
+        names_join        = "', '".join(profile_moids).strip("', '")
+        kwargs.api_filter = f"Profile.Moid in ('{names_join}')"
+        kwargs.method     = 'get'
+        kwargs.uri        = 'vnic/EthIfs'
+        kwargs = api('vnics').calls(kwargs)
+        vnic_results = kwargs.results
+        kwargs.api_filter = f"Profile.Moid in ('{names_join}')"
+        kwargs.uri        = 'vnic/FcIfs'
+        kwargs = api('vhbas').calls(kwargs)
+        vhba_results = kwargs.results
+        #=====================================================
+        # Attach vNIC(s)/Identities to server_profile Dict
+        #=====================================================
+        kwargs.eth_moids = []
+        if len(vnic_results) > 0:
+            for k in list(kwargs.server_profiles.keys()):
+                mac_list = []
+                for e in vnic_results:
+                    if e.Profile.Moid == kwargs.server_profiles[k].moid:
+                        kwargs.eth_moids.append(e.FabricEthNetworkGroupPolicy[0].Moid)
+                        mac_list.append(DotMap(mac = e.MacAddress, name = e.Name,order = e.Order,
+                                               switch = e.Placement.SwitchId,
+                                               vgroup = e.FabricEthNetworkGroupPolicy[0].Moid))
+                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda k: (k['order']))
+        else:
+            names_join        = "', '".join(hw_moids).strip("', '")
+            kwargs.api_filter = f"Ancestors/any(t:t/Moid in '{names_join}')"
+            kwargs.uri        = 'adapter/HostEthInterfaces'
+            kwargs            = api('adapter').calls(kwargs)
+            adapter_results   = kwargs.results
+            for k in list(kwargs.server_profiles.keys()):
+                adapter_list = []
+                for e in adapter_results:
+                    attach = False
+                    for i in e.Ancestors:
+                        if i.Moid == v.hardware_moid: attach = True
+                    if attach == True: adapter_list.append(e)
+                adapter_list = sorted(adapter_list, key=lambda k: (k['MacAddress']))
+                nic_names    = ['mgmt-a', 'mgmt-b']
+                for x in range(0,len(adapter_list)): nic_names.append(f'mgmt-{(chr(ord('@')+x+1)).lower()}')
+                mac_list = []
+                for x in range(0,len(adapter_list)):
+                    mac_list.append(DotMap(mac = adapter_list[x].MacAddress, name = nic_names[x], order  = x))
+                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda k: (k['order']))
+        #=====================================================
+        # Attach vHBA(s)/Identities to server_profile Dict
+        #=====================================================
+        if len(vhba_results) > 0:
+            for k in list(kwargs.server_profiles.keys()):
+                wwpn_list = []
+                for e in vhba_results:
+                    if e.Profile.Moid == kwargs.server_profiles[k].moid:
+                        wwpn_list.append(DotMap(name = e.Name,order = e.Order, wwpn = e.Wwpn,
+                                               switch = e.Placement.SwitchId))
+                kwargs.server_profiles[k].macs = sorted(wwpn_list, key=lambda k: (k['order']))
+        #=====================================================
+        # Get IQN for Host and Add to Profile Map
+        #=====================================================
+        names_join        = "', '".join(profile_moids).strip("', '")
+        kwargs.api_filter = f"AssignedToEntity.Moid eq ('{names_join}')"
+        kwargs.method     = 'get'
+        kwargs.uri        = 'iqnpool/Pools'
+        kwargs            = api('iqn').calls(kwargs)
+        if len(kwargs.results) > 0:
+            for k in list(kwargs.server_profiles.keys()):
+                for e in kwargs.results:
+                    if e.AssignedToEntity.Moid == kwargs.server_profiles[k].moid: kwargs.server_profiles[k].iqn = e.IqnId
+        kwargs.server_profile = DotMap(kwargs.server_profiles)
+        if len(kwargs.eth_moids) > 0:
+            #=====================================================
+            # Query API for Ethernet Network Policies and Add to Server Profile Dictionaries
+            #=====================================================
+            eth_moids         = list(numpy.unique(numpy.array(kwargs.eth_moids)))
+            names_join        = "', '".join(eth_moids).strip("', '")
+            kwargs.api_filter = f"Moid in ('{names_join}')"
+            kwargs.uri        = 'fabric/EthNetworkGroupPolicies'
+            eth_results       = kwargs.results
+            for k in list(kwargs.server_profiles.keys()):
+                mcount = 0
+                for e in kwargs.server_profiles[k].macs:
+                    indx = next((index for (index, d) in enumerate(eth_results) if d['Moid'] == e.vgroup), None)
+                    kwargs.server_profiles[k].macs[mcount].allowed    = eth_results[indx].VlanSettings.AllowedVlans
+                    kwargs.server_profiles[k].macs[mcount].native     = eth_results[indx].VlanSettings.NativeVlan
+                    kwargs.server_profiles[k].macs[mcount].vlan_group = eth_results[indx].Name
+        for k in list(kwargs.server_profiles.keys()):
+            pvars = kwargs.server_profiles[k].toDict()
+            # Add Policy Variables to imm_dict
+            kwargs.class_path = f'wizard,os_configuration'
+            kwargs = ezfunctions.ez_append(pvars, kwargs)
+        #=======================================================
+        # Create YAML Files
+        #=======================================================
+        orgs   = list(kwargs.org_moids.keys())
+        kwargs = ezfunctions.remove_duplicates(orgs, ['wizard'], kwargs)
+        ezfunctions.create_yaml(orgs, kwargs)
+        #=====================================================
+        # Return kwargs and kwargs
+        #=====================================================
+        return kwargs
+
     #=======================================================
     # SNMP Policy Modification
     #=======================================================
