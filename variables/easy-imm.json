@@ -18799,36 +18799,27 @@
                     "profile_count": {
                         "type": "integer",
                         "default": 3,
-                        "description": "Number of profiles to create.",
-                        "maximum": 16,
+                        "description": "Enter the Number of Server Profile(s) to create.",
+                        "maximum": 100,
                         "minimum": 1,
-                        "title": "Profile Count"
+                        "title": "Server Profile Count"
                     },
                     "profile_name": {
                         "type": "string",
-                        "default": "server",
-                        "description": "Name for server profile",
-                        "minLength": 1,
-                        "maxLength": 64,
-                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                        "title": "Profile Name"
-                    },
-                    "profile_start": {
-                        "type": "string",
                         "default": "server-01",
-                        "description": "What is the name for the first profile?",
+                        "description": "What name do you want to assign to the First Server Profile?",
                         "minLength": 1,
                         "maxLength": 64,
                         "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                        "title": "First Profile"
+                        "title": "the First Profile Name"
                     },
                     "profile_suffix": {
                         "type": "integer",
                         "default": 2,
-                        "description": "How Many Characters make up the suffix for ",
+                        "description": "In the name `Example`, how many characters make up the name suffix, for additional server profile names?",
                         "minimum": 1,
                         "maximum": 6,
-                        "title": "Profile Suffix"
+                        "title": "Server Profile Suffix Character Count"
                     },
                     "profile_source": {
                         "type": "string",

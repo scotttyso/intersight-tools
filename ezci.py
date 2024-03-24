@@ -313,7 +313,7 @@ def main():
                 profile_list = ['chassis', 'server']
                 for i in profile_list:
                     if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
-            kwargs = isight.imm('wizard').server_identities(kwargs)
+            kwargs = isight.api('wizard').build_server_identities(kwargs)
             #=====================================================
             # Run Lun Creation Class
             #=====================================================

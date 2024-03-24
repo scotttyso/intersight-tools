@@ -4,11 +4,10 @@
 def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
-    from classes import ezfunctions, isight, pcolor, policies, validating, questions
+    from classes import ezfunctions, isight, pcolor, questions
     from copy import deepcopy
     from dotmap import DotMap
-    from stringcase import snakecase
-    import json, numpy, os, re, requests, time, urllib3
+    import json, inflect, re, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -58,7 +57,6 @@ class intersight(object):
         #=======================================================
         kwargs.api_filter = "PlatformType in ('UCSFIISM')"
         kwargs.method     = 'get'
-        kwargs.top1000    = True
         kwargs.uri        = 'asset/DeviceRegistrations'
         kwargs = isight.api('device_registrations').calls(kwargs)
         domains = kwargs.results
@@ -235,7 +233,7 @@ class intersight(object):
     #=================================================================
     def profiles(self, kwargs):
         if not kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
-            if kwargs.imm_dict.orgs[kwargs.org].profile.server: kwargs.imm_dict.orgs[kwargs.org].pop('profile')
+            #if kwargs.imm_dict.orgs[kwargs.org].profile.server: kwargs.imm_dict.orgs[kwargs.org].pop('profile')
             accept_profiles = False
             while accept_profiles == False:
                 #=======================================================
@@ -245,11 +243,11 @@ class intersight(object):
                 if self.type == 'FIAttached': kwargs.api_filter = api_filter + f"'Intersight'"
                 else: kwargs.api_filter = api_filter + f"'IntersightStandalone'"
                 kwargs.method     = 'get'
-                kwargs.top1000    = True
                 kwargs.uri        = 'compute/PhysicalSummaries'
                 kwargs = isight.api('physical_servers').calls(kwargs)
                 physical_servers = kwargs.pmoids
                 physical_results = kwargs.results
+                physical_compute = []
                 #=======================================================
                 # Prompt user for Boot Mode and Profile Source
                 #=======================================================
@@ -263,13 +261,11 @@ class intersight(object):
                 #=======================================================
                 kwargs.api_filter = f"TargetPlatform eq '{self.type}' and Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}'"
                 kwargs.method     = 'get'
-                kwargs.top1000    = True
                 kwargs.uri        = kwargs.ezdata[profile_type].intersight_uri
                 kwargs = isight.api('server').calls(kwargs)
                 source_results    = kwargs.results
                 kwargs.api_filter = f"TargetPlatform eq '{self.type}' and Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}'"
                 kwargs.method     = 'get'
-                kwargs.top1000    = True
                 kwargs.uri        = kwargs.ezdata['server'].intersight_uri
                 kwargs = isight.api('server').calls(kwargs)
                 profile_results   = kwargs.results
@@ -286,17 +282,10 @@ class intersight(object):
                 profile_source = ezfunctions.variable_prompt(kwargs)
                 kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_source = profile_source
                 #=======================================================
-                # Prompt user for Profile Count,
+                # Prompt user for Profile Count
                 #=======================================================
                 kwargs.jdata = kwargs.ezwizard.server.properties.profile_count
                 pcount = int(ezfunctions.variable_prompt(kwargs))
-                kwargs.jdata = kwargs.ezwizard.server.properties.profile_start
-                profile_start = ezfunctions.variable_prompt(kwargs)
-                if pcount > 1:
-                    kwargs.jdata = kwargs.ezwizard.server.properties.profile_suffix
-                    kwargs.jdata.description = f'{kwargs.jdata.description} {profile_start}?'
-                    suffix = ezfunctions.variable_prompt(kwargs)
-                else: suffix = 2
                 #=======================================================
                 # Remove Servers already assigned to profiles
                 #=======================================================
@@ -312,8 +301,7 @@ class intersight(object):
                 # Prompt user for Server Profile Data
                 #=======================================================
                 assignment_map = physical_servers.toDict()
-                pprefix        = profile_start[:-(suffix)]
-                pstart         = int(profile_start[-(suffix):])
+                cvt = inflect.engine()
                 for x in range(0,pcount):
                     server_list = []
                     assignment_map = DotMap({k: v for k, v in sorted(assignment_map.items(), key=lambda item: (item[1]['name']))})
@@ -321,9 +309,18 @@ class intersight(object):
                         server_list.append(f'Serial: {k}, Name: {v.name}, ObjectType: {v.object_type}')
                     server_list = sorted(server_list)
                     kwargs.jdata = deepcopy(kwargs.ezwizard.server.properties.profile_name)
-                    kwargs.jdata.description = f'{kwargs.jdata.description} {x+1}?'
-                    if pcount == 1: kwargs.jdata.default = profile_start
+                    if x == 0:
+                        name = ezfunctions.variable_prompt(kwargs)
+                        if pcount > 1:
+                            kwargs.jdata = kwargs.ezwizard.server.properties.profile_suffix
+                            kwargs.jdata.description = kwargs.jdata.description.replace('Example', name)
+                            suffix = ezfunctions.variable_prompt(kwargs)
+                        else: suffix = 2
+                        pprefix = name[:-(suffix)]
+                        pstart  = int(name[-(suffix):])
                     else:
+                        kwargs.jdata.description = kwargs.jdata.description.replace('First', (cvt.number_to_words(cvt.ordinal(x+1))).capitalize())
+                        kwargs.jdata.title = kwargs.jdata.title.replace('First', (cvt.number_to_words(cvt.ordinal(x+1))).capitalize())
                         kwargs.jdata.default = f"{pprefix}{str(pstart+x).zfill(suffix)}"
                         name = ezfunctions.variable_prompt(kwargs)
                     if len(server_list) > 0:
@@ -333,38 +330,42 @@ class intersight(object):
                         pserver = ezfunctions.variable_prompt(kwargs)
                         serial  = re.search(r'Serial: ([A-Z0-9]+), Name', pserver).group(1)
                         indx = next((index for (index, d) in enumerate(physical_results) if d['Serial'] == serial), None)
-                        pcolor.Cyan('')
-                        pcolor.Cyan(f'   - Pulling Server Inventory for the Server: {serial}')
-                        kwargs = isight.api(self.type).build_compute_dictionary(physical_results[indx], kwargs)
-                        pcolor.Cyan(f'     Completed Server Inventory for Server: {serial}')
-                        pcolor.Cyan('')
-                        kwargs.servers[serial].name     = name
-                        kwargs.servers[serial].os_type  = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems[0]
-                        kwargs.servers[serial].template = profile_source
-                        kwargs.servers[serial].template_type = profile_type
+                        kwargs.temp_servers[serial].name          = name
+                        kwargs.temp_servers[serial].os_type       = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems[0]
+                        kwargs.temp_servers[serial].template      = profile_source
+                        kwargs.temp_servers[serial].template_type = profile_type
+                        physical_compute.append(physical_results[indx])
                         assignment_map.pop(serial)
                     else:
                         pcolor.Red(f'\n{"-"*108}\n\n  !!!ERROR!!! Did Not Find Any servers to attach to profile `{name}`')
                         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
-                answer = questions.prompt_user_to_accept('profiles', kwargs.servers, kwargs)
+                answer = questions.prompt_user_to_accept('profiles', kwargs.temp_servers, kwargs)
                 if answer == True: accept_profiles = True
             #=======================================================
-            # Create YAML Files
+            # Build Server Profile Dictionaries
             #=======================================================
-            kwargs.server_profiles = kwargs.servers
+            kwargs = isight.api(self.type).build_compute_dictionary(physical_compute, kwargs)
+            for k in list(kwargs.servers.keys()):
+                kwargs.server_profiles[k] = DotMap(sorted(dict(kwargs.servers[k].toDict(), **kwargs.temp_servers[k].toDict()).items()))
             for k,v in kwargs.server_profiles.items():
                 pvars = v.toDict()
                 # Add Policy Variables to imm_dict
                 kwargs.class_path = f'wizard,server_profiles'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
+            #=======================================================
+            # Create YAML Files
+            #=======================================================
             orgs   = list(kwargs.org_moids.keys())
             kwargs = ezfunctions.remove_duplicates(orgs, ['profiles', 'templates', 'wizard'], kwargs)
             ezfunctions.create_yaml(orgs, kwargs)
+        #=================================================================
+        # Create Server Profile(s) from Inputs
+        #=================================================================
         if not kwargs.imm_dict.orgs[kwargs.org].profile.server:
             #=======================================================
             # Create Profile Dictionary
             #=======================================================
-            for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles: kwargs.server_profiles[k] = e
+            for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles: kwargs.server_profiles[e.serial] = e
             profile_source = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_source
             profile_type   = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_type
             kwargs.method  = 'get'
@@ -410,7 +411,7 @@ class intersight(object):
         # Create Profile in Intersight and Get Identities
         #=======================================================
         kwargs = isight.imm('server').profiles(kwargs)
-        kwargs = isight.imm('wizard').server_identities(kwargs)
+        kwargs = isight.api('wizard').build_server_identities(kwargs)
         #=======================================================
         # Return kwargs
         #=======================================================

@@ -4,6 +4,7 @@ collection
 dotmap
 GitPython
 git_status_checker
+inflect
 intersight_auth
 ipaddress
 jinja2
