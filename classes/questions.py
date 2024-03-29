@@ -5,6 +5,7 @@ def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
     from classes import ezfunctions, isight, pcolor
+    from copy import deepcopy
     from dotmap import DotMap
     import json, os, re, textwrap, yaml
 except ImportError as e:
@@ -117,10 +118,10 @@ def organization(kwargs):
     kwargs = isight.api('organization').all_organizations(kwargs)
     org_list = sorted(list(kwargs.org_moids.keys()), key=str.casefold)
     if not 'Profile' == kwargs.deployment_type: org_list.append('Create New')
-    kwargs.jdata             = kwargs.ezdata.organization.allOf[1].properties.name
-    kwargs.jdata.enum        = org_list
-    kwargs.jdata.sort        = False
-    kwargs.jdata.title       = 'Intersight Organization'
+    kwargs.jdata       = kwargs.ezdata.organization.allOf[1].properties.name
+    kwargs.jdata.enum  = org_list
+    kwargs.jdata.sort  = False
+    kwargs.jdata.title = 'Intersight Organization'
     if 'Create New' in org_list:
         kwargs.jdata.description   = 'Select an Existing Organization or `Create New`, for the organization to apply these changes within.'
     else: kwargs.jdata.description = 'Select an Existing Organization to apply these changes within.'
@@ -376,22 +377,10 @@ def prompt_user_item(k, v, kwargs):
 # Function: Main Menu, Prompt User for Deployment Type
 #=================================================================
 def setup_assignment_method(kwargs):
-    description = 'Select the Method you will use to assign server profiles:\n'
-    d1 = ' * Chassis/Slot:  Assign Server Profiles to Chassis/Slot.\n'
-    d2 = ' * Resource Pool: Assign Server Profiles to Resource Pools.\n'
-    d3 = ' * Serial:        Assign Server Profiles based on the Server Serial Number.'
-    if kwargs.target_platform == 'FIAttached':
-        description = description + d1 + d2 + d3
-        enum_list   = ['Chassis/Slot', 'Resource Pool', 'Serial']
-    else:
-        description = description + d2 + d3
-        enum_list   = ['Resource Pool', 'Serial']
-    kwargs.jdata = DotMap(
-        enum         = enum_list,
-        default      = 'Serial',
-        description  = description,
-        title        = 'Deployment Type',
-        type         = 'string')
+    kwargs.jdata = kwargs.ezwizard.setup.properties.assignment_method
+    if kwargs.target_platform == 'Standalone':
+        kwargs.jdata.enum.pop('Chassis/Slot')
+        kwargs.jdata.description.replace(' * Chassis/Slot:  Assign Server Profiles to Chassis/Slot.\n', '')
     kwargs.imm_dict.orgs[kwargs.org].wizard.setup.assignment_method = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
@@ -399,16 +388,7 @@ def setup_assignment_method(kwargs):
 # Function: Prompt User for Build Method
 #=================================================================
 def setup_build_type(kwargs):
-    description = 'Choose the Automation Method.\n'\
-    ' * Interactive: This Wizard will Prompt the User for all Pool, Policy, and Profile settings.\n'\
-    ' * Machine: This Wizard will Discover the Inventory, and configure based on Best Practices, '\
-        'only prompting for information unique to an environment.\n'
-    kwargs.jdata = DotMap(
-        enum         = ['Interactive', 'Machine'],
-        default      = 'Machine',
-        description  = description,
-        title        = 'Automation Type',
-        type         = 'string')
+    kwargs.jdata      = kwargs.ezwizard.setup.properties.build_type
     kwargs.build_type = ezfunctions.variable_prompt(kwargs)
     kwargs.imm_dict.orgs[kwargs.org].wizard.setup.build_type = kwargs.build_type
     return kwargs
@@ -417,20 +397,10 @@ def setup_build_type(kwargs):
 # Function: Prompt User for Deployment Type: Python/Terraform
 #=================================================================
 def setup_deployment_method(kwargs):
-    deployment_method = kwargs.args.deployment_method
-    if deployment_method == None: deployment_method = ''
-    if re.search('Python|Terraform', deployment_method): kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_method = deployment_method
-    else:
-        description = 'Choose the Automation Language You want to use to deploy to Intersight.\n'\
-        ' * Python: This Wizard will Create the YAML Files and Deploy to Intersight.\n'\
-        ' * Terraform: This Wizard will only Create the YAML Files.  Terraform will be used to Manage Deployment and IaC.\n'
-        kwargs.jdata = DotMap(
-            enum         = ['Python', 'Terraform'],
-            default      = 'Python',
-            description  = description,
-            title        = 'Automation Type',
-            type         = 'string')
-    kwargs.deployment_method = ezfunctions.variable_prompt(kwargs)
+    if not re.search('Python|Terraform', kwargs.args.deployment_method):
+        kwargs.jdata             = kwargs.ezwizard.setup.properties.deployment_method
+        kwargs.deployment_method = ezfunctions.variable_prompt(kwargs)
+    else: kwargs.deployment_method = kwargs.args.deployment_method
     kwargs.imm_dict.orgs[kwargs.org].wizard.setup.deployment_method = kwargs.deployment_method
     return kwargs
 
@@ -438,83 +408,60 @@ def setup_deployment_method(kwargs):
 # Function: Main Menu, Prompt User for Deployment Type
 #=================================================================
 def setup_deployment_type(kwargs):
-    description = 'Select the Option to Perform:\n'\
-    ' * FIAttached: Build Pools/Policies/Profiles for a Domain.\n'\
-    ' * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n'\
-    ' * Profile:    Deploy a Profile from an Existing Server Profile Template.\n'\
-    ' * Individual: Select Individual Pools, Policies, Profiles to Build.\n'\
-    ' * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n'\
-    ' * Exit:       Cancel the Wizard'
-    kwargs.jdata = DotMap(
-        enum         = ['FIAttached', 'Standalone', 'Profile', 'Individual', 'Deploy', 'Exit'],
-        default      = 'FIAttached',
-        description  = description,
-        multi_select = False,
-        sort         = False,
-        title        = 'Deployment Type',
-        type         = 'string')
-    kwargs.deployment_type = ezfunctions.variable_prompt(kwargs)
+    if not re.search('FIAttached|Standalone|Profile|Individual|Deploy', kwargs.args.deployment_type):
+        kwargs.jdata           = kwargs.ezwizard.setup.properties.deployment_type
+        kwargs.deployment_type = ezfunctions.variable_prompt(kwargs)
+    else: kwargs.deployment_type = kwargs.args.deployment_type
     return kwargs
 
 #=================================================================
-# Function: Prompt User for Build Method
+# Function: Prompt User for Discovery
 #=================================================================
 def setup_discovery(kwargs):
-    kwargs.jdata = DotMap(
-        default      = False,
-        description  = 'Is the Equipment Already Registered to Intersight?',
-        title        = 'Discovery Status',
-        type         = 'boolean')
+    kwargs.jdata     = kwargs.ezwizard.setup.properties.discovery
     kwargs.discovery = ezfunctions.variable_prompt(kwargs)
     kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery = kwargs.discovery
     return kwargs
 
 #=================================================================
-# Function: Prompt User for Build Method
+# Function: Prompt User for Name Prefix
 #=================================================================
 def setup_name_prefix(kwargs):
     if not kwargs.imm_dict.orgs[kwargs.org].policies.get('name_prefix'):
-        #==============================================
-        # Prompt User for Name Prefix
-        #==============================================
-        kwargs.jdata = DotMap(
-            description = f'Name Prefix to assign to Pools and Policies.',
-            maxLength   = 32,
-            minLength   = 0,
-            optional    = True,
-            pattern     = "^[a-zA-Z0-9_\\. :-]{0,32}$",
-            title       = 'Name Prefix',
-            type        = 'string')
+        kwargs.jdata = kwargs.ezwizard.setup.properties.name_prefix
         kwargs.imm_dict.orgs[kwargs.org].wizard.setup.name_prefix = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
-# Function: Prompt User for Build Method
+# Function: Prompt User for Name Suffix
 #=================================================================
 def setup_name_suffix(kwargs):
     if not kwargs.imm_dict.orgs[kwargs.org].policies.get('name_suffix'):
-        #==============================================
-        # Prompt User for Name Prefix
-        #==============================================
-        kwargs.jdata = DotMap(
-            description = f'Name Suffix to assign to Pools and Policies.',
-            maxLength   = 32,
-            minLength   = 0,
-            optional    = True,
-            pattern     = "^[a-zA-Z0-9_\\. :-]{0,32}$",
-            title       = 'Name Suffix',
-            type        = 'string')
+        kwargs.jdata = kwargs.ezwizard.setup.properties.name_suffix
         kwargs.imm_dict.orgs[kwargs.org].wizard.setup.name_suffix = ezfunctions.variable_prompt(kwargs)
     return kwargs
 
 #=================================================================
-# Function: Prompt User for Target Platform
+# Function: Prompt User for Operating System Vendor
 #=================================================================
 def setup_operating_systems(kwargs):
-    kwargs.jdata = kwargs.ezwizard.server.properties.operating_system_vendor
+    kwargs            = isight.software_repository('os_vendors').os_vendor_and_version(kwargs)
+    kwargs.jdata      = kwargs.ezwizard.setup.properties.operating_system_vendor
+    kwargs.jdata.enum = sorted(list(kwargs.os_vendors.keys()))
     if kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_type == 'Profile': kwargs.jdata.multi_select == False
-    kwargs.operating_systems = ezfunctions.variable_prompt(kwargs)
-    if type(kwargs.operating_systems) == str: kwargs.operating_systems = [kwargs.operating_systems]
+    os_vendors = ezfunctions.variable_prompt(kwargs)
+    if type(os_vendors) == str: os_vendors = [os_vendors]
+    kwargs.operating_systems = []
+    for e in os_vendors:
+        dist_list = [e for k in list(kwargs.os_cfg_moids.keys()) for e in kwargs.os_cfg_moids[k].distributions]
+        versions = sorted([k for k,v in kwargs.os_versions.items() if v.vendor_moid == kwargs.os_vendors[e].moid and v.moid in dist_list], reverse=True)
+        kwargs.jdata             = kwargs.ezwizard.setup.properties.operating_system_version
+        kwargs.jdata.default     = versions[0]
+        kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', e)
+        kwargs.jdata.enum        = versions
+        kwargs.jdata.title       = (kwargs.jdata.title).replace('REPLACE', e)
+        os_version               = ezfunctions.variable_prompt(kwargs)
+        kwargs.operating_systems.append(DotMap(vendor=e,version=DotMap(moid=kwargs.os_versions[os_version].moid, name=os_version)))
     kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems = kwargs.operating_systems
     return kwargs
 
@@ -522,17 +469,116 @@ def setup_operating_systems(kwargs):
 # Function: Prompt User for Target Platform
 #=================================================================
 def setup_target_platform(kwargs):
-    description = 'Select the Server Profile Target Platform.  Options are:\n'\
-    ' * FIAttached: Build Pools/Policies/Profiles for a Domain.\n'\
-    ' * Standalone: Build Pools/Policies/Profiles for Standalone Servers.\n'
-    kwargs.jdata = DotMap(
-        enum         = ['FIAttached', 'Standalone'],
-        default      = 'FIAttached',
-        description  = description,
-        multi_select = False,
-        sort         = False,
-        title        = 'Type of Servers',
-        type         = 'string')
+    kwargs.jdata           = kwargs.ezwizard.setup.properties.target_platform
     kwargs.target_platform = ezfunctions.variable_prompt(kwargs)
     kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform = kwargs.target_platform
     return kwargs
+
+#=================================================================
+# Function: Prompt User for OS Image
+#=================================================================
+def sw_repo_os_cfg(os, kwargs):
+    if not kwargs.get('os_cfg_results'): kwargs  = isight.software_repository('cfg').os_configuration(kwargs)
+    elist   = []; os_cfg = []
+    for e in kwargs.os_cfg_results:
+        if os.version.moid in [f.Moid for f in e.Distributions]:
+            if 'shared' in e.Owners:
+                elist.append(f'Location: Intersight || Name: {e.Name} || Moid: {e.Moid}')
+            else: elist.append(f'Location: {e.Source.LocationLink} || Name: {e.Name} || Moid: {e.Moid}')
+            os_cfg.append(e)
+    if len(elist) > 1:
+        kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_os_image
+        kwargs.jdata.default = elist[0]
+        kwargs.jdata.enum    = elist
+        answer               = ezfunctions.variable_prompt(kwargs)
+        regex                = re.compile(r'Location: (.*) \|\| Name: (.*) \|\| Moid: (.*)$')
+        match                = regex.search(answer)
+        sw                   = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
+        indx                 = next((index for (index, d) in enumerate(os_cfg) if d['Moid'] == sw.moid), None)
+        kwargs.os_cfg        = os_cfg[indx]
+    elif len(elist) == 1: kwargs.os_cfg = os_cfg[0]
+    else:
+        pcolor.Red(f'\n{"-"*108}\n')
+        pcolor.Red(f'  !!!ERROR!!! No Operating System Configuration File found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}` Version: `{os.version.name}`.  Exiting...')
+        pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
+    rows = []
+    for e in kwargs.os_cfg.Placeholders:
+        rows.append([f'Label: {e.Type.Label}', f'Name: {e.Type.Name}', f'Sensitive: {e.Type.Properties.Secure}', f'Required: {e.Type.Required}'])
+    cwidth = max(len(word) for row in rows for word in row) + 2
+    prows = []
+    for row in rows:
+        prows.append("".join(word.ljust(cwidth) for word in row))
+    prows.sort()
+    for row in prows:
+        print(row)
+    #print(json.dumps(kwargs.os_cfg, indent=4))
+    exit()
+    return kwargs
+
+#=================================================================
+# Function: Prompt User for OS Image
+#=================================================================
+def sw_repo_os_image(os, kwargs):
+    kwargs = isight.software_repository('osi').os_images(kwargs)
+    #kwargs.osi_moids = sorted(kwargs.osi_moids, key=lambda item: item['Version'], reverse=True)
+    elist = []
+    osi_moids = []
+    for e in kwargs.osi_moids:
+        if e.Vendor == os.vendor and e.Version == os.version.name:
+            elist.append(f'Location: {e.Source.LocationLink} || Name: {e.Name} || Moid: {e.Moid}')
+            osi_moids.append(deepcopy(e))
+    if len(kwargs.jdata.enum) > 1:
+        kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_os_image
+        kwargs.jdata.default = elist[0]
+        kwargs.jdata.enum    = elist
+        answer               = ezfunctions.variable_prompt(kwargs)
+        regex                = re.compile(r'Location: (.*) \|\| Name: (.*)$ \|\| Moid: (.*)$')
+        match                = regex.search(answer)
+        sw                   = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
+        indx                 = next((index for (index, d) in enumerate(kwargs.scu_moids) if d['Moid'] == sw.moid), None)
+        kwargs.os_image      = osi_moids[indx]
+    elif len(kwargs.jdata.enum) == 1: kwargs.os_image = osi_moids[0]
+    else:
+        pcolor.Red(f'\n{"-"*108}\n')
+        pcolor.Red(f'  !!!ERROR!!! No Operating System Image Found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}`.')
+        pcolor.Red(f'  Exiting...')
+        pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
+    return kwargs
+
+#=================================================================
+# Function: Prompt User for Server Configuration Utility
+#=================================================================
+def sw_repo_scu(kwargs):
+    elist  = []
+    kwargs = isight.software_repository('scu').scu(kwargs)
+    models = ", ".join(kwargs.models)
+    for e in kwargs.scu_moids:
+        elist.append(f'Location: {e.Source.LocationLink} || Version: {e.Version} || Name: {e.Name} || Supported Models: {", ".join(e.SupportedModels)} || Moid: {e.Moid}')
+    def print_error(kwargs):
+        pcolor.Red(f'\n{"-"*108}\n')
+        pcolor.Red(f'  !!!ERROR!!! No Server Configuration Utility Image Found in Intersight Organization `{kwargs.org}` to support Models: {models}.  Exiting....')
+        pcolor.Red(f'  Exiting...')
+        pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
+    kwargs.scu = []
+    if len(elist) > 1:
+        kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_scu
+        kwargs.jdata.default = elist[0]
+        kwargs.jdata.enum    = elist
+        answer = ezfunctions.variable_prompt(kwargs)
+        regex  = re.compile(r'Location: (.*) \|\| Version: (.*) \|\| Name: (.*) \|\| .* Moid: ([a-z0-9]+)$')
+        match  = regex.search(answer)
+        sw = DotMap(location = match.group(1), version = match.group(2), name = match.group(3), moid=match.group(4))
+        indx = next((index for (index, d) in enumerate(kwargs.scu_moids) if d['Moid'] == sw.moid), None)
+        models = True
+        for d in kwargs.models:
+            if not d in kwargs.scu_moids[indx]: models = False
+        if models == True: kwargs.scu = e
+    elif len(elist) == 1:
+        for d in kwargs.models:
+            if not d in kwargs.scu_moids[0]: models = False
+        if models == True: kwargs.scu = e
+        kwargs.scu == kwargs.scu_moids[0]
+    else: print_error(kwargs)
+    if len(kwargs.scu) == 0: print_error(kwargs)
+    return kwargs
+

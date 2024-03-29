@@ -25,8 +25,7 @@ class wizard(object):
     # BIOS Policy
     #==============================================
     def fis(self, **kwargs):
-        kwargs.api_filter = ''
-        kwargs.top1000    = True
+        kwargs.api_filter = 'ignore'
         kwargs.uri        = 'network/ElementSummaries'
         kwargs = isight.api('fabric_interconnects').calls(kwargs)
 

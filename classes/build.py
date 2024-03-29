@@ -232,6 +232,10 @@ class intersight(object):
     # Function: Main Menu, Prompt User for Deployment Type
     #=================================================================
     def profiles(self, kwargs):
+        kwargs.models = ['UCSC-C240-M6', 'UCSC-C240-M7']
+        os     = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems[0]
+        #kwargs = isight.software_repository('os_cfg').os_configuration(kwargs)
+        #kwargs = isight.software_repository('osi').os_images(kwargs)
         if not kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
             #if kwargs.imm_dict.orgs[kwargs.org].profile.server: kwargs.imm_dict.orgs[kwargs.org].pop('profile')
             accept_profiles = False
@@ -331,7 +335,8 @@ class intersight(object):
                         serial  = re.search(r'Serial: ([A-Z0-9]+), Name', pserver).group(1)
                         indx = next((index for (index, d) in enumerate(physical_results) if d['Serial'] == serial), None)
                         kwargs.temp_servers[serial].name          = name
-                        kwargs.temp_servers[serial].os_type       = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems[0]
+                        kwargs.temp_servers[serial].os_vendor     = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems[0].vendor
+                        kwargs.temp_servers[serial].os_version    = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.operating_systems[0].version
                         kwargs.temp_servers[serial].template      = profile_source
                         kwargs.temp_servers[serial].template_type = profile_type
                         physical_compute.append(physical_results[indx])
@@ -344,7 +349,8 @@ class intersight(object):
             #=======================================================
             # Build Server Profile Dictionaries
             #=======================================================
-            kwargs = isight.api(self.type).build_compute_dictionary(physical_compute, kwargs)
+            kwargs.results = physical_compute
+            kwargs         = isight.api(self.type).build_compute_dictionary(kwargs)
             for k in list(kwargs.servers.keys()):
                 kwargs.server_profiles[k] = DotMap(sorted(dict(kwargs.servers[k].toDict(), **kwargs.temp_servers[k].toDict()).items()))
             for k,v in kwargs.server_profiles.items():
@@ -401,6 +407,9 @@ class intersight(object):
                 kwargs.uri    = kwargs.ezdata.server_template.intersight_uri
                 kwargs = isight.api('server_template').calls(kwargs)
                 for e in kwargs.results: kwargs.isight[kwargs.org].profile['server_template'][e.Name] = e.Moid
+        kwargs = questions.sw_repo_os_cfg(os, kwargs)
+        kwargs = questions.sw_repo_os_image(os, kwargs)
+        kwargs = questions.sw_repo_scu(kwargs)
         #=======================================================
         # Create YAML Files
         #=======================================================

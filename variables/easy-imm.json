@@ -6078,7 +6078,7 @@
                         "properties": {
                             "boot_devices": {
                                 "type": "array",
-                                "description": "List of Boot Devices and their Attributes to Assign to the Boot Policy.\n`boot.Iscsi` Required Attributes:\n  * interface_name\n  * name\n  * object_type\n\n`boot.Iscsi` Optional Attributes:\n  * bootloader\n  * enabled\n  * port\n  * slot\n\n`boot.LocalCdd` Required Attributes:\n  * name\n  * object_type\n\n`boot.LocalCdd` Optional Attributes:\n  * enabled\n\n`boot.LocalDisk` Required Attributes:\n  * name\n  * object_type\n\n`boot.LocalDisk` Optional Attributes:\n  * bootloader\n  * enabled\n  * slot\n\n`boot.Nvme` Required Attributes:\n  * name\n  * object_type\n\n`boot.Nvme` Optional Attributes:\n  * bootloader\n  * enabled\n\n`boot.PchStorage` Required Attributes:\n  * name\n  * object_type\n\n`boot.PchStorage` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n\n`boot.Pxe` Required Attributes:\n  * interface_name\n  * interface_source\n  * name\n  * object_type\n\n`boot.Pxe` Optional Attributes:\n  * bootloader\n  * enabled\n  * ip_type\n  * mac_ddress\n  * port\n  * slot\n\n`boot.San` Required Attributes:\n  * interface_name\n  * name\n  * object_type\n  * wwpn\n\n`boot.San` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n  * slot\n\n`boot.SdCard` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.SdCard` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n\n`boot.UefiShell` Required Attributes:\n  * name\n  * object_type\n\n`boot.UefiShell` Optional Attributes:\n  * enabled\n\n`boot.Usb` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.Usb` Optional Attributes:\n  * enabled\n\n`boot.VirtualMedia` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.VirtualMedia` Optional Attributes:\n  * enabled",
+                                "description": "List of Boot Devices and their Attributes to Assign to the Boot Policy.\n  * `boot.FlexMmc` - UCS Standalone Only - Required Attributes:\n  * name\n  * object_type\n  * sub_type\n`boot.Iscsi` Required Attributes:\n  * interface_name\n  * name\n  * object_type\n\n`boot.Iscsi` Optional Attributes:\n  * bootloader\n  * enabled\n  * port\n  * slot\n\n`boot.LocalCdd` Required Attributes:\n  * name\n  * object_type\n\n`boot.LocalCdd` Optional Attributes:\n  * enabled\n\n`boot.LocalDisk` Required Attributes:\n  * name\n  * object_type\n\n`boot.LocalDisk` Optional Attributes:\n  * bootloader\n  * enabled\n  * slot\n\n`boot.Nvme` Required Attributes:\n  * name\n  * object_type\n\n`boot.Nvme` Optional Attributes:\n  * bootloader\n  * enabled\n\n`boot.PchStorage` Required Attributes:\n  * name\n  * object_type\n\n`boot.PchStorage` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n\n`boot.Pxe` Required Attributes:\n  * interface_name\n  * interface_source\n  * name\n  * object_type\n\n`boot.Pxe` Optional Attributes:\n  * bootloader\n  * enabled\n  * ip_type\n  * mac_ddress\n  * port\n  * slot\n\n`boot.San` Required Attributes:\n  * interface_name\n  * name\n  * object_type\n  * wwpn\n\n`boot.San` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n  * slot\n\n`boot.SdCard` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.SdCard` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n\n`boot.UefiShell` Required Attributes:\n  * name\n  * object_type\n\n`boot.UefiShell` Optional Attributes:\n  * enabled\n\n`boot.Usb` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.Usb` Optional Attributes:\n  * enabled\n\n`boot.VirtualMedia` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.VirtualMedia` Optional Attributes:\n  * enabled",
                                 "items": {
                                     "$ref": "#/components/schemas/boot_order.boot_devices"
                                 },
@@ -6195,9 +6195,10 @@
                     "object_type": {
                         "type": "string",
                         "default": "boot.LocalDisk",
-                        "description": "The Boot Order Type to Assign to the Boot Device.  Allowed Values are:\n  * boot.Iscsi\n  * boot.LocalCdd\n  * boot.LocalDisk\n  * boot.Nvme\n  * boot.PchStorage\n  * boot.Pxe\n  * boot.San\n  * boot.SdCard\n  * boot.UefiShell\n  * boot.Usb\n  * boot.VirtualMedia",
+                        "description": "The Boot Order Type to Assign to the Boot Device.  Allowed Values are:\n  * boot.FlexMmc - UCS Standalone Only\n  * boot.Iscsi\n  * boot.LocalCdd\n  * boot.LocalDisk\n  * boot.Nvme\n  * boot.PchStorage\n  * boot.Pxe\n  * boot.San\n  * boot.SdCard\n  * boot.UefiShell\n  * boot.Usb\n  * boot.VirtualMedia",
                         "intersight_api": "ObjectType",
                         "enum": [
+                            "boot.FlexMmc",
                             "boot.Iscsi",
                             "boot.LocalCdd",
                             "boot.LocalDisk",
@@ -6234,17 +6235,19 @@
                     "sub_type": {
                         "type": "string",
                         "default": "None",
-                        "description": "The subtype for the selected device type.\nThe Following Boot Order Types utilize the Subtype Attribute:\nboot.SdCard - Below are the Supported Subtype Values:\n  * None - No sub type for SD card boot device.\n  * flex-util - Use of FlexUtil (microSD) card as sub type for SD card boot device.\n  * flex-flash - Use of FlexFlash (SD) card as sub type for SD card boot device.\n  * SDCARD - Use of SD card as sub type for the SD Card boot device.\nboot.Usb - Below are the Supported Subtype Values:\n  * None - No sub type for USB boot device.\n  * usb-cd - Use of Compact Disk (CD) as sub-type for the USB boot device.\n  * usb-fdd - Use of Floppy Disk Drive (FDD) as sub-type for the USB boot device.\n  * usb-hdd - Use of Hard Disk Drive (HDD) as sub-type for the USB boot device.\nboot.VirtualMedia - Below are the Supported Subtype Values:\n  * None - No sub type for virtual media.\n  * cimc-mapped-dvd - The virtual media device is mapped to a virtual DVD device.\n  * cimc-mapped-hdd - The virtual media device is mapped to a virtual HDD device.\n  * kvm-mapped-dvd - A KVM mapped DVD virtual media device.\n  * kvm-mapped-hdd - A KVM mapped HDD virtual media device.\n  * kvm-mapped-fdd - A KVM mapped FDD virtual media device.",
+                        "description": "The subtype for the selected device type.\nThe Following Boot Order Types utilize the Subtype Attribute:The subtype for the selected device type.\nThe Following Boot Order Types utilize the Subtype Attribute:\nboot.FlexMmc - Below are the Supported Subtype Values:\n* `None` - No sub type for FlexMMC boot device.\n  * `flexmmc-mapped-dvd` - Use of FlexMMC DVD as subtype for embedded storage.\n  * `flexmmc-mapped-hdd` - Use of FlexMMC HDD as subtype for embedded storage.\nboot.SdCard - Below are the Supported Subtype Values:\n  * None - No sub type for SD card boot device.\n  * flex-util - Use of FlexUtil (microSD) card as sub type for SD card boot device.\n  * flex-flash - Use of FlexFlash (SD) card as sub type for SD card boot device.\n  * SDCARD - Use of SD card as sub type for the SD Card boot device.\nboot.Usb - Below are the Supported Subtype Values:\n  * None - No sub type for USB boot device.\n  * usb-cd - Use of Compact Disk (CD) as sub-type for the USB boot device.\n  * usb-fdd - Use of Floppy Disk Drive (FDD) as sub-type for the USB boot device.\n  * usb-hdd - Use of Hard Disk Drive (HDD) as sub-type for the USB boot device.\nboot.VirtualMedia - Below are the Supported Subtype Values:\n  * None - No sub type for virtual media.\n  * cimc-mapped-dvd - The virtual media device is mapped to a virtual DVD device.\n  * cimc-mapped-hdd - The virtual media device is mapped to a virtual HDD device.\n  * kvm-mapped-dvd - A KVM mapped DVD virtual media device.\n  * kvm-mapped-hdd - A KVM mapped HDD virtual media device.\n  * kvm-mapped-fdd - A KVM mapped FDD virtual media device.\nboot.SdCard - Below are the Supported Subtype Values:\n  * None - No sub type for SD card boot device.\n  * flex-util - Use of FlexUtil (microSD) card as sub type for SD card boot device.\n  * flex-flash - Use of FlexFlash (SD) card as sub type for SD card boot device.\n  * SDCARD - Use of SD card as sub type for the SD Card boot device.\nboot.Usb - Below are the Supported Subtype Values:\n  * None - No sub type for USB boot device.\n  * usb-cd - Use of Compact Disk (CD) as sub-type for the USB boot device.\n  * usb-fdd - Use of Floppy Disk Drive (FDD) as sub-type for the USB boot device.\n  * usb-hdd - Use of Hard Disk Drive (HDD) as sub-type for the USB boot device.\nboot.VirtualMedia - Below are the Supported Subtype Values:\n  * None - No sub type for virtual media.\n  * cimc-mapped-dvd - The virtual media device is mapped to a virtual DVD device.\n  * cimc-mapped-hdd - The virtual media device is mapped to a virtual HDD device.\n  * kvm-mapped-dvd - A KVM mapped DVD virtual media device.\n  * kvm-mapped-hdd - A KVM mapped HDD virtual media device.\n  * kvm-mapped-fdd - A KVM mapped FDD virtual media device.",
                         "intersight_api": "Subtype",
                         "enum": [
                             "None",
                             "cimc-mapped-dvd",
                             "cimc-mapped-hdd",
+                            "flexmmc-mapped-dvd",
+                            "flexmmc-mapped-hdd",
+                            "flex-util",
+                            "flex-flash",
                             "kvm-mapped-dvd",
                             "kvm-mapped-hdd",
                             "kvm-mapped-fdd",
-                            "flex-util",
-                            "flex-flash",
                             "SDCARD",
                             "usb-cd",
                             "usb-fdd",
@@ -8907,6 +8910,47 @@
                         "maxLength": 15,
                         "title": "from"
                     },
+                    "gateway": {
+                        "type": "string",
+                        "default": "198.18.0.1",
+                        "description": "Gateway to assign to the pool.  Example `198.18.0.1`.",
+                        "intersight_api": "Gateway",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                        "title": "gateway"
+                    },
+                    "netmask": {
+                        "type": "string",
+                        "default": "255.255.255.0",
+                        "description": "A subnet mask is a 32-bit number that masks an IP address and divides the IP address into network address and host address.  Example `255.255.255.0`.",
+                        "intersight_api": "Netmask",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                        "title": "netmask"
+                    },
+                    "primary_dns": {
+                        "type": "string",
+                        "default": "208.67.220.220",
+                        "description": "IP Address of the primary Domain Name System (DNS) server.  Example `208.67.220.220`.",
+                        "intersight_api": "PrimaryDns",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                        "title": "primary_dns"
+                    },
+                    "secondary_dns": {
+                        "type": "string",
+                        "default": "208.67.222.222",
+                        "description": "IP Address of the secondary Domain Name System (DNS) server.  Example `208.67.222.222`.",
+                        "intersight_api": "SecondaryDns",
+                        "minLength": 0,
+                        "maxLength": 15,
+                        "optional": true,
+                        "pattern": "^$|^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                        "title": "secondary_dns"
+                    },
                     "size": {
                         "type": "integer",
                         "default": 255,
@@ -9002,6 +9046,46 @@
                         "maxLength": 39,
                         "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
                         "title": "from"
+                    },
+                    "gateway": {
+                        "type": "string",
+                        "default": "2001:db8::1",
+                        "description": "Gateway to assign to the pool.  Example `2001:db8::1`.",
+                        "intersight_api": "Gateway",
+                        "minLength": 6,
+                        "maxLength": 39,
+                        "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
+                        "title": "gateway"
+                    },
+                    "prefix": {
+                        "type": "integer",
+                        "default": 64,
+                        "description": "Prefix to assign to the pool.  Example `64`.",
+                        "intersight_api": "Prefix",
+                        "minimum": 1,
+                        "maximum": 128,
+                        "title": "prefix"
+                    },
+                    "primary_dns": {
+                        "type": "string",
+                        "default": "2620:119:53::53",
+                        "description": "IP Address of the primary Domain Name System (DNS) server.  Example `2620:119:53::53`.",
+                        "intersight_api": "PrimaryDns",
+                        "minLength": 6,
+                        "maxLength": 39,
+                        "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
+                        "title": "primary_dns"
+                    },
+                    "secondary_dns": {
+                        "type": "string",
+                        "default": "2620:119:35::35",
+                        "description": "IP Address of the secondary Domain Name System (DNS) server.  Example `2620:119:35::35`.",
+                        "intersight_api": "SecondaryDns",
+                        "minLength": 0,
+                        "maxLength": 39,
+                        "optional": true,
+                        "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
+                        "title": "secondary_dns"
                     },
                     "size": {
                         "type": "integer",
@@ -14216,36 +14300,36 @@
                         "properties": {
                             "enable_diagnostics": {
                                 "type": "boolean",
-                                "default": true,
-                                "description": "Flag to Enable the Diagnostics Utility Partition.",
+                                "default": false,
+                                "description": "Default is `false`.  Flag to Enable the Diagnostics Utility Partition.",
                                 "intersight_api": "not_applicable",
                                 "title": "enable_diagnostics"
                             },
                             "enable_drivers": {
                                 "type": "boolean",
-                                "default": true,
-                                "description": "Flag to Enable the Drivers Utility Partition.",
+                                "default": false,
+                                "description": "Default is `false`.  Flag to Enable the Drivers Utility Partition.",
                                 "intersight_api": "not_applicable",
                                 "title": "enable_drivers"
                             },
                             "enable_huu": {
                                 "type": "boolean",
-                                "default": true,
-                                "description": "Flag to Enable the HostUpgradeUtility Utility Partition.",
+                                "default": false,
+                                "description": "Default is `false`.  Flag to Enable the HostUpgradeUtility Utility Partition.",
                                 "intersight_api": "not_applicable",
                                 "title": "enable_huu"
                             },
                             "enable_os": {
                                 "type": "boolean",
-                                "default": true,
-                                "description": "Flag to Enable the OperatingSystem Partition.",
+                                "default": false,
+                                "description": "Default is `false`.  Flag to Enable the OperatingSystem Partition.",
                                 "intersight_api": "not_applicable",
                                 "title": "enable_os"
                             },
                             "enable_scu": {
                                 "type": "boolean",
-                                "default": true,
-                                "description": "Flag to Enable the ServerConfigurationUtility Utility Partition.",
+                                "default": false,
+                                "description": "Default is `false`.  Flag to Enable the ServerConfigurationUtility Utility Partition.",
                                 "intersight_api": "not_applicable",
                                 "title": "enable_scu"
                             }
@@ -15757,8 +15841,38 @@
                                 "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
                                 "title": "global_hot_spares"
                             },
+                            "hybrid_slot_configuration:direct_attached_nvme_slots": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Only U.3 NVMe drives has to be specified, entered slots will be moved to Direct attached mode. Allowed slots are 1-4, 101-104. Allowed value is a comma or hyphen separated number range.",
+                                "intersight_api": "DirectAttachedNvmeSlots",
+                                "minLength": 1,
+                                "maxLength": 32,
+                                "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                                "title": "hybrid_slot_configuration:direct_attached_nvme_slots"
+                            },
+                            "hybrid_slot_configuration:raid_attached_nvme_slots": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Only U.3 NVMe drives has to be specified, entered slots will be moved to RAID attached mode. Allowed slots are 1-4, 101-104. Allowed value is a comma or hyphen separated number range.",
+                                "intersight_api": "RaidAttachedNvmeSlots",
+                                "minLength": 1,
+                                "maxLength": 32,
+                                "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                                "title": "hybrid_slot_configuration:raid_attached_nvme_slots"
+                            },
                             "m2_raid_configuration": {
                                 "$ref": "#/components/schemas/storage.m2_raid_configuration"
+                            },
+                            "secure_jbod_disk_slots": {
+                                "type": "string",
+                                "default": "",
+                                "description": "JBOD drives specified in this slot range will be encrypted. Allowed values are 'ALL', or a comma or hyphen separated number range. Sample format is ALL or 1, 3 or 4-6, 8. Setting the value to 'ALL' will encrypt all the unused UnconfigureGood/JBOD disks.",
+                                "intersight_api": "SecureJbods",
+                                "minLength": 1,
+                                "maxLength": 32,
+                                "pattern": "^$|^((((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*)|(a|A)(l|L)(l|L))$",
+                                "title": "secure_jbod_disk_slots"
                             },
                             "single_drive_raid0_configuration": {
                                 "$ref": "#/components/schemas/storage.single_drive_raid0_configuration"
@@ -16020,7 +16134,7 @@
             "storage.m2_raid_configuration": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "This models the options for creating a virtual drive on M.2 RAID controller.\nRequired Attributes\n  * slot",
+                "description": "This models the options for creating a virtual drive on M.2 RAID controller.\nRequired Attributes:\n  * name\n  * slot",
                 "intersight_api": "M2VirtualDrive",
                 "ObjectType": "storage.M2VirtualDriveConfig",
                 "required": [
@@ -16028,6 +16142,16 @@
                 ],
                 "title": "m2_raid_configuration - object_type: storage.M2VirtualDriveConfig",
                 "properties": {
+                    "name": {
+                        "type": "string",
+                        "default": "MStorBootVd",
+                        "description": "The name of the virtual drive. The name can be between 1 and 15 alphanumeric characters. Spaces or any special characters other than - (hyphen), _ (underscore), : (colon), and . (period) are not allowed. This field will be pre-populated with the default or user configured value which can be edited.",
+                        "intersight_api": "Name",
+                        "minLength": 1,
+                        "maxLength": 15,
+                        "pattern": "^[a-zA-Z0-9_\\.:-]+$",
+                        "title": "name"
+                    },
                     "slot": {
                         "type": "string",
                         "default": "MSTOR-RAID-1",
@@ -16038,7 +16162,7 @@
                             "MSTOR-RAID-2",
                             "MSTOR-RAID-1,MSTOR-RAID-2"
                         ],
-                        "title": "drive_slots"
+                        "title": "slot"
                     }
                 }
             },
@@ -16994,13 +17118,13 @@
                     },
                     "name": {
                         "type": "string",
-                        "default": "cdd",
-                        "description": "Protocol to use to communicate with the remote server.\n  * nfs - NFS protocol for vmedia mount.\n  * cifs - CIFS protocol for vmedia mount.\n  * http - HTTP protocol for vmedia mount.\n  * https - HTTPS protocol for vmedia mount.",
+                        "default": "remote_map",
+                        "description": "Identity of the image for Virtual Media mapping.",
                         "intersight_api": "VolumeName",
                         "minLength": 1,
-                        "maxLength": 64,
+                        "maxLength": 47,
                         "pattern": "^[a-zA-Z0-9_\\.:-]+$",
-                        "title": "protocol"
+                        "title": "name"
                     },
                     "password": {
                         "type": "integer",
@@ -17477,9 +17601,6 @@
                 "type": "object",
                 "additionalProperties": false,
                 "description": "The WWxN reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
-                "required": [
-                    "identities"
-                ],
                 "title": "Azure Stack - OS Configuration",
                 "properties": {
                     ".DisableAutoDaylightTimeSet": {
@@ -18754,9 +18875,6 @@
                 "type": "object",
                 "additionalProperties": false,
                 "description": "Profile Deployement Wizard.",
-                "required": [
-                    "identities"
-                ],
                 "title": "Profile",
                 "properties": {
                     "boot_volume": {
@@ -18770,24 +18888,6 @@
                             "SAN"
                         ],
                         "title": "Boot Volume"
-                    },
-                    "operating_system_vendor": {
-                        "type": "string",
-                        "default": "VMware",
-                        "description": "Select the Operating System Vendor(s) for this deployment.",
-                        "enum": [
-                            "CentOS",
-                            "Citrix",
-                            "Microsoft",
-                            "Nutanix",
-                            "Oracle",
-                            "Red Hat",
-                            "Rocky Linux",
-                            "SuSE",
-                            "Ubuntu",
-                            "VMware"
-                        ],
-                        "title": "Operating System Vendor"
                     },
                     "physical_server": {
                         "type": "string",
@@ -18830,6 +18930,133 @@
                             "server_template"
                         ],
                         "title": "Profile Source"
+                    }
+                }
+            },
+            "setup": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Wizard Main Menu Setup Questions.",
+                "title": "Profile",
+                "properties": {
+                    "assignment_method": {
+                        "type": "string",
+                        "default": "Serial",
+                        "description": "Select the Method you will use to assign server profiles:\n * Chassis/Slot:  Assign Server Profiles to Chassis/Slot.\n * Resource Pool: Assign Server Profiles to Resource Pools.\n * Serial:        Assign Server Profiles based on the Server Serial Number.",
+                        "enum": [
+                            "Chassis/Slot",
+                            "Resource Pool",
+                            "Serial"
+                        ],
+                        "title": "Deployment Type"
+                    },
+                    "build_type": {
+                        "type": "string",
+                        "default": "Machine",
+                        "description": "Choose the Automation Method.\n * Interactive: This Wizard will Prompt the User for all Pool, Policy, and Profile settings.\n * Machine: This Wizard will Discover the Inventory, and configure based on Best Practices, only prompting for information unique to an environment.",
+                        "enum": [
+                            "Interactive",
+                            "Machine"
+                        ],
+                        "title": "Automation Type"
+                    },
+                    "deployment_method": {
+                        "type": "Python",
+                        "default": "",
+                        "description": "Choose the Automation Language You want to use to deploy to Intersight.\n * Python: This Wizard will Create the YAML Files and Deploy to Intersight.\n * Terraform: This Wizard will only Create the YAML Files.  Terraform will be used to Manage Deployment and IaC.",
+                        "enum": [
+                            "Python",
+                            "Terraform"
+                        ],
+                        "title": "Deployment Method"
+                    },
+                    "deployment_type": {
+                        "type": "string",
+                        "default": "FIAttached",
+                        "description": "Select the Option to Perform:\n * FIAttached: Build Pools/Policies/Profiles for a Domain.\n * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n * Profile:    Deploy a Profile from an Existing Server Profile Template.\n * Individual: Select Individual Pools, Policies, Profiles to Build.\n * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n * Exit:       Cancel the Wizard",
+                        "enum": [
+                            "FIAttached",
+                            "Standalone",
+                            "Profile",
+                            "Individual",
+                            "Deploy",
+                            "Exit"
+                        ],
+                        "sort": false,
+                        "title": "Deployment Type"
+                    },
+                    "discovery": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Is the Equipment Already Registered to Intersight?",
+                        "title": "Discovery Status"
+                    },
+                    "name_prefix": {
+                        "type": "string",
+                        "default": 2,
+                        "description": "Name Prefix to assign to Pools and Policies.",
+                        "minLength": 0,
+                        "maxLength": 32,
+                        "pattern": "^[a-zA-Z0-9_\\. :-]{0,32}$",
+                        "title": "Name Prefix"
+                    },
+                    "name_suffix": {
+                        "type": "string",
+                        "default": 2,
+                        "description": "Name Suffix to assign to Pools and Policies.",
+                        "minLength": 0,
+                        "maxLength": 32,
+                        "pattern": "^[a-zA-Z0-9_\\. :-]{0,32}$",
+                        "title": "Name Suffix"
+                    },
+                    "operating_system_vendor": {
+                        "type": "string",
+                        "default": "VMware",
+                        "description": "Select the Operating System Vendor(s) for this deployment.",
+                        "enum": [],
+                        "title": "Operating System Vendor"
+                    },
+                    "operating_system_version": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the version for `REPLACE`.",
+                        "enum": [],
+                        "sort": false,
+                        "title": "REPLACE Version"
+                    },
+                    "sw_repo_os_cfg": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Operating System Configuration (AutoInstall) File for Installation.",
+                        "enum": [],
+                        "sort": false,
+                        "title": "Operating System Configuration"
+                    },
+                    "sw_repo_os_image": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Operating System Image for Installation.",
+                        "enum": [],
+                        "sort": false,
+                        "title": "Operating System Image"
+                    },
+                    "sw_repo_scu": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Server Configuration Utility Image for Installation.",
+                        "enum": [],
+                        "sort": false,
+                        "title": "Server Configuration Utility"
+                    },
+                    "target_platform": {
+                        "type": "string",
+                        "default": "FIAttached",
+                        "description": "Select the Server Profile Target Platform.  Options are:\n * FIAttached: Build Pools/Policies/Profiles for a Domain.\n * Standalone: Build Pools/Policies/Profiles for Standalone Servers.",
+                        "enum": [
+                            "FIAttached",
+                            "Standalone"
+                        ],
+                        "title": "Target Platform"
                     }
                 }
             }

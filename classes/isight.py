@@ -5,9 +5,10 @@ def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
     from classes import ezfunctions, pcolor, validating
-    from intersight_auth import IntersightAuth, repair_pem
     from copy import deepcopy
     from dotmap import DotMap
+    from intersight_auth import IntersightAuth, repair_pem
+    from operator import itemgetter
     from stringcase import snakecase
     import json, numpy, os, re, requests, time, urllib3
 except ImportError as e:
@@ -35,18 +36,19 @@ class api(object):
         #=============================================================================
         # Get Organization List from the API
         #=============================================================================
-        kwargs.api_filter= 'ignore'
-        kwargs.method    = 'get'
-        kwargs.uri       = 'organization/Organizations'
-        kwargs           = api(self.type).calls(kwargs)
-        kwargs.org_moids = kwargs.pmoids
+        kwargs.api_filter = 'ignore'
+        kwargs.method     = 'get'
+        kwargs.uri        = 'organization/Organizations'
+        kwargs            = api(self.type).calls(kwargs)
+        kwargs.org_moids  = kwargs.pmoids
         for k, v in kwargs.org_moids.items(): kwargs.org_names[v.moid] = k
         return kwargs
 
     #=============================================================================
     # Function - Build Compute Dictionary
     #=============================================================================
-    def build_compute_dictionary(self, server_results, kwargs):
+    def build_compute_dictionary(self, kwargs):
+        server_results = kwargs.results
         pcolor.Cyan(f'\n   - Pulling Server Inventory for the following Physical Server(s):')
         for e in server_results: pcolor.Cyan(f'     * {e.Serial}')
         kwargs.method = 'get'
@@ -177,6 +179,8 @@ class api(object):
                 if i.get('Tags'): api_dict[iname].tags = i.Tags
                 if i.get('UpgradeStatus'): api_dict[iname].upgrade_status = i.UpgradeStatus
                 if i.get('WorkflowInfo'): api_dict[iname].workflow_moid = i.WorkflowInfo.Moid
+                if i.get('Vendor') and type(i.Vendor) != str: api_dict[iname].vendor_moid = i.Vendor.Moid
+                if i.get('Distributions'): api_dict[iname].distributions = [e.Moid for e in i.Distributions]
                 if i.get('Profiles'):
                     api_dict[iname].profiles = []
                     for x in i['Profiles']:
@@ -295,10 +299,14 @@ class api(object):
                     kwargs.server_profiles[k].macs[mcount].native     = eth_results[indx].VlanSettings.NativeVlan
                     kwargs.server_profiles[k].macs[mcount].vlan_group = eth_results[indx].Name
         for k in list(kwargs.server_profiles.keys()):
-            pvars = kwargs.server_profiles[k].toDict()
-            # Add Policy Variables to imm_dict
-            kwargs.class_path = f'wizard,os_configuration'
-            kwargs = ezfunctions.ez_append(pvars, kwargs)
+            serial = kwargs.server_profiles[k].serial
+            pvars  = kwargs.server_profiles[k].toDict()
+            indx   = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles) if d['serial'] == serial), None)
+            if indx == None:
+                # Add Policy Variables to imm_dict
+                kwargs.class_path = f'wizard,server_profiles'
+                kwargs = ezfunctions.ez_append(pvars, kwargs)
+            else: kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[indx] = deepcopy(pvars)
         #=============================================================================
         # Create YAML Files
         #=============================================================================
@@ -500,10 +508,7 @@ class api(object):
                     elif 'wwnn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWNN' and AssignedToEntity.Moid in ('{names}')"
                     elif 'wwpn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWPN' and AssignedToEntity.Moid in ('{names}')"
                     elif re.search('ww(n|p)n', self.type):    api_filter = api_filter + f" and PoolPurpose eq '{self.type.upper()}'"
-                    if kwargs.top1000 == True and len(kwargs.api_filter) > 0: api_args = f'?$filter={kwargs.api_filter}&$top=1000'
-                    elif len(kwargs.names) > 99: api_args = f'?$filter={api_filter}&$top=1000'
-                    elif kwargs.top1000 == True: api_args = '?$top=1000'
-                    elif api_filter == '': ''
+                    if api_filter == '': ''
                     else: api_args = f'?$filter={api_filter}'
                 elif kwargs.api_filter == 'ignore': api_args=''
                 else: api_args = f'?$filter={kwargs.api_filter}'
@@ -531,17 +536,21 @@ class api(object):
                 if '?' in api_args: kwargs.api_args = api_args + '&$count=True'
                 else: kwargs.api_args = api_args + '?$count=True'
                 kwargs = api_calls(kwargs)
-                if kwargs.results.Count <= 1000:
+                if kwargs.results.Count <= 100:
                     kwargs.api_args = api_args
                     kwargs = api_calls(kwargs)
-                else:
+                elif kwargs.results.Count > 100 and kwargs.results.Count <= 1000:
+                    if '?' in api_args: kwargs.api_args = api_args + '&$count=True'
+                    else: kwargs.api_args = api_args + '?$top=1000'
+                    kwargs = api_calls(kwargs)
+                elif kwargs.results.Count > 1000:
                     get_count    = kwargs.results.Count
                     moid_dict    = {}
                     offset_count = 0
                     results      = []
                     while get_count > 0:
-                        if 'top=1000' in api_args: kwargs.api_args = api_args + f'&$skip={offset_count}'
-                        else: api_args + f'&$top=1000&$skip={offset_count}'
+                        if '?' in api_args: kwargs.api_args = api_args + f'&$top=1000&$skip={offset_count}'
+                        else: api_args + f'?$top=1000&$skip={offset_count}'
                         kwargs = api_calls(kwargs)
                         results.extend(kwargs.results)
                         moid_dict    = dict(moid_dict, **kwargs.pmoids.toDict())
@@ -604,7 +613,7 @@ class api(object):
         return kwargs
 
 #=============================================================================
-# Policies Class
+# IMM Class
 #=============================================================================
 class imm(object):
     def __init__(self, type): self.type = type
@@ -2769,6 +2778,96 @@ class imm(object):
         if len(kwargs.bulk_list) > 0:
             kwargs.uri    = kwargs.ezdata[self.type].intersight_uri
             kwargs        = imm(self.type).bulk_request(kwargs)
+        return kwargs
+
+#=============================================================================
+# IMM Class
+#=============================================================================
+class software_repository(object):
+    def __init__(self, type): self.type = type
+
+    #=============================================================================
+    # Function - Vendor Operating Systems
+    #=============================================================================
+    def os_vendor_and_version(self, kwargs):
+        org_moid                = kwargs.org_moids[kwargs.org].moid
+        kwargs.api_filter       = 'ignore'
+        kwargs.method           = 'get'
+        kwargs.uri              = 'hcl/OperatingSystemVendors'
+        kwargs                  = api('os_vendors').calls(kwargs)
+        kwargs.os_vendors       = kwargs.pmoids
+        kwargs.api_filter       = 'ignore'
+        kwargs.method           = 'get'
+        kwargs.uri              = 'hcl/OperatingSystems'
+        kwargs                  = api('os_vendors').calls(kwargs)
+        kwargs.os_versions      = kwargs.pmoids
+        kwargs.api_filter       = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')"
+        kwargs.method           = 'get'
+        kwargs.uri              = 'os/Catalogs'
+        kwargs                  = api('os_catalog').calls(kwargs)
+        catalog_moids           = kwargs.pmoids
+        kwargs.api_filter       = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
+        kwargs.uri              = 'os/ConfigurationFiles'
+        kwargs                  = api('os_configuration').calls(kwargs)
+        kwargs.org_catalog_moid = catalog_moids[org_moid].moid
+        kwargs.os_cfg_moids     = kwargs.pmoids
+        kwargs.os_cfg_results   = kwargs.results
+        return kwargs
+
+    #=============================================================================
+    # Function - OS Configuration Files
+    #=============================================================================
+    def os_configuration(self, kwargs):
+        org_moid          = kwargs.org_moids[kwargs.org].moid
+        kwargs.api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')"
+        kwargs.method     = 'get'
+        kwargs.uri        = 'os/Catalogs'
+        kwargs            = api('os_catalog').calls(kwargs)
+        catalog_moids     = kwargs.pmoids
+        kwargs.api_filter = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
+        kwargs.uri        = 'os/ConfigurationFiles'
+        kwargs            = api('os_configuration').calls(kwargs)
+        kwargs.org_catalog_moid = catalog_moids[org_moid].moid
+        kwargs.os_cfg_moids     = kwargs.pmoids
+        kwargs.os_cfg_results   = kwargs.results
+        return kwargs
+
+    #=============================================================================
+    # Function - OS Image Links
+    #=============================================================================
+    def os_images(self, kwargs):
+        # Get Organization Software Repository Catalog
+        kwargs.method       = 'get'
+        kwargs.names        = ['user-catalog']
+        kwargs.uri          = 'softwarerepository/Catalogs'
+        kwargs              = api('org_catalog').calls(kwargs)
+        catalog_moid        = kwargs.pmoids['user-catalog'].moid
+        # Get Organization Operating System Images
+        kwargs.api_filter = f"Catalog.Moid eq '{catalog_moid}'"
+        kwargs.method     = 'get'
+        kwargs.names      = []
+        kwargs.uri        = 'softwarerepository/OperatingSystemFiles'
+        kwargs            = api('operating_system').calls(kwargs)
+        kwargs.osi_moids  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+        return kwargs
+
+    #=============================================================================
+    # Function - SCU Links
+    #=============================================================================
+    def scu(self, kwargs):
+        # Get Organization Software Repository Catalog
+        kwargs.method       = 'get'
+        kwargs.names        = ['user-catalog']
+        kwargs.uri          = 'softwarerepository/Catalogs'
+        kwargs              = api('org_catalog').calls(kwargs)
+        catalog_moid        = kwargs.pmoids['user-catalog'].moid
+        # Get Organization Software Configuration Utility Repositories
+        kwargs.api_filter = f"Catalog.Moid eq '{catalog_moid}'"
+        kwargs.method     = 'get'
+        kwargs.names      = []
+        kwargs.uri        = 'firmware/ServerConfigurationUtilityDistributables'
+        kwargs            = api('server_configuration_utility').calls(kwargs)
+        kwargs.scu_moids  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
         return kwargs
 
 #=============================================================================

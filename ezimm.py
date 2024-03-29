@@ -38,17 +38,17 @@ except ImportError as e:
 # Function: Parse Arguments
 #=================================================================
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description='Intersight Easy IMM Deployment Module')
+    Parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
     Parser.add_argument(
-        '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
+        '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
         help='The Intersight API key id for HTTP signature scheme.')
-    Parser.add_argument( '-ccp', '--cco-password',   help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
-    Parser.add_argument( '-ccu', '--cco-user',   help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
+    Parser.add_argument( '-ccp', '--cco-password',   help = 'Cisco Connection Online Password to Authorize Firmware Downloads.' )
+    Parser.add_argument( '-ccu', '--cco-user',   help = 'Cisco Connection Online Username to Authorize Firmware Downloads.' )
     Parser.add_argument(
         '-d', '--dir', default = 'Intersight',
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')
     Parser.add_argument(
-        '-dl', '--debug-level', default =0,
+        '-dl', '--debug-level', default = 0,
         help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
             '1. Shows the api request response status code '\
             '5. Show URL String + Lower Options '\
@@ -56,26 +56,35 @@ def cli_arguments():
             '7. Adds json payload + Lower Options '\
             'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
     Parser.add_argument(
-        '-f', '--intersight-fqdn', default='intersight.com',
-        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
-    Parser.add_argument(
-        '-i', '--ignore-tls', action='store_false',
-        help='Ignore TLS server-side certificate verification.  Default is False.')
-    Parser.add_argument(
-        '-j', '--json-file', default=None,
-        help='The IMM Transition Tool JSON Dump File to Convert to HCL.')
-    Parser.add_argument(
-        '-k', '--intersight-secret-key', default='~/Downloads/SecretKey.txt',
-        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    Parser.add_argument(
-        '-l', '--load-config', action='store_true',
-        help='Skip Wizard and Just Load Configuration Files.')
-    Parser.add_argument(
-        '-t', '--deployment-method', default=None,
+        '-dm', '--deployment-method', default ='',
         help = 'Deployment Method values are: \
             1.  Python \
             2.  Terraform')
-    Parser.add_argument( '-v', '--api-key-v3', action='store_true', help='Flag for API Key Version 3.' )
+    Parser.add_argument(
+        '-dt', '--deployment-type', default ='',
+        help = 'Deployment Type values are: \
+            1.  FIAttached \
+            1.  Standalone \
+            1.  Profile \
+            1.  Individual \
+            1.  Deploy \
+            2.  Exit')
+    Parser.add_argument(
+        '-f', '--intersight-fqdn', default ='intersight.com',
+        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
+    Parser.add_argument(
+        '-i', '--ignore-tls', action = 'store_false',
+        help = 'Ignore TLS server-side certificate verification.  Default is False.')
+    Parser.add_argument(
+        '-j', '--json-file', default = None,
+        help = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
+    Parser.add_argument(
+        '-k', '--intersight-secret-key', default = '~/Downloads/SecretKey.txt',
+        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
+    Parser.add_argument(
+        '-l', '--load-config', action = 'store_true',
+        help = 'Skip Wizard and Just Load Configuration Files.')
+    Parser.add_argument( '-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.' )
     kwargs = DotMap()
     kwargs.args = Parser.parse_args()
     return kwargs

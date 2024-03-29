@@ -215,9 +215,9 @@ def main():
     if 'flashstack' in kwargs.args.deployment_type: kwargs.protocols = ['fcp', 'iscsi', 'nvme-roce']
     elif 'flexpod' in kwargs.args.deployment_type: kwargs.protocols = ['fcp', 'iscsi', 'nfs', 'nvme-tcp']
     if kwargs.args.deployment_step == 'initial':
-        #==============================================
+        #=====================================================
         # Configure Switches if configure Set to True
-        #==============================================
+        #=====================================================
         if kwargs.imm_dict.wizard.nxos_config == True:
             if kwargs.imm_dict.wizard.get('nxos'):
                 network_config = DotMap(deepcopy(kwargs.imm_dict.wizard.nxos[0]))
@@ -227,33 +227,33 @@ def main():
                     for i in network_config.switches:
                         if i.switch_type == network_type: config_count += 1
                     if config_count == 2: kwargs = network.nxos('nxos').config(network_config, network_type, kwargs)
-        #==============================================
+        #=====================================================
         # Configure Storage Appliances
-        #==============================================
+        #=====================================================
         if kwargs.args.deployment_type == 'flashstack': kwargs = ci.wizard('build').build_pure_storage(kwargs)
         elif kwargs.args.deployment_type == 'flexpod':  kwargs = ci.wizard('build').build_netapp(kwargs)
-        #==============================================
+        #=====================================================
         # Configure Domain
-        #==============================================
+        #=====================================================
         if re.search('(fl(ashstack|expod)|imm_domain)', kwargs.args.deployment_type):
             kwargs = ci.wizard('build').build_imm_domain(kwargs)
-        #==============================================
+        #=====================================================
         # Create YAML Files
-        #==============================================
+        #=====================================================
         orgs = list(kwargs.imm_dict.orgs.keys())
         kwargs = ezfunctions.remove_duplicates(orgs, ['policies', 'profiles'], kwargs)
         if len(kwargs.imm_dict.orgs) > 0: ezfunctions.create_yaml(orgs, kwargs)
-        #==============================================
+        #=====================================================
         # Deploy Policies
-        #==============================================
+        #=====================================================
         for org in orgs:
             kwargs.org = org
             if kwargs.imm_dict.orgs[org].get('policies'):
                 for ptype in kwargs.policy_list:
                     if kwargs.imm_dict.orgs[org]['policies'].get(ptype): kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
-        #==============================================
+        #=====================================================
         # Deploy Domain
-        #==============================================
+        #=====================================================
         if re.search('(flashstack|flexpod|imm_domain)', kwargs.args.deployment_type):
             for org in orgs:
                 kwargs.org = org
@@ -265,34 +265,34 @@ def main():
         arg_dict = vars(kwargs.args)
         for e in list(arg_dict.keys()):
             if re.search('intersight|password', e):
-                if arg_dict[e] != None: print(f'  * Sensitive Data Value Set.')
-                else: print(f'  * {arg_dict[e]}')
-            else: print(f'  * {arg_dict[e]}')
+                if arg_dict[e] != None: pcolor.LightPurple(f'  * Sensitive Data Value Set.')
+                else: pcolor.Cyan(f'  * {arg_dict[e]}')
+            else: pcolor.Cyan(f'  * {arg_dict[e]}')
     #=================================================================
     # Deploy Chassis/Server Pools/Policies/Profiles
     #=================================================================
     elif kwargs.args.deployment_step == 'servers':
         kwargs.deployed = {}
-        #==============================================
+        #=====================================================
         # Configure IMM Pools/Policies/Profiles
-        #==============================================
+        #=====================================================
         kwargs = ci.wizard('build').build_imm_servers(kwargs)
         orgs   = list(kwargs.imm_dict.orgs.keys())
-        #==============================================
+        #=====================================================
         # Create YAML Files
-        #==============================================
+        #=====================================================
         kwargs = ezfunctions.remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates', 'wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
-        #==============================================
+        #=====================================================
         # Pools
-        #==============================================
+        #=====================================================
         for org in orgs:
             kwargs.org = org
             for ptype in kwargs.imm_dict.orgs[org]['pools']:
                 if kwargs.imm_dict.orgs[org].get('pools'): kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
-        #==============================================
+        #=====================================================
         # Policies
-        #==============================================
+        #=====================================================
         for ptype in kwargs.policy_list:
             for org in orgs:
                 kwargs.org = org
@@ -300,9 +300,9 @@ def main():
         for org in orgs:
             kwargs.org = org
             kwargs.isight[org].policy = DotMap(dict(sorted(kwargs.isight[org].policy.toDict().items())))
-        #==============================================
+        #=====================================================
         # Profiles and Server Identities
-        #==============================================
+        #=====================================================
         for org in orgs:
             kwargs.org = org
             if kwargs.imm_dict.orgs[org].get('templates'):
@@ -320,53 +320,49 @@ def main():
             if kwargs.args.deployment_type == 'flexpod': kwargs = netapp.build('lun').lun(kwargs)
         if 'azurestack' == kwargs.args.deployment_type:
             for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
-        #==============================================
+        #=====================================================
         # Create YAML Files
-        #==============================================
+        #=====================================================
         ezfunctions.create_yaml(orgs, kwargs)
     #=================================================================
     # Install the Operating System
     #=================================================================
     elif kwargs.args.deployment_step == 'operating_system':
-        #==============================================
+        #=====================================================
         # Loop Through the Orgs
-        #==============================================
+        #=====================================================
         orgs = list(kwargs.imm_dict.orgs.keys())
         kwargs = ezfunctions.remove_duplicates(orgs, ['wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
+        #=====================================================
+        # Load Server Profile Variables - Install OS
+        #=====================================================
         for org in orgs:
             kwargs.org = org
-            #=====================================================
-            # Load Server Profile Variables
-            #=====================================================
-            for i in kwargs.imm_dict.orgs[kwargs.org].wizard.os_configuration:
-                for k, v in i.items(): kwargs.server_profiles[i.name][k] = v
-            #==============================================
-            # Install OS
-            #==============================================
+            for i in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles: kwargs.server_profiles[i.name] = i
             kwargs = ci.wizard('os_install').os_install(kwargs)
-        #==============================================
+        #=====================================================
         # Create YAML Files
-        #==============================================
+        #=====================================================
         ezfunctions.create_yaml(orgs, kwargs)
     #=================================================================
     # Configure the Operating System
     #=================================================================
     elif kwargs.args.deployment_step == 'os_configuration':
-        #==============================================
+        #=====================================================
         # Loop Through the Orgs
-        #==============================================
+        #=====================================================
         orgs = list(kwargs.imm_dict.orgs.keys())
         for org in orgs:
             #=====================================================
             # merge os_configuration with server_profiles
             #=====================================================
-            for i in kwargs.imm_dict.orgs[kwargs.org].wizard.os_configuration:
+            for i in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
                 for k, v in i.items(): kwargs.server_profiles[i.name][k] = v
             kwargs.repo_server = kwargs.imm_dict.orgs[kwargs.org].wizard.repository_server
-            #==============================================
+            #=====================================================
             # Configure Virtualization Environment
-            #==============================================
+            #=====================================================
             vmware = False
             for i in kwargs.virtualization:
                 if i.type == 'vmware': vmware = True
