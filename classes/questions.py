@@ -7,7 +7,7 @@ try:
     from classes import ezfunctions, isight, pcolor
     from copy import deepcopy
     from dotmap import DotMap
-    import json, os, re, textwrap, yaml
+    import json, numpy, os, re, textwrap, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -157,12 +157,13 @@ def organization(kwargs):
 #=================================================================
 def organization_shared(kwargs):
     kwargs.use_shared_org = False
+    primary_org = kwargs.org
     if kwargs.org != 'default':
         kwargs.jdata = DotMap(
             default     = True,
             description = '  A Shared Organization can be used to share policies to other organization.'\
                 '  This can be helpful to reduce duplicate pools and policies for each organization.'\
-                '  Would you like to configured a Shared Organization?',
+                f'  Would you like to configured a Shared Organization, or are you currently using a Shared Organization with `{kwargs.org}`?',
             sort        = False,
             title       = 'Intersight Shared Organization',
             type        = 'boolean')
@@ -171,16 +172,20 @@ def organization_shared(kwargs):
         kwargs      = isight.api('organization').all_organizations(kwargs)
         org_results = kwargs.results
         org_list = sorted([e.Name for e in org_results if e.get('SharedWithResources')], key=str.casefold)
-        org_list.append('Create New')
-        print(org_list)
-        kwargs.jdata = DotMap(
-            enum        = org_list,
-            default     = org_list[0],
-            description = 'Select an Existing Organization or `Create New`, for the shared Organization.',
-            sort        = False,
-            title       = 'Intersight Shared Organization',
-            type        = 'string')
-        shared_org = ezfunctions.variable_prompt(kwargs)
+        if len(org_list) == 0: org_list.append('Create New')
+        elif not kwargs.deployment_type == 'Profile': org_list.append('Create New')
+        if 'Create New' in org_list: description = 'Select an Existing Organization or `Create New`, for the shared Organization.'
+        else: description = 'Select an Existing Organization, for the shared Organization.'
+        if len(org_list) > 1:
+            kwargs.jdata = DotMap(
+                enum        = org_list,
+                default     = org_list[0],
+                description = description,
+                sort        = False,
+                title       = 'Intersight Shared Organization',
+                type        = 'string')
+            shared_org = ezfunctions.variable_prompt(kwargs)
+        else: shared_org = org_list[0]
         if shared_org == 'Create New':
             for e in ['description', 'name']:
                 kwargs.jdata = kwargs.ezdata.organization.allOf[1].properties[e]
@@ -191,7 +196,7 @@ def organization_shared(kwargs):
             kwargs.jdata = DotMap(
                 enum         = org_list,
                 default      = org_list[0],
-                description  = f'Select the Organization to Share pools/policies/templates from Organization {kwargs.shared_org}.',
+                description  = f'Select the Organization(s) to Share pools/policies/templates from Organization {kwargs.shared_org}.',
                 multi_select = True,
                 title        = 'Intersight Shared Organization',
                 type         = 'string')
@@ -216,8 +221,6 @@ def organization_shared(kwargs):
             for e in org_results[indx].SharedWithResources:
                 if kwargs.org_moids[kwargs.org].moid == e.Moid: in_shared_orgs = True
             if in_shared_orgs == False:
-                print(org_results[indx].SharedWithResources)
-                print(kwargs.org_moids[kwargs.org].moid)
                 kwargs.build_skip = True
                 kwargs.bulk_list  = []
                 kwargs.bulk_list.append(
@@ -225,8 +228,9 @@ def organization_shared(kwargs):
                      "SharedWithResource":{"Moid": kwargs.org_moids[kwargs.org].moid, "ObjectType":"organization.Organization"}})
                 kwargs.uri    = 'iam/SharingRules'
                 kwargs = isight.imm('sharing_rules').bulk_request(kwargs)
-        kwargs.imm_dict.orgs[kwargs.org].wizard.shared_org = kwargs.shared_org
-    else: kwargs.imm_dict.orgs[kwargs.org].wizard.pop('shared_org')
+        kwargs.org = primary_org
+        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.shared_org = kwargs.shared_org
+    else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.pop('shared_org')
     return kwargs
 
 #=================================================================
@@ -499,20 +503,9 @@ def sw_repo_os_cfg(os, kwargs):
     elif len(elist) == 1: kwargs.os_cfg = os_cfg[0]
     else:
         pcolor.Red(f'\n{"-"*108}\n')
-        pcolor.Red(f'  !!!ERROR!!! No Operating System Configuration File found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}` Version: `{os.version.name}`.  Exiting...')
+        pcolor.Red(f'  !!!ERROR!!! No Operating System Configuration File found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}` Version: `{os.version.name}`.')
+        pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 507')
         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
-    rows = []
-    for e in kwargs.os_cfg.Placeholders:
-        rows.append([f'Label: {e.Type.Label}', f'Name: {e.Type.Name}', f'Sensitive: {e.Type.Properties.Secure}', f'Required: {e.Type.Required}'])
-    cwidth = max(len(word) for row in rows for word in row) + 2
-    prows = []
-    for row in rows:
-        prows.append("".join(word.ljust(cwidth) for word in row))
-    prows.sort()
-    for row in prows:
-        print(row)
-    #print(json.dumps(kwargs.os_cfg, indent=4))
-    exit()
     return kwargs
 
 #=================================================================
@@ -527,21 +520,22 @@ def sw_repo_os_image(os, kwargs):
         if e.Vendor == os.vendor and e.Version == os.version.name:
             elist.append(f'Location: {e.Source.LocationLink} || Name: {e.Name} || Moid: {e.Moid}')
             osi_moids.append(deepcopy(e))
-    if len(kwargs.jdata.enum) > 1:
+    if len(elist) > 1:
         kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_os_image
         kwargs.jdata.default = elist[0]
         kwargs.jdata.enum    = elist
         answer               = ezfunctions.variable_prompt(kwargs)
-        regex                = re.compile(r'Location: (.*) \|\| Name: (.*)$ \|\| Moid: (.*)$')
+        regex                = re.compile(r'Location: (.*) \|\| Name: (.*) \|\| Moid: ([a-z0-9]+)$')
+        print(answer)
         match                = regex.search(answer)
         sw                   = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
-        indx                 = next((index for (index, d) in enumerate(kwargs.scu_moids) if d['Moid'] == sw.moid), None)
+        indx                 = next((index for (index, d) in enumerate(kwargs.osi_moids) if d['Moid'] == sw.moid), None)
         kwargs.os_image      = osi_moids[indx]
-    elif len(kwargs.jdata.enum) == 1: kwargs.os_image = osi_moids[0]
+    elif len(elist) == 1: kwargs.os_image = osi_moids[0]
     else:
         pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f'  !!!ERROR!!! No Operating System Image Found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}`.')
-        pcolor.Red(f'  Exiting...')
+        pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 549')
         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
     return kwargs
 
@@ -549,17 +543,18 @@ def sw_repo_os_image(os, kwargs):
 # Function: Prompt User for Server Configuration Utility
 #=================================================================
 def sw_repo_scu(kwargs):
-    elist  = []
-    kwargs = isight.software_repository('scu').scu(kwargs)
-    models = ", ".join(kwargs.models)
+    elist         = []
+    kwargs        = isight.software_repository('scu').scu(kwargs)
+    kwargs.models = list(numpy.unique(numpy.array([e.model for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles])))
     for e in kwargs.scu_moids:
         elist.append(f'Location: {e.Source.LocationLink} || Version: {e.Version} || Name: {e.Name} || Supported Models: {", ".join(e.SupportedModels)} || Moid: {e.Moid}')
     def print_error(kwargs):
+        models = ", ".join(kwargs.models)
         pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f'  !!!ERROR!!! No Server Configuration Utility Image Found in Intersight Organization `{kwargs.org}` to support Models: {models}.  Exiting....')
-        pcolor.Red(f'  Exiting...')
+        pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 564')
         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
-    kwargs.scu = []
+    models = True
     if len(elist) > 1:
         kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_scu
         kwargs.jdata.default = elist[0]
@@ -569,15 +564,13 @@ def sw_repo_scu(kwargs):
         match  = regex.search(answer)
         sw = DotMap(location = match.group(1), version = match.group(2), name = match.group(3), moid=match.group(4))
         indx = next((index for (index, d) in enumerate(kwargs.scu_moids) if d['Moid'] == sw.moid), None)
-        models = True
         for d in kwargs.models:
-            if not d in kwargs.scu_moids[indx]: models = False
-        if models == True: kwargs.scu = e
+            if not d in kwargs.scu_moids[indx].SupportedModels: models = False
+        if models == True: kwargs.scu = kwargs.scu_moids[indx]
     elif len(elist) == 1:
         for d in kwargs.models:
-            if not d in kwargs.scu_moids[0]: models = False
-        if models == True: kwargs.scu = e
-        kwargs.scu == kwargs.scu_moids[0]
+            if not d in kwargs.scu_moids[0].SupportedModels: models = False
+        if models == True: kwargs.scu = kwargs.scu_moids[0]
     else: print_error(kwargs)
     if len(kwargs.scu) == 0: print_error(kwargs)
     return kwargs

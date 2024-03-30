@@ -122,7 +122,7 @@ class api(object):
                 vics                  = vics)
             if type(kwargs.servers[i.Serial].chassis_id) == int:
                 for e in ['chassis_id', 'chassis_moid', 'domain', 'slot']: kwargs.servers[i.Serial].pop(e)
-        pcolor.Cyan(f'\n     Completed Server Inventory.\n')
+        pcolor.Cyan(f'   - Completed Server Inventory.\n')
         # Return kwargs
         return kwargs
 
@@ -200,6 +200,11 @@ class api(object):
             kwargs.server_profiles[e.name] = DotMap(e)
             kwargs.server_profiles[e.name].hardware_moid = e.moid
             hw_moids.append(e.moid)
+        pcolor.Cyan(f'\n   - Pulling Server Identity Inventory for the following Server Profiles(s):')
+        for k,v in kwargs.server_profiles.items(): pcolor.Cyan(f'     * Serial: {e.serial} Name: {k}')
+        #=====================================================
+        # Get Server Profile Elements
+        #=====================================================
         kwargs.method = 'get'
         kwargs.names  = list(kwargs.server_profiles.keys())
         kwargs.uri    = 'server/Profiles'
@@ -211,18 +216,17 @@ class api(object):
         kwargs.method = 'get'
         kwargs.names  = profile_moids
         kwargs.uri    = 'vnic/EthIfs'
-        kwargs        = api('moid_filter').calls(kwargs)
+        kwargs        = api('profile_moid').calls(kwargs)
         vnic_results  = kwargs.results
         kwargs.uri    = 'vnic/FcIfs'
-        kwargs        = api('moid_filter').calls(kwargs)
+        kwargs        = api('profile_moid').calls(kwargs)
         vhba_results  = kwargs.results
         #=====================================================
         # Attach vNIC(s)/Identities to server_profile Dict
         #=====================================================
-        kwargs.eth_moids = []
         if len(vnic_results) > 0:
             kwargs.names = list(numpy.unique(numpy.array([e.Moid for i in vnic_results for e in i.FabricEthNetworkGroupPolicy])))
-            kwargs.uri   = kwargs.ezdata.policies.ethernet_network_group.intersight_uri
+            kwargs.uri   = kwargs.ezdata.ethernet_network_group.intersight_uri
             kwargs       = api('moid_filter').calls(kwargs)
             eth_results  = kwargs.results
             for k in list(kwargs.server_profiles.keys()):
@@ -235,7 +239,6 @@ class api(object):
                                                vlan_group = DotMap(moid = eth_results[indx].Moid, name = eth_results[indx].Name),
                                                mac = e.MacAddress, name = e.Name, order = e.Order, switch = e.Placement.SwitchId))
                 kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda k: (k['order']))
-                indx = next((index for (index, d) in enumerate(eth_results) if d['Moid'] == e.vgroup), None)
         else:
             kwargs.names      = hw_moids
             #kwargs.api_filter = f"Ancestors/any(t:t/Moid in '{names_join}')"
@@ -268,36 +271,22 @@ class api(object):
                     if e.Profile.Moid == kwargs.server_profiles[k].moid:
                         wwpn_list.append(DotMap(name = e.Name,order = e.Order, wwpn = e.Wwpn,
                                                switch = e.Placement.SwitchId))
-                kwargs.server_profiles[k].macs = sorted(wwpn_list, key=lambda k: (k['order']))
+                kwargs.server_profiles[k].wwpns = sorted(wwpn_list, key=lambda k: (k['order']))
         #=====================================================
         # Get IQN for Host and Add to Profile Map
         #=====================================================
-        names_join        = "', '".join(profile_moids).strip("', '")
-        kwargs.api_filter = f"AssignedToEntity.Moid eq ('{names_join}')"
-        kwargs.method     = 'get'
-        kwargs.uri        = 'iqnpool/Pools'
-        kwargs            = api('iqn').calls(kwargs)
+        kwargs.names  = profile_moids
+        kwargs.method = 'get'
+        kwargs.uri    = 'iqnpool/Pools'
+        kwargs        = api('iqn_pool_leases').calls(kwargs)
         if len(kwargs.results) > 0:
             for k in list(kwargs.server_profiles.keys()):
                 for e in kwargs.results:
                     if e.AssignedToEntity.Moid == kwargs.server_profiles[k].moid: kwargs.server_profiles[k].iqn = e.IqnId
         kwargs.server_profile = DotMap(kwargs.server_profiles)
-        if len(kwargs.eth_moids) > 0:
-            #=====================================================
-            # Query API for Ethernet Network Policies and Add to Server Profile Dictionaries
-            #=====================================================
-            eth_moids         = list(numpy.unique(numpy.array(kwargs.eth_moids)))
-            names_join        = "', '".join(eth_moids).strip("', '")
-            kwargs.api_filter = f"Moid in ('{names_join}')"
-            kwargs.uri        = 'fabric/EthNetworkGroupPolicies'
-            eth_results       = kwargs.results
-            for k in list(kwargs.server_profiles.keys()):
-                mcount = 0
-                for e in kwargs.server_profiles[k].macs:
-                    indx = next((index for (index, d) in enumerate(eth_results) if d['Moid'] == e.vgroup), None)
-                    kwargs.server_profiles[k].macs[mcount].allowed    = eth_results[indx].VlanSettings.AllowedVlans
-                    kwargs.server_profiles[k].macs[mcount].native     = eth_results[indx].VlanSettings.NativeVlan
-                    kwargs.server_profiles[k].macs[mcount].vlan_group = eth_results[indx].Name
+        #=====================================================
+        # Update Wizard Setup Server Profile List
+        #=====================================================
         for k in list(kwargs.server_profiles.keys()):
             serial = kwargs.server_profiles[k].serial
             pvars  = kwargs.server_profiles[k].toDict()
@@ -313,6 +302,7 @@ class api(object):
         orgs   = list(kwargs.org_moids.keys())
         kwargs = ezfunctions.remove_duplicates(orgs, ['wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
+        pcolor.Cyan(f'  - Completed Server Identity Inventory.\n')
         #=====================================================
         # Return kwargs and kwargs
         #=====================================================
@@ -492,6 +482,7 @@ class api(object):
                     elif 'connectivity.vnics' in self.type:   api_filter = f"Name in ('{names}') and LanConnectivityPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'hcl_status' == self.type:           api_filter = f"ManagedObject.Moid in ('{names}')"
                     elif 'iam_role' == self.type:             api_filter = f"Name in ('{names}') and Type eq 'IMC'"
+                    elif 'iqn_pool_leases' == self.type:      api_filter = f"AssignedToEntity.Moid in ('{names}')"
                     elif 'port.port_channel_' in self.type:   api_filter = f"PcId in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'port.port_modes' == self.type:      api_filter = f"PortIdStart in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'port.port_role_' in self.type:      api_filter = f"PortId in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
@@ -795,7 +786,9 @@ class imm(object):
         #=============================================================================
         api_body = imm(self.type).org_map(api_body, kwargs.org_moids[kwargs.org].moid)
         if api_body.get('Tags'): api_body['Tags'].append(kwargs.ez_tags.toDict())
-        else: api_body.update({'Tags':[kwargs.ez_tags.toDict()]})
+        else:
+            if type(kwargs.ez_tags) == dict: api_body.update({'Tags':[kwargs.ez_tags]})
+            else: api_body.update({'Tags':[kwargs.ez_tags.toDict()]})
         api_body = dict(sorted(api_body.items()))
         if api_body.get('Descr'):
             if api_body['Name'] in api_body['Descr']: api_body['Descr'].replace(api_body['Name'], f"{np}{api_body['Name']}{ns}")
@@ -2208,8 +2201,7 @@ class imm(object):
                     ptype = 'ucs_server_template'; tname = e.ucs_server_template
                     tdata = kwargs.imm_dict.orgs[org]['templates']['server']
                     indx  = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
-                    if indx == None:
-                        validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
+                    if indx == None: validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
                     elif tdata[indx].create_template == True and e.attach_template == True:
                         if len(kwargs.isight[org].profile.server_template[template]) == 0:
                             validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')

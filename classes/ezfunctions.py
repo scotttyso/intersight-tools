@@ -897,7 +897,7 @@ def sensitive_var_value(kwargs):
             elif 'iscsi_boot' in sensitive_var:
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.iscsi_boot_password
                 valid = validate_sensitive(secure_value, kwargs)
-            elif re.search('(local_user|ucs(_central)?)_password', sensitive_var):
+            elif re.search('(local_user|root|ucs(_central)?)_password', sensitive_var):
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.local_user_password
                 if kwargs.enforce_strong_password == True:
                     kwargs.jdata.maxLength = 20

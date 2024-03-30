@@ -90,20 +90,6 @@ def cli_arguments():
     return kwargs
 
 #=================================================================
-# Function: Build Pool/Policy List(s)
-#=================================================================
-def build_policy_list(kwargs):
-    kwargs.policy_list = []; kwargs.pool_list = []
-    for k, v in kwargs.ezdata.items():
-        if v.intersight_type == 'pool' and not '.' in k: kwargs.pool_list.append(k)
-        elif v.intersight_type == 'policy':
-            if kwargs.target_platform == 'FIAttached':
-                if not '.' in k and ('chassis' in v.target_platforms or 'FIAttached' in v.target_platforms):  kwargs.policy_list.append(k)
-            else:
-                if 'Standalone' in v.target_platforms and not '.' in k: kwargs.policy_list.append(k)
-    return kwargs
-
-#=================================================================
 # Function: Create Terraform Workspaces
 #=================================================================
 def create_terraform_workspaces(orgs, kwargs):
@@ -344,64 +330,19 @@ def menu(kwargs):
     # Prompt User with Questions if deployment_type not Exit|Deploy
     #=================================================================
     kwargs = questions.organization(kwargs)
-    if not re.search('Individual|Profile', kwargs.deployment_type):
-        if not kwargs.imm_dict.orgs[kwargs.org].wizard.get('shared_org'): questions.organization_shared(kwargs)
-    if len(kwargs.imm_dict.orgs.keys()) == 0: kwargs.imm_dict.orgs[kwargs.org] = DotMap()
+    if not re.search('Individual', kwargs.deployment_type):
+        if not kwargs.imm_dict.orgs[kwargs.org].wizard.setup.get('shared_org'): questions.organization_shared(kwargs)
+    if len(kwargs.imm_dict.orgs.keys()) == 0:
+        kwargs.imm_dict.orgs[kwargs.org] = DotMap()
+        kwargs = build.intersight('setup').setup(kwargs)
     else:
         orgs = list(kwargs.imm_dict.orgs.keys())
         if kwargs.org in orgs:
             for org in orgs:
-                kwargs.org = org
-                if kwargs.imm_dict.orgs[kwargs.org].get('wizard') and kwargs.imm_dict.orgs[kwargs.org].wizard.get('setup'):
+                if kwargs.imm_dict.orgs[org].get('wizard') and kwargs.imm_dict.orgs[org].wizard.get('setup'):
+                    kwargs.org = org
                     for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
-    #=================================================================
-    # Loop Thru Wizard Menu for Deployment
-    #=================================================================
-    kwargs.imm_dict.orgs[kwargs.org].wizard.setup.deployment_type = kwargs.deployment_type
-    if kwargs.deployment_type == 'Profile':
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.assignment_method = 'Serial'
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.build_type        = 'Machine'
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.deployment_method = 'Python'
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery         = True
-    elif kwargs.deployment_type == 'Individual':
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.assignment_method = 'Serial'
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.build_type        = 'Interactive'
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery         = False
-    elif re.search('FIAttached|Standalone', kwargs.deployment_type):
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform = kwargs.deployment_type
-    setup_list = ['build_type', 'deployment_method', 'target_platform', 'assignment_method', 'operating_systems', 'discovery']
-    for e in setup_list:
-        if not kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]: kwargs = eval(f'questions.setup_{e}(kwargs)')
-        else: kwargs[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]
-    if re.search('FIAttached|Standalone', kwargs.deployment_type):
-        if not 'name_prefix' in list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.keys()): kwargs = questions.setup_name_prefix(kwargs)
-        if not 'name_suffix' in list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.keys()): kwargs = questions.setup_name_suffix(kwargs)
-        for p in ['pools', 'policies']:
-            kwargs.imm_dict.orgs[kwargs.org][p].name_prefix.default = kwargs.name_prefix
-            kwargs.imm_dict.orgs[kwargs.org][p].name_suffix.default = kwargs.name_suffix
-    #==============================================
-    # Create YAML Files
-    #==============================================
-    orgs = list(kwargs.org_moids.keys())
-    ezfunctions.create_yaml(orgs, kwargs)
-    #==============================================
-    # Build Pool/Policy/Profile List
-    #==============================================
-    if re.search('FIAttached|Standalone', kwargs.deployment_type): kwargs = build_policy_list(kwargs)
-    if 'Individual' in kwargs.deployment_type:
-        kwargs = questions.main_menu_individual_types(kwargs)
-        kwargs = questions.main_menu_individual(kwargs)
-    if re.search('FIAttached', kwargs.deployment_type): kwargs.ptypes = ['Pools', 'Policies', 'Profiles']
-    elif re.search('Standalone', kwargs.deployment_type): kwargs.ptypes = ['Policies', 'Profiles']
-    if re.search('FIAttached|Standalone', kwargs.deployment_type):
-        kwargs = build_policy_list(kwargs)
-        if 'Pools' in kwargs.ptypes: kwargs.main_menu_list.extend(kwargs.pool_list)
-        if 'Policies' in kwargs.ptypes: kwargs.main_menu_list.extend(kwargs.policy_list)
-        if 'Profiles' in kwargs.ptypes:
-            if kwargs.target_platform == 'Standalone': kwargs.main_menu_list.extend(['server', 'server_template'])
-            else: kwargs.main_menu_list.extend(['chassis', 'domain', 'server', 'server_template'])
-        if not 'Resource Pool' == kwargs.imm_dict.orgs[kwargs.org].wizard.assignment_method:
-            if 'resource' in kwargs.main_menu_list: kwargs.main_menu_list.remove('resource')
+                    kwargs = build.intersight('setup').setup(kwargs)
     return kwargs
 
 
