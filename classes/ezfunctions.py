@@ -822,6 +822,10 @@ def repo_url_test(file, pargs):
 #=============================================================================
 def sensitive_var_value(kwargs):
     sensitive_var = kwargs.sensitive_var
+    undefined = False
+    if re.search('^undefined_', sensitive_var):
+        undefined = True
+        sensitive_var = sensitive_var.replace('undefined_', '')
     #=======================================================================================================
     # Check to see if the Variable is already set in the Environment, and if not prompt the user for Input.
     #=======================================================================================================
@@ -863,7 +867,6 @@ def sensitive_var_value(kwargs):
             # Validate Sensitive Passwords
             #==============================================
             #cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
-            sattributes = kwargs.ezdata.sensitive_variables
             if re.search('(certificate|private_key)', sensitive_var):
                 try:
                     if re.search('certficate', sensitive_var):
@@ -884,6 +887,7 @@ def sensitive_var_value(kwargs):
                 else:
                     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')
                     pcolor.Red(f'\n{"-"*108}\n')
+            elif undefined == True: valid = True
             elif re.search('intersight_api_key_id', sensitive_var):
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.intersight_api_key_id
                 valid = validate_sensitive(secure_value, kwargs)

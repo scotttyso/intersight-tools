@@ -1,0 +1,186 @@
+---
+add_vlans:
+  organizations:
+    - Common
+  ethernet_network_groups:
+    - ESX
+    - UPLINK
+  vlan_policy:
+    name: VLAN
+    vlans:
+      - name: 26-AL-Private-ESX0026
+        vlan_id: 26
+      - name: 59-RADIOLOGY-BSRB-SERVERS0059
+        vlan_id: 59
+      - name: 243-ST-Sentillian0243
+        vlan_id: 243
+      - name: 259-ST-FWSM-MiChart-DMZ0259
+        vlan_id: 259
+      - name: 276-SYS-WBI-10276
+        vlan_id: 276
+      - name: 288-ST-VmWare-NAS0288
+        vlan_id: 288
+      - name: 294-ST-DS-OMP-PROD0294
+        vlan_id: 294
+      - name: 295-ST-DS-OMP-TEST0295
+        vlan_id: 295
+      - name: 658-AL-ESX-VC-Console0658
+        vlan_id: 658
+      - name: 659-AL-ESX-VMotion0659
+        vlan_id: 659
+      - name: default_6650665
+        vlan_id: 665
+      - name: 984-Call-Manager-VMs0984
+        vlan_id: 984
+      - name: 1100-ST-RADIOLOGY-SERVERS1100
+        vlan_id: 1100
+      - name: 1101-ST-RADIOLOGY-SERVERS1101
+        vlan_id: 1101
+      - name: 1105-ST-RADIOLOGY-SERVERS1105
+        vlan_id: 1105
+      - name: 1106-RADIOLOGY-WS-VM1106
+        vlan_id: 1106
+      - name: 1112-ST-RADIOLOGY-ESX-CONSOLE1112
+        vlan_id: 1112
+      - name: 1224-NET-NAC-ISE1224
+        vlan_id: 1224
+      - name: 1226-NC-DS-Servers-B1226
+        vlan_id: 1226
+      - name: 1232-NC-ACE-LOCAL-Services-C1232
+        vlan_id: 1232
+      - name: 1233-NC-ACE-LOCAL-Services-D1233
+        vlan_id: 1233
+      - name: 1234-NET-APPLIANCES1234
+        vlan_id: 1234
+      - name: 1235-NC-ESX-SVC-Consoles1235
+        vlan_id: 1235
+      - name: 1236-IDM-LOADBALANCED1236
+        vlan_id: 1236
+      - name: 1237-ST-ESX-SVC-Consoles1237
+        vlan_id: 1237
+      - name: 1238-ST-ESX-VMOTION1238
+        vlan_id: 1238
+      - name: 1247-NC-NTS-AMCOM-ACE1247
+        vlan_id: 1247
+      - name: 1252-ST-Exchange-Replication1252
+        vlan_id: 1252
+      - name: 1254-ASPECT1254
+        vlan_id: 1254
+      - name: 1256-ST-MailRelay1256
+        vlan_id: 1256
+      - name: 1288-ST-EHIS-CLUSTER-HEART1288
+        vlan_id: 1288
+      - name: 1289-ST-UCS-BLADE-CIMC1289
+        vlan_id: 1289
+      - name: 1356-CEI1356
+        vlan_id: 1356
+      - name: 1357-CEI1357
+        vlan_id: 1357
+      - name: 1360-OPENSHIFT1360
+        vlan_id: 1360
+      - name: 1361-FW-AZURE-VPN-OUTSIDE1361
+        vlan_id: 1361
+      - name: 1362-FW-AZURE-FAILOVER1362
+        vlan_id: 1362
+      - name: 1363-FW-AZURE-STATE1363
+        vlan_id: 1363
+      - name: 1364-KUBERNETES-NFS1364
+        vlan_id: 1364
+      - name: 1365-OPENSHIFT-PROD1365
+        vlan_id: 1365
+      - name: 1370-ISILON-TEST-CLUSTER1370
+        vlan_id: 1370
+      - name: 1401-ST-NTS-Video-Application1401
+        vlan_id: 1401
+      - name: 1402-OMNICELL1402
+        vlan_id: 1402
+      - name: 1403-FW-Maclab1403
+        vlan_id: 1403
+      - name: 1407-FW-SIEMENSVIBE1407
+        vlan_id: 1407
+      - name: 1409-ST-NTS-FWSM-NTSKDXCATH1409
+        vlan_id: 1409
+      - name: 1411-ST-FW-AMCOMNEW1411
+        vlan_id: 1411
+      - name: 1412-ST-FW-AMCOMTEST1412
+        vlan_id: 1412
+      - name: 1413-ST-FWSM-NTS-HUGS1413
+        vlan_id: 1413
+      - name: 1414-ST-FWSM-NTS-Nursecall1414
+        vlan_id: 1414
+      - name: 1415-ST-NTS-FWSM-AVASURE1415
+        vlan_id: 1415
+      - name: 1416-ST-FWSM-NTS-CCURE9K1416
+        vlan_id: 1416
+      - name: 1417-ST-PIM-VAULT1417
+        vlan_id: 1417
+      - name: 1418-ST-FWSM-NTS-Siemens-BMS1418
+        vlan_id: 1418
+      - name: 1419-ST-NTS-PEDS-XPER1419
+        vlan_id: 1419
+      - name: 1420-FW-EXTERNAL1420
+        vlan_id: 1420
+      - name: 1422-ST-OBIX-PROD1422
+        vlan_id: 1422
+      - name: 1423-ST-OBIX-TEST1423
+        vlan_id: 1423
+      - name: 1426-NETSCALER1426
+        vlan_id: 1426
+      - name: 1427-FW-AVAYA-PHONEPROXY1427
+        vlan_id: 1427
+      - name: 1431-FW-APIM-INSIDE-PROD1431
+        vlan_id: 1431
+      - name: 1433-FW-APIM-DMZ-DEV1433
+        vlan_id: 1433
+      - name: 1434-FW-APIM-INSIDE-DEV1434
+        vlan_id: 1434
+      - name: 1435-FW-NTS-BMS1435
+        vlan_id: 1435
+      - name: 1455-ST-LB-MICHART-WIN-VIPS1455
+        vlan_id: 1455
+      - name: 1458-AMCOM-PROD-PRIV1458
+        vlan_id: 1458
+      - name: 1466-UMHS-MULTIMEDIA1466
+        vlan_id: 1466
+      - name: 1488-FW-MCIRCC-CARESCAPE1488
+        vlan_id: 1488
+      - name: 1498-ST-FWSM-NTS-Ped-Card1498
+        vlan_id: 1498
+      - name: 1500-UC-SFB-PUBLIC1500
+        vlan_id: 1500
+      - name: 1501-UC-SFB-PRIVATE1501
+        vlan_id: 1501
+      - name: 1670-ST-GWN1670
+        vlan_id: 1670
+      - name: 2001-Call-Manager-VMs2001
+        vlan_id: 2001
+      - name: 2012-Call-Manager-VMs2012
+        vlan_id: 2012
+      - name: 2153-ASPECT2153
+        vlan_id: 2153
+      - name: 2154-ASPECT2154
+        vlan_id: 2154
+      - name: 2251-ST-ASPECT2251
+        vlan_id: 2251
+      - name: 2252-ST-ASPECT2252
+        vlan_id: 2252
+      - name: 2253-ST-ASPECT2253
+        vlan_id: 2253
+      - name: 2254-ST-ASPECT2254
+        vlan_id: 2254
+      - name: 3147-ST-STORAGE3147
+        vlan_id: 3147
+  lan_connectivity:
+    name: '{{vlan_id}}'
+    target_platform: FIAttached
+    vnics:
+      - ethernet_adapter: Windows
+        ethernet_network_control: cdp-enable
+        ethernet_network_group: '{{vlan_id}}_NIC-A'
+        ethernet_qos: default
+        mac_pool: MAC
+        name: NIC-A
+        placement:
+          order: 2
+          slot: MLOM
+          switch_id: A

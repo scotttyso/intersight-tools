@@ -2,26 +2,26 @@
 """ Infrastructure Deployment - 
 This Script is built to Deploy Infrastructure from a YAML Configuration File.
 The Script uses argparse to take in the following CLI arguments:
-    a or intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
-    d or dir:                   Base Directory to use for creation of the YAML Configuration Files.
-    dl or debug-level:          The Debug Level to Run for Script Output
-    e or intersight-fqdn:       The Intersight hostname for the API endpoint. The default is intersight.com.
-    i or ignore-tls:            Ignore TLS server-side certificate verification.  Default is False.
-    k or intersight-secret-key: Name of the file containing The Intersight secret key for the HTTP signature scheme.
-    s or deployment-step:       The steps in the proceedure to run. Options Are: 
-                                  1. initial
-                                  2. servers
-                                  3. luns
-                                  4. operating_system
-                                  5. os_configuration
-    t or deployment-type:       Infrastructure Deployment Type. Options Are: 
-                                  1. azurestack
-                                  2. flashstack
-                                  3. flexpod
-                                  4. imm_domain
-                                  5. imm_standalone
-    v or api-key-v3:            Flag for API Key Version 3.
-    y or yaml-file:             The input YAML File.
+    -a  or -intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
+    -d  or -dir:                   Base Directory to use for creation of the YAML Configuration Files.
+    -dl or -debug-level:          The Debug Level to Run for Script Output
+    -e  or -intersight-fqdn:       The Intersight hostname for the API endpoint. The default is intersight.com.
+    -i  or -ignore-tls:            Ignore TLS server-side certificate verification.  Default is False.
+    -k  or -intersight-secret-key: Name of the file containing The Intersight secret key for the HTTP signature scheme.
+    -s  or -deployment-step:       The steps in the proceedure to run. Options Are: 
+                                     1. initial
+                                     2. servers
+                                     3. luns
+                                     4. operating_system
+                                     5. os_configuration
+    -t  or -deployment-type:       Infrastructure Deployment Type. Options Are: 
+                                     1. azurestack
+                                     2. flashstack
+                                     3. flexpod
+                                     4. imm_domain
+                                     5. imm_standalone
+    -v  or -api-key-v3:            Flag for API Key Version 3.
+    -y  or -yaml-file:             The input YAML File.
 """
 #=============================================================================
 # Source Modules

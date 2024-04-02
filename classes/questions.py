@@ -20,6 +20,21 @@ class yaml_dumper(yaml.Dumper):
         return super(yaml_dumper, self).increase_indent(flow, False)
 
 #=================================================================
+# Function: Build Pool/Policy List(s)
+#=================================================================
+def build_policy_list(kwargs):
+    kwargs.policy_list = []; kwargs.pool_list = []
+    for k, v in kwargs.ezdata.items():
+        if v.intersight_type == 'pool' and not '.' in k: kwargs.pool_list.append(k)
+        elif v.intersight_type == 'policy':
+            if kwargs.target_platform == 'FIAttached':
+                if not '.' in k and ('chassis' in v.target_platforms or 'FIAttached' in v.target_platforms):  kwargs.policy_list.append(k)
+            else:
+                if 'Standalone' in v.target_platforms and not '.' in k: kwargs.policy_list.append(k)
+    return kwargs
+
+
+#=================================================================
 # Function: Prompt User with Existing Pools/Policies/Profiles
 #=================================================================
 def existing_object(ptype, item, kwargs):
@@ -573,5 +588,13 @@ def sw_repo_scu(kwargs):
         if models == True: kwargs.scu = kwargs.scu_moids[0]
     else: print_error(kwargs)
     if len(kwargs.scu) == 0: print_error(kwargs)
+    return kwargs
+
+#=================================================================
+# Function: Prompt User for Target Platform
+#=================================================================
+def target_platform(kwargs):
+    kwargs.jdata           = kwargs.ezwizard.setup.properties.target_platform
+    kwargs.target_platform = ezfunctions.variable_prompt(kwargs)
     return kwargs
 

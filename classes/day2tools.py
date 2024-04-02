@@ -9,7 +9,7 @@ try:
     from datetime import datetime
     from dotmap   import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
-    import numpy, pytz, openpyxl, re, urllib3, yaml
+    import json, numpy, pytz, openpyxl, re, urllib3, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -17,6 +17,10 @@ except ImportError as e:
     sys.exit(1)
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+class yaml_dumper(yaml.Dumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(yaml_dumper, self).increase_indent(flow, False)
 
 class tools(object):
     def __init__(self, type):
@@ -29,7 +33,8 @@ class tools(object):
         #======================================================
         # Check for YAML File Definition
         #======================================================
-        pcolor.Cyan(f'\n{"-"*108}\n  Beginning Policy Append to Profiles...\n{"-"*108}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n  Beginning Policy Append to Profiles...')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         if kwargs.args.yaml_file != None:
             yaml_arg = True
             ydata = DotMap(yaml.safe_load(open(kwargs.args.yaml_file, 'r')))
@@ -53,7 +58,7 @@ class tools(object):
         if yaml_arg == False:
             kwargs.jdata = DotMap(
                 default = 'server', description  = 'Select the Intersight Profile Type.',
-                enum = target_platforms,  multi_select = True, title = 'Profile Type(s)')
+                enum = target_platforms,  multi_select = True, title = 'Profile Type(s)', type = 'string')
             profile_types = ezfunctions.variable_prompt(kwargs)
         else: profile_types = [e.type for e in ydata.profile_types]
         kwargs.sub_type = DotMap()
@@ -62,12 +67,11 @@ class tools(object):
                 if re.search('^server(_template)?$', e):
                     kwargs.jdata = DotMap(
                         default = 'FIAttached', description  = f'Select the {e} Profile Sub-Type.',
-                        enum = ['FIAttached', 'Standalone'], title = 'Profile Sub-Type')
+                        enum = ['FIAttached', 'Standalone'], title = 'Profile Sub-Type', type = 'string')
                     kwargs.sub_type[e] = ezfunctions.variable_prompt(kwargs)
         else:
             for e in ydata.profile_types:
-                if re.search('server|server_template'):
-                    kwargs.sub_type[e.type] = e.sub_type
+                if re.search('server|server_template'): kwargs.sub_type[e.type] = e.sub_type
         #======================================================
         # Prompt User for Policies to Attach
         #======================================================
@@ -78,9 +82,7 @@ class tools(object):
                 kwargs.jdata = DotMap(
                     default      = policies[0],
                     description  = f'Select the `{", ".join(profile_types)}` Policy Type(s) (can be multiple).',
-                    enum         = policies,
-                    multi_select = True,
-                    title        = 'Policy Type(s)')
+                    enum = policies, multi_select = True, title = 'Policy Type(s)', type = 'string')
                 target[e].update_policies = ezfunctions.variable_prompt(kwargs)
             else: target[e].update_policies = ydata.policy_types
         #======================================================
@@ -90,10 +92,13 @@ class tools(object):
         else: kwargs.organizations = ydata.organizations
         for target_platform in profile_types:
             for org in kwargs.organizations:
-                pcolor.Cyan(f'\n{"-"*108}\n  Starting `{target_platform}` Loop in Organization `{org}`.\n{"-"*108}\n')
+                pcolor.Cyan(f'\n{"-"*108}\n\n  Starting `{target_platform}` Loop in Organization `{org}`.')
+                pcolor.Cyan(f'\n{"-"*108}\n')
                 tools(target_platform).update_profile(org, target, yaml_arg, ydata, kwargs)
-                pcolor.Cyan(f'\n{"-"*108}\n  Finished `{target_platform}` Loop in Organization `{org}`.\n{"-"*108}\n')
-            pcolor.Purple(f'\n{"-"*108}\n  Finished Updating `{target_platform}` Profiles...\n{"-"*108}\n')
+                pcolor.Cyan(f'\n{"-"*108}\n\n  Finished `{target_platform}` Loop in Organization `{org}`.')
+                pcolor.Cyan(f'\n{"-"*108}\n')
+            pcolor.Purple(f'\n{"-"*108}\n\n  Finished Updating `{target_platform}` Profiles...')
+            pcolor.Purple(f'\n{"-"*108}\n')
 
     #======================================================
     # Function - Add Vlans
@@ -106,189 +111,291 @@ class tools(object):
         if kwargs.args.yaml_file != None:
             ydata = DotMap(yaml.safe_load(open(kwargs.args.yaml_file, 'r'))).add_vlans
         else:
-            prRed(f'\n{"-"*108}\n\n  Missing Required YAML File Argument `-y`.  Exiting Process.\n\n{"-"*108}\n')
+            prRed(f'\n{"-"*108}\n\n  Missing Required YAML File Argument `-y`.  Exiting Process.')
+            prRed(f'\n{"-"*108}\n')
             sys.exit(1)
         #======================================================
         # Get VLAN List and Organizations from YAML configuration file.
         #======================================================
         tags  = [{'key': 'Module','value': 'day2tools'}]
-        vlans = ydata.patch.vlan_policy.vlans
         kwargs.organizations = ydata.organizations
         for org in kwargs.organizations:
             kwargs.org = org
-            pcolor.Cyan(f'\n{"-"*108}\n\n  Starting Loop on Organization {org}.\n\n{"-"*108}\n')
+            vpolicy    = ydata.vlan_policy.name
+            vlans      = ydata.vlan_policy.vlans
+            pcolor.Cyan(f'\n{"-"*108}\n\n  Starting Loop on Organization {org}.')
+            pcolor.Cyan(f'\n{"-"*108}\n')
             #======================================================
             # Query the API for the VLAN Policies
             #======================================================
-            vpolicy  = ydata.patch.vlan_policy.name
             kwargs = isight.api_get(False, [vpolicy], 'vlan', kwargs)
-            kwargs.vlans = kwargs.pmoids #880-0551
+            vlan_moid = kwargs.pmoids[vpolicy].moid
             #======================================================
             # Query the API for the VLANs Attached to the VLAN Policy
             #======================================================
-            pcolor.Cyan(f'\n{"-"*108}\n\n  Checking VLAN Policy `{vpolicy}` for VLANs.\n\n{"-"*108}\n')
-            kwargs.pmoid = kwargs.vlans[vpolicy].moid
-            kwargs = isight.api_get(True, [e.vlan_id for e in vlans], 'vlan.vlans', kwargs)
-            mcast_moid   = kwargs.results[0].MulticastPolicy.Moid
-            policy_vlans = [e.VlanId for e in kwargs.results]
+            pcolor.Cyan(f'\n{"-"*108}\n\n  Checking VLAN Policy `{vpolicy}` for VLANs.')
+            pcolor.Cyan(f'\n{"-"*108}\n')
+            kwargs.api_filter = f"EthNetworkPolicy.Moid eq '{vlan_moid}'"
+            kwargs.method     = 'get'
+            kwargs.uri        = kwargs.ezdata['vlan.vlans'].intersight_uri
+            kwargs            = isight.api('vlan.vlans').calls(kwargs)
+            mcast_moid        = kwargs.results[-1].MulticastPolicy.Moid
+            policy_vlans      = sorted([e.VlanId for e in kwargs.results])
             add_vlans = []
+            pcolor.Cyan(f'\n{"-"*108}\n')
             for e in vlans:
                 if not e.vlan_id in policy_vlans: add_vlans.append(e)
                 else:
-                    pcolor.Cyan(f'\n{"-"*108}\n')
-                    pcolor.Cyan(f'  VLAN `{e.vlan_id}` is already in VLAN Policy `{vpolicy}` in Organization `{org}`.\n\n{"-"*108}\n')
+                    pcolor.Cyan(f'  VLAN `{e.vlan_id}` is already in VLAN Policy: `{vpolicy}` in Organization: `{org}`.')
+            kwargs.bulk_list = []
             for e in add_vlans:
-                pcolor.Cyan(f'\n{"-"*108}\n')
-                pcolor.Cyan(f'  VLAN `{e.vlan_id}` is not in VLAN Policy: `{vpolicy}` in Organization: `{org}`.  Adding VLAN...')
-                pcolor.Cyan(f'\n{"-"*108}\n')
-                kwargs.api_body = {
-                    'EthNetworkPolicy':{'Moid':kwargs.vlans[vpolicy].moid,'ObjectType':'fabric.EthNetworkPolicy'},
+                pcolor.Green(f'  VLAN `{e.vlan_id}` is not in VLAN Policy: `{vpolicy}` in Organization: `{org}`.  Adding VLAN...')
+                api_body = {
+                    'EthNetworkPolicy':{'Moid':vlan_moid,'ObjectType':'fabric.EthNetworkPolicy'},
                     'MulticastPolicy':{'Moid':mcast_moid,'ObjectType':'fabric.MulticastPolicy'},
                     'Name':e.name, 'ObjectType': 'fabric.Vlan', 'VlanId':e.vlan_id}
-                kwargs.method = 'post'
-                kwargs.uri    = kwargs.ezdata['vlan.vlans'].intersight_uri
-                kwargs        = isight.api('vlan').calls(kwargs)
-            if len(ydata.patch.ethernet_network_group) > 0:
+                kwargs.bulk_list.append(api_body)
+            pcolor.Cyan(f'\n{"-"*108}\n')
+            #=============================================================================
+            # POST Bulk Request if Post List > 0
+            #=============================================================================
+            if len(kwargs.bulk_list) > 0:
+                kwargs.uri = kwargs.ezdata['vlan.vlans'].intersight_uri
+                kwargs     = isight.imm('vlan.vlans').bulk_request(kwargs)
+            if len(ydata.ethernet_network_groups) > 0:
                 #======================================================
                 # Query the API for the Ethernet Network Group Policies
                 #======================================================
-                kwargs = isight.api_get(False, ydata.patch.ethernet_network_group, 'ethernet_network_group', kwargs)
+                kwargs = isight.api_get(False, ydata.ethernet_network_groups, 'ethernet_network_group', kwargs)
                 eng_results  = kwargs.results
                 vlan_ids = [v.vlan_id for v in add_vlans]
-                for e in ydata.patch.ethernet_network_group:
-                    indx = [x for x, i in enumerate(eng_results) if e in i.Name][0]
-                    allowed_vlans = ezfunctions.vlan_list_full(eng_results[indx].VlanSettings.AllowedVlans)
-                    allowed_vlans = ezfunctions.vlan_list_format(list(numpy.unique(numpy.array(allowed_vlans + vlan_ids))))
-                    kwargs.api_body= {'Name':e,'VlanSettings':{'AllowedVlans':allowed_vlans}}
-                    kwargs.method = 'patch'
-                    kwargs.pmoid  = eng_results[indx].Moid
-                    kwargs        = isight.api(self.type).calls(kwargs)
+                kwargs.bulk_list = []
+                for e in ydata.ethernet_network_groups:
+                    indx            = next((index for (index, d) in enumerate(eng_results) if d['Name'] == e), None)
+                    allowed_vlans   = ezfunctions.vlan_list_full(eng_results[indx].VlanSettings.AllowedVlans)
+                    vlan_check = True
+                    for v in vlan_ids:
+                        if not int(v) in allowed_vlans: vlan_check = False
+                    if vlan_check == False:
+                        allowed_vlans   = ezfunctions.vlan_list_format(list(numpy.unique(numpy.array(allowed_vlans + vlan_ids))))
+                        api_body = {'Name': e,'VlanSettings': {'AllowedVlans': allowed_vlans},'pmoid': eng_results[indx].Moid}
+                        kwargs.bulk_list.append(api_body)
+                #=============================================================================
+                # PATCH Bulk Request if Bulk List > 0
+                #=============================================================================
+                if len(kwargs.bulk_list) > 0:
+                    kwargs.uri = kwargs.ezdata['ethernet_network_group'].intersight_uri
+                    kwargs     = isight.imm(e).bulk_request(kwargs)
             #======================================================
             # Loop through Policy Creation
             #======================================================
-            if len(ydata.post) > 0:
+            add_vlans = [e for e in ydata.vlan_policy.vlans]
+            if len(ydata.lan_connectivity) > 0:
                 idata = DotMap(ethernet_adapter  = [], ethernet_network_control = [], ethernet_network_group = [],
                                ethernet_qos = [], lan_connectivity = [], mac = [])
                 for e in add_vlans:
                     idata.lan_connectivity.append(DotMap(
-                        name = ydata.post.lan_connectivity.name.replace('{{vlan_id}}', str(e.vlan_id)),
-                        vlan_id = e.vlan_id))
-                    for i in ydata.post.lan_connectivity.vnics:
+                        name = ydata.lan_connectivity.name.replace('{{vlan_id}}', str(e.vlan_id)), vlan_id = e.vlan_id))
+                    for i in ydata.lan_connectivity.vnics:
                         idata.ethernet_adapter.append(i.ethernet_adapter)
                         idata.ethernet_network_control.append(i.ethernet_network_control)
                         idata.ethernet_network_group.append(DotMap(
                             name = i.ethernet_network_group.replace('{{vlan_id}}', str(e.vlan_id)), vlan_id = e.vlan_id))
                         idata.ethernet_qos.append(i.ethernet_qos)
                         idata.mac.append(i.mac_pool)
-                for k, v in idata.items():idata[k] = sorted(list(numpy.unique(numpy.array(v))))
+                for k, v in idata.items():
+                    if re.search('ethernet_network_group|lan_connectivity', k):
+                        idata[k] = sorted(v, key=lambda item: item['vlan_id'])
+                    else: idata[k] = sorted(list(numpy.unique(numpy.array(v))))
                 #======================================================
                 # Query the API for the Ethernet Network Group Policies
                 #======================================================
-                kwargs = isight.api_get(True, [e.name for e in idata.ethernet_network_group], 'ethernet_network_group', kwargs)
-                eth_eng= kwargs.pmoids
+                kwargs   = isight.api_get(True, [e.name for e in idata.ethernet_network_group], 'ethernet_network_group', kwargs)
+                eth_eng  = kwargs.pmoids
                 eng_keys = list(eth_eng.keys())
+                kwargs.bulk_list = []
+                pcolor.Cyan(f'\n{"-"*108}\n')
                 for e in idata.ethernet_network_group:
                     if e.name in eng_keys:
-                        pcolor.Cyan(f'\n{"-"*108}')
-                        pcolor.Cyan(f'Ethernet Network Group `{e.name}` Exists.  Moid is: {eth_eng[e.name].moid}')
-                        pcolor.Cyan(f'\n{"-"*108}')
+                        pcolor.Cyan(f'  Ethernet Network Group `{e.name}` Exists.  Moid is: {eth_eng[e.name].moid}')
                     else:
-                        pcolor.Cyan(f'\n{"-"*108}\n  Ethernet Network Group `{e.name}` does not exist.  Creating...\n{"-"*108}\n')
-                        kwargs.api_body = {
+                        pcolor.Green(f'  Ethernet Network Group `{e.name}` does not exist.  Creating...')
+                        api_body = {
                             'Description': f'{e.name} Ethernet Network Group', 'Name': e.name,
-                            'ObjectType':'fabric.EthNetworkGroupPolicy', 'Tags':tags,
-                            'Organization': {'Moid':kwargs.org_moids[org].moid,'ObjectType':'organization.Organization'},
-                            'VlanSettings':{'AllowedVlans':f'{e.vlan_id}','NativeVlan':e.vlan_id,'ObjectType':'fabric.VlanSettings'}}
-                        kwargs.method= 'post'
-                        kwargs       = isight.api(self.type).calls(kwargs)
-                        eth_eng[e.name].moid = kwargs.pmoid
+                            'ObjectType': 'fabric.EthNetworkGroupPolicy', 'Tags': tags,
+                            'Organization': {'Moid':kwargs.org_moids[org].moid, 'ObjectType':'organization.Organization'},
+                            'VlanSettings': {'AllowedVlans': f'{e.vlan_id}', 'NativeVlan': e.vlan_id, 'ObjectType': 'fabric.VlanSettings'}}
+                        kwargs.bulk_list.append(api_body)
+                pcolor.Cyan(f'\n{"-"*108}\n')
+                #=============================================================================
+                # POST Bulk Request if Bulk List > 0
+                #=============================================================================
+                if len(kwargs.bulk_list) > 0:
+                    kwargs.uri = kwargs.ezdata['ethernet_network_group'].intersight_uri
+                    kwargs     = isight.imm('ethernet_network_group').bulk_request(kwargs)
                 #======================================================
                 # Query the API for Policies
                 #======================================================
                 pdata = DotMap()
                 ilist = ['ethernet_adapter', 'ethernet_network_control', 'ethernet_qos', 'mac']
                 for e in ilist:
-                    kwargs = isight.api_get(True, idata[e], e, kwargs)
+                    kwargs   = isight.api_get(True, idata[e], e, kwargs)
                     pdata[e] = kwargs.pmoids
                 #======================================================
                 # Query the API for the LAN Connectivity Policies
                 #======================================================
-                kwargs.names = [e.name for e in idata.lan_connectivity]
-                kwargs = isight.api_get(True, [e.name for e in idata.lan_connectivity], 'lan_connectivity', kwargs)
+                kwargs       = isight.api_get(True, [e.name for e in idata.lan_connectivity], 'lan_connectivity', kwargs)
                 lan_policies = kwargs.pmoids
-            for e in idata.lan_connectivity:
                 #======================================================
                 # Configure LAN Connectivity Policies
                 #======================================================
-                if e.name in list(lan_policies.keys()):
-                    pcolor.Cyan(f'\n{"-"*108}\n  LAN Policy `{e.name}` exists.  Moid is: {lan_policies[e.name].moid}\n{"-"*108}\n')
-                    lan_moid = lan_policies[e.name].moid
-                else:
-                    pcolor.Cyan(f'\n{"-"*108}\n\n  LAN Policy `{e.name}` does not exist.  Creating...\n\n{"-"*108}\n')
-                    kwargs.api_body = {
-                        'Name': str(e.name),
-                        'ObjectType': 'vnic.LanConnectivityPolicy',
-                        'Organization': {'Moid': kwargs.org_moids[org].moid, 'ObjectType': 'organization.Organization'},
-                        'Tags': tags, 'TargetPlatform': ydata.post.lan_connectivity.target_platform
-                        }
-                    kwargs.method= 'post'
-                    kwargs.uri   = kwargs.ezdata.lan_connectivity.intersight_uri
-                    kwargs       = isight.api(self.type).calls(kwargs)
-                    lan_moid     = kwargs.pmoid
-                #======================================================
-                # Configure vNIC Policies
-                #======================================================
-                kwargs.pmoid = lan_moid
-                kwargs = isight.api_get(True, [i.name for i in ydata.post.lan_connectivity.vnics], 'lan_connectivity.vnics', kwargs)
-                vnic_results = kwargs.pmoids
-                for i in ydata.post.lan_connectivity.vnics:
-                    if i.name in list(vnic_results.keys()):
-                        pcolor.Cyan(f'\n{"-"*108}\n')
-                        pcolor.Cyan(f'  LAN Connectivity `{e.name}` vNIC `{i.name}` exists.  Moid is: {vnic_results[i.name].moid}')
-                        pcolor.Cyan(f'\n{"-"*108}\n')
+                pcolor.Cyan(f'\n{"-"*108}\n')
+                for e in idata.lan_connectivity:
+                    if e.name in list(lan_policies.keys()):
+                        pcolor.Cyan(f'  LAN Connectivity Policy `{e.name}` exists.  Moid is: {lan_policies[e.name].moid}')
+                        lan_moid = lan_policies[e.name].moid
                     else:
-                        pcolor.Cyan(f'\n{"-"*108}\n')
-                        pcolor.Cyan(f'  vNIC `{i.name}` was not attached to LAN Policy `{e.name}`.  Creating...')
-                        pcolor.Cyan(f'\n{"-"*108}\n')
-                        if len(ydata.post.lan_connectivity.vnics) > 1: failover = False
-                        else: failover = True
-                        eng = i.ethernet_network_group.replace('{{vlan_id}}', str(e.vlan_id))
+                        pcolor.Cyan(f'  LAN Connectivity Policy `{e.name}` does not exist.  Creating...')
                         kwargs.api_body = {
-                            'Cdn': {'ObjectType': 'vnic.Cdn', 'Source': 'vnic', 'Value': i.name },
-                            'EthAdapterPolicy': {'Moid': pdata['ethernet_adapter'][i.ethernet_adapter].moid,
-                                                'ObjectType': 'vnic.EthAdapterPolicy'},
-                            'EthQosPolicy': {'Moid': pdata['ethernet_qos'][i.ethernet_qos].moid,
-                                             'ObjectType': 'vnic.EthQosPolicy'},
-                            'FabricEthNetworkControlPolicy': {
-                                'Moid': pdata['ethernet_network_control'][i.ethernet_network_control].moid,
-                                'ObjectType': 'fabric.EthNetworkControlPolicy'},
-                            'FabricEthNetworkGroupPolicy': [{'Moid': eth_eng[eng].moid,
-                                                            'ObjectType': 'fabric.EthNetworkGroupPolicy'}],
-                            'FailoverEnabled': failover,
-                            'LanConnectivityPolicy': {'Moid': lan_policies[e.name].moid,
-                                                        'ObjectType': 'vnic.LanConnectivityPolicy'},
-                            'MacAddressType': 'POOL',
-                            'MacPool': {'Moid': pdata['mac'][i.mac_pool].moid, 'ObjectType': 'macpool.Pool'},
-                            'Name': 'NIC-A',
-                            'ObjectType': 'vnic.EthIf',
-                            'Order': i.placement.order,
-                            'Placement': {'Id': i.placement.slot, 'ObjectType': 'vnic.PlacementSettings', 'PciLink': 0,
-                                        'SwitchId': i.placement.switch_id, 'Uplink': 0},
-                        }
+                            'Name': str(e.name),
+                            'ObjectType': 'vnic.LanConnectivityPolicy',
+                            'Organization': {'Moid': kwargs.org_moids[org].moid, 'ObjectType': 'organization.Organization'},
+                            'Tags': tags, 'TargetPlatform': ydata.lan_connectivity.target_platform}
                         kwargs.method = 'post'
-                        kwargs.uri    = kwargs.ezdata['lan_connectivity.vnics'].intersight_uri
-                        kwargs        = isight.api('vnics').calls(kwargs)
-        pcolor.Cyan(f'\n{"-"*108}\n\n  Finished Loop on Organization `{org}`.\n\n{"-"*108}\n')
+                        kwargs.uri    = kwargs.ezdata.lan_connectivity.intersight_uri
+                        kwargs        = isight.api(self.type).calls(kwargs)
+                        lan_moid      = kwargs.pmoid
+                        kwargs.isight[kwargs.org].policy.lan_connectivity[e.name] = lan_moid
+                    #======================================================
+                    # Configure vNIC Policies
+                    #======================================================
+                    kwargs.pmoid = lan_moid
+                    kwargs = isight.api_get(True, [i.name for i in ydata.lan_connectivity.vnics], 'lan_connectivity.vnics', kwargs)
+                    vnic_results = kwargs.pmoids
+                    kwargs.bulk_list = []
+                    for i in ydata.lan_connectivity.vnics:
+                        if i.name in list(vnic_results.keys()):
+                            pcolor.Cyan(f'  LAN Connectivity `{e.name}` vNIC `{i.name}` exists.  Moid is: {vnic_results[i.name].moid}')
+                        else:
+                            pcolor.Cyan(f'  vNIC `{i.name}` was not attached to LAN Policy `{e.name}`.  Creating...')
+                            if len(ydata.lan_connectivity.vnics) > 1: failover = False
+                            else: failover = True
+                            eng = i.ethernet_network_group.replace('{{vlan_id}}', str(e.vlan_id))
+                            api_body = {
+                                'Cdn': {'ObjectType': 'vnic.Cdn', 'Source': 'vnic', 'Value': i.name },
+                                'EthAdapterPolicy': {'Moid': pdata['ethernet_adapter'][i.ethernet_adapter].moid, 'ObjectType': 'vnic.EthAdapterPolicy'},
+                                'EthQosPolicy': {'Moid': pdata['ethernet_qos'][i.ethernet_qos].moid, 'ObjectType': 'vnic.EthQosPolicy'},
+                                'FabricEthNetworkControlPolicy': {
+                                    'Moid': pdata['ethernet_network_control'][i.ethernet_network_control].moid,
+                                    'ObjectType': 'fabric.EthNetworkControlPolicy'},
+                                'FabricEthNetworkGroupPolicy': [{'Moid': eth_eng[eng].moid, 'ObjectType': 'fabric.EthNetworkGroupPolicy'}],
+                                'FailoverEnabled': failover,
+                                'LanConnectivityPolicy': {'Moid': lan_moid, 'ObjectType': 'vnic.LanConnectivityPolicy'},
+                                'MacAddressType': 'POOL',
+                                'MacPool': {'Moid': pdata['mac'][i.mac_pool].moid, 'ObjectType': 'macpool.Pool'},
+                                'Name': i.name,
+                                'ObjectType': 'vnic.EthIf',
+                                'Order': i.placement.order,
+                                'Placement': {'Id': i.placement.slot, 'ObjectType': 'vnic.PlacementSettings', 'PciLink': 0,
+                                            'SwitchId': i.placement.switch_id, 'Uplink': 0}}
+                            kwargs.bulk_list.append(api_body)
+                    #=============================================================================
+                    # POST Bulk Request if Bulk List > 0
+                    #=============================================================================
+                    kwargs.parent_key = 'lan_connectivity'
+                    if len(kwargs.bulk_list) > 0:
+                        kwargs.uri = kwargs.ezdata['lan_connectivity.vnics'].intersight_uri
+                        kwargs     = isight.imm('lan_connectivity.vnics').bulk_request(kwargs)
+                pcolor.Cyan(f'\n{"-"*108}\n')
+        pcolor.Cyan(f'\n{"-"*108}\n\n  Finished Loop on Organization `{org}`.')
+        pcolor.Cyan(f'\n{"-"*108}\n')
         
+    #======================================================
+    # Function - Add Policies
+    #======================================================
+    def clone_policies(self, kwargs):
+        #======================================================
+        # Determine Policies to Clone
+        #======================================================
+        pcolor.Cyan(f'\n{"-"*108}\n\n  Beginning Policy Clone Process...')
+        pcolor.Cyan(f'\n{"-"*108}\n')
+        kwargs = questions.target_platform(kwargs)
+        kwargs = questions.build_policy_list(kwargs)
+        kwargs.jdata = DotMap(
+            default      = '',
+            description  = f'Select the policy types you would like to clone in the environment:',
+            enum         = kwargs.policy_list,
+            multi_select = True,
+            title        = 'Policies',
+            type         = 'string')
+        policy_types = ezfunctions.variable_prompt(kwargs)
+        #======================================================
+        # Prompt User for Source and Destination Organization
+        #======================================================
+        orgs = list(kwargs.org_moids.keys())
+        kwargs.jdata = DotMap(
+            default     = orgs[0],
+            description = 'Select the Source Organization to clone the policies from.',
+            enum        = orgs, title = 'Organization', type = 'string')
+        source_org               = ezfunctions.variable_prompt(kwargs)
+        kwargs.jdata.description = 'Select the Destination Organization to clone the policies to.'
+        destination_org          = ezfunctions.variable_prompt(kwargs)
+        #======================================================
+        # Prompt User for Policies to Clone
+        #======================================================
+        kwargs.org = source_org
+        for e in policy_types:
+            kwargs.api_filter = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
+            kwargs.method     = 'get'
+            kwargs.uri        = kwargs.ezdata[e].intersight_uri
+            kwargs            = isight.api(e).calls(kwargs)
+            kwargs[f'{e}_results'] = kwargs.results
+            for d in kwargs[f'{e}_results']: kwargs[e][d.Name] = d
+            policies = sorted([d.Name for d in kwargs[f'{e}_results']])
+            kwargs.jdata  = DotMap(
+            default       = '',
+            description   = f'Select the `{e}` policies to clone from source org: `{source_org}` to destination org: `{destination_org}`.',
+            multi_select  = True,
+            enum          = policies, title = f'{e} Policies', type = 'string')
+            clone_poicies = ezfunctions.variable_prompt(kwargs)
+            key_list = ['Description', 'Name', 'Tags']
+            for k,v in kwargs.ezdata[e].allOf[1].properties.items():
+                if v.type == 'array':
+                    key_list.append(v['items'].intersight_api)
+                elif v.type == 'object':
+                    key_list.append(v.intersight_api)
+                elif re.search('boolean|integer|string', v.type):
+                    if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
+                    else: key_list.append(v.intersight_api)
+                else:
+                    print(json.dumps(v, indent=4))
+                    exit()
+            kwargs.bulk_list = []
+            key_list = list(numpy.unique(numpy.array(key_list)))
+            for d in clone_poicies:
+                api_body = kwargs[e][d]
+                for key in list(api_body.keys()):
+                    if not key in key_list: api_body.pop(key)
+                api_body.ObjectType = kwargs.ezdata[e].ObjectType
+                api_body.Organization.Moid = kwargs.org_moids[destination_org].moid
+                api_body.Organization.ObjectType = 'organization.Organization'
+                kwargs.bulk_list.append(api_body.toDict())
+            #=============================================================================
+            # POST Bulk Request if Post List > 0
+            #=============================================================================
+            if len(kwargs.bulk_list) > 0:
+                kwargs.uri = kwargs.ezdata[e].intersight_uri
+                kwargs     = isight.imm(e).bulk_request(kwargs)
+
     #======================================================
     # Function - HCL Inventory
     #======================================================
     def hcl_inventory(self, kwargs):
-        py_dict   = DotMap()
+        pdict = DotMap()
         # Obtain Server Profile Data
         for e in kwargs.yaml_data:
             if 'Cisco' in e.Hostname.Manufacturer:
-                py_dict[e.Serial] = DotMap(
+                pdict[e.Serial] = DotMap(
                     build      = e.Hostname.Build,
                     cluster    = e.Cluster,
                     domain     = 'Standalone',
@@ -303,17 +410,17 @@ class tools(object):
                     version    = e.Hostname.Version,
                 )
 
-        kwargs.names  = list(py_dict.keys())
+        kwargs.names  = list(pdict.keys())
         kwargs.method = 'get'
         kwargs.uri    = 'compute/PhysicalSummaries'
         kwargs        = isight.api('serial').calls(kwargs)
         registered_devices  = []
         for e in kwargs.results:
-            py_dict[e.Serial].server_dn = (e.Dn).replace('sys/', '')
-            py_dict[e.Serial].moid = e.Moid
-            if e.get('ServiceProfile'): py_dict[e.Serial].srv_profile = e.ServiceProfile
+            pdict[e.Serial].server_dn = (e.Dn).replace('sys/', '')
+            pdict[e.Serial].moid = e.Moid
+            if e.get('ServiceProfile'): pdict[e.Serial].srv_profile = e.ServiceProfile
             if not e.ManagementMode == 'IntersightStandalone':
-                py_dict[e.Serial].registered_moid = e.RegisteredDevice.Moid
+                pdict[e.Serial].registered_moid = e.RegisteredDevice.Moid
                 registered_devices.append(e.RegisteredDevice.Moid)
         if len(registered_devices) > 0:
             domain_map = DotMap()
@@ -338,19 +445,19 @@ class tools(object):
                     for k, v in domain_map.items():
                         if v.get('parent'):
                             if v.parent == i.Moid: domain_map[k].hostname = e.DeviceHostname
-            for k, v in py_dict.items():
-                if v.get('registered_moid'): py_dict[k].domain = domain_map[v.registered_moid].hostname
+            for k, v in pdict.items():
+                if v.get('registered_moid'): pdict[k].domain = domain_map[v.registered_moid].hostname
 
-        kwargs.names = [v.moid for k, v in py_dict.items()]
+        kwargs.names = [v.moid for k, v in pdict.items()]
         kwargs.uri   = 'cond/HclStatuses'
         kwargs       = isight.api('hcl_status').calls(kwargs)
         for e in kwargs.results:
-            for k, v in py_dict:
+            for k, v in pdict:
                 if v.moid == e.ManagedObject.Moid:
-                        py_dict[k].firmware = e.HclFirmwareVersion
-                        py_dict[k].status   = e.Status
+                        pdict[k].firmware = e.HclFirmwareVersion
+                        pdict[k].status   = e.Status
 
-        if len(py_dict) > 0:
+        if len(pdict) > 0:
             kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
             kwargs = tools(self.type).setup_local_time(kwargs)
             # Build Named Style Sheets for Workbook
@@ -375,7 +482,7 @@ class tools(object):
             ws_row_count = 3
             
             # Populate the Columns with Server Inventory
-            for key, value in py_dict.items():
+            for key, value in pdict.items():
                 # Add the Columns to the Spreadsheet
                 for k, v in value.items(): ws.append(v)
                 for cell in ws[ws_row_count:ws_row_count]:
@@ -410,7 +517,7 @@ class tools(object):
     #======================================================
     # Function - Server Inventory
     #======================================================
-    def srv_inventory(self, kwargs):
+    def server_inventory(self, kwargs):
         for k, v in kwargs.org_moids.items(): kwargs.org = k
         domains = DotMap()
         servers = DotMap()
@@ -433,23 +540,22 @@ class tools(object):
         kwargs         = isight.api('physical_summaries').calls(kwargs)
         for e in kwargs.results:
             dict(servers[e.Serial], **dict(
-                chassis_id = e.ChassisId,
-                chassis_id     = e.ChassisId,
-                hw_moid        = e.Moid,
-                mgmt_ip_address= e.MgmtIpAddress,
-                mgmt_mode      = e.ManagementMode,
-                model          = e.Model,
-                name           = e.Name,
-                object_type    = e.SourceObjectType,
-                organization   = DotMap(),
-                platform       = e.PlatformType,
-                power_state    = e.OperPowerState,
-                registration   = e.RegisteredDevice.Moid,
-                server_dn      = e.Dn,
-                server_id      = e.ServerId,
-                server_profile = e.ServiceProfile,
-                slot           = e.SlotId,
-                wwnn           = 'unassigned'))
+                chassis_id      = e.ChassisId,
+                hw_moid         = e.Moid,
+                mgmt_ip_address = e.MgmtIpAddress,
+                mgmt_mode       = e.ManagementMode,
+                model           = e.Model,
+                name            = e.Name,
+                object_type     = e.SourceObjectType,
+                organization    = DotMap(),
+                platform        = e.PlatformType,
+                power_state     = e.OperPowerState,
+                registration    = e.RegisteredDevice.Moid,
+                server_dn       = e.Dn,
+                server_id       = e.ServerId,
+                server_profile  = e.ServiceProfile,
+                slot            = e.SlotId,
+                wwnn            = 'unassigned'))
         # Obtain Server Profile Data
         kwargs.method  = 'get'
         kwargs.top1000 = True

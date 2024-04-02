@@ -5,6 +5,8 @@ def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
     from classes import pcolor
+    from dotmap import DotMap
+    from stringcase import pascalcase
     import ipaddress, json, re, validators
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -61,12 +63,15 @@ def completed_item(ptype, kwargs):
         print('missing definition')
         exit()
     if re.search(oregex, iresults.get('ObjectType')):
-        parents = kwargs.isight[kwargs.org].policy[kwargs.parent_key]
-        kwargs.parent_name = list(parents.keys())[list(parents.values()).index(iresults.Parent.Moid)]
+        parent_title = ((kwargs.parent_key.replace('_', ' ')).title())
+        parents      = DotMap()
+        for k,v in kwargs.isight[kwargs.org].policy[kwargs.parent_key].items(): parents[v] = k
+        if 'an_connectivity' in kwargs.parent_key: kwargs.parent_name = parents[iresults[f'{pascalcase(kwargs.parent_key)}Policy'].Moid]
+        else: kwargs.parent_name = list(parents.keys())[list(parents.values()).index(iresults.Parent.Moid)]
         if method == 'post':
-            pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org} > {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
         else:
-            pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org} > {kwargs.parent_type} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
         if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {ptype} {name}.')

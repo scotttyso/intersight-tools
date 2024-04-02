@@ -160,6 +160,8 @@ class api(object):
                 if i.get('PcId') or i.get('PortId') or i.get('PortIdStart'):
                     api_dict[i.PortPolicy.Moid][iname].moid = i.Moid
                 else: api_dict[iname].moid = i.Moid
+                if i.get('ConfiguredBootMode'): api_dict[iname].boot_mode = i.ConfiguredBootMode
+                if i.get('EnforceUefiSecureBoot'): api_dict[iname].enable_secure_boot = i.EnforceUefiSecureBoot
                 if i.get('IpV4Config'): api_dict[iname].ipv4_config = i.IpV4Config
                 if i.get('IpV6Config'): api_dict[iname].ipv6_config = i.IpV6Config
                 if i.get('ManagementMode'): api_dict[iname].management_mode = i.ManagementMode
@@ -171,6 +173,7 @@ class api(object):
                     api_dict[iname].registered_device = i.RegisteredDevice.Moid
                     if i.get('ChassisId'): api_dict[iname].id = i.ChassisId
                     if i.get('SourceObjectType'): api_dict[iname].object_type = i.SourceObjectType
+                if i.get('Organization'): api_dict[iname].organization = kwargs.org_names[i.Organization.Moid]
                 if i.get('PolicyBucket'): api_dict[iname].policy_bucket = i.PolicyBucket
                 if i.get('Selectors'): api_dict[iname].selectors = i.Selectors
                 if i.get('Source'):
@@ -195,7 +198,7 @@ class api(object):
         #=====================================================
         # Attach Server Profile Moid to Dict
         #=====================================================
-        kwargs.server_profiles = DotMap(); hw_moids = []; profile_moids = []
+        kwargs.server_profiles = DotMap(); boot_moids = []; hw_moids = []; profile_moids = []
         for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
             kwargs.server_profiles[e.name] = DotMap(e)
             kwargs.server_profiles[e.name].hardware_moid = e.moid
@@ -205,11 +208,40 @@ class api(object):
         #=====================================================
         # Get Server Profile Elements
         #=====================================================
+        kwargs.method   = 'get'
+        kwargs.names    = list(kwargs.server_profiles.keys())
+        kwargs.uri      = 'server/Profiles'
+        kwargs          = api('server').calls(kwargs)
+        profile_pmoids  = kwargs.pmoids
+        profile_results = kwargs.results
+        for k, v in profile_pmoids.items():
+            kwargs.server_profiles[k].boot_order = DotMap(boot_mode='',method='',moid='',name='')
+            kwargs.server_profiles[k].moid = v.moid
+            profile_moids.append(v.moid)
+            indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == k), None)
+            index = next((index for (index, d) in enumerate(profile_results[indx].PolicyBucket) if d['ObjectType'] == 'boot.PrecisionPolicy'), None)
+            if not index == None:
+                boot_moids.append(profile_results[indx].PolicyBucket[index].Moid)
+                kwargs.server_profiles[k].boot_order.moid = profile_results[indx].PolicyBucket[index].Moid
+        #=====================================================
+        # Assign Boot Order Policies
+        #=====================================================
         kwargs.method = 'get'
-        kwargs.names  = list(kwargs.server_profiles.keys())
-        kwargs.uri    = 'server/Profiles'
-        kwargs        = api('server').calls(kwargs)
-        for k, v in kwargs.pmoids.items(): kwargs.server_profiles[k].moid = v.moid; profile_moids.append(v.moid)
+        kwargs.names  = list(numpy.unique(numpy.array(boot_moids)))
+        kwargs.uri    = kwargs.ezdata.boot_order.intersight_uri
+        kwargs        = api('moid_filter').calls(kwargs)
+        boot_names    = kwargs.pmoids
+        boot_moids    = DotMap()
+        for k, v in boot_names.items(): boot_moids[v.moid] = DotMap(dict(name = k, **v.toDict()))
+        for k in list(kwargs.server_profiles.keys()):
+            v = kwargs.server_profiles[k]
+            if len(v.boot_order.moid) > 0:
+                kwargs.server_profiles[k].boot_order.boot_mode = boot_moids[v.boot_order.moid].boot_mode
+                kwargs.server_profiles[k].boot_order.enable_secure_boot = boot_moids[v.boot_order.moid].enable_secure_boot
+                org = boot_moids[v.boot_order.moid].organization
+                if not org == kwargs.org:
+                    kwargs.server_profiles[k].boot_order.name = f'{org}/{boot_moids[v.boot_order.moid].name}'
+                else: kwargs.server_profiles[k].boot_order.name = boot_moids[v.boot_order.moid].name
         #=====================================================
         # Get vNICs & vHBAs Identifiers
         #=====================================================
@@ -531,7 +563,7 @@ class api(object):
                     kwargs.api_args = api_args
                     kwargs = api_calls(kwargs)
                 elif kwargs.results.Count > 100 and kwargs.results.Count <= 1000:
-                    if '?' in api_args: kwargs.api_args = api_args + '&$count=True'
+                    if '?' in api_args: kwargs.api_args = api_args + '&$top=1000'
                     else: kwargs.api_args = api_args + '?$top=1000'
                     kwargs = api_calls(kwargs)
                 elif kwargs.results.Count > 1000:

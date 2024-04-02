@@ -7,7 +7,7 @@ try:
     from classes import ezfunctions, isight, pcolor, questions
     from copy import deepcopy
     from dotmap import DotMap
-    import crypt, json, inflect, os, re, urllib3
+    import crypt, ipaddress, json, inflect, os, re, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -20,20 +20,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class intersight(object):
     def __init__(self, type):
         self.type = type
-
-    #=================================================================
-    # Function: Build Pool/Policy List(s)
-    #=================================================================
-    def build_policy_list(kwargs):
-        kwargs.policy_list = []; kwargs.pool_list = []
-        for k, v in kwargs.ezdata.items():
-            if v.intersight_type == 'pool' and not '.' in k: kwargs.pool_list.append(k)
-            elif v.intersight_type == 'policy':
-                if kwargs.target_platform == 'FIAttached':
-                    if not '.' in k and ('chassis' in v.target_platforms or 'FIAttached' in v.target_platforms):  kwargs.policy_list.append(k)
-                else:
-                    if 'Standalone' in v.target_platforms and not '.' in k: kwargs.policy_list.append(k)
-        return kwargs
 
     #=================================================================
     # Function: Create Profile YAML from Source
@@ -252,67 +238,182 @@ class intersight(object):
         #    prows.append("".join(word.ljust(cwidth) for word in row))
         #prows.sort()
         #for row in prows: print(row)
-        def add_to_server_dict(variable, answer, kwargs):
-            for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
-                e.answers[variable] = answer
-            return kwargs
-        kwargs.server_profiles = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles
-        sprofile = kwargs.server_profiles[0]
-        if 'shared' in kwargs.os_cfg.Owners:
+        #exit()
+        valid_answers = False
+        while valid_answers == False:
+            #=======================================================
+            # Function: Add Keys to Server Profile answers dict
+            #=======================================================
+            def add_to_server_dict(variable, answer, kwargs):
+                for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
+                    e.answers[variable] = answer
+                return kwargs
+            kwargs.server_profiles = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles
+            sprofile = kwargs.server_profiles[0]
+            #=======================================================
+            # Process for Intersight defined OS Configuration
+            #=======================================================
             answers = [e.Type.Name for e in kwargs.os_cfg.Placeholders]
-            if '.answers.RootPassword' in answers:
-                kwargs.jdata             = kwargs.ezdata.sensitive_variables.properties.root_password
-                kwargs.jdata.description = kwargs.jdata.description.replace('REPLACE', sprofile.os_vendor)
-                kwargs.sensitive_var = 'root_password'
-                kwargs               = ezfunctions.sensitive_var_value(kwargs)
-                kwargs               = add_to_server_dict('.answers.RootPassword', 'sensitive_root_password', kwargs)
-                root_password        = kwargs.var_value
-                os.environ['root_password'] = crypt.crypt(root_password, crypt.mksalt(crypt.METHOD_SHA512))
-            if '.answers.FQDN' in answers or '.answers.Hostname' in answers:
+            if 'shared' in kwargs.os_cfg.Owners:
+                #=======================================================
+                # Boot Parameters
+                #=======================================================
                 for x in range(0,len(kwargs.server_profiles)):
-                    kwargs.jdata             = kwargs.ezwizard.os_configuration.properties.fqdn
-                    kwargs.jdata.description = kwargs.jdata.description.replace('REPLACE', kwargs.server_profiles[x].name)
-                    if x == 0: kwargs.jdata.default = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name
-                    else: kwargs.jdata.default = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name + '.' + fqdn
-                    host_fqdn = ezfunctions.variable_prompt(kwargs)
-                    fqdn      = host_fqdn[len(host_fqdn.split('.')[0])+1:]
-                    kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.FQDN']     = host_fqdn
-                    kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.Hostname'] = host_fqdn.split('.')[0]
-            if '.answers.IpConfigType' in answers:
-                kwargs.jdata   = kwargs.ezwizard.os_configuration.properties.ip_config_type
-                ip_config_type = ezfunctions.variable_prompt(kwargs)
-                kwargs         = add_to_server_dict('.answers.IpConfigType', ip_config_type, kwargs)
-            if ip_config_type == 'static':
-                kwargs.jdata = kwargs.ezwizard.os_configuration.properties.ip_version
-                ip_version   = ezfunctions.variable_prompt(kwargs)
-                kwargs       = add_to_server_dict('.answers.IpVersion', ip_version, kwargs)
-                kwargs.jdata = kwargs.ezwizard.os_configuration.properties.network_interface
-                kwargs.jdata.description.replace('REPLACE', kwargs.server_profiles[0].name)
-                kwargs.jdata.enum    = [f'Name: {e.name} MAC Address: {e.mac}' for e in kwargs.server_profiles[0].macs]
-                kwargs.jdata.default = kwargs.jdata.enum[0]
-                network_interface = ezfunctions.variable_prompt(kwargs)
-                print(f"'{network_interface}'")
-                mregex = re.compile(r'MAC Address: ([0-9a-fA-F\:]+)$')
-                match  = mregex.search(network_interface)
-                mac    = match.group(1)
-                indx   = next((index for (index, d) in enumerate(kwargs.server_profiles[0].macs) if d['mac'] == mac), None)
-                if '.answers.NetworkDevice' in answers:
+                    boot_order = kwargs.server_profiles[x].boot_order
+                    if '.answers.BootMode' in answers:
+                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.BootMode'] = boot_order.boot_mode
+                    if '.answers.SecureBoot' in answers:
+                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.SecureBoot'] = boot_order.enable_secure_boot
+                #=======================================================
+                # RootPassword
+                #=======================================================
+                if '.answers.RootPassword' in answers:
+                    kwargs.jdata             = kwargs.ezdata.sensitive_variables.properties.root_password
+                    if sprofile.os_vendor == 'Microsoft':
+                        kwargs.jdata.description = kwargs.jdata.description.replace('REPLACE Root', 'Windows Login')
+                        kwargs.jdata.title = 'Windows Login Password'
+                    else: kwargs.jdata.description = kwargs.jdata.description.replace('REPLACE', sprofile.os_vendor)
+                    kwargs.sensitive_var = 'root_password'
+                    kwargs               = ezfunctions.sensitive_var_value(kwargs)
+                    kwargs               = add_to_server_dict('.answers.RootPassword', 'sensitive_root_password', kwargs)
+                    root_password        = kwargs.var_value
+                    os.environ['root_password'] = crypt.crypt(root_password, crypt.mksalt(crypt.METHOD_SHA512))
+                    if sprofile.os_vendor == 'Microsoft':
+                        kwargs               = add_to_server_dict('.answers.LogonPassword', 'sensitive_logon_password', kwargs)
+                        os.environ['logon_password'] = crypt.crypt(root_password, crypt.mksalt(crypt.METHOD_SHA512))
+                #=======================================================
+                # Host FQDN
+                #=======================================================
+                if '.answers.FQDN' in answers or '.answers.Hostname' in answers:
                     for x in range(0,len(kwargs.server_profiles)):
-                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.NetworkDevice'] = kwargs.server_profiles[x].macs[indx].mac
-                for key in list(kwargs.ezdata[f'ip.{ip_version.lower()}_configuration'].properties.keys()):
-                    kwargs.jdata = kwargs.ezdata[f'ip.{ip_version.lower()}_configuration'].properties[key]
-                    if key == 'gateway':
-                        kwargs.jdata.description = 'Default Gateway to configure.'
-                    kwargs[key] = ezfunctions.variable_prompt(kwargs)
-                    if re.search('gateway|netmask|prefix', key) and f'.answers.{ip_version}Config.{key.capitalize()}' in answers:
-                        kwargs = add_to_server_dict(f'.answers.{ip_version}Config.{key.capitalize()}', kwargs[key], kwargs)
-                    elif 'primary_dns' == key and '.answers.NameServer' in answers:
-                        kwargs = add_to_server_dict('.answers.NameServer', kwargs[key], kwargs)
-                    elif 'secondary_dns' == key and '.answers.AlternateNameServer' in answers:
-                        kwargs = add_to_server_dict('.answers.AlternateNameServer', kwargs[key], kwargs)
+                        kwargs.jdata             = kwargs.ezwizard.os_configuration.properties.fqdn
+                        kwargs.jdata.description = kwargs.jdata.description.replace('REPLACE', kwargs.server_profiles[x].name)
+                        if x == 0: kwargs.jdata.default = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name
+                        else: kwargs.jdata.default = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name + '.' + fqdn
+                        host_fqdn = ezfunctions.variable_prompt(kwargs)
+                        fqdn      = host_fqdn[len(host_fqdn.split('.')[0])+1:]
+                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.FQDN']     = host_fqdn
+                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.Hostname'] = host_fqdn.split('.')[0]
+                #=======================================================
+                # DHCP or static IP configuration
+                #=======================================================
+                if '.answers.IpConfigType' in answers:
+                    kwargs.jdata   = kwargs.ezwizard.os_configuration.properties.ip_config_type
+                    ip_config_type = ezfunctions.variable_prompt(kwargs)
+                    kwargs         = add_to_server_dict('.answers.IpConfigType', ip_config_type, kwargs)
+                #=======================================================
+                # Static IP Configuration
+                #=======================================================
+                if ip_config_type == 'static':
+                    kwargs.jdata             = kwargs.ezwizard.os_configuration.properties.ip_version
+                    ip_version               = ezfunctions.variable_prompt(kwargs)
+                    kwargs                   = add_to_server_dict('.answers.IpVersion', ip_version, kwargs)
+                    kwargs.jdata             = kwargs.ezwizard.os_configuration.properties.network_interface
+                    kwargs.jdata.enum        = [f'Name: {e.name} MAC Address: {e.mac}' for e in kwargs.server_profiles[0].macs]
+                    kwargs.jdata.default     = kwargs.jdata.enum[0]
+                    kwargs.jdata.description = kwargs.jdata.description.replace('REPLACE', kwargs.server_profiles[0].name)
+                    network_interface        = ezfunctions.variable_prompt(kwargs)
+                    mregex                   = re.compile(r'MAC Address: ([0-9a-fA-F\:]+)$')
+                    match                    = mregex.search(network_interface)
+                    mac                      = match.group(1)
+                    indx                     = next((index for (index, d) in enumerate(kwargs.server_profiles[0].macs) if d['mac'] == mac), None)
+                    #=======================================================
+                    # Assign MAC Address to answers
+                    #=======================================================
+                    if '.answers.NetworkDevice' in answers:
+                        for x in range(0,len(kwargs.server_profiles)):
+                            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.NetworkDevice'] = kwargs.server_profiles[x].macs[indx].mac
+                    if '.MACAddress' in answers:
+                        for x in range(0,len(kwargs.server_profiles)):
+                            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.MACAddress'] = kwargs.server_profiles[x].macs[indx].mac
+                    #=======================================================
+                    # Prompt for Gateway, Netmask/Prefix, and DNS
+                    #=======================================================
+                    for key in list(kwargs.ezdata[f'ip.ip{ip_version.lower()}_configuration'].properties.keys()):
+                        kwargs.jdata = kwargs.ezdata[f'ip.ip{ip_version.lower()}_configuration'].properties[key]
+                        if key == 'gateway':
+                            kwargs.jdata.description = 'Default Gateway to configure.'
+                        kwargs[key] = ezfunctions.variable_prompt(kwargs)
+                        if re.search('gateway|netmask|prefix', key) and f'.answers.Ip{ip_version.lower()}Config.{key.capitalize()}' in answers:
+                            kwargs = add_to_server_dict(f'.answers.Ip{ip_version.lower()}Config.{key.capitalize()}', kwargs[key], kwargs)
+                        elif 'primary_dns' == key and '.answers.NameServer' in answers:
+                            kwargs = add_to_server_dict('.answers.NameServer', kwargs[key], kwargs)
+                        elif 'secondary_dns' == key and '.answers.AlternateNameServer' in answers:
+                            kwargs = add_to_server_dict('.answers.AlternateNameServer', kwargs[key], kwargs)
+                    #=======================================================
+                    # Prompt for Server IP Address's
+                    #=======================================================
+                    for x in range(0,len(kwargs.server_profiles)):
+                        kwargs.jdata             = kwargs.ezdata[f'ip.ip{ip_version.lower()}_configuration'].properties.gateway
+                        kwargs.jdata.description = f'{kwargs.server_profiles[x].fqdn} IP{ip_version.lower()} Address.'
+                        kwargs.jdata.title       = f'IP{ip_version.lower()} Address'
+                        if x > 0: kwargs.jdata.default = network_list[indx+1]
+                        ip_address = ezfunctions.variable_prompt(kwargs)
+                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers[f'.answers.Ip{ip_version.lower()}.IpAddress'] = ip_address
+                        if x == 0:
+                            if f'IP{ip_version.lower()}' == 'IPv4':
+                                netmask = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.IpV4Config.Netmask']
+                                network_list = [str(address) for address in ipaddress.IPv4Network(f'{ip_address}/{netmask}')]
+                            else:
+                                prefix = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers['.answers.IpV6Config.Prefix']
+                                network_list = [str(address) for address in ipaddress.IPv6Network(f'{ip_address}/{prefix}')]
+                        indx = network_list.index(ip_address)
+            #=======================================================
+            # Process for User defined OS Configuration
+            #=======================================================
+            else:
+                for a in range(0,len(answers)):
+                    adict = kwargs.os_cfg.Placeholders[a]
+                    kwargs.jdata = DotMap()
+                    if adict.Type.Default.Value == None: kwargs.jdata.default = ''
+                    else: kwargs.jdata.default = adict.Type.Default.Value
+                    kwargs.jdata.description = adict.Type.Description
+                    kwargs.jdata.type        = adict.Type.Properties.Type
+                    kwargs.jdata.title       = adict.Type.Label
+                    if kwargs.jdata.type == 'integer':
+                        kwargs.jdata.maximum = adict.Type.Properties.Constraints.Max
+                        kwargs.jdata.minimum = adict.Type.Properties.Constraints.Min
+                    elif kwargs.jdata.type == 'string':
+                        kwargs.jdata.maxLength = adict.Type.Properties.Constraints.Max
+                        kwargs.jdata.minLength = adict.Type.Properties.Constraints.Min
+                        kwargs.jdata.pattern   = adict.Type.Properties.Constraints.Regex
+                        if len(adict.Type.Properties.Constraints.EnumList) > 0:
+                            kwargs.jdata.default = adict.Type.Properties.Constraints.EnumList[0]
+                            kwargs.jdata.enum    = adict.Type.Properties.Constraints.EnumList
+                    #=======================================================
+                    # Sensitive Variables
+                    #=======================================================
+                    if adict.Type.Properties.Secure:
+                        kwargs.sensitive_var = f'undefined_{a}'
+                        kwargs               = ezfunctions.sensitive_var_value(kwargs)
+                        kwargs               = add_to_server_dict('.answers.RootPassword', 'sensitive_root_password', kwargs)
+                        os.environ[a]        = kwargs.var_value
+                        kwargs               = add_to_server_dict(a, f'sensitive_{a}', kwargs)
+                    #=======================================================
+                    # All other Variables
+                    #=======================================================
+                    elif 'shared_variable' in adict.Type.Description:
+                        answer = ezfunctions.variable_prompt(kwargs)
+                        kwargs = add_to_server_dict(a, answer, kwargs)
+                    else:
+                        for e in kwargs.server_profiles:
+                            kwargs.jdata.description = adict.Type.Description + f'for Server Profile `{kwargs.server_profiles[e]}`.'
+                            if x > 0: kwargs.jdata.default = answer
+                            answer = ezfunctions.variable_prompt(kwargs)
+                            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers[a] = answer
+            #=======================================================
+            # Prompt User to Accept Configuration
+            #=======================================================
+            idict = DotMap(answers = [])
+            for x in range(0,len(kwargs.server_profiles)):
+                answers = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers.toDict()
+                kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].answers = DotMap(dict(sorted(answers)))
+                server = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
+                idict.answers.append(dict(answers=server.answers,server_profile=server.name))
             print(json.dumps(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles, indent=4))
-            exit()
-
+            accept = questions.prompt_user_to_accept('os_configuration_answers', idict, kwargs)
+            if accept == True: valid_answers = True
+        # Return kwargs
         return kwargs
 
     #=================================================================
@@ -526,7 +627,7 @@ class intersight(object):
         identity_check = False
         for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
             if not (e.get('macs') and len(e.macs) > 0): identity_check = True
-        if identity_check == True:
+        if identity_check == False:
             kwargs = isight.api('wizard').build_server_identities(kwargs)
         #=======================================================
         # Create YAML Files
@@ -577,14 +678,14 @@ class intersight(object):
         #==============================================
         # Build Pool/Policy/Profile List
         #==============================================
-        if re.search('FIAttached|Standalone', kwargs.deployment_type): kwargs = intersight.build_policy_list(kwargs)
+        if re.search('FIAttached|Standalone', kwargs.deployment_type): kwargs = questions.build_policy_list(kwargs)
         if 'Individual' in kwargs.deployment_type:
             kwargs = questions.main_menu_individual_types(kwargs)
             kwargs = questions.main_menu_individual(kwargs)
         if re.search('FIAttached', kwargs.deployment_type): kwargs.ptypes = ['Pools', 'Policies', 'Profiles']
         elif re.search('Standalone', kwargs.deployment_type): kwargs.ptypes = ['Policies', 'Profiles']
         if re.search('FIAttached|Standalone', kwargs.deployment_type):
-            kwargs = intersight.build_policy_list(kwargs)
+            kwargs = questions.build_policy_list(kwargs)
             if 'Pools' in kwargs.ptypes: kwargs.main_menu_list.extend(kwargs.pool_list)
             if 'Policies' in kwargs.ptypes: kwargs.main_menu_list.extend(kwargs.policy_list)
             if 'Profiles' in kwargs.ptypes:

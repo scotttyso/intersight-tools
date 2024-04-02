@@ -2,16 +2,21 @@
 """EZIMM - 
 Use This Wizard to Create Terraform HCL configuration from Question and Answer or the IMM Transition Tool.
 It uses argparse to take in the following CLI arguments:
-    a or intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
-    d or dir:                   Base Directory to use for creation of the YAML Configuration Files.
-    dl or debug-level:          The Debug Level to Run for Script Output
-    e or intersight-fqdn:       The Intersight hostname for the API endpoint. The default is intersight.com.
-    i or ignore-tls:            Ignore TLS server-side certificate verification.  Default is False.
-    j or json_file:             IMM Transition JSON export to convert to HCL.
-    l or load-config            Flag to Load Previously Saved YAML Configuration Files.
-    k or intersight-secret-key: Name of the file containing The Intersight secret key for the HTTP signature scheme.
-    t or deployment-method:     Deployment Method.  Values are: Intersight or Terraform
-    v or api-key-v3:            Flag for API Key Version 3.
+    -a   or --intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
+    -d   or --dir:                   Base Directory to use for creation of the YAML Configuration Files.
+    -dl  or --debug-level:           The Debug Level to Run for Script Output
+                                       1. Shows the api request response status code
+                                       5. Shows URL String + Lower Options
+                                       6. Adds Results + Lower Options
+                                       7. Adds json payload + Lower Options
+                                     Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy
+    -f  or --intersight-fqdn:        The Intersight hostname for the API endpoint. The default is intersight.com.
+    -i  or --ignore-tls:             Ignore TLS server-side certificate verification.  Default is False.
+    -j  or --json_file:              IMM Transition JSON export to convert to HCL.
+    -l  or --load-config             Flag to Load Previously Saved YAML Configuration Files.
+    -k  or --intersight-secret-key:  Name of the file containing The Intersight secret key for the HTTP signature scheme.
+    -t  or --deployment-method:      Deployment Method.  Values are: Intersight or Terraform
+    -v  or --api-key-v3:             Flag for API Key Version 3.
 """
 #=============================================================================
 # Source Modules
