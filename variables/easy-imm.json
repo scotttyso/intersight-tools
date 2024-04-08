@@ -18888,10 +18888,19 @@
                 "description": "Operating System Answers for OS Configuration AutoInstall Scripts hosted within Intersight.",
                 "title": "OS Configuration",
                 "properties": {
+                    "domain_name": {
+                        "type": "string",
+                        "default": "example.com",
+                        "description": "What is the domain name for the servers?",
+                        "minLength": 5,
+                        "maxLength": 200,
+                        "pattern": "^(([a-zA-Z]{1})|([a-zA-Z]{1}[a-zA-Z]{1})|([a-zA-Z]{1}[0-9]{1})|([0-9]{1}[a-zA-Z]{1})|([a-zA-Z0-9][a-zA-Z0-9-_]{1,61}[a-zA-Z0-9]))\\.([a-zA-Z]{2,6}|[a-zA-Z0-9-]{2,30}\\.[a-zA-Z]{2,3})$",
+                        "title": "Domain Name"
+                    },
                     "fqdn": {
                         "type": "string",
                         "default": "",
-                        "description": "Fully Qualified Domain Name for the Server `REPLACE`.",
+                        "description": "Fully Qualified Domain Name for the Server Profile `REPLACE`.",
                         "minLength": 5,
                         "maxLength": 255,
                         "pattern": "^(([a-zA-Z0-9])|([a-zA-Z0-9][a-zA-Z0-9\\.\\-]*[a-zA-Z0-9]))$",
@@ -18920,31 +18929,40 @@
                     "network_interface": {
                         "type": "string",
                         "default": "",
-                        "description": "Select the Network Interface to configure for `REPLACE`.",
+                        "description": "For the OS installation, which interface on `REPLACE` should be used for the OS network configuration?",
                         "enum": [],
                         "sort": false,
                         "title": "Network Interface"
                     },
-                    "operating_system_edition": {
+                    "vlan_id": {
+                        "type": "integer",
+                        "default": "",
+                        "description": "Enter the Vlan Identifier to Assign to the Management Interface.",
+                        "minimum": 1,
+                        "maximum": 4093,
+                        "optional": true,
+                        "title": "VlanId"
+                    },
+                    "windows_edition": {
                         "type": "string",
                         "default": "Datacenter Core",
-                        "description": "Select the Operating System Edition.",
+                        "description": "Select the Windows Server Edition for `REPLACE`.",
                         "enum": [
                             "Standard",
                             "Standard Core",
                             "Datacenter",
                             "Datacenter Core"
                         ],
-                        "title": "Operating System Edition"
+                        "title": "Windows Server Edition"
                     },
-                    "product_key": {
+                    "windows_product_key": {
                         "type": "string",
                         "default": "",
-                        "description": "Windows Product Key for Installation.",
+                        "description": "Enter Windows Product Key for Installation.",
                         "minLength": 0,
                         "maxLength": 29,
                         "pattern": "^$|^([0-9A-Z]{5}\\-){4}[0-9A-Z]{5}$",
-                        "title": "Product Key"
+                        "title": "Windows Product Key"
                     }
                 }
             },
@@ -19050,12 +19068,12 @@
                     "deployment_type": {
                         "type": "string",
                         "default": "FIAttached",
-                        "description": "Select the Option to Perform:\n * FIAttached: Build Pools/Policies/Profiles for a Domain.\n * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n * Profile:    Deploy a Profile from an Existing Server Profile Template.\n * Individual: Select Individual Pools, Policies, Profiles to Build.\n * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n * Exit:       Cancel the Wizard",
+                        "description": "Select the Option to Perform:\n * FIAttached: Build Pools/Policies/Profiles for a Domain.\n * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n * OS Install: Install an Operating System on server(s) with either New or Existing Profiles.\n * Individual: Select Individual Pools, Policies, Profiles to Build.\n * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n * Exit:       Cancel the Wizard",
                         "enum": [
                             "FIAttached",
                             "Standalone",
-                            "Profile",
                             "Individual",
+                            "OS Install",
                             "Deploy",
                             "Exit"
                         ],
@@ -19101,6 +19119,25 @@
                         "sort": false,
                         "title": "REPLACE Version"
                     },
+                    "profile_option": {
+                        "type": "string",
+                        "default": "existing",
+                        "description": "With this wizard you can deploy the Operating System to Existing or Create New Profiles.  Select Which you want to deploy the operating system to.",
+                        "enum": [
+                            "existing",
+                            "new"
+                        ],
+                        "title": "Profile Option"
+                    },
+                    "server_profiles": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Server Profiles you would like to Install an Operating System to:",
+                        "enum": [],
+                        "multi_select": true,
+                        "sort": false,
+                        "title": "Server Profiles"
+                    },
                     "sw_repo_os_cfg": {
                         "type": "string",
                         "default": "",
@@ -19108,6 +19145,12 @@
                         "enum": [],
                         "sort": false,
                         "title": "Operating System Configuration"
+                    },
+                    "sw_repo_os_image_confirm": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "If you use do not use the Cisco Custom Image, the installation will succeed but the workflow will fail due to the VIB not being present and reporting back to the system of the completion of the installation.  Are you sure you want to proceed?",
+                        "title": "Confirm OS Image"
                     },
                     "sw_repo_os_image": {
                         "type": "string",

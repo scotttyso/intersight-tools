@@ -24,8 +24,7 @@ def begin_loop(ptype1, ptype2):
 
 def begin_section(ptype1, ptype2):
     pcolor.LightGray(f'\n{"-"*108}\n')
-    pcolor.LightPurple(
-        f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.\n")
+    pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.\n")
 
 def completed_item(ptype, kwargs):
     iresults = kwargs.api_results
@@ -61,7 +60,7 @@ def completed_item(ptype, kwargs):
         print(kwargs.parent_name)
         print(kwargs.parent_type)
         print('missing definition')
-        exit()
+        len(False); sys.exit(1)
     if re.search(oregex, iresults.get('ObjectType')):
         parent_title = ((kwargs.parent_key.replace('_', ' ')).title())
         parents      = DotMap()
@@ -110,7 +109,7 @@ def error_policy_doesnt_exist(policy_type, policy_name, profile, profile_type, p
     pcolor.Yellow(f'   {dtype} Type: {policy_type}')
     pcolor.Yellow(f'   {dtype} Name: {policy_name}')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_pool_doesnt_exist(org, pool_type, pool_name, profile):
     pcolor.LightGray(f'\n{"-"*108}\n')
@@ -120,13 +119,13 @@ def error_pool_doesnt_exist(org, pool_type, pool_name, profile):
     pcolor.Yellow(f'   Pool Type: {pool_type}')
     pcolor.Yellow(f'   Pool Name: {pool_name}')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_required_argument_missing(ptype, kwargs):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.Yellow(f'   !!! ERROR !!! {ptype}: `{kwargs.name}` missing required argument {kwargs.argument}')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_request(status, text):
     pcolor.LightGray(f'\n{"-"*108}\n')
@@ -134,7 +133,7 @@ def error_request(status, text):
     pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
     pcolor.Yellow(f'   {text}')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_request_netapp(method, status, text, uri):
     pcolor.LightGray(f'\n{"-"*108}\n')
@@ -142,7 +141,7 @@ def error_request_netapp(method, status, text, uri):
     pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
     pcolor.Yellow(f'   {text}')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_request_pure_storage(method, status, text, uri):
     pcolor.LightGray(f'\n{"-"*108}\n')
@@ -150,14 +149,14 @@ def error_request_pure_storage(method, status, text, uri):
     pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
     pcolor.Yellow(f'   {text}')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_serial_number(name, serial):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.Yellow(f'  !!! ERROR !!! The Serial Number "{serial}" for "{name}" was not found in inventory.')
     pcolor.Yellow(f'  Please check the serial number for "{name}".')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 def error_subnet_check(kwargs):
     ip_version = kwargs['ip_version']
@@ -171,13 +170,13 @@ def error_subnet_check(kwargs):
         print(f'   !!! ERROR !!!  {pool_from} is not in network {gateway}/{prefix}:')
         print(f'   Exiting....')
         print(f'\n{"-"*108}\n')
-        sys.exit(1)
+        len(False); sys.exit(1)
     if not pool_to in ipaddress.ip_network(f"{gateway}/{prefix}", strict=False):
         print(f'\n{"-"*108}\n')
         print(f'   !!! ERROR !!!  {pool_to} is not in network {gateway}/{prefix}:')
         print(f'   Exiting....')
         print(f'\n{"-"*108}\n')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 
 def error_subnet_not_found(kwargs):
@@ -189,14 +188,14 @@ def error_subnet_not_found(kwargs):
         print(f'    * {i}')
         print(f'   Exiting....')
     print(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
 
 
 def unmapped_keys(policy_type, name, key):
     print(f'\n{"-"*108}\n')
     print(f'   !!! ERROR !!!! For {policy_type}, {name}, unknown key {key}')
     print(f'\n{"-"*108}\n')
-    sys.exit(1)
+    len(False); sys.exit(1)
  
 # Validations
 def boolean(var, kwargs):
@@ -211,7 +210,7 @@ def boolean(var, kwargs):
         print(f'   Error on Worksheet "{ws.title}", Row {row_num}, Variable {var};')
         print(f'   must be True or False.  Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def description(varName, varValue, minLength, maxLength):
     if not (re.search(r'^[a-zA-Z0-9\\!#$%()*,-./:;@ _{|}~?&+]+$',  varValue) and \
@@ -245,7 +244,7 @@ def domain_ws(var, kwargs):
         print(f'   Error with {var}. Invalid Domain "{varValue}"')
         print(f'   Please Validate the domain and retry.')
         print(f'{"-"*108}')
-        sys.sys.exit(1)
+        len(False); sys.exit(1)
     else: return True
 
 def dns_name(varName, varValue):
@@ -286,7 +285,7 @@ def dns_name_ws(var, kwargs):
         print(f'   is not a valid Hostname.  Confirm that you have entered the DNS Name Correctly.')
         print(f'   Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def email(varName, varValue):
     if not validators.email(varValue, whitelist=None):
@@ -307,7 +306,7 @@ def email_ws(var, kwargs):
         print(f'   Error with {var}. Email address "{varValue}"')
         print(f'   is invalid.  Please Validate the email and retry.')
         print(f'{"-"*108}')
-        sys.sys.exit(1)
+        len(False); sys.exit(1)
     else: return True
 
 def ip_address(varName, varValue):
@@ -426,7 +425,7 @@ def list_values(var, json_data, kwargs):
             print(f'    - {x}')
         print(f'    Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def list_values_key(dictkey, var, kwargs):
     json_data = kwargs['validateData']
@@ -446,7 +445,7 @@ def list_values_key(dictkey, var, kwargs):
             print(f'    - {x}')
         print(f'    Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def mac_address(varName, varValue):
     if not validators.mac_address(varValue):
@@ -467,7 +466,7 @@ def number_check(var, json_data, kwargs):
         print(f'   Error on Worksheet {ws.title}, Row {row_num} {var}, {varValue}. Valid Values ')
         print(f'   are between {minimum} and {maximum}.  Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def number_list(var, kwargs):
     json_data = kwargs['validateData']
@@ -490,7 +489,7 @@ def number_list(var, kwargs):
             print(f'   Error on Worksheet {ws.title}, Row {row_num} {var}, {x}. Valid Values ')
             print(f'   are between {minimum} and {maximum}.  Exiting....')
             print(f'{"-"*108}')
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 def string_list(var, json_data, kwargs):
     # Get Variables from Library
@@ -512,7 +511,7 @@ def string_list(var, json_data, kwargs):
             print(f'    - Regex {pattern}')
             print(f'    Exiting....')
             print(f'{"-"*108}')
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 def string_pattern(var, json_data, kwargs):
     # Get Variables from Library
@@ -533,7 +532,7 @@ def string_pattern(var, json_data, kwargs):
         print(f'    - Regex {pattern}')
         print(f'    Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def wwxn_address(varName, varValue):
     if not re.search(r'([0-9A-F]{2}[:-]){7}([0-9A-F]{2})', varValue):
@@ -677,13 +676,13 @@ def vlans(var, kwargs):
                         print(f'   Error on Worksheet {ws.title}, Row {row_num} {var}. Valid VLAN Values are:')
                         print(f'   between 1 and 4095.  "{z}" is not valid.  Exiting....')
                         print(f'{"-"*108}')
-                        sys.exit(1)
+                        len(False); sys.exit(1)
             elif not validators.between(int(x), min=1, max=4095):
                 print(f'{"-"*108}')
                 print(f'   Error on Worksheet {ws.title}, Row {row_num} {var}. Valid VLAN Values are:')
                 print(f'   between 1 and 4095.  "{x}" is not valid.  Exiting....')
                 print(f'{"-"*108}')
-                sys.exit(1)
+                len(False); sys.exit(1)
     elif re.search('\\-', str(varValue)):
         dash_split = varValue.split('-')
         for x in dash_split:
@@ -692,13 +691,13 @@ def vlans(var, kwargs):
                 print(f'   Error on Worksheet {ws.title}, Row {row_num} {var}. Valid VLAN Values are:')
                 print(f'   between 1 and 4095.  "{x}" is not valid.  Exiting....')
                 print(f'{"-"*108}')
-                sys.exit(1)
+                len(False); sys.exit(1)
     elif not validators.between(int(varValue), min=1, max=4095):
         print(f'{"-"*108}')
         print(f'   Error on Worksheet {ws.title}, Row {row_num} {var}. Valid VLAN Values are:')
         print(f'   between 1 and 4095.  "{varValue}" is not valid.  Exiting....')
         print(f'{"-"*108}')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 def vname(varName, varValue):
     if not re.fullmatch(r'^[a-zA-Z0-9\-\.\_:]{1,31}$', varValue):

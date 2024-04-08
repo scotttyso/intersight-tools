@@ -169,7 +169,7 @@ def main():
             pcolor.Red(f'  !!!ERROR!!!\n  Did not find the file {kwargs.args.yaml_file}.')
             pcolor.Red(f'  Please Validate that you have specified the correct file and path.')
             pcolor.Red(f'\n{"-"*108}\n')
-            sys.exit(1)
+            len(False); sys.exit(1)
         else:
             def try_utf8(yaml_file):
                 try:

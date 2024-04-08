@@ -346,11 +346,11 @@ class api(object):
                         if r.name == p and r.state == 'compliant': license_installed = True
                         #elif r.name == p and r.state == 'noncompliant':
                         #    pcolor.Red(f'\n!!! ERROR !!!\nLicense for protocol {p} is {r.state}\n')
-                        #    sys.exit(1)
+                        #    len(False); sys.exit(1)
                         elif r.name == p: license_installed = True
                     if license_installed == False:
                         pcolor.Red(f'\n!!! ERROR !!!\nNo License was found for protocol {p}\n')
-                        sys.exit(1)
+                        len(False); sys.exit(1)
             #=====================================================
             # Configure Sub-Sections
             #=====================================================
@@ -1590,7 +1590,7 @@ def auth(kwargs, section=''):
         except Exception as e:
             pcolor.Red(f'{url}')
             pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
-            sys.exit(1)
+            len(False); sys.exit(1)
     return s, url
 
 #=====================================================
@@ -1603,7 +1603,7 @@ def check_for_boot_lun(kwargs):
     if boot_volume == False:
         pcolor.Red('\n\n!!! ERROR !!!\nCould not determine the boot volume.  No Boot Volume found in:\n')
         for v in kwargs.volumes: pcolor.Red(f'  *  Type =\t"{v.volume_type}"\tVolume Name:"{v.name}"')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
 #=====================================================
 # pexpect - Configuration Function
@@ -1639,7 +1639,7 @@ def config_function(child, kwargs):
             elif i == 2: cmd_check = True
         if not count == kwargs.count:
             pcolor.Red(kwargs.message)
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 #=====================================================
 # Configure FCP Ports
@@ -1715,7 +1715,7 @@ def delete(uri, kwargs, section=''):
             time.sleep(5)
         except Exception as e:
             pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 #=====================================================
 # Function - API - get
@@ -1736,7 +1736,7 @@ def get(uri, kwargs, section=''):
         except Exception as e:
             pcolor.Red(f'{url}/api/{uri}')
             pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 #=====================================================
 # iGroup Function
@@ -1804,7 +1804,7 @@ def patch(uri, kwargs, payload, section=''):
         except Exception as e:
             pcolor.Red(f'{url}/api/{uri}')
             pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 #=====================================================
 # iGroup Function
@@ -1853,7 +1853,7 @@ def post(uri, kwargs, payload, section=''):
         except Exception as e:
             pcolor.Red(f'{url}/api/{uri}')
             pcolor.Red("!!! ERROR !!! Method %s Failed. Exception: %s" % (section[:-5], e))
-            sys.exit(1)
+            len(False); sys.exit(1)
 
 #=====================================================
 # Function - SVM pexpect Process
@@ -1943,7 +1943,7 @@ def svm_pexpect(child, host_file, i, kwargs, svm):
                 elif i == 4: cmd_check = True
         if not change == 'none' and len(value) > 0:
             pcolor.Red(kwargs.message)
-            sys.exit(1)
+            len(False); sys.exit(1)
         return value
     #=====================================================
     # Configure Protocols

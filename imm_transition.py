@@ -4,13 +4,10 @@ import os, sys
 script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
-    from classes import build, ezfunctions, imm, isight, lansan, pcolor, policies, pools, profiles, questions, quick_start, tf, validating
-    from collections import OrderedDict
-    from copy import deepcopy
+    from classes import ezfunctions, pcolor
     from dotmap import DotMap
-    from json_ref_dict import materialize, RefDict
     from pathlib import Path
-    import argparse, base64, jinja2, json, os, logging, platform, re, requests, urllib3, uuid, yaml
+    import argparse, jinja2, json, os, logging, platform, requests, urllib3, uuid
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')

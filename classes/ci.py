@@ -1602,7 +1602,7 @@ class imm(object):
                     kwargs.server_profiles[name].os_vendor = os_vendor
                     #if not os_vendor == 'Windows':
                     kwargs = server_profile_networks(name, p, kwargs)
-            pvars['targets']  = sorted(pvars['targets'], key=lambda item: item['name'])
+            pvars['targets']  = sorted(pvars['targets'], key=lambda ele: ele.name)
             kwargs.class_path= f'profiles,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         kwargs.server_profiles = dict(sorted(kwargs.server_profiles.items()))
@@ -2234,7 +2234,7 @@ class wizard(object):
                     kwargs           = isight.api('serial_number').calls(kwargs)
                     serial_moids     = kwargs.pmoids
                     serial           = i.serial_numbers[0]
-                    serial_moids     = {k: v for k, v in sorted(serial_moids.items(), key=lambda item: (item[1]['switch_id']))}
+                    serial_moids     = {k: v for k, v in sorted(serial_moids.items(), key=lambda ele: ele[1].switch_id)}
                     kwargs.api_filter= f"RegisteredDevice.Moid eq '{serial_moids[serial]['registered_device']}'"
                     kwargs.uri       = 'asset/Targets'
                     kwargs           = isight.api('asset_target').calls(kwargs)
@@ -2523,8 +2523,8 @@ class wizard(object):
             if v.os_installed == False:
                 kwargs.mac_a = v.macs[0].mac
                 kwargs.mac_b = v.macs[1].mac
-                if v.os_vendor   == 'VMware':    kwargs.api_body = ezfunctions.vmware_installation_body(v, kwargs)
-                elif v.os_vendor == 'Microsoft': kwargs.api_body = ezfunctions.windows_installation_body(v, kwargs)
+                if v.os_vendor   == 'VMware':    kwargs.api_body = ezfunctions.installation_body_vmware(v, kwargs)
+                elif v.os_vendor == 'Microsoft': kwargs.api_body = ezfunctions.installation_body_windows(v, kwargs)
                 kwargs.method = 'post'
                 kwargs.uri    = 'os/Installs'
                 if v.boot_volume == 'san':

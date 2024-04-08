@@ -113,7 +113,7 @@ class tools(object):
         else:
             prRed(f'\n{"-"*108}\n\n  Missing Required YAML File Argument `-y`.  Exiting Process.')
             prRed(f'\n{"-"*108}\n')
-            sys.exit(1)
+            len(False); sys.exit(1)
         #======================================================
         # Get VLAN List and Organizations from YAML configuration file.
         #======================================================
@@ -205,7 +205,7 @@ class tools(object):
                         idata.mac.append(i.mac_pool)
                 for k, v in idata.items():
                     if re.search('ethernet_network_group|lan_connectivity', k):
-                        idata[k] = sorted(v, key=lambda item: item['vlan_id'])
+                        idata[k]   = sorted(v, key=lambda ele: ele.vlan_id)
                     else: idata[k] = sorted(list(numpy.unique(numpy.array(v))))
                 #======================================================
                 # Query the API for the Ethernet Network Group Policies
@@ -612,8 +612,8 @@ class tools(object):
                 if e.Profile.Moid == servers[k].moid:
                     servers[k].vnics.append({'name': e.Name, 'mac_address':e.MacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu})
         for k, v in servers.items():
-            servers[k].vnics.sort(key=lambda d: d['name'])
-            servers[k].vhbas.sort(key=lambda d: d['name'])
+            servers[k].vnics.sort(key=lambda ele: ele.name)
+            servers[k].vhbas.sort(key=lambda ele: ele.name)
             if v.platform == 'UCSFI': servers[k].domain = domains[v.registration].name
             elif len(v.parent) > 0: servers[k].domain = domains[v.parent].name
         if len(servers) > 0:
@@ -823,7 +823,7 @@ class tools(object):
                     policy_bucket.append({'Moid': policy_moid, 'ObjectType': object_type})
             pbucket = []
             for x in policy_bucket: pbucket.append(x.toDict())
-            policy_bucket = (sorted(pbucket, key=lambda k: (k['ObjectType'])))
+            policy_bucket = sorted(pbucket, key=lambda ele: ele.ObjectType)
             #======================================================
             # Patch the Profile with new Policy Bucket.
             #======================================================

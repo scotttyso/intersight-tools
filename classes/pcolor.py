@@ -11,21 +11,21 @@ def print_process(cchar, ptext):
     elif re.search(r'^[ ]+[\*|\-]([ ]+)?[a-zA-Z0-9`]', ptext):
         indent = len(re.search(r'^([ ]+[\*|\-]([ ]+)?)[a-zA-Z0-9`]', ptext).group(1))
         sub_indent = ' ' * indent + ' '
-        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=110))
+        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
     elif re.search(r'^[ ]+[0-9]+\.([ ]+)?[a-zA-Z0-9`]', ptext):
         indent = len(re.search(r'^([ ]+[0-9]+\.([ ]+)?)[a-zA-Z0-9`]', ptext).group(1))
         sub_indent = ' ' * indent + ' '
-        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=110))
+        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
     elif re.search(r'^[\*|\-]([ ]+)?[a-zA-Z0-9`]', ptext):
         indent = len(re.search(r'(^[\*|\-]([ ]+)?)[a-zA-Z0-9`]', ptext).group(1))
         sub_indent = ' ' * indent + ' '
-        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=110))
+        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
     elif re.search(r'^[ ]+[a-zA-Z0-9`\!]', ptext):
         indent = len(re.search(r'^([ ]+)[a-zA-Z0-9`\!]', ptext).group(1))
         sub_indent = ' ' * indent + ' '
-        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=110))
-    elif re.search('^[a-zA-Z0-9\\-\\=]', ptext):
-        print(textwrap.fill(f"\033[{cchar}{ptext}\033[00m", replace_whitespace=False, width=110))
+        print(textwrap.fill(f"\033[{cchar} {ptext}\033[00m", replace_whitespace=False, subsequent_indent=sub_indent, width=108))
+    elif re.search(r'^[a-zA-Z0-9\-\=\!]', ptext):
+        print(textwrap.fill(f"\033[{cchar}{ptext}\033[00m", replace_whitespace=False, width=108))
     else:
         print('ERROR with PCOLOR, didnt match regex') 
         print(f'value `{ptext}`')

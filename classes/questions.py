@@ -132,7 +132,7 @@ def main_menu_individual_types(kwargs):
 def organization(kwargs):
     kwargs = isight.api('organization').all_organizations(kwargs)
     org_list = sorted(list(kwargs.org_moids.keys()), key=str.casefold)
-    if not 'Profile' == kwargs.deployment_type: org_list.append('Create New')
+    if not kwargs.deployment_type == 'OSInstall': org_list.append('Create New')
     kwargs.jdata       = kwargs.ezdata.organization.allOf[1].properties.name
     kwargs.jdata.enum  = org_list
     kwargs.jdata.sort  = False
@@ -164,7 +164,6 @@ def organization(kwargs):
         kwargs.uri    = kwargs.ezdata.organization.intersight_uri
         kwargs        = isight.api('organization').calls(kwargs)
         kwargs.org_moids[kwargs.org] = DotMap(moid = kwargs.pmoid)
-    kwargs.imm_dict.orgs[kwargs.org].wizard.org = kwargs.org
     return kwargs
 
 #=================================================================
@@ -188,7 +187,7 @@ def organization_shared(kwargs):
         org_results = kwargs.results
         org_list = sorted([e.Name for e in org_results if e.get('SharedWithResources')], key=str.casefold)
         if len(org_list) == 0: org_list.append('Create New')
-        elif not kwargs.deployment_type == 'Profile': org_list.append('Create New')
+        elif not kwargs.deployment_type == 'OSInstall': org_list.append('Create New')
         if 'Create New' in org_list: description = 'Select an Existing Organization or `Create New`, for the shared Organization.'
         else: description = 'Select an Existing Organization, for the shared Organization.'
         if len(org_list) > 1:
@@ -427,9 +426,11 @@ def setup_deployment_method(kwargs):
 # Function: Main Menu, Prompt User for Deployment Type
 #=================================================================
 def setup_deployment_type(kwargs):
-    if not re.search('FIAttached|Standalone|Profile|Individual|Deploy', kwargs.args.deployment_type):
-        kwargs.jdata           = kwargs.ezwizard.setup.properties.deployment_type
-        kwargs.deployment_type = ezfunctions.variable_prompt(kwargs)
+    if not re.search('FIAttached|Standalone|OSInstall|Individual|Deploy', kwargs.args.deployment_type):
+        kwargs.jdata    = kwargs.ezwizard.setup.properties.deployment_type
+        deployment_type = ezfunctions.variable_prompt(kwargs)
+        if 'OS Install' == deployment_type: kwargs.deployment_type = 'OSInstall'
+        else: kwargs.deployment_type = deployment_type
     else: kwargs.deployment_type = kwargs.args.deployment_type
     return kwargs
 
@@ -467,7 +468,7 @@ def setup_operating_systems(kwargs):
     kwargs            = isight.software_repository('os_vendors').os_vendor_and_version(kwargs)
     kwargs.jdata      = kwargs.ezwizard.setup.properties.operating_system_vendor
     kwargs.jdata.enum = sorted(list(kwargs.os_vendors.keys()))
-    if kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_type == 'Profile': kwargs.jdata.multi_select == False
+    if kwargs.imm_dict.orgs[kwargs.org].wizard.deployment_type == 'OSInstall': kwargs.jdata.multi_select == False
     os_vendors = ezfunctions.variable_prompt(kwargs)
     if type(os_vendors) == str: os_vendors = [os_vendors]
     kwargs.operating_systems = []
@@ -496,11 +497,11 @@ def setup_target_platform(kwargs):
 #=================================================================
 # Function: Prompt User for OS Image
 #=================================================================
-def sw_repo_os_cfg(os, kwargs):
+def sw_repo_os_cfg(op_system, kwargs):
     if not kwargs.get('os_cfg_results'): kwargs  = isight.software_repository('cfg').os_configuration(kwargs)
-    elist   = []; os_cfg = []
+    elist = []; os_cfg = []
     for e in kwargs.os_cfg_results:
-        if os.version.moid in [f.Moid for f in e.Distributions]:
+        if op_system.version.moid in [f.Moid for f in e.Distributions]:
             if 'shared' in e.Owners:
                 elist.append(f'Location: Intersight || Name: {e.Name} || Moid: {e.Moid}')
             else: elist.append(f'Location: {e.Source.LocationLink} || Name: {e.Name} || Moid: {e.Moid}')
@@ -509,49 +510,73 @@ def sw_repo_os_cfg(os, kwargs):
         kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_os_image
         kwargs.jdata.default = elist[0]
         kwargs.jdata.enum    = elist
-        answer               = ezfunctions.variable_prompt(kwargs)
-        regex                = re.compile(r'Location: (.*) \|\| Name: (.*) \|\| Moid: (.*)$')
-        match                = regex.search(answer)
-        sw                   = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
-        indx                 = next((index for (index, d) in enumerate(os_cfg) if d['Moid'] == sw.moid), None)
-        kwargs.os_cfg        = os_cfg[indx]
-    elif len(elist) == 1: kwargs.os_cfg = os_cfg[0]
+        answer           = ezfunctions.variable_prompt(kwargs)
+        regex            = re.compile(r'Location: (.*) \|\| Name: (.*) \|\| Moid: (.*)$')
+        match            = regex.search(answer)
+        sw               = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
+        indx             = next((index for (index, d) in enumerate(os_cfg) if d['Moid'] == sw.moid), None)
+        os_configuration = os_cfg[indx]
+    elif len(elist) == 1: os_configuration = os_cfg[0]
     else:
         pcolor.Red(f'\n{"-"*108}\n')
-        pcolor.Red(f'  !!!ERROR!!! No Operating System Configuration File found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}` Version: `{os.version.name}`.')
+        pcolor.Red(f'  !!!ERROR!!! No Operating System Configuration File found in Intersight Organization `{kwargs.org}` to support Vendor: '\
+                   f'`{op_system.vendor}` Version: `{op_system.version.name}`.')
         pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 507')
         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
+    #=======================================================
+    # Test Repository URL and Return kwargs
+    #=======================================================
+    kwargs.os_cfg_dict = os_configuration
+    kwargs.imm_dict.orgs[kwargs.org].wizard.setup.os_configuration = os_configuration.Moid
+    for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration = os_configuration.Moid
     return kwargs
 
 #=================================================================
 # Function: Prompt User for OS Image
 #=================================================================
-def sw_repo_os_image(os, kwargs):
+def sw_repo_os_image(op_system, kwargs):
     kwargs = isight.software_repository('osi').os_images(kwargs)
-    #kwargs.osi_moids = sorted(kwargs.osi_moids, key=lambda item: item['Version'], reverse=True)
+    #kwargs.osi_moids = sorted(kwargs.osi_moids, key=lambda ele: ele.Version, reverse=True)
     elist = []
     osi_moids = []
     for e in kwargs.osi_moids:
-        if e.Vendor == os.vendor and e.Version == os.version.name:
+        if e.Vendor == op_system.vendor and e.Version == op_system.version.name:
             elist.append(f'Location: {e.Source.LocationLink} || Name: {e.Name} || Moid: {e.Moid}')
             osi_moids.append(deepcopy(e))
-    if len(elist) > 1:
-        kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_os_image
-        kwargs.jdata.default = elist[0]
-        kwargs.jdata.enum    = elist
-        answer               = ezfunctions.variable_prompt(kwargs)
-        regex                = re.compile(r'Location: (.*) \|\| Name: (.*) \|\| Moid: ([a-z0-9]+)$')
-        print(answer)
-        match                = regex.search(answer)
-        sw                   = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
-        indx                 = next((index for (index, d) in enumerate(kwargs.osi_moids) if d['Moid'] == sw.moid), None)
-        kwargs.os_image      = osi_moids[indx]
-    elif len(elist) == 1: kwargs.os_image = osi_moids[0]
-    else:
-        pcolor.Red(f'\n{"-"*108}\n')
-        pcolor.Red(f'  !!!ERROR!!! No Operating System Image Found in Intersight Organization `{kwargs.org}` to support Vendor: `{os.vendor}`.')
-        pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 549')
-        pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
+    use_image = False
+    while use_image == False:
+        if len(elist) > 1:
+                kwargs.jdata         = kwargs.ezwizard.setup.properties.sw_repo_os_image
+                kwargs.jdata.default = elist[0]
+                kwargs.jdata.enum    = elist
+                answer   = ezfunctions.variable_prompt(kwargs)
+                regex    = re.compile(r'Location: (.*) \|\| Name: (.*) \|\| Moid: ([a-z0-9]+)$')
+                match    = regex.search(answer)
+                sw       = DotMap(location = match.group(1), name = match.group(2), moid = match.group(3))
+                indx     = next((index for (index, d) in enumerate(osi_moids) if d['Moid'] == sw.moid), None)
+                os_image = osi_moids[indx]
+        elif len(elist) == 1: os_image = osi_moids[0]
+        else:
+            pcolor.Red(f'\n{"-"*108}\n')
+            pcolor.Red(f'  !!!ERROR!!! No Operating System Image Found in Intersight Organization `{kwargs.org}` to support Vendor: `{op_system.vendor}`.')
+            pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 549')
+            pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
+        if not 'Custom-Cisco' in os_image.Source.LocationLink and op_system.vendor == 'VMware':
+            iso = os_image.Source.LocationLink.split('/')
+            pcolor.Yellow(f'Confirm Image before proceeding: `{iso[-1]}`')
+            kwargs.jdata = kwargs.ezwizard.setup.properties.sw_repo_os_image_confirm
+            answer = ezfunctions.variable_prompt(kwargs)
+            if answer == True: use_image = True
+        else: use_image = True
+    #=======================================================
+    # Test Repository URL and Return kwargs
+    #=======================================================
+    url = os_image.Source.LocationLink
+    ezfunctions.test_repository_url(url)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.setup.os_image = os_image.Moid
+    for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_image = os_image.Moid
     return kwargs
 
 #=================================================================
@@ -567,7 +592,7 @@ def sw_repo_scu(kwargs):
         models = ", ".join(kwargs.models)
         pcolor.Red(f'\n{"-"*108}\n')
         pcolor.Red(f'  !!!ERROR!!! No Server Configuration Utility Image Found in Intersight Organization `{kwargs.org}` to support Models: {models}.  Exiting....')
-        pcolor.Red(f'  Exiting...  intersight-tools/classes/isight.py line 564')
+        pcolor.Red(f'  Exiting...  (intersight-tools/classes/isight.py line 564)')
         pcolor.Red(f'\n{"-"*108}\n'); sys.exit(1)
     models = True
     if len(elist) > 1:
@@ -577,17 +602,25 @@ def sw_repo_scu(kwargs):
         answer = ezfunctions.variable_prompt(kwargs)
         regex  = re.compile(r'Location: (.*) \|\| Version: (.*) \|\| Name: (.*) \|\| .* Moid: ([a-z0-9]+)$')
         match  = regex.search(answer)
-        sw = DotMap(location = match.group(1), version = match.group(2), name = match.group(3), moid=match.group(4))
-        indx = next((index for (index, d) in enumerate(kwargs.scu_moids) if d['Moid'] == sw.moid), None)
+        sw     = DotMap(location = match.group(1), version = match.group(2), name = match.group(3), moid=match.group(4))
+        indx   = next((index for (index, d) in enumerate(kwargs.scu_moids) if d['Moid'] == sw.moid), None)
         for d in kwargs.models:
             if not d in kwargs.scu_moids[indx].SupportedModels: models = False
-        if models == True: kwargs.scu = kwargs.scu_moids[indx]
+        if models == True: scu = kwargs.scu_moids[indx]
     elif len(elist) == 1:
         for d in kwargs.models:
             if not d in kwargs.scu_moids[0].SupportedModels: models = False
-        if models == True: kwargs.scu = kwargs.scu_moids[0]
+        if models == True: scu = kwargs.scu_moids[0]
     else: print_error(kwargs)
-    if len(kwargs.scu) == 0: print_error(kwargs)
+    if len(scu) == 0: print_error(kwargs)
+    #=======================================================
+    # Test Repository URL and Return kwargs
+    #=======================================================
+    url = scu.Source.LocationLink
+    ezfunctions.test_repository_url(url)
+    kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server_configuration_utility = scu.Moid
+    for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].scu = scu.Moid
     return kwargs
 
 #=================================================================

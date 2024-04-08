@@ -27,7 +27,6 @@ script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
     from classes import build, ezfunctions, imm, isight, lansan, pcolor, policies, pools, profiles, questions, quick_start, tf, validating
-    from collections import OrderedDict
     from copy import deepcopy
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
@@ -38,7 +37,7 @@ except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
-
+    sys.exit(1)
 #=================================================================
 # Function: Parse Arguments
 #=================================================================
@@ -70,7 +69,7 @@ def cli_arguments():
         help = 'Deployment Type values are: \
             1.  FIAttached \
             1.  Standalone \
-            1.  Profile \
+            1.  OSInstall \
             1.  Individual \
             1.  Deploy \
             2.  Exit')
@@ -332,13 +331,17 @@ def menu(kwargs):
     kwargs = questions.setup_deployment_type(kwargs)
     if re.search('Exit|Deploy', kwargs.deployment_type): return kwargs
     #=================================================================
-    # Prompt User with Questions if deployment_type not Exit|Deploy
+    # Prompt User with Questions
     #=================================================================
     kwargs = questions.organization(kwargs)
+    if not kwargs.get('profile_option') and kwargs.deployment_type == 'OSInstall':
+        kwargs.jdata          = kwargs.ezwizard.setup.properties.profile_option
+        kwargs.profile_option = ezfunctions.variable_prompt(kwargs)
+    else: kwargs.profile_option = 'new'
     if not re.search('Individual', kwargs.deployment_type):
-        if not kwargs.imm_dict.orgs[kwargs.org].wizard.setup.get('shared_org'): questions.organization_shared(kwargs)
-    if len(kwargs.imm_dict.orgs.keys()) == 0:
-        kwargs.imm_dict.orgs[kwargs.org] = DotMap()
+        if (re.search('OSInstall', kwargs.deployment_type) and kwargs.profile_option == 'existing'): pass
+        elif not kwargs.imm_dict.orgs[kwargs.org].wizard.setup.get('shared_org'): questions.organization_shared(kwargs)
+    if len(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.toDict()) == 0:
         kwargs = build.intersight('setup').setup(kwargs)
     else:
         orgs = list(kwargs.imm_dict.orgs.keys())
@@ -359,8 +362,8 @@ def process_wizard(kwargs):
     # Process List from Main Menu
     #==============================================
     profile_list = ['chassis', 'domain', 'server', 'server_template']
-    if kwargs.deployment_type == 'Profile':
-        kwargs = build.intersight(kwargs.target_platform).profiles(kwargs)
+    if kwargs.deployment_type == 'OSInstall':
+        kwargs = build.intersight(kwargs.target_platform).operating_system_installation(kwargs)
     elif kwargs.build_type == 'Interactive':
         for p in kwargs.main_menu_list:
             #==============================================
@@ -433,7 +436,7 @@ def main():
             pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
             pcolor.Red(f'  It can be a short path or a fully qualified path.  "{folder}" does not qualify.')
             pcolor.Red(f'  Exiting...\n\n{"-"*108}\n')
-            sys.exit(1)
+            len(False); sys.exit(1)
     #==============================================
     # Run IMM Transition if json Arg Present
     #==============================================
@@ -444,7 +447,7 @@ def main():
         if not os.path.isfile(kwargs.args.json_file):
             pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!\n  Did not find the file {kwargs.args.json_file}.')
             pcolor.Red(f'  Please Validate that you have specified the correct file and path.\n\n{"-"*108}\n')
-            sys.exit(1)
+            len(False); sys.exit(1)
         else:
             kwargs.deployment_type = 'Terraform'
             kwargs.json_data = DotMap(json.load(open(kwargs.args.json_file, 'r')))
@@ -460,7 +463,7 @@ def main():
                 pcolor.Red(f'  The JSON file should be downloaded at the last step of the IMM Transition tool where the')
                 pcolor.Red(f'  API Key and Secret would be entered to upload to Intersight.')
                 pcolor.Red(f'  Exiting Wizard...\n\n{"-"*108}\n')
-                sys.exit(1)
+                len(False); sys.exit(1)
             #==============================================
             # Run through the IMM Transition Wizard
             #==============================================

@@ -1,5 +1,6 @@
 # pip freeze -q -r requirements.txt
 argparse
+base64
 collection
 crypt
 dotmap

@@ -14,7 +14,7 @@ try:
     from OpenSSL import crypto
     from pathlib import Path
     from stringcase import snakecase
-    import ipaddress, itertools, jinja2, json, os, pexpect, pkg_resources, pytz, re, requests
+    import base64, crypt, ipaddress, itertools, jinja2, json, os, pexpect, pkg_resources, pytz, re, requests
     import shutil, subprocess, stdiomask, string, textwrap, validators, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -374,6 +374,209 @@ def find_vars(ws, func, rows, count):
     return var_dict
 
 #=============================================================================
+# Function - Build api_body for Operating System Installation - VMware
+#=============================================================================
+def installation_body(v, kwargs):
+    if 'shared' in kwargs.os_cfg_moids[v.os_configuration].Owners:
+        answers = DotMap(); encrypted = False
+        for e in kwargs.os_cfg_moids[v.os_configuration].Placeholders:
+            if re.search('\.answers\.', e.Type.Name): name = e.Type.Name[9:]
+            elif '.internal' in e.Type.Name: continue
+            elif 'FQDN' in e.Type.Name: continue
+            else: name = e.Type.name[1:]
+            x = name.split('.')
+            if v.answers.get(x[0]):
+                if type(v.answers[x[0]]) == str and 'sensitive_' in v.answers[x[0]]:
+                    password = os.environ[v.answers[x[0]].replace('sensitive_', '')]
+                    if v.os_vendor == 'Microsoft':
+                        if 'LogonPassword' in x[0]:
+                            answers[x[0]]   = base64.b64encode(f'{password}Password'.encode(encoding='utf-16-le')).decode()
+                        else: answers[x[0]] = base64.b64encode(f'{password}AdministratorPassword'.encode(encoding='utf-16-le')).decode()
+                    else: answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512)); encrypted = True
+                elif x[0] == 'NameServer': answers['Nameserver'] = v.answers[x[0]]
+                elif x[0] == 'AlternateNameServer': answers['AlternateNameServers'] = [v.answers['AlternateNameServer']]
+                else: answers[x[0]] = v.answers[x[0]]
+        if answers.get('IpV4Config') or answers.get('IpV6Config'):
+            vx = answers.IpVersion
+            answers.pop('IpVersion')
+            answers.IpConfiguration = DotMap({f'Ip{vx}Config': answers[f'Ip{vx}Config'].toDict(),
+                                              'ObjectType': f'os.Ip{vx.lower()}Configuration'}).toDict()
+            answers.pop(f'Ip{vx}Config')
+        api_body = {
+            'Answers': dict(sorted(dict(answers, **{'IsRootPasswordCrypted': False, 'Source': 'Template'}).items())),
+            'AdditionalParameters': None,
+            'Description': '',
+            'ConfigurationFile': {'Moid': v.os_configuration, 'ObjectType': 'os.ConfigurationFile'},
+            'Image': {'Moid': v.os_image, 'ObjectType': 'softwarerepository.OperatingSystemFile'},
+            'InstallMethod': 'vMedia',
+            'InstallTarget': {},
+            'ObjectType': 'os.Install', 
+            'OperatingSystemParameters': {'Edition': 'Standard','ObjectType': 'os.WindowsParameters'},
+            'Organization': {'Moid': kwargs.org_moids[kwargs.org].moid, 'ObjectType': 'organization.Organization'},
+            'OsduImage': {'Moid': v.scu, 'ObjectType': 'firmware.ServerConfigurationUtilityDistributable'},
+            'OverrideSecureBoot': False,
+            'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
+    if v.os_vendor == 'Microsoft':
+        api_body['OperatingSystemParameters']['Edition'] = v.answers.EditionString
+        api_body['Answers'].pop('EditionString')
+    else: api_body.pop('OperatingSystemParameters')
+    if api_body['Answers'].get('SecureBoot'): api_body['Answers'].pop('SecureBoot'); api_body.update({'OverrideSecureBoot': True})
+    if encrypted == True: api_body['Answers']['IsRootPasswordCrypted'] = True
+    if v.boot_volume.lower() == 'san':
+        api_body['InstallTarget'] = {
+            'InitiatorWwpn': v.wwpns[kwargs.wwpn_index].wwpn,
+            'LunId': kwargs.san_target.Lun,
+            'ObjectType': 'os.FibreChannelTarget',
+            'TargetWwpn': kwargs.san_target.Wwpn}
+    elif v.boot_volume.lower() == 'm2':
+        api_body['InstallTarget'] = {
+            "Id": '0',
+            "Name": "MStorBootVd",
+            "ObjectType": "os.VirtualDrive",
+            "StorageControllerSlotId": "MSTOR-RAID"}
+    return api_body
+
+#=============================================================================
+# Function - OS Install Custom Template Parameters Map
+#=============================================================================
+def installation_body_os_placeholders(key, value):
+    if 'secure' in key: secure = True
+    else: secure = False
+    if len(value) == 0: is_set = False
+    else: is_set = True
+    parameters = {
+        "ClassId": "os.PlaceHolder",
+        "IsValueSet": is_set,
+        "ObjectType": "os.PlaceHolder",
+        "Type": {
+            "ClassId": "workflow.PrimitiveDataType",
+            "Default": {
+                "ClassId": "workflow.DefaultValue",
+                "IsValueSet": False,
+                "ObjectType": "workflow.DefaultValue",
+                "Override": False,
+                "Value": None},
+            "Description": "",
+            "DisplayMeta": {
+                "ClassId": "workflow.DisplayMeta",
+                "InventorySelector": True,
+                "ObjectType": "workflow.DisplayMeta",
+                "WidgetType": "None"},
+            "InputParameters": None,
+            "Label": key,
+            "Name": key,
+            "ObjectType": "workflow.PrimitiveDataType",
+            "Properties": {
+                "ClassId": "workflow.PrimitiveDataProperty",
+                "Constraints": {
+                    "ClassId": "workflow.Constraints",
+                    "EnumList": [],
+                    "Max": 0,
+                    "Min": 0,
+                    "ObjectType": "workflow.Constraints",
+                    "Regex": ""},
+                "InventorySelector": [],
+                "ObjectType": "workflow.PrimitiveDataProperty",
+                "Secure": secure,
+                "Type": "string"},
+            "Required": False},
+        "Value": value}
+    return parameters
+
+#=============================================================================
+# Function - Build api_body for Operating System Installation - VMware
+#=============================================================================
+def installation_body_vmware(v, kwargs):
+    api_body = {
+        'AdditionalParameters': None,
+        'Answers': {
+            "AlternateNameServers": [],
+            'Hostname': f'{v.name}.{kwargs.dns_domains[0]}',
+            'IpConfigType': 'static',
+            'IpConfiguration': {
+                'IpV4Config': {
+                    'Gateway': v.inband.gateway,
+                    'IpAddress': v.inband.ip,
+                    'Netmask': v.inband.netmask,
+                    'ObjectType': 'comm.IpV4Interface'},
+                'ObjectType': 'os.Ipv4Configuration'},
+            "IsRootPasswordCrypted": False,
+            'Nameserver': kwargs.dns_servers[0],
+            'NetworkDevice': kwargs.mac_a,
+            'ObjectType': 'os.Answers',
+            'RootPassword': kwargs.vmware_esxi_password,
+            'Source': 'Template'},
+        'ConfigurationFile': {'Moid': kwargs.os_cfg_moid, 'ObjectType': 'os.ConfigurationFile'},
+        'Image': {'Moid': kwargs.os_sw_moid, 'ObjectType': 'softwarerepository.OperatingSystemFile'},
+        'InstallMethod': 'vMedia',
+        'InstallTarget': {},
+        'ObjectType': 'os.Install',
+        'Organization': {'Moid': kwargs.org_moid, 'ObjectType': 'organization.Organization'},
+        'OsduImage': {'Moid': kwargs.scu_moid, 'ObjectType': 'firmware.ServerConfigurationUtilityDistributable'},
+        'OverrideSecureBoot': True,
+        'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
+    if len(kwargs.dns_servers) > 0:
+        api_body['Answers']['AlternateNameServers'] = [kwargs.dns_servers[1]]
+    if v.boot_volume.lower() == 'san':
+        api_body['InstallTarget'] = {
+            'InitiatorWwpn': v.wwpns[kwargs.wwpn].wwpn,
+            'LunId': 0,
+            'ObjectType': 'os.FibreChannelTarget',
+            'TargetWwpn': kwargs.san_target}
+    elif v.boot_volume.lower() == 'm2':
+        api_body['InstallTarget'] = {
+            "Id": '0',
+            "Name": "MStorBootVd",
+            "ObjectType": "os.VirtualDrive",
+            "StorageControllerSlotId": "MSTOR-RAID"}
+    return api_body
+
+#=============================================================================
+# Function - Build api_body for Operating System Installation - Azure Stack
+#=============================================================================
+def installation_body_windows(v, kwargs):
+    if kwargs.args.deployment_type == 'azurestack':
+        ou           = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
+        org_unit     = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
+        organization = kwargs.imm_dict.wizard.azurestack[0].organization
+    else: ou = ''; org_unit = ''; organization = 'Example'
+    api_body = {
+        "AdditionalParameters": [],
+        "Answers": {"Source": "Template"},
+        "ConfigurationFile": {"Moid": kwargs.os_cfg_moid, "ObjectType": "os.ConfigurationFile"},
+        "Description": "",
+        "Image": {"Moid": kwargs.os_sw_moid, "ObjectType": "softwarerepository.OperatingSystemFile"},
+        "InstallMethod": "vMedia",
+        "OperatingSystemParameters": {"Edition": "DatacenterCore", "ObjectType": "os.WindowsParameters"},
+        "Organization": {"Moid": kwargs.org_moid, "ObjectType": "organization.Organization"},
+        "OsduImage": {"Moid": kwargs.scu_moid, "ObjectType": "firmware.ServerConfigurationUtilityDistributable"},
+        "OverrideSecureBoot": True,
+        "Server": {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
+    answers_dict = {
+        ".hostName": v.name,
+        ".domain": v.active_directory.domain,
+        ".organization": organization,
+        ".organizationalUnit": org_unit,
+        ".secure.administratorPassword": kwargs.windows_admin_password,
+        ".domainAdminUser": v.active_directory.administrator,
+        ".secure.domainAdminPassword": kwargs.windows_domain_password,
+        #".macAddressNic1_dash_format": mac_a,
+        #".macAddressNic2_dash_format": mac_b
+        # Language Pack/Localization
+        ".inputLocale": kwargs.language.input_local,
+        ".languagePack": kwargs.language.ui_language,
+        ".layeredDriver": kwargs.language.layered_driver,
+        ".secondaryLanguage": kwargs.language.secondary_language,
+        # Timezone Configuration
+        ".disableAutoDaylightTimeSet": kwargs.disable_daylight,
+        ".timeZone": kwargs.windows_timezone}
+    answers_dict = dict(sorted(answers_dict.items()))
+    for x in ['layeredDriver', 'secondaryLanguage']:
+        if kwargs.language[snakecase(x)] == '': answers_dict.pop(f".{x}")
+    for key,value in answers_dict.items(): api_body["AdditionalParameters"].append(installation_body_os_placeholders(key, value))
+    return api_body
+
+#=============================================================================
 # Function - Prompt User for the Intersight Configurtion
 #=============================================================================
 def intersight_config(kwargs):
@@ -407,12 +610,12 @@ def intersight_config(kwargs):
                         pcolor.Red(e)
                         pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
                         pcolor.Red(f'\n{"-"*108}\n')
-                        sys.exit(1)
+                        len(False); sys.exit(1)
                     if is_key == True: kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
                     else:
                         pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
                         pcolor.Red(f'\n{"-"*108}\n')
-                        sys.exit(1)
+                        len(False); sys.exit(1)
             if not valid == True:
                 kwargs.jdata = DotMap(
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
@@ -474,7 +677,7 @@ def load_previous_configurations(kwargs):
                                 elif type(value) == str or type(value) == bool or type(value) == list: kwargs.imm_dict.orgs[key] = value
                                 else:
                                     print(f'failed to match type {type(value)}')
-                                    sys.exit(1)
+                                    len(False); sys.exit(1)
     # Return kwargs
     return kwargs
 
@@ -668,53 +871,6 @@ def os_configuration_file(kwargs):
     return api_body
 
 #=============================================================================
-# Function - OS Install Custom Template Parameters Map
-#=============================================================================
-def os_placeholders(key, value):
-    if 'secure' in key: secure = True
-    else: secure = False
-    if len(value) == 0: is_set = False
-    else: is_set = True
-    parameters = {
-        "ClassId": "os.PlaceHolder",
-        "IsValueSet": is_set,
-        "ObjectType": "os.PlaceHolder",
-        "Type": {
-            "ClassId": "workflow.PrimitiveDataType",
-            "Default": {
-                "ClassId": "workflow.DefaultValue",
-                "IsValueSet": False,
-                "ObjectType": "workflow.DefaultValue",
-                "Override": False,
-                "Value": None},
-            "Description": "",
-            "DisplayMeta": {
-                "ClassId": "workflow.DisplayMeta",
-                "InventorySelector": True,
-                "ObjectType": "workflow.DisplayMeta",
-                "WidgetType": "None"},
-            "InputParameters": None,
-            "Label": key,
-            "Name": key,
-            "ObjectType": "workflow.PrimitiveDataType",
-            "Properties": {
-                "ClassId": "workflow.PrimitiveDataProperty",
-                "Constraints": {
-                    "ClassId": "workflow.Constraints",
-                    "EnumList": [],
-                    "Max": 0,
-                    "Min": 0,
-                    "ObjectType": "workflow.Constraints",
-                    "Regex": ""},
-                "InventorySelector": [],
-                "ObjectType": "workflow.PrimitiveDataProperty",
-                "Secure": secure,
-                "Type": "string"},
-            "Required": False},
-        "Value": value}
-    return parameters
-
-#=============================================================================
 # Function - Get Policies from Dictionary
 #=============================================================================
 def policies_parse(ptype, policy_type, kwargs):
@@ -814,7 +970,7 @@ def repo_url_test(file, pargs):
     except requests.RequestException as e:
         pcolor.Red(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}')
         pcolor.Red(f'\n{"-"*108}\n')
-        sys.exit(1)
+        len(False); sys.exit(1)
     return repo_url
 
 #=============================================================================
@@ -835,11 +991,10 @@ def sensitive_var_value(kwargs):
         pcolor.Cyan(f'  To not be prompted for the value of `{kwargs.sensitive_var}` each time')
         pcolor.Cyan(f'  add the following to your local environemnt:\n')
         pcolor.Cyan(f"    - Linux: export {sensitive_var}='{kwargs.sensitive_var}_value'")
-        pcolor.Cyan(f"    - Windows: $env:{sensitive_var}='{kwargs.sensitive_var}_value'")
-        pcolor.Cyan(f'\n{"-"*108}\n')
+        pcolor.Cyan(f"    - Windows: $env:{sensitive_var}='{kwargs.sensitive_var}_value'\n")
     if os.environ.get(sensitive_var) is None and kwargs.sensitive_var == 'ipmi_key':
         pcolor.Cyan(f'\n{"-"*108}\n\n  The ipmi_key Must be in Hexidecimal Format [a-fA-F0-9]')
-        pcolor.Cyan(f'  and no longer than 40 characters.\n\n{"-"*108}\n')
+        pcolor.Cyan(f'  and no longer than 40 characters.\n')
     if os.environ.get(sensitive_var) is None:
         valid = False
         while valid == False:
@@ -881,7 +1036,7 @@ def sensitive_var_value(kwargs):
                     pcolor.Red(e)
                     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')
                     pcolor.Red(f'\n{"-"*108}\n')
-                    sys.exit(1)
+                    len(False); sys.exit(1)
                 if pem == True: valid = True
                 #if re.search(cert_regex, secure_value): valid = True
                 else:
@@ -1149,9 +1304,11 @@ def terraform_provider_config(kwargs):
 def test_repository_url(repo_url):
     try: requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
     except requests.RequestException as e:
-        pcolor.Red(f"!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n")
-        pcolor.Red(f"Please Validate the Software Repository is setup properly.  Exiting...")
-        sys.exit(1)
+        pcolor.Red(f'\n{"-"*108}\n')
+        pcolor.Red(f'!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}\n')
+        pcolor.Red(f'Please Validate the Software Repository is setup properly.  Exiting...')
+        pcolor.Red(f'\n{"-"*108}\n')
+        len(False); sys.exit(1)
 
 #=============================================================================
 # Function - Prompt User for Sensitive Variables
@@ -1274,7 +1431,7 @@ def validate_args(json_data, kwargs):
             if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''): validating.vlans(i, kwargs)
         elif json_data[i]['type'] == 'string':
             if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''): validating.string_pattern(i, json_data, kwargs)
-        else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 2."); sys.exit(1)
+        else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 2."); len(False); sys.exit(1)
     for i in json_data['optional_args']:
         if not (kwargs['var_dict'][i] == None or kwargs['var_dict'][i] == ''):
             if re.search(r'^module_[\d]+$', i): validating.list_values_key('modules', i, json_data, kwargs)
@@ -1313,7 +1470,7 @@ def validate_args(json_data, kwargs):
             elif json_data[i]['type'] == 'list_of_vlans':  validating.vlans(i, kwargs)
             elif json_data[i]['type'] == 'mac_address':    validating.mac_address(i, kwargs)
             elif json_data[i]['type'] == 'string':         validating.string_pattern(i, json_data, kwargs)
-            else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 3."); sys.exit(1)
+            else: pcolor.Red(f"error validating.  Type not found {json_data[i]['type']}. 3."); len(False); sys.exit(1)
     return kwargs
 
 #=============================================================================
@@ -1493,7 +1650,7 @@ def variable_prompt(kwargs):
         elif kwargs.jdata.type == 'boolean':
             if default == True: default = 'Y'
             else: default = 'N'
-            answer = input(f'\nEnter `Y` for `True` or `N` for `False` for `{title}`. [{default}]:')
+            answer = input(f'\nEnter `Y` for `True` or `N` for `False` for `{title}`. [{default}]: ')
             if answer == '':
                 if default == 'Y': answer = True
                 elif default == 'N': answer = False
@@ -1612,95 +1769,6 @@ def vlan_pool(name):
     return VlanList,vlanListExpanded
 
 #=============================================================================
-# Function - Build api_body for Operating System Installation - VMware
-#=============================================================================
-def vmware_installation_body(v, kwargs):
-    api_body = {
-        'Answers': {
-            'Hostname': f'{v.name}.{kwargs.dns_domains[0]}',
-            'IpConfigType': 'static',
-            'IpConfiguration': {
-                'IpV4Config': {
-                    'Gateway': v.inband.gateway,
-                    'IpAddress': v.inband.ip,
-                    'Netmask': v.inband.netmask,
-                    'ObjectType': 'comm.IpV4Interface'},
-                'ObjectType': 'os.Ipv4Configuration'},
-            "IsRootPasswordCrypted": False,
-            'Nameserver': kwargs.dns_servers[0],
-            'NetworkDevice': kwargs.mac_a,
-            'ObjectType': 'os.Answers',
-            'RootPassword': kwargs.vmware_esxi_password,
-            'Source': 'Template'},
-        'ConfigurationFile': {'Moid': kwargs.os_cfg_moid, 'ObjectType': 'os.ConfigurationFile'},
-        'Image': {'Moid': kwargs.os_sw_moid, 'ObjectType': 'softwarerepository.OperatingSystemFile'},
-        'InstallMethod': 'vMedia',
-        'InstallTarget': {},
-        'ObjectType': 'os.Install',
-        'Organization': {'Moid': kwargs.org_moid, 'ObjectType': 'organization.Organization'},
-        'OsduImage': {'Moid': kwargs.scu_moid, 'ObjectType': 'firmware.ServerConfigurationUtilityDistributable'},
-        'OverrideSecureBoot': True,
-        'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
-    if v.boot_volume == 'san':
-        api_body['InstallTarget'] = {
-            'InitiatorWwpn': v.wwpns[kwargs.wwpn].wwpn,
-            'LunId': 0,
-            'ObjectType': 'os.FibreChannelTarget',
-            'TargetWwpn': kwargs.san_target}
-    elif v.boot_volume == 'm2':
-        api_body['InstallTarget'] = {
-            "Id": '0',
-            "Name": "MStorBootVd",
-            "ObjectType": "os.VirtualDrive",
-            "StorageControllerSlotId": "MSTOR-RAID"}
-    return api_body
-
-#=============================================================================
-# Function - Build api_body for Operating System Installation - Azure Stack
-#=============================================================================
-def windows_installation_body(v, kwargs):
-    if kwargs.args.deployment_type == 'azurestack':
-        ou           = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
-        org_unit     = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
-        organization = kwargs.imm_dict.wizard.azurestack[0].organization
-    else: ou = ''; org_unit = ''; organization = 'Example'
-    api_body = {
-        "AdditionalParameters": [],
-        "Answers": {"Source": "Template"},
-        "ConfigurationFile": {"Moid": kwargs.os_cfg_moid, "ObjectType": "os.ConfigurationFile"},
-        "Description": "",
-        "Image": {"Moid": kwargs.os_sw_moid, "ObjectType": "softwarerepository.OperatingSystemFile"},
-        "InstallMethod": "vMedia",
-        "OperatingSystemParameters": {"Edition": "DatacenterCore", "ObjectType": "os.WindowsParameters"},
-        "Organization": {"Moid": kwargs.org_moid, "ObjectType": "organization.Organization"},
-        "OsduImage": {"Moid": kwargs.scu_moid, "ObjectType": "firmware.ServerConfigurationUtilityDistributable"},
-        "OverrideSecureBoot": True,
-        "Server": {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
-    answers_dict = {
-        ".hostName": v.name,
-        ".domain": v.active_directory.domain,
-        ".organization": organization,
-        ".organizationalUnit": org_unit,
-        ".secure.administratorPassword": kwargs.windows_admin_password,
-        ".domainAdminUser": v.active_directory.administrator,
-        ".secure.domainAdminPassword": kwargs.windows_domain_password,
-        #".macAddressNic1_dash_format": mac_a,
-        #".macAddressNic2_dash_format": mac_b
-        # Language Pack/Localization
-        ".inputLocale": kwargs.language.input_local,
-        ".languagePack": kwargs.language.ui_language,
-        ".layeredDriver": kwargs.language.layered_driver,
-        ".secondaryLanguage": kwargs.language.secondary_language,
-        # Timezone Configuration
-        ".disableAutoDaylightTimeSet": kwargs.disable_daylight,
-        ".timeZone": kwargs.windows_timezone}
-    answers_dict = dict(sorted(answers_dict.items()))
-    for x in ['layeredDriver', 'secondaryLanguage']:
-        if kwargs.language[snakecase(x)] == '': answers_dict.pop(f".{x}")
-    for key,value in answers_dict.items(): api_body["AdditionalParameters"].append(os_placeholders(key, value))
-    return api_body
-
-#=============================================================================
 # Function - Obtain Windows Language Dictionary
 #=============================================================================
 def windows_languages(windows_language, kwargs):
@@ -1712,7 +1780,7 @@ def windows_languages(windows_language, kwargs):
         pcolor.Red(f'Failed to Map `{windows_language.language_pack}` to a Windows Language.')
         pcolor.Red(f'Available Languages are:')
         for e in kwargs.windows_languages: pcolor.Red(f'  * {(DotMap(e)).language}')
-        sys.exit(1)
+        len(False); sys.exit(1)
     kwargs.language = DotMap(
         ui_language        = language.code,
         input_local        = (re.search('\\((.*)\\)', language.local)).group(1),
@@ -1740,14 +1808,14 @@ def windows_timezones(kwargs):
     elif june_dst == False and dec_dst == False: kwargs.disable_daylight = 'true'
     else:
         pcolor.Red(f'unknown Timezone Result for {kwargs.timezone}')
-        sys.exit(1)
+        len(False); sys.exit(1)
     windows_timezone = [k for k, v in kwargs.windows_timezones.items() if v == kwargs.timezone]
     if len(windows_timezone) == 1: kwargs.windows_timezone = windows_timezone[0]
     else:
         pcolor.Red(f'Failed to Map `{kwargs.timezone}` to a Windows Timezone.')
         pcolor.Red(f'Available Languages are:')
         for k,v in kwargs.windows_timezones.items(): pcolor.Red(f'  * {k}: {v}')
-        sys.exit(1)
+        len(False); sys.exit(1)
     return kwargs
 
 #=============================================================================

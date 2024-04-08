@@ -6,6 +6,7 @@ import sys
 try:
     from classes import ezfunctions, pcolor, validating
     from copy import deepcopy
+    from datetime import datetime
     from dotmap import DotMap
     from intersight_auth import IntersightAuth, repair_pem
     from operator import itemgetter
@@ -215,8 +216,8 @@ class api(object):
         profile_pmoids  = kwargs.pmoids
         profile_results = kwargs.results
         for k, v in profile_pmoids.items():
-            kwargs.server_profiles[k].boot_order = DotMap(boot_mode='',method='',moid='',name='')
-            kwargs.server_profiles[k].moid = v.moid
+            kwargs.server_profiles[k].boot_order = DotMap(boot_mode = '', method = '', moid = '', name = '')
+            kwargs.server_profiles[k].moid       = v.moid
             profile_moids.append(v.moid)
             indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == k), None)
             index = next((index for (index, d) in enumerate(profile_results[indx].PolicyBucket) if d['ObjectType'] == 'boot.PrecisionPolicy'), None)
@@ -270,7 +271,7 @@ class api(object):
                                                native     = eth_results[indx].VlanSettings.NativeVlan,
                                                vlan_group = DotMap(moid = eth_results[indx].Moid, name = eth_results[indx].Name),
                                                mac = e.MacAddress, name = e.Name, order = e.Order, switch = e.Placement.SwitchId))
-                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda k: (k['order']))
+                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda ele: ele.order)
         else:
             kwargs.names      = hw_moids
             #kwargs.api_filter = f"Ancestors/any(t:t/Moid in '{names_join}')"
@@ -285,14 +286,14 @@ class api(object):
                     for i in e.Ancestors:
                         if i.Moid == v.hardware_moid: attach = True
                     if attach == True: adapter_list.append(e)
-                adapter_list = sorted(adapter_list, key=lambda k: (k['MacAddress']))
+                adapter_list = sorted(adapter_list, key=lambda ele: ele.MacAddress)
                 #nic_names    = [f'mgmt-{(chr(ord('@')+x+1)).lower()}' for x in range(0,len(adapter_list))]
                 #mac_list     = [DotMap(mac = adapter_list[x].MacAddress, name = nic_names[x], order  = x) for x in range(0,len(adapter_list))]
                 mac_list = []
                 for x in range(0,len(adapter_list)):
                     pmatch = nic_regex.search(adapter_list[x].Dn)
                     mac_list.append(DotMap(mac = adapter_list[x].MacAddress, name = f'SlotId {pmatch.group(1)} Port {pmatch.group(2)}'))
-                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda k: (k['order']))
+                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda ele: ele.order)
         #=====================================================
         # Attach vHBA(s)/Identities to server_profile Dict
         #=====================================================
@@ -303,7 +304,7 @@ class api(object):
                     if e.Profile.Moid == kwargs.server_profiles[k].moid:
                         wwpn_list.append(DotMap(name = e.Name,order = e.Order, wwpn = e.Wwpn,
                                                switch = e.Placement.SwitchId))
-                kwargs.server_profiles[k].wwpns = sorted(wwpn_list, key=lambda k: (k['order']))
+                kwargs.server_profiles[k].wwpns = sorted(wwpn_list, key=lambda ele: ele.order)
         #=====================================================
         # Get IQN for Host and Add to Profile Map
         #=====================================================
@@ -399,7 +400,7 @@ class api(object):
                         pcolor.Red(f'  Running Process: {kwargs.method} {self.type}')
                         pcolor.Red(f'    Error status is {status}')
                         for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
-                        sys.exit(1)
+                        len(False); sys.exit(1)
                     if 'get_by_moid' in kwargs.method: response = requests.get(   f'{url}/api/v1/{uri}/{moid}', auth=aauth)
                     elif 'delete' in kwargs.method:    response = requests.delete(f'{url}/api/v1/{uri}/{moid}', auth=aauth)
                     elif 'get' in kwargs.method:       response = requests.get(   f'{url}/api/v1/{uri}{aargs}', auth=aauth)
@@ -430,7 +431,7 @@ class api(object):
                         return kwargs
                     else:
                         pcolor.Red(f"Exception when calling {kwargs.uri}: {e}\n")
-                        sys.exit(1)
+                        len(False); sys.exit(1)
                 break
             #=============================================================================
             # Print Debug Information if Turned on
@@ -487,7 +488,7 @@ class api(object):
                             else:
                                 pcolor.Red(json.dumps(e.Body, indent=4))
                                 pcolor.Red('Missing name_key.  isight.py line 164')
-                                sys.exit(1)
+                                len(False); sys.exit(1)
                             if not e.Body['ObjectType'] == 'iam.EndPointUserRole':
                                 indx = next((index for (index, d) in enumerate(kwargs.api_body['Requests']) if d['Body'][name_key] == e.Body[name_key]), None)
                                 kwargs.method = (kwargs.api_body['Requests'][indx]['Verb']).lower()
@@ -760,7 +761,7 @@ class imm(object):
                                         pcolor.Cyan(f'\n++{"-"*108}\n\n{k}\n{a}\n{b}\n{e[c]}')
                                         pcolor.Red(f'!!! ERROR !!! undefined mapping for array in array: `{d.type}`')
                                         pcolor.Cyan(f'{self.type}\n\n++{"-"*108}\n\n')
-                                        sys.exit(1)
+                                        len(False); sys.exit(1)
                                     idict[b.intersight_api] = e[a]
                             idict = dict(sorted(idict.items()))
                             api_body[idata[k]['items'].intersight_api].append(idict)
@@ -784,7 +785,7 @@ class imm(object):
                                         pcolor.Cyan(f'{c}\n{d}\n{e}\n{e[c]}')
                                         pcolor.Red(f'!!! ERROR !!! undefined mapping for array in object: `{d.type}`')
                                         pcolor.Cyan(f'\n{"-"*108}\n\n')
-                                        sys.exit(1)
+                                        len(False); sys.exit(1)
                     elif idata[k].type == 'object':
                         if v.get(a): api_body[idata[k].intersight_api].update({idata[k].properties[a].intersight_api:v[a]})
                     elif b.type == 'object':
@@ -792,7 +793,7 @@ class imm(object):
                         pcolor.Cyan(f'---\n{k}---\n{a}---\n{b}---\n{v}')
                         pcolor.Red('!!! ERROR !!! undefined mapping for object in object')
                         pcolor.Cyan(f'\n{"-"*108}\n\n')
-                        sys.exit(1)
+                        len(False); sys.exit(1)
                     elif v.get(a): api_body[idata[k].intersight_api].update({b.intersight_api:v[a]})
                 api_body[idata[k].intersight_api] = dict(sorted(api_body[idata[k].intersight_api].items()))
         #=============================================================================
@@ -877,8 +878,8 @@ class imm(object):
     #=============================================================================
     def compare_body_result(self, api_body, result):
         if api_body.get('PolicyBucket'):
-            api_body['PolicyBucket'] = sorted(api_body['PolicyBucket'], key=lambda item: item['ObjectType'])
-            result['PolicyBucket'] = sorted(result['PolicyBucket'], key=lambda item: item['ObjectType'])
+            api_body['PolicyBucket'] = sorted(api_body['PolicyBucket'], key=lambda ele: ele.ObjectType)
+            result['PolicyBucket']   = sorted(result['PolicyBucket'], key=lambda ele: ele.ObjectType)
         patch_return = False
         for k, v in api_body.items():
             if type(v) == dict:
@@ -1022,7 +1023,7 @@ class imm(object):
                 for i in e['ModelFamily']:
                     idict = deepcopy(e); idict['ModelFamily'] = i
                     api_body['ModelBundleCombo'].append(idict)
-            api_body['ModelBundleCombo'] = sorted(api_body['ModelBundleCombo'], key=lambda item: item['BundleVersion'])
+            api_body['ModelBundleCombo'] = sorted(api_body['ModelBundleCombo'], key=lambda ele: ele.BundleVersion)
         return api_body
 
     #=============================================================================
@@ -1407,6 +1408,175 @@ class imm(object):
     def org_map(self, api_body, org_moid):
         api_body.update({'Organization':{'Moid':org_moid, 'ObjectType':'organization.Organization'}})
         return api_body
+
+    #=============================================================================
+    # Function - Build Policies - BIOS
+    #=============================================================================
+    def os_install(self, kwargs):
+        #=====================================================
+        # Load Variables and Send Begin Notification
+        #=====================================================
+        validating.begin_section(self.type, 'Install')
+        kwargs.org_moid       = kwargs.org_moids[kwargs.org].moid
+        os_install_fail_count = 0
+        #==========================================
+        # Get Physical Server Tags to Check for
+        # Existing OS Install
+        #==========================================
+        kwargs.method   = 'get'
+        kwargs.names    = [e.serial for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles]
+        kwargs.uri      = 'compute/PhysicalSummaries'
+        kwargs          = api('serial_number').calls(kwargs)
+        compute_moids   = kwargs.pmoids
+        boot_names      = []
+        install_flag    = False
+        os_cfg_moids    = []
+        san_flag        = False
+        for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+            v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
+            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].tags = compute_moids[v.serial].tags
+            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_installed  = False
+            boot_names.append(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_order.name)
+            os_cfg_moids.append(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration)
+            for e in compute_moids[v.serial].tags:
+                if e.Key == 'os_installed' and e.Value == f'{v.os_vendor}: {v.os_version.name}':
+                    kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_installed = True
+                else: install_flag = True
+            if kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_volume.lower() == 'm2':
+                if not kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].storage_controllers.get('UCS-M2-HWRAID'):
+                    pcolor.Red(f'\n{"-"*108}\n')
+                    pcolor.Red(f'  !!! ERROR !!!\n  Could not determine the Controller Slot for:')
+                    pcolor.Red(f'  * Profile: {kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name}')
+                    pcolor.Red(f'  * Serial:  {kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].serial}')
+                    pcolor.Red(f'  Exiting... (intersight-tools/classes/isight.py Line 1448)')
+                    pcolor.Red(f'\n{"-"*108}\n')
+                    len(False); sys.exit(1)
+            elif kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_volume.lower() == 'san': san_flag = True
+        if install_flag == True and san_flag == True:
+            #==========================================
+            # Get Boot Order Policies
+            #==========================================
+            names  = list(numpy.unique(numpy.array(boot_names)))
+            kwargs = api_get(empty=False, names=names, otype='boot_order', kwargs=kwargs)
+            for e in kwargs.results: kwargs.boot_order[e.Moid] = e
+        if install_flag == True:
+            #==========================================
+            # Get OS Configuration Files
+            #==========================================
+            kwargs.names  = list(numpy.unique(numpy.array(os_cfg_moids)))
+            kwargs.method = 'get'
+            kwargs.uri    = 'os/ConfigurationFiles'
+            kwargs        = api('moid_filter').calls(kwargs)
+            for e in kwargs.results: kwargs.os_cfg_moids[e.Moid] = e
+        #==========================================
+        # Install Operating System on Servers
+        #==========================================
+        count = 1
+        for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+            v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
+            if v.os_installed == False:
+                indx = next((index for (index, d) in enumerate(v.macs) if d['mac'] == v.install_interface), None)
+                vnic = v.macs[indx]
+                if v.boot_volume.lower() == 'san':
+                    boot_devices = [e for e in kwargs.boot_order[v.boot_order.moid] if e.ObjectType == 'boot.San']
+                    if count % 2 == 0: kwargs.wwpn_index = 0; kwargs.san_target = boot_devices[0]
+                    else: kwargs.wwpn_index = 1; kwargs.san_target = boot_devices[1]
+                    starget = kwargs.san_target
+                    pcolor.Green(f'\n{"-"*52}\n')
+                    pcolor.Green(f'\n{" "*2}- boot_mode: SAN\n{" "*5}boot_target:')
+                    pcolor.Green(f'{" "*4}initiator: {v.wwpns[kwargs.wwpn_index].wwpn}\n{" "*7}lun: {starget.Lun}\n{" "*7}target: {starget.Wwpn}')
+                    pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
+                    pcolor.Green(f'{" "*4}vnic:\n{" "*7}mac: {vnic.mac}\n{" "*7}name: {vnic.name}\n')
+                elif v.boot_volume.lower() == 'm2':
+                    pcolor.Green(f'\n{"-"*52}\n')
+                    pcolor.Green(f'{" "*2}- boot_mode: M2')
+                    pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
+                    pcolor.Green(f'{" "*4}vnic:\n{" "*7}mac: {vnic.mac}\n{" "*7}name: {vnic.name}\n')
+                kwargs.api_body = ezfunctions.installation_body(v, kwargs)
+                kwargs.method   = 'post'
+                kwargs.uri      = 'os/Installs'
+                kwargs          = api(self.type).calls(kwargs)
+                kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_install = DotMap(moid=kwargs.pmoid,workflow='')
+        pcolor.Cyan(f'\n{"-" * 108}\n\nSleeping for 20 Minutes to pause for Workflow/Infos Lookup.')
+        pcolor.Cyan(f'\n{"-" * 108}\n')
+        time.sleep(1200)
+        #=================================================
+        # Monitor OS Installation until Complete
+        #=================================================
+        kwargs.names = []
+        for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+            v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
+            if v.os_installed == False and len(v.os_install.moid) > 0: kwargs.names.append(v.os_install.moid)
+        kwargs.method    = 'get'
+        kwargs.uri       = 'os/Installs'
+        kwargs           = api('moid_filter').calls(kwargs)
+        workflow_pmoids  = kwargs.pmoids
+        workflow_results = kwargs.results
+        for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+            v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
+            indx = next((index for (index, d) in enumerate(workflow_results) if d['Moid'] == v.os_install.moid), None)
+            v.install_success = False
+            if indx != None:
+                v.os_install.workflow = workflow_results[indx].WorkflowInfo.Moid
+                install_complete = False
+                while install_complete == False:
+                    kwargs.method = 'get_by_moid'
+                    kwargs.pmoid  = v.os_install.workflow
+                    kwargs.uri    = 'workflow/WorkflowInfos'
+                    kwargs = api('workflow_info').calls(kwargs)
+                    if kwargs.results.WorkflowStatus == 'Completed':
+                        install_complete = True; v.install_success  = True
+                        pcolor.Green(f'    - Completed Operating System Installation for `{v.name}`.')
+                    elif re.search('Failed|Terminated|Canceled', kwargs.results.WorkflowStatus):
+                        kwargs.upgrade.failed.update({v.name:v.moid})
+                        pcolor.Red(f'!!! ERROR !!! Failed Operating System Installation for Server Profile `{v.name}`.')
+                        install_complete = True; os_install_fail_count += 1
+                    else:
+                        progress= kwargs.results.Progress
+                        status  = kwargs.results.WorkflowStatus
+                        pcolor.Cyan(f'{" "*6}* Operating System Installation for `{v.name}` still In Progress.  Status is `{status}` Progress is `{progress}`, Sleeping for 120 seconds.')
+                        time.sleep(120)
+                #=================================================
+                # Add os_installed Tag to Physical Server
+                #=================================================
+                if v.install_success == True:
+                    tags = deepcopy(v.tags)
+                    tag_body = []
+                    os_installed = False
+                    for e in tags:
+                        if e.Key == 'os_installed':
+                            os_installed = True
+                            tag_body.append({'Key':e.Key,'Value':f'{v.os_vendor}: {v.os_version.name}'})
+                        else: tag_body.append(e.toDict())
+                    if os_installed == False:
+                        tag_body.append({'Key':'os_installed','Value':f'{v.os_vendor}: {v.os_version.name}'})
+                    tags = list({d['Key']:d for d in tags}.values())
+                    kwargs.api_body = {'Tags':tag_body}
+                    kwargs.method   = 'patch'
+                    kwargs.pmoid    = v.hardware_moid
+                    kwargs.tag_server_profile = v.name
+                    if v.object_type == 'compute.Blade': kwargs.uri = 'compute/Blades'
+                    else: kwargs.uri = 'compute/RackUnits'
+                    kwargs        = api('update_tags').calls(kwargs)
+            elif v.os_installed == False:
+                os_install_fail_count += 1
+                pcolor.Red(f'      * Something went wrong with the OS Install Request for {v.name}. Please Validate the Server.')
+            else: pcolor.Cyan(f'      * Skipping Operating System Install for {v.name}.')
+        #=====================================================
+        # Send End Notification and return kwargs
+        #=====================================================
+        validating.end_section(self.type, 'Install')
+        if os_install_fail_count > 0:
+            pcolor.Yellow(kwargs.names)
+            pcolor.Yellow(workflow_pmoids)
+            pcolor.Yellow(json.dumps(workflow_results, indent=4))
+            pcolor.Red(f'\n{"-"*108}\n')
+            for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+                v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
+                if not v.install_success == True: pcolor.Red(f'      * OS Install Failed for `{v.name}`.  Please Validate the Logs.')
+            pcolor.Red(f'\n{"-"*108}\n')
+            pcolor.Red(f'  Exiting... (intersight-tools/classes/isight.py Line 1576)'); len(False); sys.exit(1)
+        return kwargs
 
     #=============================================================================
     # Function - Policies Function
@@ -1849,9 +2019,9 @@ class imm(object):
             if e.get('action') and e.get('serial_number'):
                 if e.action == 'Deploy' and re.search(serial_regex, e.serial_number):
                     kwargs.profile_update[e.name] = e
-                    kwargs.profile_update[e.name].pending_changes = 'Blank'
+                    kwargs.profile_update[e.name].pending_changes = 'Empty'
         if len(kwargs.profile_update) > 0:
-            kwargs = api_get(False, list(kwargs.profile_update.keys()), kwargs.type, kwargs)
+            kwargs = api_get(False, list(kwargs.profile_update.keys()), self.type, kwargs)
             profile_results = kwargs.results
             for e in list(kwargs.profile_update.keys()):
                 indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
@@ -1871,70 +2041,101 @@ class imm(object):
                 for e in list(kwargs.profile_updates.keys()):
                     if kwargs.profile_update[e].pending_changes == 'Deploy': deploy_pending = True
                 if deploy_pending == True:
-                    if 'server' == kwargs.type:  pcolor.LightPurple('    * Pending Changes.  Sleeping for 120 Seconds'); time.sleep(120)
+                    if 'server' == self.type:  pcolor.LightPurple('    * Pending Changes.  Sleeping for 120 Seconds'); time.sleep(120)
                     else:  pcolor.LightPurple('    * Pending Changes.  Sleeping for 60 Seconds'); time.sleep(60)
                 for e in list(kwargs.profile_update.keys()):
                     if kwargs.profile_update[e].pending_changes == 'Deploy':
                         pcolor.Green(f'    - Beginning Profile Deployment for `{e}`.')
                         kwargs.api_body= {'Action':'Deploy'}
                         kwargs.method = 'patch'
-                        kwargs.pmoid  = kwargs.isight[kwargs.org].profile[kwargs.type][e]
-                        kwargs = api(kwargs.type).calls(kwargs)
+                        kwargs.pmoid  = kwargs.isight[kwargs.org].profile[self.type][e]
+                        kwargs = api(self.type).calls(kwargs)
                     else: pcolor.LightPurple(f'    - Skipping Org: {kwargs.org}; Profile Deployment for `{e}`.  No Pending Changes.')
                 if deploy_pending == True:
-                    if 'server' == kwargs.type:  pcolor.LightPurple('    * Deploying Changes.  Sleeping for 600 Seconds'); time.sleep(600)
+                    if 'server' == self.type:  pcolor.LightPurple('    * Deploying Changes.  Sleeping for 600 Seconds'); time.sleep(600)
                     else:  pcolor.LightPurple('    * Deploying Changes.  Sleeping for 60 Seconds'); time.sleep(60)
                 for e in list(kwargs.profile_update.keys()):
                     if kwargs.profile_update[e].pending_changes == 'Deploy':
                         deploy_complete= False
                         while deploy_complete == False:
                             kwargs.method = 'get_by_moid'
-                            kwargs.pmoid  = kwargs.isight[kwargs.org].profile[kwargs.type][e]
+                            kwargs.pmoid  = kwargs.isight[kwargs.org].profile[self.type][e]
                             kwargs = api(self.type).calls(kwargs)
                             if kwargs.results.ConfigContext.ControlAction == 'No-op':
                                 deploy_complete = True
-                                if re.search('^(chassis)$', kwargs.type): pcolor.Green(f'    - Completed Profile Deployment for `{e}`.')
+                                if re.search('^(chassis)$', self.type): pcolor.Green(f'    - Completed Profile Deployment for `{e}`.')
                             else: 
-                                if 'server' == kwargs.type: pcolor.Cyan(f'      * Deploy Still Occuring on `{e}`.  Waiting 120 seconds.'); time.sleep(120)
+                                if 'server' == self.type: pcolor.Cyan(f'      * Deploy Still Occuring on `{e}`.  Waiting 120 seconds.'); time.sleep(120)
                                 else: pcolor.Cyan(f'      * Deploy Still Occuring on `{e}`.  Waiting 60 seconds.'); time.sleep(60)
-                if 'server' == kwargs.type:
+                if 'server' == self.type:
                     pcolor.LightPurple(f'\n{"-"*108}\n')
                     names = []
                     for e in list(kwargs.profile_update.keys()):
-                        if not kwargs.profile_update[e].pending_changes == 'Blank': names.append(e)
+                        if not kwargs.profile_update[e].pending_changes == 'Empty': names.append(e)
                     if len(names) > 0:
-                        kwargs = api_get(False, names, kwargs.type, kwargs)
+                        kwargs = api_get(False, names, self.type, kwargs)
                         profile_results = kwargs.results
                     pending_activations = False
                     for e in list(kwargs.profile_update.keys()):
-                        if not kwargs.profile_update[e].pending_changes == 'Blank':
+                        if not kwargs.profile_update[e].pending_changes == 'Empty':
                             indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
                             if len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
                                 pcolor.Green(f'    - Beginning Profile Activation for `{e}`.')
                                 kwargs.api_body= {'ScheduledActions':[{'Action':'Activate', 'ProceedOnReboot':True}]}
                                 kwargs.method = 'patch'
-                                kwargs.pmoid  = kwargs.isight[kwargs.org].profile[kwargs.type][e]
+                                kwargs.pmoid  = kwargs.isight[kwargs.org].profile[self.type][e]
                                 kwargs = api(self.type).calls(kwargs)
                                 pending_activations = True
                             else:
                                 pcolor.LightPurple(f'    - Skipping Org: {kwargs.org}; Profile Activation for `{e}`.  No Pending Changes.')
-                                kwargs.profile_update[e].pending_changes = 'Blank'
+                                kwargs.profile_update[e].pending_changes = 'Empty'
                     if pending_activations == True:
                         pcolor.LightPurple(f'\n{"-"*108}\n')
                         pcolor.LightPurple('    * Pending Activitions.  Sleeping for 300 Seconds'); time.sleep(300)
+                    activate_names = []
                     for e in list(kwargs.profile_update.keys()):
-                        if not kwargs.profile_update[e].pending_changes == 'Blank':
+                        if not kwargs.profile_update[e].pending_changes == 'Empty':
+                            activate_names.append(kwargs.isight[kwargs.org].profile[self.type][e])
+                    if len(activate_names) > 0:
+                        dt    = datetime.today().strftime('%Y-%m-%d')
+                        names = "', '".join(activate_names).strip("', '")
+                        str1  = f"CreateTime gt {dt}T00:00:00.000Z and CreateTime lt {dt}T23:59:59.999Z and AssociatedObject.Moid in ('{names}')"
+                        str2  = f" and WorkflowCtx.WorkflowType eq 'Activate'"
+                        kwargs.api_filter = str1 + str2
+                        kwargs.method     = 'get'
+                        kwargs.uri        = 'workflow/WorkflowInfos'
+                        kwargs            = api('workflows').calls(kwargs)
+                        activate_results  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+                    loop_count = 0
+                    def failed_message(e):
+                        pcolor.Yellow(f'\n{"-"*75}\n')
+                        pcolor.Red(f'  - Failed to Activate Profile `{e}`.  Please validate in Intersight the reason for the failure.')
+                        pcolor.Yellow(f'\n{"-"*75}\n')
+                    def success_message(e):
+                        pcolor.Green(f'    - Completed Profile Activiation for `{e}`.')
+                    for e in list(kwargs.profile_update.keys()):
+                        retry_count = 60
+                        if not kwargs.profile_update[e].pending_changes == 'Empty':
+                            prmoid = kwargs.isight[kwargs.org].profile[self.type][e]
+                            indx   = next((index for (index, d) in enumerate(activate_results) if d['AssociatedObject']['Moid'] == prmoid), None)
                             deploy_complete = False
                             while deploy_complete == False:
-                                kwargs.method = 'get_by_moid'
-                                kwargs.pmoid  = kwargs.isight[kwargs.org].profile[kwargs.type][e]
-                                kwargs = api(self.type).calls(kwargs)
-                                results = DotMap(kwargs['results'])
-                                if results.ConfigContext.ControlAction == 'No-op':
-                                    pcolor.Green(f'    - Completed Profile Activiation for `{e}`.')
-                                    deploy_complete = True
-                                else:  pcolor.Cyan(f'      * Activiation Still Occuring on `{e}`.  Waiting 120 seconds.'); time.sleep(120)
-                        else: pcolor.Green(f'    - Completed Profile Deployment for `{e}`.')
+                                if retry_count > 60: failed_message(e); deploy_complete == True
+                                if loop_count > 0:
+                                    kwargs.method = 'get_by_moid'
+                                    kwargs.pmoid  = activate_results[indx].Moid
+                                    kwargs        = api(self.type).calls(kwargs)
+                                    active_result = kwargs.results
+                                else: active_result = activate_results[indx]
+                                if active_result.WorkflowStatus == 'Completed': success_message(e); deploy_complete   = True
+                                elif re.search('Failed|Terminated|Canceled', active_result.WorkflowStatus):
+                                    failed_message(e); deploy_complete == True
+                                else:  
+                                    progress = active_result.Progress; status = active_result.WorkflowStatus
+                                    pcolor.Cyan(f'{" "*6}* Profile Activation Still In Progress for `{e}`.  Status: `{status}` Progress: `{progress}`, Sleeping for 120 seconds.')
+                                    time.sleep(120)
+                                loop_count += 1
+                        else: success_message(e)
                 pcolor.LightPurple(f'\n{"-"*108}\n')
         return kwargs
 
@@ -2120,6 +2321,7 @@ class imm(object):
             kwargs.uri = kwargs.ezdata[self.type].intersight_uri
             kwargs     = imm(self.type).bulk_request(kwargs)
             for e in kwargs.results: kwargs.isight[kwargs.org].profile[self.type][e.Body.Name] = e.Body.Moid
+        kwargs.bulk_merger_template = DotMap()
         for e in profiles:
             if e.attach_template == True and len(e.ucs_server_template) > 0:
                 if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
@@ -2423,7 +2625,7 @@ class imm(object):
         for e in classes:
             if type(e) == dict: api_body['Classes'].append(e)
             else: api_body['Classes'].append(e.toDict())
-        api_body['Classes'] = sorted(api_body['Classes'], key=lambda item: item['Name'])
+        api_body['Classes'] = sorted(api_body['Classes'], key=lambda ele: ele.Name)
         return api_body
 
     #=============================================================================
@@ -2931,4 +3133,4 @@ def api_get(empty, names, otype, kwargs):
 # Function - Exit on Empty Results
 #=============================================================================
 def empty_results(kwargs):
-        pcolor.Red(f"The API Query Results were empty for {kwargs.uri}.  Exiting..."); sys.exit(1)
+        pcolor.Red(f"The API Query Results were empty for {kwargs.uri}.  Exiting..."); len(False); sys.exit(1)

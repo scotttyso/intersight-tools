@@ -199,7 +199,7 @@ def claim_targets(kwargs):
         pcolor.Yellow(f'  !! ERROR !!\n  One or More Servers Could not Connect to Intersight.')
         pcolor.Yellow(f'  Please Check the Output above.  claim_device.py line 203.')
         pcolor.Cyan(f'\n{"-"*108}\n')
-        sys.exit(1)
+        len(False); sys.exit(1)
 
     # logout of any sessions active after exception handling
     kwargs.result = result
