@@ -87,6 +87,26 @@ What the library doesn't address is deleting objects.  Because the library doesn
 
 The `-l` option will load the YAML from the directory without prompting you to load/import the data.
 
+### IMPORTANT NOTES
+
+Take notice of the `ezi.yaml` extension on the files.  This is how the  `data.utils_yaml_merge.model` is configured to recognize the files that should be imported with the module.
+
+The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in this module.  The important part is that the `data.utils_yaml_merge.model` is configured to read the folders that you put the Data into.
+
+When defining Identity reservations under a server profile.  See example in `profiles` folder.  Note the flag in the example with `ignore_reservations`.  Reservation records are ephimeral.  Meaning that as soon as the reservation is assigned to a server profile, the identity reservation record is removed from the API.  Thus, after you run the first plan and the identities are created, this flag should be configured to `true` or you need to remove the reservations from the servers.  Either way the reservations will only work on the first apply.  Subsequent applies with the reservations defined will cause the plan/apply to fail due to the identity being consumed.
+
+## YAML Schema Notes for auto-completion, Help, and Error Validation:
+
+If you would like to utilize Autocompletion, Help Context, and Error Validation, `(HIGHLY RECOMMENDED)` make sure the files all utilize the `.ezi.yaml` file extension.
+
+And Add the Following to YAML: Schemas in Visual Studio Code: Settings > Search for YAML: Schema: Click edit in `settings.json`.  In the `yaml.schemas` section:
+
+```bash
+"https://raw.githubusercontent.com/terraform-cisco-modules/easy-imm/main/yaml_schema/easy-imm.json": "*.ezi.yaml"
+```
+
+Soon the Schema for these YAML Files have been registered with [*SchemaStore*](https://github.com/SchemaStore/schemastore/blob/master/src/api/json/catalog.json) via utilizing this `.ezi.yaml` file extension.  But until that is complete, need to still add to settings.
+
 ### Wizard - `Domain/Server`: Use Cases
 
   - Create/Manage Domain Profiles via a wizard based setup
@@ -194,150 +214,9 @@ options:
   -v, --api-key-v3      Flag for API Key Version 3.
 ```
 
-### Intersight Pools
+## Sensitive Environment Variables
 
-This set of modules support creating the following Pool Types:
-
-  - IP Pools
-  - IQN Pools
-  - MAC Pools
-  - Resource Pools
-  - UUID Pools
-  - WWNN Pools
-  - WWPN Pools
-
-### Intersight Policies
-
-This set of modules support creating the following Policy Types:
-
-  - Adapter Configuration
-  - BIOS
-  - Boot Order
-  - Certificate Management
-  - Device Connector
-  - Drive Security
-  - Ethernet Adapter
-  - Ethernet Network
-  - Ethernet Network Control
-  - Ethernet Network Group
-  - Ethernet QoS
-  - FC Zone
-  - Fibre Channel Adapter
-  - Fibre Channel Network
-  - Fibre Channel QoS
-  - Firmware
-  - IMC Access
-  - Flow Control
-  - IPMI Over LAN
-  - iSCSI Adapter
-  - iSCSI Boot
-  - iSCSI Static Target
-  - LAN Connectivity
-  - LDAP
-  - Link Aggregation
-  - Link Control
-  - Local User
-  - Multicast
-  - Network Connectivity
-  - NTP
-  - Persistent Memory
-  - Port
-  - Power
-  - SAN Connectivity
-  - SD Card
-  - Serial over LAN
-  - SMTP
-  - SNMP
-  - SSH
-  - Storage
-  - Switch Control
-  - Syslog
-  - System QoS
-  - Thermal
-  - Virtual KVM
-  - Virtual Media
-  - VLAN
-  - VSAN
-
-### Intersight Profiles and Templates
-
-This set of modules support creating the following Profile Types:
-
-- UCS Chassis Profile(s)
-- UCS Domain Profile(s)
-- UCS Server Profile(s)
-- UCS Server Template(s) - Important Note: The Script can use the Template as a policy placeholder or to create profiles from the template.
-
-To sum this up... the goal is to deploy the infrastructure using Infrastructure as Code (YAML Configuration Files) to manage Cisco Intersight.
-
-## Wizard for Terraform use Cases
-
-If using the script with Terraform, there are features that require `1.3.0` or greater, Preferrably `>1.3.0`.
-
-- Download Here [terraform](https://www.terraform.io/downloads.html) 
-- For Windows Make sure it is in a Directory that is in the system path.
-
-### Terraform Modules and Providers
-
-This script will utilize the Intersight Terraform Provider and supports the easy-imm modules built off of the Intersight Provider.
-
-- [Intersight Provider](https://registry.terraform.io/providers/CiscoDevNet/intersight/latest)
-- [easy-imm](https://github.com/terraform-cisco-modules/easy-imm)
-
-## [Cloud Posse `tfenv`](https://github.com/cloudposse/tfenv)
-
-Command line utility to transform environment variables for use with Terraform. (e.g. HOSTNAME → TF_VAR_hostname)
-
-Recently I adopted the `tfenv` runner to standardize environment variables with multiple orchestration tools.  tfenv makes it so you don't need to add TF_VAR_ to the variables when you add them to the environment.  But it doesn't work for windows would be the caveat.
-
-In the export examples below, for the Linux Example, the 'TF_VAR_' is excluded because Cloud Posse tfenv is used to insert it during the run.
-
-### Make sure you have already installed go - Add go/bin to PATH
-
-```bash
-GOPATH="$HOME/go"
-PATH="$GOPATH/bin:$PATH"
-```
-
-## [go](https://go.dev/doc/install)
-
-```bash
-go install github.com/cloudposse/tfenv@latest
-```
-
-### Aliases for `.bashrc`
-
-Additionally to Save time on typing commands I use the following aliases by editing the `.bashrc` for my environment.
-
-```bash
-alias tfa='tfenv terraform apply main.plan'
-alias tfap='tfenv terraform apply -parallelism=1 main.plan'
-alias tfd='terraform destroy'
-alias tff='terraform fmt'
-alias tfi='terraform init'
-alias tfp='tfenv terraform plan -out=main.plan'
-alias tfu='terraform init -upgrade'
-alias tfv='terraform validate'
-```
-
-## Environment Variables
-
-Note that all the variables in `variables.tf` are marked as sensitive.  Meaning these are variables that shouldn't be exposed due to the sensitive nature of them.
-
-Take note of the `locals.tf` that currently has all the sensitive variables mapped:
-
-* `certificate_management`
-* `drive_security`
-* `firmware`
-* `ipmi_over_lan`
-* `iscsi_boot`
-* `ldap`
-* `local_user`
-* `persistent_memory`
-* `snmp`
-* `virtual_media`
-
-The Reason to add these variables as maps of string is to allow the flexibility to add or remove iterations of these sensitive variables as needed.  Sensitive Variables cannot be iterated with a `for_each` loop.  Thus instead of adding these variables to the YAML schema, directly, they are added to these seperate maps to allow lookup of the variable index.
+Note All the variables discussed below are considered sensitive.  Meaning these are variables that shouldn't be exposed due to the sensitive nature of them.
 
 In example, if you needed to add 100 iterations of the `certificate_management` variables you can do that, and simply reference the index in the map of the iteration that will consume that instance.
 
