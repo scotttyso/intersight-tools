@@ -1,17 +1,17 @@
-## Running the Wizard
+## EZIMM Synopsis
 
-- It is recommend to add the following secure variables to your environment before running the script
+The purpose of `ezimm.py` is to manage Server Environments in Intersight using Infastructure as Code with `Python`.  It provides a number a wizards to build YAML data models and push these definitions to the Intersight API.  This may also include 3rd party calls for integrations with Hypervisors and Storage partners.
+
+### Running the Wizard(s)
+
+It is recommend to add the following secure variables to your environment before running the script at a minimum.
 
 #### Linux
 
 ```bash
-## Intersight Variables
+## Bash Intersight Variables
 export intersight_api_key_id="<your_intersight_api_key>"
 export intersight_secret_key="~/Downloads/SecretKey.txt"
-# The above example is based on the key being in your Downloads folder.  Correct for your environment.
-
-## Terraform Cloud Variables
-export terraform_cloud_token="<your_terraform_cloud_token>"
 ```
 
 #### Windows
@@ -20,24 +20,82 @@ export terraform_cloud_token="<your_terraform_cloud_token>"
 ## Powershell Intersight Variables
 $env:intersight_api_key_id="<your_intersight_api_key>"
 $env:intersight_secret_key="$HOME\Downloads\SecretKey.txt"
-# The above example is based on the key being in your Downloads folder.  Correct for your environment.
-
-## Powershell Terraform Cloud Variables
-$env:terraform_cloud_token="<your_terraform_cloud_token>"
 ```
 
-### Running the Wizard for Brownfield Migration with the Cisco Intersight Transition Tool
-- Use a configuration migrated from UCS Central or Manager using the Intersight Transition Tool
+Note: The above example is based on the key being in your Downloads folder.  Set according to your environment.
+
+
+There may be additional variables to define in the environment based on the deployment type, but the API key and Secret File are the bare minimum requirements.
+
+## Wizard Options
+
+  * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
+  * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
+  * Domain:     Deploy a domain via cloning an existing profile or creating net new.
+  * Individual: Select individual pools, policies, profiles, or templates to build.
+  * OSInstall:  Install an Operating System with either new or existing profiles.
+  * Server:     Build server profiles/templates for Intersight Managed Servers.
+
+  The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
+
+### Convert: Brownfield Migration with [Cisco Intersight Transition Tool](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html)
+
+Convert a migrated configuration from UCS Central or UCS Manager using the Cisco Intersight Managed Mode Transition Tool to work with the easy-imm repository.
+
+Example:
 
 ```bash
-./ezimm.py -j {json_file_name.json}
+./ezimm.py -d {export-destination-directory} -dt Convert -j {json_export_file_from_imm_tool.json}
 ```
 
-### Running the Wizard for Greenfield Deployment
-- Running the Wizard to generate IaC YAML files through a Question and Answer Wizard
+Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
+
+### Deploy: Use Cases
+
+  - Create/Manage Pools
+  - Create/Manage Policies
+  - Create/Manage UCS Domain Profiles
+  - Create/Manage Service Profiles and Templates
+
+#### Deploy: Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
+
+The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
+
+The easy-imm repo includes the ability to push this data model using Terraform.  The `Deploy` option allows to manage/push the data model to Intersight using this Python library.  Following are reasons that I added this as an option.
+
+  * API Optimization: Terraform makes an individual API call for each object it manages.  Intersight supports API optimization with Bulk API calls.  This libary uses the Bulk API's to reduce the number of API calls speeding up the code deployments.
+  * Server Profile/Template challenges:  Intersight uses the bulk/Merger api for adding the server profile template to server profiles.  This is transient, the record does not remain after the initial API call.  Because Terraform wants to be the source of truth and the record is transient, there is no good way to support template updates with Terraform.
+  * Order Creation: Terraform creates 10 threads of API calls when communicating to Intersight.  Because of this multi-threading it has been observed that server profiles get created in random orders.  Many customers that want to gaurantee that identities are assigned in the order they have defined have complained about this.  This library is written to address the order of creation.
+
+What the library doesn't address is deleting objects.  Because the library doesn't maintain a state file in the same way Terraform does, this library does not delete objects created in Intersight.  That was a decision I made as my intention is not to duplicate what Terraform does.  If full scrum management is desired, it would be recommended to use the Terraform modules in the easy-imm repository, instead of this Python library.
+
+#### Example for Deploy option:
 
 ```bash
-./ezimm.py
+./ezimm.py -d {easy-imm-directory} -dt Deploy -l
+```
+
+The `-l` option will load the YAML from the directory without prompting you to load/import the data.
+
+### Domain/Server: Use Cases
+
+  - Create/Manage Domain Profiles via a wizard based setup
+  - Create/Manage Server Profiles/Templates via a wizard based setup
+
+#### Domain/Server: Build/Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
+
+The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
+
+The `Domain` and `Server` options allow you to walk thru a wizard based configuration to build the YAML files through a wizard based approach.  If Python is chosen to push the configuration to Intersight, it will deploy the configuration when complete just like the `Deploy` option.
+
+#### Examples for Domain/Server options:
+
+```bash
+./ezimm.py -d {easy-imm-directory} -dt Domain
+```
+
+```bash
+./ezimm.py -d {easy-imm-directory} -dt Server
 ```
 
 ## Wizard Help Menu
@@ -45,16 +103,28 @@ $env:terraform_cloud_token="<your_terraform_cloud_token>"
 ```bash
 ./ezimm.py -h
 
+usage: ezimm.py [-h] [-a INTERSIGHT_API_KEY_ID] [-ccp CCO_PASSWORD] [-ccu CCO_USER] [-d DIR] [-dl DEBUG_LEVEL] [-dm DEPLOYMENT_METHOD] [-dt DEPLOYMENT_TYPE]
+                [-f INTERSIGHT_FQDN] [-i] [-j JSON_FILE] [-k INTERSIGHT_SECRET_KEY] [-l] [-v]
+
 Intersight Easy IMM Deployment Module
 
 options:
   -h, --help            show this help message and exit
   -a INTERSIGHT_API_KEY_ID, --intersight-api-key-id INTERSIGHT_API_KEY_ID
                         The Intersight API key id for HTTP signature scheme.
+  -ccp CCO_PASSWORD, --cco-password CCO_PASSWORD
+                        Cisco Connection Online Password to Authorize Firmware Downloads.
+  -ccu CCO_USER, --cco-user CCO_USER
+                        Cisco Connection Online Username to Authorize Firmware Downloads.
   -d DIR, --dir DIR     The Directory to use for the Creation of the YAML Configuration Files.
   -dl DEBUG_LEVEL, --debug-level DEBUG_LEVEL
-                        The Amount of Debug output to Show: 1. Shows the api request response status code 5. Show URL String + Lower Options 6. Adds Results + Lower Options 7.
-                        Adds json payload + Lower Options Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy
+                        Used for troubleshooting. The Amount of Debug output to Show: 1. Shows the api request response status code 5. Show URL String + Lower
+                        Options 6. Adds Results + Lower Options 7. Adds json payload + Lower Options Note: payload shows as pretty and straight to check for
+                        stray object types like Dotmap and numpy
+  -dm DEPLOYMENT_METHOD, --deployment-method DEPLOYMENT_METHOD
+                        Deployment Method values are: 1. Python 2. Terraform
+  -dt DEPLOYMENT_TYPE, --deployment-type DEPLOYMENT_TYPE
+                        Deployment Type values are: 1. Domain 2. FIAttached 3. Individual 4. OSInstall 5. Standalone 6. Deploy 7. Exit
   -f INTERSIGHT_FQDN, --intersight-fqdn INTERSIGHT_FQDN
                         The Directory to use for the Creation of the YAML Configuration Files.
   -i, --ignore-tls      Ignore TLS server-side certificate verification. Default is False.
@@ -63,98 +133,73 @@ options:
   -k INTERSIGHT_SECRET_KEY, --intersight-secret-key INTERSIGHT_SECRET_KEY
                         Name of the file containing The Intersight secret key or contents of the secret key in environment.
   -l, --load-config     Skip Wizard and Just Load Configuration Files.
-  -t DEPLOYMENT_METHOD, --deployment-method DEPLOYMENT_METHOD
-                        Deployment Method values are: 1. Python 2. Terraform
   -v, --api-key-v3      Flag for API Key Version 3.
 ```
-
-## Terraform Plan and Apply
-
-After the Script has generated the Repository and downloaded the resources from the Easy IMM Repository, the data will need to be pushed to Intersight using Terraform Cloud or a local instance of Terraform.
-
-## Synopsis
-
-The purpose of this Python Tool is to deploy Policies/Pools/Profiles to Intersight using Infastructure as Code with `Python` or `Terraform`.  
-
-When used in conjunction with Terraform; the goal of this module is to build the initial YAML Configuration files to:
-
-1. Familiarize users with the layout of the YAML Configuration files used in conjunction with the `easy-imm` repository.  
-2. Once a user feels conformatable with the auto generated files, Transition towards writing managing the code with `Git` and `Terraform`.
-3. Lastly, build confidence to write your own code as well.  
-
-The wizard will show after each section what the YAML Data being generated.  In the Heading for each section it will provide instructions and point you to the directly and file where the code will be created.  Be sure to read the information as it is meant to provide guidance through the wizard.
-
-### Use Cases
-
-- Create Pools
-- Create Policies
-- Create UCS Domain Profiles and attach Fabric Interconnects to the profiles
-- Create Service Profiles and Templates
 
 ### Intersight Pools
 
 This set of modules support creating the following Pool Types:
 
-- IP Pools
-- IQN Pools
-- MAC Pools
-- Resource Pools
-- UUID Pools
-- WWNN Pools
-- WWPN Pools
+  - IP Pools
+  - IQN Pools
+  - MAC Pools
+  - Resource Pools
+  - UUID Pools
+  - WWNN Pools
+  - WWPN Pools
 
 ### Intersight Policies
 
 This set of modules support creating the following Policy Types:
 
-- Adapter Configuration
-- BIOS
-- Boot Order
-- Certificate Management
-- Device Connector
-- Drive Security
-- Ethernet Adapter
-- Ethernet Network
-- Ethernet Network Control
-- Ethernet Network Group
-- Ethernet QoS
-- FC Zone
-- Fibre Channel Adapter
-- Fibre Channel Network
-- Fibre Channel QoS
-- Firmware
-- IMC Access
-- Flow Control
-- IPMI Over LAN
-- iSCSI Adapter
-- iSCSI Boot
-- iSCSI Static Target
-- LAN Connectivity
-- LDAP
-- Link Aggregation
-- Link Control
-- Local User
-- Multicast
-- Network Connectivity
-- NTP
-- Persistent Memory
-- Port
-- Power
-- SAN Connectivity
-- SD Card
-- Serial over LAN
-- SMTP
-- SNMP
-- SSH
-- Storage
-- Switch Control
-- Syslog
-- System QoS
-- Thermal
-- Virtual KVM
-- Virtual Media
-- VLAN
-- VSAN
+  - Adapter Configuration
+  - BIOS
+  - Boot Order
+  - Certificate Management
+  - Device Connector
+  - Drive Security
+  - Ethernet Adapter
+  - Ethernet Network
+  - Ethernet Network Control
+  - Ethernet Network Group
+  - Ethernet QoS
+  - FC Zone
+  - Fibre Channel Adapter
+  - Fibre Channel Network
+  - Fibre Channel QoS
+  - Firmware
+  - IMC Access
+  - Flow Control
+  - IPMI Over LAN
+  - iSCSI Adapter
+  - iSCSI Boot
+  - iSCSI Static Target
+  - LAN Connectivity
+  - LDAP
+  - Link Aggregation
+  - Link Control
+  - Local User
+  - Multicast
+  - Network Connectivity
+  - NTP
+  - Persistent Memory
+  - Port
+  - Power
+  - SAN Connectivity
+  - SD Card
+  - Serial over LAN
+  - SMTP
+  - SNMP
+  - SSH
+  - Storage
+  - Switch Control
+  - Syslog
+  - System QoS
+  - Thermal
+  - Virtual KVM
+  - Virtual Media
+  - VLAN
+  - VSAN
 
 ### Intersight Profiles and Templates
 

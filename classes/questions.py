@@ -426,11 +426,9 @@ def setup_deployment_method(kwargs):
 # Function: Main Menu, Prompt User for Deployment Type
 #=================================================================
 def setup_deployment_type(kwargs):
-    if not re.search('FIAttached|Standalone|OSInstall|Individual|Deploy', kwargs.args.deployment_type):
-        kwargs.jdata    = kwargs.ezwizard.setup.properties.deployment_type
-        deployment_type = ezfunctions.variable_prompt(kwargs)
-        if 'OS Install' == deployment_type: kwargs.deployment_type = 'OSInstall'
-        else: kwargs.deployment_type = deployment_type
+    if not re.search('Convert|Deploy|Domain|Domain|Individual|OSInstall|Server', kwargs.args.deployment_type):
+        kwargs.jdata           = kwargs.ezwizard.setup.properties.deployment_type
+        kwargs.deployment_type = ezfunctions.variable_prompt(kwargs)
     else: kwargs.deployment_type = kwargs.args.deployment_type
     return kwargs
 

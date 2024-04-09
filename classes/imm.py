@@ -18,7 +18,7 @@ class transition(object):
     def __init__(self, type):
         self.type = type
 
-    def policy_loop(self, **kwargs):
+    def policy_loop(self, kwargs):
         # Set the org_count to 0 for the First Organization
         # Loop through the orgs discovered by the Class
         json_data = kwargs['json_data']

@@ -67,12 +67,13 @@ def cli_arguments():
     Parser.add_argument(
         '-dt', '--deployment-type', default ='',
         help = 'Deployment Type values are: \
-            1.  FIAttached \
-            1.  Standalone \
-            1.  OSInstall \
-            1.  Individual \
-            1.  Deploy \
-            2.  Exit')
+            1.  Convert \
+            2.  Deploy \
+            3.  Domain \
+            4.  Individual \
+            5.  OSInstall \
+            6.  Server \
+            7.  Exit')
     Parser.add_argument(
         '-f', '--intersight-fqdn', default ='intersight.com',
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')
@@ -322,14 +323,105 @@ def create_terraform_workspaces(orgs, kwargs):
     return kwargs
      
 #=================================================================
+# Function: Deploy Configuration to Intersight
+#=================================================================
+def deploy(kwargs):
+    kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
+    #==============================================
+    # Create YAML Files
+    #==============================================
+    orgs = kwargs.orgs
+    ezfunctions.create_yaml(orgs, kwargs)
+    #==============================================
+    # Pools
+    #==============================================
+    pool_list = []
+    for k, v in kwargs.ezdata.items():
+        if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
+    for ptype in pool_list:
+        for org in orgs:
+            kwargs.org = org
+            if kwargs.imm_dict.orgs[org].get('pools'):
+                if ptype in kwargs.imm_dict.orgs[org]['pools']:  kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
+    #==============================================
+    # Policies
+    #==============================================
+    policy_list = []
+    for k, v in kwargs.ezdata.items():
+        if v.intersight_type == 'policy' and not '.' in k: policy_list.append(k)
+    for ptype in policy_list:
+        for org in orgs:
+            kwargs.org = org
+            if kwargs.imm_dict.orgs[org].get('policies'):
+                if ptype in kwargs.imm_dict.orgs[org]['policies']:  kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
+    #==============================================
+    # Profiles
+    #==============================================
+    for org in orgs:
+        kwargs.org = org
+        if kwargs.imm_dict.orgs[org].get('templates'):
+            if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"isight.imm('server_template').profiles(kwargs)")
+    for org in orgs:
+        kwargs.org = org
+        if kwargs.imm_dict.orgs[org].get('profiles'):
+            profile_list = ['domain', 'chassis', 'server']
+            for i in profile_list:
+                if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
+    # return kwargs
+    return kwargs
+
+#=================================================================
+# Function: Intersight Transition Tool Configuration Conversion
+#=================================================================
+def imm_transition(kwargs):
+    #==============================================
+    # Obtain JSON File
+    #==============================================
+    json_check = False
+    json_file  = kwargs.args.json_file
+    if json_file == None: json_file = 'none'
+    while json_check == False:
+        if not os.path.isfile(json_file):
+            pcolor.Yellow(f'\n{"-"*108}\n\n  !!ERROR!!\n  Did not find the file `{json_file}`.')
+            pcolor.Yellow(f'  Please Validate that you have specified the correct file and path.')
+            kwargs.jdata = kwargs.ezwizard.setup.properties.json_file
+            json_file    = ezfunctions.variable_prompt(kwargs)
+        else: json_check = True
+    kwargs.json_data = DotMap(json.load(open(json_file, 'r')))
+    device_type = kwargs.json_data.easyucs.metadata[0].device_type
+    #==============================================
+    # Validate the device_type in json file
+    #==============================================
+    if not device_type == 'intersight':
+        pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!\n  The File `{json_file}` device_type is `{device_type}`.')
+        pcolor.Red(f'  This file is either the UCSM Configuration converted from XML to JSON or invalid.'\
+                   f'  The device_type is found on line 10 of the json configuration file.'\
+                   f'  The Script is looking for the file that has been converted to Intersight Managed Mode.'\
+                   f'  The JSON file should be downloaded at the last step of the IMM Transition tool where the'\
+                   f'  API Key and Secret would be entered to upload to Intersight.'\
+                   f'  Exiting Wizard...  (ezimm.py Line 402)')
+        pcolor.Red(f'\n{"-"*108}\n')
+        len(False); sys.exit(1)
+    #==============================================
+    # Run through the IMM Transition Wizard
+    #==============================================
+    kwargs = imm.transition('transition').policy_loop(kwargs)
+    return kwargs
+
+#=================================================================
 # Function: Main Menu
 #=================================================================
 def menu(kwargs):
-    pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Configuration Wizard!\n\n{"-"*108}\n')
-    kwargs = questions.previous_configuration(kwargs)
-    kwargs.main_menu_list = []
+    #=================================================================
+    # Prompt User for Deployment Type and Loading Configurations
+    #=================================================================
+    pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Wizard!\n\n{"-"*108}\n')
     kwargs = questions.setup_deployment_type(kwargs)
-    if re.search('Exit|Deploy', kwargs.deployment_type): return kwargs
+    if   kwargs.deployment_type == 'Exit': return kwargs
+    elif kwargs.deployment_type == 'Convert': kwargs = imm_transition(kwargs); return kwargs
+    kwargs = questions.previous_configuration(kwargs)
+    if kwargs.deployment_type == 'Deploy': kwargs = deploy(kwargs); return kwargs
+    kwargs.main_menu_list = []
     #=================================================================
     # Prompt User with Questions
     #=================================================================
@@ -364,22 +456,38 @@ def process_wizard(kwargs):
     profile_list = ['chassis', 'domain', 'server', 'server_template']
     if kwargs.deployment_type == 'OSInstall':
         kwargs = build.intersight(kwargs.target_platform).operating_system_installation(kwargs)
+        return kwargs
     elif kwargs.build_type == 'Interactive':
         for p in kwargs.main_menu_list:
             #==============================================
-            # Intersight Pools/Policies
+            # Intersight Pools/Policies/Profiles
             #==============================================
             if p in kwargs.pool_list or p in kwargs.policy_list or p in profile_list:
                 kwargs = build.intersight(p).ezimm(kwargs)
-    elif kwargs.build_type == 'Machine':
-        if kwargs.deployment_type == 'FIAttached' and kwargs.discovery == True:
+    elif kwargs.build_type == 'Machine' and kwargs.deployment_type == 'Domain':
+        if kwargs.discovery == True:
             kwargs = build.intersight('domain').domain_discovery(kwargs)
-        kwargs = build.intersight('quick_start').quick_start(kwargs)
+        kwargs = build.intersight('quick_start').quick_start_domain(kwargs)
+    #==============================================
+    # Create YAML Files
+    #==============================================
+    kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
+    orgs = kwargs.orgs
+    ezfunctions.create_yaml(orgs, kwargs)
+    if len(kwargs.imm_dict.orgs.keys()) > 0: kwargs = isight.api('organization').organizations(kwargs)
+    if kwargs.deployment_method == 'Terraform':
+        #==============================================
+        # Create Terraform Config and Workspaces
+        #==============================================
+        ezfunctions.merge_easy_imm_repository(kwargs)
+        kwargs = ezfunctions.terraform_provider_config(kwargs)
+        kwargs = create_terraform_workspaces(orgs, kwargs)
+    elif re.search('Domain|Individual|Server', kwargs.deployment_type): kwargs = deploy(kwargs)
     return kwargs
 
-#==============================================
+#=================================================================
 # Function: Main Script
-#==============================================
+#=================================================================
 def main():
     #==============================================
     # Configure logger and Build kwargs
@@ -429,7 +537,7 @@ def main():
     # Check Folder Structure for Illegal Characters
     #==============================================
     for folder in kwargs.args.dir.split(os.sep):
-        if folder == '': fcount = 0
+        if folder == '': pass
         elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
             pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!')
             pcolor.Red(f'  The Directory structure can only contain the following characters:')
@@ -438,97 +546,10 @@ def main():
             pcolor.Red(f'  Exiting...\n\n{"-"*108}\n')
             len(False); sys.exit(1)
     #==============================================
-    # Run IMM Transition if json Arg Present
+    # Prompt User for Main Menu
     #==============================================
-    if not kwargs.args.json_file == None:
-        #==============================================
-        # Validate the Existence of the json File
-        #==============================================
-        if not os.path.isfile(kwargs.args.json_file):
-            pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!\n  Did not find the file {kwargs.args.json_file}.')
-            pcolor.Red(f'  Please Validate that you have specified the correct file and path.\n\n{"-"*108}\n')
-            len(False); sys.exit(1)
-        else:
-            kwargs.deployment_type = 'Terraform'
-            kwargs.json_data = DotMap(json.load(open(kwargs.args.json_file, 'r')))
-            device_type = kwargs.json_data.easyucs.metadata[0].device_type
-            #==============================================
-            # Validate the device_type in json file
-            #==============================================
-            if not device_type == 'intersight':
-                pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!\n  The File "{kwargs.args.json_file}" device_type is "{device_type}".')
-                pcolor.Red(f'  This file is the UCSM Configuration converted from XML to JSON.')
-                pcolor.Red(f'  The device_type is found on line 10 of the json config file.')
-                pcolor.Red(f'  The Script is looking for the file that has been converted to Intersight Managed Mode.')
-                pcolor.Red(f'  The JSON file should be downloaded at the last step of the IMM Transition tool where the')
-                pcolor.Red(f'  API Key and Secret would be entered to upload to Intersight.')
-                pcolor.Red(f'  Exiting Wizard...\n\n{"-"*108}\n')
-                len(False); sys.exit(1)
-            #==============================================
-            # Run through the IMM Transition Wizard
-            #==============================================
-            kwargs = imm.transition('transition').policy_loop(kwargs)
-            kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
-    else:
-        #==============================================
-        # Prompt User for Main Menu
-        #==============================================
-        kwargs = menu(kwargs)
-        if not re.search('Exit|Deploy', kwargs.deployment_type):
-            kwargs = process_wizard(kwargs)
-        kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
-        if re.search('Deploy', kwargs.deployment_type): kwargs.args.deployment_method = 'Python'
-    #==============================================
-    # Create YAML Files
-    #==============================================
-    orgs = kwargs.orgs
-    ezfunctions.create_yaml(orgs, kwargs)
-    if len(kwargs.imm_dict.orgs.keys()) > 0:
-        kwargs = isight.api('organization').organizations(kwargs)
-        if kwargs.args.deployment_method == 'Terraform':
-            #==============================================
-            # Create Terraform Config and Workspaces
-            #==============================================
-            ezfunctions.merge_easy_imm_repository(kwargs)
-            kwargs = ezfunctions.terraform_provider_config(kwargs)
-            kwargs = create_terraform_workspaces(orgs, kwargs)
-        elif kwargs.args.deployment_method == 'Python':
-            #==============================================
-            # Pools
-            #==============================================
-            pool_list = []
-            for k, v in kwargs.ezdata.items():
-                if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
-            for ptype in pool_list:
-                for org in orgs:
-                    kwargs.org = org
-                    if kwargs.imm_dict.orgs[org].get('pools'):
-                        if ptype in kwargs.imm_dict.orgs[org]['pools']:  kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
-            #==============================================
-            # Policies
-            #==============================================
-            policy_list = []
-            for k, v in kwargs.ezdata.items():
-                if v.intersight_type == 'policy' and not '.' in k: policy_list.append(k)
-            for ptype in policy_list:
-                for org in orgs:
-                    kwargs.org = org
-                    if kwargs.imm_dict.orgs[org].get('policies'):
-                        if ptype in kwargs.imm_dict.orgs[org]['policies']:  kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
-            #==============================================
-            # Profiles
-            #==============================================
-            for org in orgs:
-                kwargs.org = org
-                if kwargs.imm_dict.orgs[org].get('templates'):
-                    if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"isight.imm('server_template').profiles(kwargs)")
-            for org in orgs:
-                kwargs.org = org
-                if kwargs.imm_dict.orgs[org].get('profiles'):
-                    profile_list = ['domain', 'chassis', 'server']
-                    for i in profile_list:
-                        if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
-
+    kwargs = menu(kwargs)
+    if not re.search('Exit|Deploy', kwargs.deployment_type): kwargs = process_wizard(kwargs)
     pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*108}\n')
     sys.exit(0)
 

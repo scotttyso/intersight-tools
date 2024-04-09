@@ -392,7 +392,8 @@ def installation_body(v, kwargs):
                         if 'LogonPassword' in x[0]:
                             answers[x[0]]   = base64.b64encode(f'{password}Password'.encode(encoding='utf-16-le')).decode()
                         else: answers[x[0]] = base64.b64encode(f'{password}AdministratorPassword'.encode(encoding='utf-16-le')).decode()
-                    else: answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512)); encrypted = True
+                    else: answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
+                    encrypted = True
                 elif x[0] == 'NameServer': answers['Nameserver'] = v.answers[x[0]]
                 elif x[0] == 'AlternateNameServer': answers['AlternateNameServers'] = [v.answers['AlternateNameServer']]
                 else: answers[x[0]] = v.answers[x[0]]

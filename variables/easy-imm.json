@@ -19067,14 +19067,15 @@
                     },
                     "deployment_type": {
                         "type": "string",
-                        "default": "FIAttached",
-                        "description": "Select the Option to Perform:\n * FIAttached: Build Pools/Policies/Profiles for a Domain.\n * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.\n * OS Install: Install an Operating System on server(s) with either New or Existing Profiles.\n * Individual: Select Individual Pools, Policies, Profiles to Build.\n * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.\n * Exit:       Cancel the Wizard",
+                        "default": "OSInstall",
+                        "description": "Select the Option to Perform:\n  * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model.\n  * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema.\n  * Domain:     Deploy a domain via cloning an existing profile or creating net new.\n  * Individual: Select individual pools, policies, profiles, or templates to build.\n  * OSInstall:  Install an Operating System with either new or existing profiles.\n  * Server:     Build server profiles/templates for Intersight Managed Servers.\n  * Exit:       Cancel the Wizard",
                         "enum": [
-                            "FIAttached",
-                            "Standalone",
-                            "Individual",
-                            "OS Install",
+                            "Convert",
                             "Deploy",
+                            "Domain",
+                            "Individual",
+                            "OSInstall",
+                            "Server",
                             "Exit"
                         ],
                         "sort": false,
@@ -19085,6 +19086,15 @@
                         "default": false,
                         "description": "Is the Equipment Already Registered to Intersight?",
                         "title": "Discovery Status"
+                    },
+                    "json_file": {
+                        "type": "string",
+                        "default": "/home/user/Downloads/config-5fdc98d1-cff3-461d-b6a7-e9501bd603ee.json",
+                        "description": "Enter the File Path to the Intersight Transition Tool Configuration export file.",
+                        "minLength": 0,
+                        "maxLength": 255,
+                        "pattern": ".*",
+                        "title": "IMM Transition JSON File"
                     },
                     "name_prefix": {
                         "type": "string",
