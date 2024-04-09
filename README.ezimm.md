@@ -29,12 +29,12 @@ There may be additional variables to define in the environment based on the depl
 
 ## Wizard Options
 
-  * *Convert*: Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
-  * *Deploy*: Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
-  * *Domain*: Deploy a domain via cloning an existing profile or creating net new.
-  * *Individual*: Select individual pools, policies, profiles, or templates to build.
-  * *OSInstall*: Install an Operating System with either new or existing profiles.
-  * *Server*: Build server profiles/templates for Intersight Managed Servers.
+  * `*Convert*`: Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
+  * `*Deploy*`: Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
+  * `*Domain*`: Deploy a domain via cloning an existing profile or creating net new.
+  * `*Individual*`: Select individual pools, policies, profiles, or templates to build.
+  * `*OSInstall*`: Install an Operating System with either new or existing profiles.
+  * `*Server*`: Build server profiles/templates for Intersight Managed Servers.
 
   The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
 
