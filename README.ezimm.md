@@ -42,18 +42,18 @@ There may be additional variables to define in the environment based on the depl
 
 Convert a migrated configuration from UCS Central or UCS Manager using the Cisco Intersight Managed Mode Transition Tool to work with the easy-imm repository.
 
-Example:
+Examples:
 
 #### Linux
 
 ```bash
-./ezimm.py -d {export-destination-directory} -dt Convert -j {json_export_file_from_imm_tool.json}
+./ezimm.py -d {export_destination_directory} -dt Convert -j {json_export_file_from_imm_tool.json}
 ```
 
 #### Windows
 
 ```powershell
-.\ezimm.py -d {export-destination-directory} -dt Convert -j {json_export_file_from_imm_tool.json}
+.\ezimm.py -d {export_destination_directory} -dt Convert -j {json_export_file_from_imm_tool.json}
 ```
 
 Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
@@ -78,6 +78,8 @@ The easy-imm repo includes the ability to push this data model using Terraform. 
 What the library doesn't address is deleting objects.  Because the library doesn't maintain a state file in the same way Terraform does, this library does not delete objects created in Intersight.  That was a decision I made as my intention is not to duplicate what Terraform does.  If full scrum management is desired, it would be recommended to use the Terraform modules in the easy-imm repository, instead of this Python library.
 
 #### Example for `Deploy` option:
+
+#### Linux
 
 ```bash
 ./ezimm.py -d {easy-imm-directory} -dt Deploy -l
@@ -106,6 +108,54 @@ The `Domain` and `Server` options allow you to walk thru a wizard based configur
 ./ezimm.py -d {easy-imm-directory} -dt Server
 ```
 
+### Wizard - `OSInstall`: Use Cases
+
+  - Install the Operating System on either existing or new server profiles
+
+#### Wizard - `OSInstall`: Supported Operating Systems
+
+  * CentOS
+  * Citrix
+  * Microsoft
+  * Nutanix
+  * Oracle
+  * Red Hat
+  * Rocky Linux
+  * SuSE
+  * Ubuntu
+  * VMware
+
+Note: This is dependent on what is supported by Intersight OS Install.  As new operating systems or new versions are supported, this will support the new versions.
+
+#### Wizard - `OSInstall`: Prerequisites
+
+  * [Cisco Intersight Transition Tool](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html).
+  * `Server Configuration Utility for OS Version`: Assigned to the Organization that supports the OS Image Version
+  * `OS Install Image`: Assigned to the Organization
+  * `OS Configuration File`: This can be the default files in Intersight or a custom User uploaded OS Configuration `AutoInstall` file.
+
+Note: We recommend that the SCU and OS Image be hosted on the Intersight Transition Tool.  It supports the ability to auto-sync the files with Intersight in the Software Repository.  See [install instructions](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html)
+
+The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
+
+The `Domain` and `Server` options allow you to walk thru a wizard based configuration to build the YAML files through a wizard based approach.  If Python is chosen to push the configuration to Intersight, it will deploy the configuration when complete just like the `Deploy` option.
+
+#### Examples for `OSInstall`:
+
+#### Linux
+
+```bash
+export root_password="<your_root_password>"
+```
+
+#### Windows
+
+```powershell
+$env:root_password="<your_root_password>"
+```
+
+See examples under `examples/os_install/`
+
 ## Wizard Help Menu
 
 ```bash
@@ -132,7 +182,7 @@ options:
   -dm DEPLOYMENT_METHOD, --deployment-method DEPLOYMENT_METHOD
                         Deployment Method values are: 1. Python 2. Terraform
   -dt DEPLOYMENT_TYPE, --deployment-type DEPLOYMENT_TYPE
-                        Deployment Type values are: 1. Domain 2. FIAttached 3. Individual 4. OSInstall 5. Standalone 6. Deploy 7. Exit
+                        Deployment Type values are: 1. Convert 2. Deploy 3. Domain 4. Individual 5. OSInstall 6. Server 7. Exit
   -f INTERSIGHT_FQDN, --intersight-fqdn INTERSIGHT_FQDN
                         The Directory to use for the Creation of the YAML Configuration Files.
   -i, --ignore-tls      Ignore TLS server-side certificate verification. Default is False.

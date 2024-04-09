@@ -1,0 +1,480 @@
+------------------------------------------------------------------------------------------------------------
+
+  Starting the Easy IMM Configuration Wizard!
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Option to Perform:
+  * FIAttached: Build Pools/Policies/Profiles for a Domain.
+  * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.
+  * OS Install: Install an Operating System on server(s) with either New or Existing Profiles.
+  * Individual: Select Individual Pools, Policies, Profiles to Build.
+  * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.
+  * Exit:       Cancel the Wizard
+ 
+    Select an Option Below:
+      1. FIAttached
+      2. Standalone
+      3. Individual
+      4. OS Install
+      5. Deploy
+      6. Exit
+
+Please Enter the Option Number to select for Deployment Type.  [1]: 4
+
+------------------------------------------------------------------------------------------------------------
+
+ Select an Existing Organization to apply these changes within.
+ 
+    Select an Option Below:
+      1. Asgard
+      2. common
+      3. default
+      4. RICH
+      5. Wakanda
+
+Please Enter the Option Number to select for Intersight Organization.  [3]: 5
+
+------------------------------------------------------------------------------------------------------------
+
+With this wizard you can deploy the Operating System to Existing or Create New Profiles.  Select Which
+you want to deploy the operating system to.
+ 
+    Select an Option Below:
+      1. existing
+      2. new
+
+Please Enter the Option Number to select for Profile Option.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Server Profile Target Platform.  Options are:
+  * FIAttached: Build Pools/Policies/Profiles for a Domain.
+  * Standalone: Build Pools/Policies/Profiles for Standalone Servers.
+ 
+    Select an Option Below:
+      1. FIAttached
+      2. Standalone
+
+Please Enter the Option Number to select for Target Platform.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Operating System Vendor(s) for this deployment.
+ 
+    Select an Option Below:
+      1. CentOS
+      2. Citrix
+      3. Microsoft
+      4. Nutanix
+      5. Oracle
+      6. Red Hat
+      7. Rocky Linux
+      8. SuSE
+      9. Ubuntu
+     10. VMware
+
+Please Enter the Option Number to select for Operating System Vendor.  [10]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the version for `VMware`.
+ 
+    Select an Option Below:
+      1. ESXi 8.0 U2
+      2. ESXi 8.0 U1
+      3. ESXi 8.0
+      4. ESXi 7.0 U3
+      5. ESXi 7.0 U2
+      6. ESXi 7.0 U1
+      7. ESXi 7.0
+      8. ESXi 6.7 U3
+      9. ESXi 6.7 U2
+     10. ESXi 6.7 U1
+     11. ESXi 6.7
+     12. ESXi 6.5 U3
+     13. ESXi 6.5 U2
+     14. ESXi 6.5 U1
+     15. ESXi 6.5
+     16. ESXi 6.0 U3
+     17. ESXi 6.0 U2
+     18. ESXi 6.0 U1
+     19. ESXi 6.0
+
+Please Enter the Option Number to select for VMware Version.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Boot Volume.
+   * iSCSI: OS will be installed on an iSCSI LUN.
+   * M2:    OS will be installed on the M2 HWRAID LUN.
+   * MRAID: OS will be installed on a local LUN.
+   * SAN:   OS will be installed on SAN attached LUN.
+ 
+    Select an Option Below:
+      1. iSCSI
+      2. M2
+      3. MRAID
+      4. SAN
+
+Please Enter the Option Number to select for Boot Volume.  [2]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Server Profiles you would like to Install an Operating System to:
+ 
+     Note: Answer can be:
+       * Single: 1
+       * Multiple: `1,2,3` or `1-3,5-6`
+     Select Option(s) Below:
+      1. Serial: FCH26167LA9 || Moid: 6605e32877696e3201f44225 || Server Profile: r143e-2-1-3
+      2. Serial: FCH26167MFX || Moid: 660714fc77696e32018de0ae || Server Profile: r143e-2-1-4
+      3. Serial: FCH26167MSB || Moid: 660714fc77696e32018de0c5 || Server Profile: r143e-2-1-7
+      4. Serial: FCH26167LRT || Moid: 660714fc77696e32018de0dc || Server Profile: r143e-2-1-8
+
+Please Enter the Option Number(s) to select for Server Profiles: 2-4
+
+------------------------------------------------------------------------------------------------------------
+
+    profiles:
+      - 'Serial: FCH26167MFX || Moid: 660714fc77696e32018de0ae || Server Profile: r143e-2-1-4'
+      - 'Serial: FCH26167MSB || Moid: 660714fc77696e32018de0c5 || Server Profile: r143e-2-1-7'
+      - 'Serial: FCH26167LRT || Moid: 660714fc77696e32018de0dc || Server Profile: r143e-2-1-8'
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Do You want to accept the above configuration for profiles?
+
+
+Enter `Y` for `True` or `N` for `False` for `Accept`. [Y]: 
+ 
+   - Pulling Server Inventory for the following Physical Server(s):
+      * FCH26167MFX
+      * FCH26167MSB
+      * FCH26167LRT
+    - Completed Server Inventory.
+
+ 
+   - Pulling Server Identity Inventory for the following Server Profiles(s):
+      * Serial: FCH26167LRT Name: r143e-2-1-4
+      * Serial: FCH26167LRT Name: r143e-2-1-7
+      * Serial: FCH26167LRT Name: r143e-2-1-8
+   - Completed Server Identity Inventory.
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Operating System Image for Installation.
+ 
+    Select an Option Below:
+      1. Location: https://imm-transition.rich.ciscolabs.com/repo/VMware-ESXi-8.0.U2-22380479-Custom-
+         Cisco-4.3.2-b.iso || Name: VMware-ESXi-8.0.U2-22380479-Custom-Cisco-4.3.2-b.iso || Moid:
+         661170616567613101fad138
+      2. Location: https://imm-transition.rich.ciscolabs.com/repo/VMware-VMvisor-
+         Installer-8.0U2-22380479.x86_64.iso || Name: VMware-VMvisor-Installer-8.0U2-22380479.x86_64.iso ||
+         Moid: 6606b7bc65676131013aca1c
+
+Please Enter the Option Number to select for Operating System Image.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Server Configuration Utility Image for Installation.
+ 
+    Select an Option Below:
+      1. Location: https://imm-transition.rich.ciscolabs.com/repo/ucs-scu-6.3.2c.iso || Version:
+         6.3(2c) || Name: ucs-scu-6.3.2c.iso || Supported Models: UCSB-B200-M5, UCSC-C240-M5, UCSX-210C-M6
+         || Moid: 661130e76567613101f9dabd
+      2. Location: https://imm-transition.rich.ciscolabs.com/repo/ucs-scu-6.3.2a.iso || Version:
+         6.3(2a) || Name: ucs-scu-6.3.2a.iso || Supported Models: UCSB-B200-M5, UCSC-C240-M5, UCSX-210C-M6
+         || Moid: 6606b78665676131013ac8f2
+
+Please Enter the Option Number to select for Server Configuration Utility.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+   The OS Install Requires a Root Password for Installation.  Checking System environment to see if it
+   is already set.
+
+------------------------------------------------------------------------------------------------------------
+
+ For the OS installation, which interface on `r143e-2-1-4` should be used for the OS network configuration?
+ 
+    Select an Option Below:
+      1. MAC Address: 00:25:B5:C1:A0:01 Name: mgmt-a
+      2. MAC Address: 00:25:B5:C1:B0:01 Name: mgmt-b
+      3. MAC Address: 00:25:B5:C1:C0:01 Name: migration-a
+      4. MAC Address: 00:25:B5:C1:D0:01 Name: migration-b
+      5. MAC Address: 00:25:B5:C1:E0:01 Name: storage-a
+      6. MAC Address: 00:25:B5:C1:F0:01 Name: storage-b
+      7. MAC Address: 00:25:B5:C1:10:01 Name: dvs-a
+      8. MAC Address: 00:25:B5:C1:20:01 Name: dvs-b
+
+Please Enter the Option Number to select for Network Interface.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Configure Networking with DHCP or Static IP Address.
+ 
+    Select an Option Below:
+      1. DHCP
+      2. static
+
+Please Enter the Option Number to select for IP Config Type.  [2]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ IP Version to Configure for the Installation.
+ 
+    Select an Option Below:
+      1. V4
+      2. V6
+
+Please Enter the Option Number to select for IP Version.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ What is the domain name for the servers?
+
+Enter the value for Domain Name [example.com]: rich.ciscolabs.com
+
+------------------------------------------------------------------------------------------------------------
+
+ Enter the Vlan Identifier to Assign to the Management Interface.
+
+Enter the value for VlanId [press enter to skip]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Default Gateway for Network Configuration.
+
+Enter the value for gateway [198.18.0.1]: 198.18.101.254
+
+------------------------------------------------------------------------------------------------------------
+
+ Netmask for Network Configuration.
+
+Enter the value for netmask [255.255.255.0]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ IP Address of the primary Domain Name System (DNS) server.  Example `208.67.220.220`.
+
+Enter the value for primary_dns [208.67.220.220]: 10.101.128.15
+
+------------------------------------------------------------------------------------------------------------
+
+ IP Address of the secondary Domain Name System (DNS) server.  Example `208.67.222.222`.
+
+Enter the value for secondary_dns [press enter to skip]: 10.101.128.16
+
+------------------------------------------------------------------------------------------------------------
+
+ Fully Qualified Domain Name for the Server Profile `r143e-2-1-4`.
+
+Enter the value for FQDN [r143e-2-1-4.rich.ciscolabs.com]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ r143e-2-1-4.rich.ciscolabs.com IPv4 Address.
+
+Enter the value for IPv4 Address [198.18.101.3]: 198.18.101.14
+
+------------------------------------------------------------------------------------------------------------
+
+ Fully Qualified Domain Name for the Server Profile `r143e-2-1-7`.
+
+Enter the value for FQDN [r143e-2-1-7.rich.ciscolabs.com]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ r143e-2-1-7.rich.ciscolabs.com IPv4 Address.
+
+Enter the value for IPv4 Address [198.18.101.15]: 198.18.101.17
+
+------------------------------------------------------------------------------------------------------------
+
+ Fully Qualified Domain Name for the Server Profile `r143e-2-1-8`.
+
+Enter the value for FQDN [r143e-2-1-8.rich.ciscolabs.com]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ r143e-2-1-8.rich.ciscolabs.com IPv4 Address.
+
+Enter the value for IPv4 Address [198.18.101.18]: 
+
+------------------------------------------------------------------------------------------------------------
+
+    answers:
+      - answers:
+          AlternateNameServers: 10.101.128.16
+          FQDN: r143e-2-1-4.rich.ciscolabs.com
+          Hostname: r143e-2-1-4.rich.ciscolabs.com
+          IpConfigType: static
+          IpV4Config:
+            Gateway: 198.18.101.254
+            IpAddress: 198.18.101.14
+            Netmask: 255.255.255.0
+          IpVersion: V4
+          MACAddress: 00:25:B5:C1:A0:01
+          NameServer: 10.101.128.15
+          NetworkDevice: 00:25:B5:C1:A0:01
+          RootPassword: sensitive_root_password
+          SecureBoot: true
+        server_profile: r143e-2-1-4
+      - answers:
+          AlternateNameServers: 10.101.128.16
+          FQDN: r143e-2-1-7.rich.ciscolabs.com
+          Hostname: r143e-2-1-7.rich.ciscolabs.com
+          IpConfigType: static
+          IpV4Config:
+            Gateway: 198.18.101.254
+            IpAddress: 198.18.101.17
+            Netmask: 255.255.255.0
+          IpVersion: V4
+          MACAddress: 00:25:B5:C1:A0:02
+          NameServer: 10.101.128.15
+          NetworkDevice: 00:25:B5:C1:A0:02
+          RootPassword: sensitive_root_password
+          SecureBoot: true
+        server_profile: r143e-2-1-7
+      - answers:
+          AlternateNameServers: 10.101.128.16
+          FQDN: r143e-2-1-8.rich.ciscolabs.com
+          Hostname: r143e-2-1-8.rich.ciscolabs.com
+          IpConfigType: static
+          IpV4Config:
+            Gateway: 198.18.101.254
+            IpAddress: 198.18.101.18
+            Netmask: 255.255.255.0
+          IpVersion: V4
+          MACAddress: 00:25:B5:C1:A0:03
+          NameServer: 10.101.128.15
+          NetworkDevice: 00:25:B5:C1:A0:03
+          RootPassword: sensitive_root_password
+          SecureBoot: true
+        server_profile: r143e-2-1-8
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Do You want to accept the above configuration for os_configuration_answers?
+
+
+Enter `Y` for `True` or `N` for `False` for `Accept`. [Y]: 
+
+------------------------------------------------------------------------------------------------------------
+
+   Beginning os_install Install Deployments.
+
+ 
+----------------------------------------------------
+
+   - boot_mode: M2
+     profile: r143e-2-1-4
+     serial: FCH26167MFX
+     vnic:
+       mac: 00:25:B5:C1:A0:01
+       name: mgmt-a
+
+     - Completed POST for Org: Wakanda Name: InstallServerOS66118d40cd2871330194bef6 - Moid:
+       66118d40cd2871330194bef6
+ 
+----------------------------------------------------
+
+   - boot_mode: M2
+     profile: r143e-2-1-7
+     serial: FCH26167MSB
+     vnic:
+       mac: 00:25:B5:C1:A0:02
+       name: mgmt-a
+
+     - Completed POST for Org: Wakanda Name: InstallServerOS66118d41cd2871330194bf19 - Moid:
+       66118d41cd2871330194bf19
+ 
+----------------------------------------------------
+
+   - boot_mode: M2
+     profile: r143e-2-1-8
+     serial: FCH26167LRT
+     vnic:
+       mac: 00:25:B5:C1:A0:03
+       name: mgmt-a
+
+     - Completed POST for Org: Wakanda Name: InstallServerOS66118d42cd2871330194bf47 - Moid:
+       66118d42cd2871330194bf47
+
+------------------------------------------------------------------------------------------------------------
+
+Sleeping for 20 Minutes to pause for Workflow/Infos Lookup.
+
+------------------------------------------------------------------------------------------------------------
+
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-4` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+     - Completed Operating System Installation for `r143e-2-1-4`.
+     - Completed PATCH for Org: Wakanda > Name: Tags updated for Physical Server attached to
+       r143e-2-1-4 - Moid: 6605cc3076752d3501bebd22
+       * Operating System Installation for `r143e-2-1-7` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+     - Completed Operating System Installation for `r143e-2-1-7`.
+     - Completed PATCH for Org: Wakanda > Name: Tags updated for Physical Server attached to
+       r143e-2-1-7 - Moid: 6605cbed76752d3501be9b69
+     - Completed Operating System Installation for `r143e-2-1-8`.
+     - Completed PATCH for Org: Wakanda > Name: Tags updated for Physical Server attached to
+       r143e-2-1-8 - Moid: 6605cbfc76752d3501bea21c
+ 
+   Completed os_install Install Deployments.
+
+------------------------------------------------------------------------------------------------------------
+
+  !!! Procedures Complete !!!
+  Closing Environment and Exiting Script...
+
+------------------------------------------------------------------------------------------------------------

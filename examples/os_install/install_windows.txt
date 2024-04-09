@@ -1,0 +1,398 @@
+tyscott@TYSCOTT-DESKTOP:~$ ezimm.py -d windows2022/
+
+------------------------------------------------------------------------------------------------------------
+
+  Starting the Easy IMM Configuration Wizard!
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Import Configuration found in `windows2022/`
+
+
+Enter `Y` for `True` or `N` for `False` for `Load Existing Configuration(s)`. [Y]: N
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Option to Perform:
+  * FIAttached: Build Pools/Policies/Profiles for a Domain.
+  * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.
+  * OS Install: Install an Operating System on server(s) with either New or Existing Profiles.
+  * Individual: Select Individual Pools, Policies, Profiles to Build.
+  * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.
+  * Exit:       Cancel the Wizard
+ 
+    Select an Option Below:
+      1. FIAttached
+      2. Standalone
+      3. Individual
+      4. OS Install
+      5. Deploy
+      6. Exit
+
+Please Enter the Option Number to select for Deployment Type.  [1]: 4
+
+------------------------------------------------------------------------------------------------------------
+
+ Select an Existing Organization to apply these changes within.
+ 
+    Select an Option Below:
+      1. Asgard
+      2. common
+      3. default
+      4. RICH
+      5. Wakanda
+
+Please Enter the Option Number to select for Intersight Organization.  [3]: 5
+
+------------------------------------------------------------------------------------------------------------
+
+With this wizard you can deploy the Operating System to Existing or Create New Profiles.  Select Which
+you want to deploy the operating system to.
+ 
+    Select an Option Below:
+      1. existing
+      2. new
+
+Please Enter the Option Number to select for Profile Option.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Server Profile Target Platform.  Options are:
+  * FIAttached: Build Pools/Policies/Profiles for a Domain.
+  * Standalone: Build Pools/Policies/Profiles for Standalone Servers.
+ 
+    Select an Option Below:
+      1. FIAttached
+      2. Standalone
+
+Please Enter the Option Number to select for Target Platform.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Operating System Vendor(s) for this deployment.
+ 
+    Select an Option Below:
+      1. CentOS
+      2. Citrix
+      3. Microsoft
+      4. Nutanix
+      5. Oracle
+      6. Red Hat
+      7. Rocky Linux
+      8. SuSE
+      9. Ubuntu
+     10. VMware
+
+Please Enter the Option Number to select for Operating System Vendor.  [10]: 3
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the version for `Microsoft`.
+ 
+    Select an Option Below:
+      1. Windows Server 2022
+      2. Windows Server 2019
+      3. Windows Server 2016
+      4. Windows Server 2012 R2
+
+Please Enter the Option Number to select for Microsoft Version.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Boot Volume.
+   * iSCSI: OS will be installed on an iSCSI LUN.
+   * M2:    OS will be installed on the M2 HWRAID LUN.
+   * MRAID: OS will be installed on a local LUN.
+   * SAN:   OS will be installed on SAN attached LUN.
+ 
+    Select an Option Below:
+      1. iSCSI
+      2. M2
+      3. MRAID
+      4. SAN
+
+Please Enter the Option Number to select for Boot Volume.  [2]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Server Profiles you would like to Install an Operating System to:
+ 
+     Note: Answer can be:
+       * Single: 1
+       * Multiple: `1,2,3` or `1-3,5-6`
+     Select Option(s) Below:
+      1. Serial: FCH26167LA9 || Moid: 6605e32877696e3201f44225 || Server Profile: r143e-2-1-3
+      2. Serial: FCH26167MFX || Moid: 660714fc77696e32018de0ae || Server Profile: r143e-2-1-4
+      3. Serial: FCH26167MSB || Moid: 660714fc77696e32018de0c5 || Server Profile: r143e-2-1-7
+      4. Serial: FCH26167LRT || Moid: 660714fc77696e32018de0dc || Server Profile: r143e-2-1-8
+
+Please Enter the Option Number(s) to select for Server Profiles: 1
+
+------------------------------------------------------------------------------------------------------------
+
+    profiles:
+      - 'Serial: FCH26167LA9 || Moid: 6605e32877696e3201f44225 || Server Profile: r143e-2-1-3'
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Do You want to accept the above configuration for profiles?
+
+
+Enter `Y` for `True` or `N` for `False` for `Accept`. [Y]: 
+ 
+   - Pulling Server Inventory for the following Physical Server(s):
+      * FCH26167LA9
+    - Completed Server Inventory.
+
+ 
+   - Pulling Server Identity Inventory for the following Server Profiles(s):
+      * Serial: FCH26167LA9 Name: r143e-2-1-3
+   - Completed Server Identity Inventory.
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Server Configuration Utility Image for Installation.
+ 
+    Select an Option Below:
+      1. Location: https://imm-transition.rich.ciscolabs.com/repo/ucs-scu-6.3.2c.iso || Version:
+         6.3(2c) || Name: ucs-scu-6.3.2c.iso || Supported Models: UCSB-B200-M5, UCSC-C240-M5, UCSX-210C-M6
+         || Moid: 661130e76567613101f9dabd
+      2. Location: https://imm-transition.rich.ciscolabs.com/repo/ucs-scu-6.3.2a.iso || Version:
+         6.3(2a) || Name: ucs-scu-6.3.2a.iso || Supported Models: UCSB-B200-M5, UCSC-C240-M5, UCSX-210C-M6
+         || Moid: 6606b78665676131013ac8f2
+
+Please Enter the Option Number to select for Server Configuration Utility.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Windows Server Edition for `REPLACE`.
+ 
+    Select an Option Below:
+      1. Datacenter
+      2. Datacenter Core
+      3. Standard
+      4. Standard Core
+
+Please Enter the Option Number to select for Windows Server Edition.  [2]: 3
+
+------------------------------------------------------------------------------------------------------------
+
+ Enter Windows Product Key for Installation.
+
+Enter the value for Windows Product Key: KNVXH-KJ77G-CY2KK-RBHJG-FVX7B
+
+------------------------------------------------------------------------------------------------------------
+
+   The OS Install Requires a Root Password for Installation.  Checking System environment to see if it
+   is already set.
+
+------------------------------------------------------------------------------------------------------------
+
+ Configure Networking with DHCP or Static IP Address.
+ 
+    Select an Option Below:
+      1. DHCP
+      2. static
+
+Please Enter the Option Number to select for IP Config Type.  [2]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ IP Version to Configure for the Installation.
+ 
+    Select an Option Below:
+      1. V4
+      2. V6
+
+Please Enter the Option Number to select for IP Version.  [1]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ What is the domain name for the servers?
+
+Enter the value for Domain Name [example.com]: rich.ciscolabs.com
+
+------------------------------------------------------------------------------------------------------------
+
+ Default Gateway for Network Configuration.
+
+Enter the value for gateway [198.18.0.1]: 198.18.101.254
+
+------------------------------------------------------------------------------------------------------------
+
+ Netmask for Network Configuration.
+
+Enter the value for netmask [255.255.255.0]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ IP Address of the primary Domain Name System (DNS) server.  Example `208.67.220.220`.
+
+Enter the value for primary_dns [208.67.220.220]: 10.101.128.15
+
+------------------------------------------------------------------------------------------------------------
+
+ IP Address of the secondary Domain Name System (DNS) server.  Example `208.67.222.222`.
+
+Enter the value for secondary_dns [press enter to skip]: 10.101.128.16
+
+------------------------------------------------------------------------------------------------------------
+
+ Fully Qualified Domain Name for the Server Profile `r143e-2-1-3`.
+
+Enter the value for FQDN [r143e-2-1-3.rich.ciscolabs.com]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ r143e-2-1-3.rich.ciscolabs.com IPv4 Address.
+
+Enter the value for IPv4 Address [198.18.101.3]: 198.18.101.13
+
+------------------------------------------------------------------------------------------------------------
+
+    answers:
+      - answers:
+          AlternateNameServers: 10.101.128.16
+          EditionString: Standard
+          FQDN: r143e-2-1-3.rich.ciscolabs.com
+          Hostname: r143e-2-1-3
+          IpConfigType: static
+          IpV4Config:
+            Gateway: 198.18.101.254
+            IpAddress: 198.18.101.13
+            Netmask: 255.255.255.0
+          IpVersion: V4
+          MACAddress: 00:25:B5:F1:00:01
+          NameServer: 10.101.128.15
+          NetworkDevice: vnic0
+          ProductKey: KNVXH-KJ77G-CY2KK-RBHJG-FVX7B
+          RootPassword: sensitive_root_password
+          SecureBoot: true
+        server_profile: r143e-2-1-3
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Do You want to accept the above configuration for os_configuration_answers?
+
+
+Enter `Y` for `True` or `N` for `False` for `Accept`. [Y]: 
+
+------------------------------------------------------------------------------------------------------------
+
+   Beginning os_install Install Deployments.
+
+ 
+----------------------------------------------------
+
+   - boot_mode: M2
+     profile: r143e-2-1-3
+     serial: FCH26167LA9
+     vnic:
+       mac: 00:25:B5:F1:00:01
+       name: vnic0
+
+     - Completed POST for Org: Wakanda Name: InstallServerOS66119deecd287133019508e2 - Moid:
+       66119deecd287133019508e2
+
+------------------------------------------------------------------------------------------------------------
+
+Sleeping for 20 Minutes to pause for Workflow/Infos Lookup.
+
+------------------------------------------------------------------------------------------------------------
+
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+       * Operating System Installation for `r143e-2-1-3` still In Progress.  Status is `InProgress`
+         Progress is `50`, Sleeping for 120 seconds.
+     - Completed Operating System Installation for `r143e-2-1-3`.
+     - Completed PATCH for Org: Wakanda > Name: Tags updated for Physical Server attached to
+       r143e-2-1-3 - Moid: 6605cbfb76752d3501bea1b3
+ 
+   Completed os_install Install Deployments.
+
+------------------------------------------------------------------------------------------------------------
+
+  !!! Procedures Complete !!!
+  Closing Environment and Exiting Script...
+
+------------------------------------------------------------------------------------------------------------
+
+tyscott@TYSCOTT-DESKTOP:~$ 
