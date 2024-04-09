@@ -7,23 +7,25 @@
 
 ------------------------------------------------------------------------------------------------------------
 
- Select the Option to Perform:
-  * FIAttached: Build Pools/Policies/Profiles for a Domain.
-  * Standalone: Build Pools/Policies/Profiles for a Group of Standalone Servers.
-  * OS Install: Install an Operating System on server(s) with either New or Existing Profiles.
-  * Individual: Select Individual Pools, Policies, Profiles to Build.
-  * Deploy:     Skip Wizard and deploy configured from the YAML Files for Pools, Policies, and Profiles.
-  * Exit:       Cancel the Wizard
+elect the Option to Perform:
+   * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model.
+   * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema.
+   * Domain:     Deploy a domain via cloning an existing profile or creating net new.
+   * Individual: Select individual pools, policies, profiles, or templates to build.
+   * OSInstall:  Install an Operating System with either new or existing profiles.
+   * Server:     Build server profiles/templates for Intersight Managed Servers.
+   * Exit:       Cancel the Wizard
  
     Select an Option Below:
-      1. FIAttached
-      2. Standalone
-      3. Individual
-      4. OS Install
-      5. Deploy
-      6. Exit
+      1. Convert
+      2. Deploy
+      3. Domain
+      4. Individual
+      5. OSInstall
+      6. Server
+      7. Exit
 
-Please Enter the Option Number to select for Deployment Type.  [1]: 4
+Please Enter the Option Number to select for Deployment Type.  [5]: 5
 
 ------------------------------------------------------------------------------------------------------------
 
