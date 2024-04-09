@@ -38,7 +38,7 @@ There may be additional variables to define in the environment based on the depl
 
   The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
 
-### Convert: Brownfield Migration with [Cisco Intersight Transition Tool](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html)
+### Wizard - `Convert`: Brownfield Migration with [Cisco Intersight Transition Tool](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html)
 
 Convert a migrated configuration from UCS Central or UCS Manager using the Cisco Intersight Managed Mode Transition Tool to work with the easy-imm repository.
 
@@ -50,14 +50,14 @@ Example:
 
 Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
 
-### Deploy: Use Cases
+### Wizard - `Deploy`: Use Cases
 
   - Create/Manage Pools
   - Create/Manage Policies
   - Create/Manage UCS Domain Profiles
   - Create/Manage Service Profiles and Templates
 
-#### Deploy: Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
+#### Wizard - `Deploy`: Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
 
 The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
 
@@ -77,12 +77,12 @@ What the library doesn't address is deleting objects.  Because the library doesn
 
 The `-l` option will load the YAML from the directory without prompting you to load/import the data.
 
-### Domain/Server: Use Cases
+### Wizard - `Domain/Server`: Use Cases
 
   - Create/Manage Domain Profiles via a wizard based setup
   - Create/Manage Server Profiles/Templates via a wizard based setup
 
-#### Domain/Server: Build/Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
+#### Wizard - `Domain/Server`: Build/Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
 
 The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
 
