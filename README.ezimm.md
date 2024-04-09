@@ -89,9 +89,11 @@ The `-l` option will load the YAML from the directory without prompting you to l
 
 ### IMPORTANT NOTES
 
-Take notice of the `ezi.yaml` extension on the files.  This is how the  YAML schema will recognize the files as part of the library.
+Take a look at the pools/policies/profiles/templates folders in the [easy-imm repository](https://github.com/terraform-cisco-modules/easy-imm).
 
-The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in the easy-imm repository.
+Take notice of the `ezi.yaml` extension on the files.  This is how the  YAML schema will recognize the files as part of the library to be read by the script.
+
+The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in the easy-imm repository.  The script is going to look for a parent folder that contains the folders pools, policies, profiles, and templates, or any combination of those together.
 
 ## YAML Schema Notes for auto-completion, Help, and Error Validation:
 
