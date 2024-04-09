@@ -69,7 +69,7 @@ The easy-imm repo includes the ability to push this data model using Terraform. 
 
 What the library doesn't address is deleting objects.  Because the library doesn't maintain a state file in the same way Terraform does, this library does not delete objects created in Intersight.  That was a decision I made as my intention is not to duplicate what Terraform does.  If full scrum management is desired, it would be recommended to use the Terraform modules in the easy-imm repository, instead of this Python library.
 
-#### Example for Deploy option:
+#### Example for `Deploy` option:
 
 ```bash
 ./ezimm.py -d {easy-imm-directory} -dt Deploy -l
@@ -88,7 +88,7 @@ The easy-imm repository provides a YAML data model to manage Intersight configur
 
 The `Domain` and `Server` options allow you to walk thru a wizard based configuration to build the YAML files through a wizard based approach.  If Python is chosen to push the configuration to Intersight, it will deploy the configuration when complete just like the `Deploy` option.
 
-#### Examples for Domain/Server options:
+#### Examples for `Domain/Server` options:
 
 ```bash
 ./ezimm.py -d {easy-imm-directory} -dt Domain
