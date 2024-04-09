@@ -44,8 +44,16 @@ Convert a migrated configuration from UCS Central or UCS Manager using the Cisco
 
 Example:
 
+#### Linux
+
 ```bash
 ./ezimm.py -d {export-destination-directory} -dt Convert -j {json_export_file_from_imm_tool.json}
+```
+
+#### Windows
+
+```powershell
+.\ezimm.py -d {export-destination-directory} -dt Convert -j {json_export_file_from_imm_tool.json}
 ```
 
 Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
