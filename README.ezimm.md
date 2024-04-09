@@ -22,19 +22,19 @@ $env:intersight_api_key_id="<your_intersight_api_key>"
 $env:intersight_secret_key="$HOME\Downloads\SecretKey.txt"
 ```
 
-Note: The above example is based on the key being in your Downloads folder.  Set according to your environment.
+Note: The above examples are based on the key being in your Downloads folder.  Set according to your environment.
 
 
 There may be additional variables to define in the environment based on the deployment type, but the API key and Secret File are the bare minimum requirements.
 
 ## Wizard Options
 
-  * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
-  * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
-  * Domain:     Deploy a domain via cloning an existing profile or creating net new.
-  * Individual: Select individual pools, policies, profiles, or templates to build.
-  * OSInstall:  Install an Operating System with either new or existing profiles.
-  * Server:     Build server profiles/templates for Intersight Managed Servers.
+  * *Convert*: Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
+  * *Deploy*: Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
+  * *Domain*: Deploy a domain via cloning an existing profile or creating net new.
+  * *Individual*: Select individual pools, policies, profiles, or templates to build.
+  * *OSInstall*: Install an Operating System with either new or existing profiles.
+  * *Server*: Build server profiles/templates for Intersight Managed Servers.
 
   The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
 
