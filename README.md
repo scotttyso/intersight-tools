@@ -19,9 +19,10 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 ## ezimm.py
 
 ### General Use Cases
-* Build Terraform IaC (Infrastructure as Code) YAML Configuration files from an export of Cisco Intersight Transition Tool JSON from UCSM/UCS Central environments.
-* Build Terraform IaC (Infrastructure as Code) YAML Configuration files using a guided Wizard
-* Deploy Cisco Intersight Policies, Pools, and Profiles/Templates using Python
+* `OS Installation`: Use existing profiles or create new profiles and install an operating system to a list of servers.
+* `Build IaC (Infrastructure as Code)` YAML Configuration files from an export of Cisco Intersight Transition Tool JSON from UCSM/UCS Central environments to be consumed with Terraform or this Python library.
+* `Build IaC` YAML Configuration files using a guided Wizard to be consumed with Terraform or this Python library.
+* `Deploy` Cisco Intersight Policies, Pools, and Profiles/Templates using Python
 
 [README - *ezimm*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezimm.md)
 
@@ -29,9 +30,9 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 
 ### General Use Cases
 * Attach New Policies to Profiles.  Supports Multi-Org structures.
-* Add VLANs to VLAN Policies and Ethernet Network Groups
-* Export an Excel Spreadsheet with Server Identities
-* Export an Excel Spreadsheet with VMware/Intersight HCL Status
+* Add VLANs to VLAN Policies and Ethernet Network Group Policies.
+* Export an Excel Spreadsheet with Server Identities.
+* Export an Excel Spreadsheet with VMware/Intersight HCL Status.
 
 [README - *ezday2tools*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezday2tools.md)
 
@@ -85,12 +86,16 @@ git config --global user.email "<email>"
 
 ### Clone this Repository
 
+#### Linux/Windows
+
 ```bash
 git clone https://github.com/scotttyso/intersight-tools
 cd intersight-tools
 ```
 
 ### Install the Requirements File
+
+#### Linux/Windows
 
 ```bash
 pip install -r requirements.txt
