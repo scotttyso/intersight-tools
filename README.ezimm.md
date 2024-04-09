@@ -212,20 +212,11 @@ options:
 
 ## Sensitive Environment Variables
 
-Note All the variables discussed below are considered sensitive.  Meaning these are variables that shouldn't be exposed due to the sensitive nature of them.
+Note All the variables shown below are considered sensitive.  Meaning these are variables that shouldn't be exposed due to the sensitive nature of them.
 
 In example, if you needed to add 100 iterations of the `certificate_management` variables you can do that, and simply reference the index in the map of the iteration that will consume that instance.
 
-### Terraform Cloud/Enterprise - Workspace Variables
-
-- Add variable `intersight_api_key_id` with the value of <your-api-key>
-- Add variable `intersight_secret_key` with the value of <your-secret-file-content>
-
-#### Add Other Variables as discussed below based on use cases
-
-## IMPORTANT:
-
-ALL EXAMPLES BELOW ASSUME USING `tfenv` in LINUX
+#### Add Other Variables as shown below based on use cases
 
 #### Linux
 
@@ -237,8 +228,8 @@ export intersight_secret_key="<secret-key-file-location>"
 #### Windows
 
 ```powershell
-$env:TF_VAR_intersight_api_key_id="<your-api-key>"
-$env:TF_VAR_intersight_secret_key="<secret-key-file-location>"
+$env:intersight_api_key_id="<your-api-key>"
+$env:intersight_secret_key="<secret-key-file-location>"
 ```
 
 ## Sensitive Variables for the Policies Module:
@@ -268,10 +259,10 @@ export cert_mgmt_private_key_1='<cert_mgmt_private_key_file_location>'
 #### Windows
 
 ```powershell
-$env:TF_VAR_cert_mgmt_certificate_1='<cert_mgmt_certificate_file_location>'
+$env:cert_mgmt_certificate_1='<cert_mgmt_certificate_file_location>'
 ```
 ```powershell
-$env:TF_VAR_cert_mgmt_private_key_1='<cert_mgmt_private_key_file_location>'
+$env:cert_mgmt_private_key_1='<cert_mgmt_private_key_file_location>'
 ```
 
 ### Drive Security - KMIP Sensitive Variables
