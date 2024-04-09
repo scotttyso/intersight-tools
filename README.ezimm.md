@@ -156,10 +156,6 @@ Note: This is dependent on what is supported by Intersight OS Install.  As new o
 
 Note: We recommend that the SCU and OS Image be hosted on the Intersight Transition Tool.  It supports the ability to auto-sync the files with Intersight in the Software Repository.  See [install instructions](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html)
 
-The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
-
-The `Domain` and `Server` options allow you to walk thru a wizard based configuration to build the YAML files through a wizard based approach.  If Python is chosen to push the configuration to Intersight, it will deploy the configuration when complete just like the `Deploy` option.
-
 #### Examples for `OSInstall`:
 
 #### Linux
