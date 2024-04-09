@@ -89,17 +89,15 @@ The `-l` option will load the YAML from the directory without prompting you to l
 
 ### IMPORTANT NOTES
 
-Take notice of the `ezi.yaml` extension on the files.  This is how the  `data.utils_yaml_merge.model` is configured to recognize the files that should be imported with the module.
+Take notice of the `ezi.yaml` extension on the files.  This is how the  YAML schema will recognize the files as part of the library.
 
-The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in this module.  The important part is that the `data.utils_yaml_merge.model` is configured to read the folders that you put the Data into.
-
-When defining Identity reservations under a server profile.  See example in `profiles` folder.  Note the flag in the example with `ignore_reservations`.  Reservation records are ephimeral.  Meaning that as soon as the reservation is assigned to a server profile, the identity reservation record is removed from the API.  Thus, after you run the first plan and the identities are created, this flag should be configured to `true` or you need to remove the reservations from the servers.  Either way the reservations will only work on the first apply.  Subsequent applies with the reservations defined will cause the plan/apply to fail due to the identity being consumed.
+The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in the easy-imm repository.
 
 ## YAML Schema Notes for auto-completion, Help, and Error Validation:
 
 If you would like to utilize Autocompletion, Help Context, and Error Validation, `(HIGHLY RECOMMENDED)` make sure the files all utilize the `.ezi.yaml` file extension.
 
-And Add the Following to YAML: Schemas in Visual Studio Code: Settings > Search for YAML: Schema: Click edit in `settings.json`.  In the `yaml.schemas` section:
+And Add the Following to `YAML: Schemas`.  In Visual Studio Code: Settings > Settings > Search for `YAML: Schema`: Click edit in `settings.json`.  In the `yaml.schemas` section:
 
 ```bash
 "https://raw.githubusercontent.com/terraform-cisco-modules/easy-imm/main/yaml_schema/easy-imm.json": "*.ezi.yaml"
