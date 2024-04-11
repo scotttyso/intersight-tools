@@ -1,0 +1,55 @@
+## EZDAY2TOOLS Synopsis
+
+The purpose of `ezday2tools.py` is to manage Server Environments in Intersight for day 2 management tasks.  It provides tools to help in obtaining reports on identities, adding new VLANs to policies for domain and server policies.
+
+### Capabilities
+
+   * `add_policies`: Add policies to profiles.  Can select policies/types accross orgs to attach to chassis, domain, and server profiles for new capabilities or to change an existing policy.
+   * `add_vlans`: Add a new VLAN to existing VLAN and Ethernet Network Group Policies.  If desired Create a new LAN Connectivity Policy.
+   * `clone_policies`: Clone policies from one Organization to another.  Currently only supports policies without child policies.
+   * `hcl_inventory`: Use UCS server inventory injested from vCenter to to check Intersight HCL inventory.
+   * `hcl_status`: Function to clone policies from one Organization to another.
+   * `server_inventory`: Function to clone policies from one Organization to another.
+
+## EZDAY2TOOLS - `hcl_inventory`: Use Cases
+
+  - Collect UCS Inventory from list of vCenters and compare HCL inventory results in Intersight.
+
+### EZDAY2TOOLS - `hcl_inventory`: Obtain vCenter Inventory with `vcenter-hcl-inventory.ps1`
+
+#### Install PowerShell
+
+  - macOS: [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-macos)
+  - Ubuntu: [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu)
+
+#### Install VMware PowerCLI
+
+```bash
+pwsh
+Install-Module -Name VMware.PowerCLI
+```
+
+#### Run the PowerShell Script (Windows)
+```powershell
+.\vcenter-hcl-inventory.ps1 -j inventory.json
+```
+
+#### Run the PowerShell Script (Linux)
+```bash
+pwsh
+./vcenter-hcl-inventory.ps1 -j inventory.json
+```
+
+See example inventory.json file in `examples/hcl_inventory`.
+
+### EZDAY2TOOLS - `hcl_inventory`: Compare Inventory to Intersight and Create Excel File.
+
+From the previous PowerShell module use the output file for input to `ezday2tools.py` in example `2024-04-10_09-49-27.json`.
+
+#### Linux
+
+```bash
+ezday2tools.py -dt hcl_inventory -j 2024-04-10_09-49-27.json
+```
+
+See example Excel output in `examples/hcl_inventory`.

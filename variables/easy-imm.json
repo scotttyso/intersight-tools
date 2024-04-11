@@ -1221,16 +1221,6 @@
                                 ],
                                 "title": "cke_low_policy"
                             },
-                            "class_id": {
-                                "type": "string",
-                                "default": "platform-default",
-                                "description": "The fully-qualified name of the instantiated, concrete type.\nThis property is used as a discriminator to identify the type of the payload\nwhen marshaling and unmarshaling data.",
-                                "intersight_api": "ClassId",
-                                "enum": [
-                                    "bios.Policy"
-                                ],
-                                "title": "class_id"
-                            },
                             "closed_loop_therm_throtl": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -1654,6 +1644,30 @@
                                     "disabled"
                                 ],
                                 "title": "enable_sgx"
+                            },
+                            "enable_tdx": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Trust Domain Extension (TDX) configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "EnableTdx",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "enable_tdx"
+                            },
+                            "enable_tdx_seamldr": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting TDX Secure Arbitration Mode (SEAM) Loader configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "EnableTdxSeamldr",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "enable_tdx_seamldr"
                             },
                             "enable_tme": {
                                 "type": "string",
@@ -3407,6 +3421,18 @@
                                     "disabled"
                                 ],
                                 "title": "sha256pcr_bank"
+                            },
+                            "sha384pcr_bank": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting SHA384 PCR Bank configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "Sha384pcrBank",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "sha384pcr_bank"
                             },
                             "single_pctl_enable": {
                                 "type": "string",
@@ -14568,7 +14594,7 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Flag to determine if these Server Profiles should be associated to the template after creating the server profile.  This is most helpful when creating server profiles with identity reservations to create them in this manner.",
-                                "intersightApi": "not_applicable",
+                                "intersight_api": "not_applicable",
                                 "title": "attach_template"
                             },
                             "bios_policy": {
@@ -14645,7 +14671,7 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Flag to determine if the script should ignore the reservations defined under each target.  The records for identity reservations are deleted from the API as soon as the identities are consumed by the Server Profile with UUID assignment and LAN/SAN Policy attachements.  After reservations have been consumed the reservations block sould be removed from each target.",
-                                "intersightApi": "ignore_reservations",
+                                "intersight_api": "ignore_reservations",
                                 "title": "ignore_reservations"
                             },
                             "imc_access_policy": {

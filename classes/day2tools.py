@@ -6,6 +6,7 @@ import sys
 try:
     from classes  import ezfunctions, isight, pcolor, questions
     from classes  import isight
+    from copy import deepcopy
     from datetime import datetime
     from dotmap   import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
@@ -391,44 +392,53 @@ class tools(object):
     # Function - HCL Inventory
     #======================================================
     def hcl_inventory(self, kwargs):
+        kwargs.org = 'default'
         pdict = DotMap()
         # Obtain Server Profile Data
-        for e in kwargs.yaml_data:
+        for e in kwargs.json_data:
             if 'Cisco' in e.Hostname.Manufacturer:
-                pdict[e.Serial] = DotMap(
-                    build      = e.Hostname.Build,
-                    cluster    = e.Cluster,
-                    domain     = 'Standalone',
-                    hostname   = e.Hostname.Name,
-                    model      = e.Hostname.Model,
-                    server_dn  = 'unknown',
-                    srv_profile= 'undefined',
-                    toolDate   = e.InstallDate,
-                    toolName   = e.Name,
-                    toolVer    = e.Version,
-                    vcenter    = e.vCenter,
-                    version    = e.Hostname.Version,
+                pdict[e.Serial]     = DotMap(
+                    domain          = 'Standalone',
+                    model           = e.Hostname.Model,
+                    serial          = e.Serial,
+                    server_dn       = 'unknown',
+                    server_profile  = 'unassigned',
+                    firmware        = 'unknown',
+                    vcenter         = e.vCenter,
+                    cluster         = e.Cluster,
+                    hostname        = e.Hostname.Name,
+                    version         = e.Hostname.Version,
+                    build           = e.Hostname.Build,
+                    hcl_check       = 'unknown',
+                    hcl_status      = 'unknown',
+                    hcl_reason      = 'unknown',
+                    toolName        = e.Name,
+                    toolDate        = e.InstallDate,
+                    toolVer         = e.Version,
+                    moid            = 'unknown'
                 )
-
         kwargs.names  = list(pdict.keys())
         kwargs.method = 'get'
         kwargs.uri    = 'compute/PhysicalSummaries'
-        kwargs        = isight.api('serial').calls(kwargs)
+        kwargs        = isight.api('serial_number').calls(kwargs)
         registered_devices  = []
         for e in kwargs.results:
-            pdict[e.Serial].server_dn = (e.Dn).replace('sys/', '')
+            pdict[e.Serial].firmware = e.Firmware
+            if 'sys/' in e.Dn: pdict[e.Serial].server_dn = (e.Dn).replace('sys/', '')
+            elif e.ServerId == 0: pdict[e.Serial].server_dn = f'chassis-{e.ChassisId}-slot-{e.SlotId}'
+            else: pdict[e.Serial].server_dn = f'rack-unit-{e.ServerId}'
             pdict[e.Serial].moid = e.Moid
-            if e.get('ServiceProfile'): pdict[e.Serial].srv_profile = e.ServiceProfile
+            if e.get('ServiceProfile'): pdict[e.Serial].server_profile = e.ServiceProfile
             if not e.ManagementMode == 'IntersightStandalone':
                 pdict[e.Serial].registered_moid = e.RegisteredDevice.Moid
                 registered_devices.append(e.RegisteredDevice.Moid)
         if len(registered_devices) > 0:
-            domain_map = DotMap()
-            parents    = []
+            domain_map    = DotMap()
+            parents       = []
             kwargs.method = 'get'
-            kwargs.names  = list(set(registered_devices))
-            kwargs.uri   = 'asset/DeviceRegistrations'
-            kwargs       = isight.api('registered_device').calls(kwargs)
+            kwargs.names  = list(numpy.unique(numpy.array(registered_devices)))
+            kwargs.uri    = 'asset/DeviceRegistrations'
+            kwargs        = isight.api('registered_device').calls(kwargs)
             for e in kwargs.results:
                 if e.get('ParentConnection'):
                     domain_map[e.Moid].hostname = None
@@ -438,27 +448,38 @@ class tools(object):
                     domain_map[e.Moid].hostname = e.DeviceHostname
                     domain_map[e.Moid].parent = None
             if len(parents) > 0:
-                kwargs.names = list(set(parents))
+                kwargs.names = list(numpy.unique(numpy.array(parents)))
                 kwargs.uri   = 'asset/DeviceRegistrations'
                 kwargs       = isight.api('registered_device').calls(kwargs)
                 for e in kwargs.results:
                     for k, v in domain_map.items():
                         if v.get('parent'):
-                            if v.parent == i.Moid: domain_map[k].hostname = e.DeviceHostname
+                            if v.parent == e.Moid: domain_map[k].hostname = e.DeviceHostname
             for k, v in pdict.items():
-                if v.get('registered_moid'): pdict[k].domain = domain_map[v.registered_moid].hostname
-
-        kwargs.names = [v.moid for k, v in pdict.items()]
-        kwargs.uri   = 'cond/HclStatuses'
-        kwargs       = isight.api('hcl_status').calls(kwargs)
-        for e in kwargs.results:
-            for k, v in pdict:
-                if v.moid == e.ManagedObject.Moid:
-                        pdict[k].firmware = e.HclFirmwareVersion
-                        pdict[k].status   = e.Status
+                if v.get('registered_moid'): pdict[k].domain = domain_map[v.registered_moid].hostname[0]
+        hw_moids = DotMap()
+        for k,v in pdict.items(): hw_moids[v.moid].serial = k
+        kwargs.names      = list(hw_moids.keys())
+        kwargs.uri        = 'cond/HclStatuses'
+        kwargs            = isight.api('hcl_status').calls(kwargs)
+        hcl_results       = kwargs.results
+        names             = "', '".join(kwargs.names).strip("', '")
+        kwargs.api_filter = f"AssociatedServer.Moid in ('{names}')"
+        kwargs.uri        = kwargs.ezdata.server.intersight_uri
+        kwargs            = isight.api('hcl_status').calls(kwargs)
+        profile_results   = kwargs.results
+        for k,v in pdict.items():
+            indx = next((index for (index, d) in enumerate(hcl_results) if d['ManagedObject']['Moid'] == v.moid), None)
+            if not indx == None:
+                pdict[k].hcl_check  = hcl_results[indx].SoftwareStatus
+                pdict[k].hcl_status = hcl_results[indx].Status
+                pdict[k].hcl_reason = hcl_results[indx].ServerReason
+            indx = next((index for (index, d) in enumerate(profile_results) if d['AssociatedServer']['Moid'] == v.moid), None)
+            if not indx == None: pdict[k].server_profile = profile_results[indx].Name
 
         if len(pdict) > 0:
-            kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
+            #kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
+            kwargs.timezone = 'America/New_York'
             kwargs = tools(self.type).setup_local_time(kwargs)
             # Build Named Style Sheets for Workbook
             kwargs = tools(self.type).workbook_styles(kwargs)
@@ -467,9 +488,12 @@ class tools(object):
             ws = wb.active
             ws.title = 'Inventory List'
             # Read Server Inventory to Create Column Headers
+                #hcl_check       = 'unknown',
+                #hcl_status      = 'unknown',
+                #hcl_reason      = 'unknown',
             column_headers = [
-                'Domain','Model','Serial','Server','Profile','Firmware','vCenter','Cluster','Hostname',
-                'ESX Version','ESX Build','HCL Component Status', 'UCS Tools Install Date', 'UCS Tools Version']
+                'Domain','Model','Serial','Server','Profile','Firmware','vCenter','Cluster','Hostname', 'ESX Version', 'ESX Build',
+                'HCL Component Status', 'HCL Status', 'HCL Reason', 'UCS Tools Name', 'UCS Tools Install Date', 'UCS Tools Version']
             for i in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = 30
             cLength = len(column_headers)
             ws_header = f'Collected UCS Data on {kwargs.time_long}'
@@ -484,7 +508,10 @@ class tools(object):
             # Populate the Columns with Server Inventory
             for key, value in pdict.items():
                 # Add the Columns to the Spreadsheet
-                for k, v in value.items(): ws.append(v)
+                data = []
+                for k,v in value.items():
+                    if not re.search('moid|registered_moid', k): data.append(v)
+                ws.append(data)
                 for cell in ws[ws_row_count:ws_row_count]:
                     if ws_row_count % 2 == 0: cell.style = 'odd'
                     else: cell.style = 'even'

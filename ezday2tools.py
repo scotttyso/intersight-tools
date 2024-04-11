@@ -2,26 +2,28 @@
 """Day 2 Tools - 
 This Script is built to Perform Day 2 Configuration Tasks.
 The Script uses argparse to take in the following CLI arguments:
-    -a   or --intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
-    -d   or --dir:                   Base Directory to use for creation of the YAML Configuration Files.
-    -dl  or --debug-level:           The Debug Level to Run for Script Output
-                                       1. Shows the api request response status code
-                                       5. Shows URL String + Lower Options
-                                       6. Adds Results + Lower Options
-                                       7. Adds json payload + Lower Options
-                                     Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy
-    -f  or --intersight-fqdn:        The Intersight hostname for the API endpoint. The default is intersight.com.
-    -fi or --full-inventory:         Used in conjunction with srv-inventory to pull more indepth inventory.
-    -i  or --ignore-tls:             Ignore TLS server-side certificate verification.  Default is False.
-    -k  or --intersight-secret-key:  Name of the file containing The Intersight secret key for the HTTP signature scheme.
-    -p or --process:                 Which Process to run with the Script.  Options are:  
-                                       1. add_policies
-                                       2. add_vlan
-                                       3. srv_inventory
-                                       4. hcl_inventory
-    -v or --api-key-v3:              Flag for API Key Version 3.
-    -wb or --workbook:               The Source Workbook for hcl_inventory
-    -y or --yaml-file:               The input YAML File.
+    -a  or --intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
+    -d  or --dir:                   Base Directory to use for creation of the YAML Configuration Files.
+    -dl or --debug-level:           The Debug Level to Run for Script Output
+                                      1. Shows the api request response status code
+                                      5. Shows URL String + Lower Options
+                                      6. Adds Results + Lower Options
+                                      7. Adds json payload + Lower Options
+                                    Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy
+    -f  or --intersight-fqdn:       The Intersight hostname for the API endpoint. The default is intersight.com.
+    -fi or --full-inventory:        Used in conjunction with srv-inventory to pull more indepth inventory.
+    -i  or --ignore-tls:            Ignore TLS server-side certificate verification.  Default is False.
+    -k  or --intersight-secret-key: Name of the file containing The Intersight secret key for the HTTP signature scheme.
+    -p  or --process:               Which Process to run with the Script.  Options are:  
+                                      1. add_policies
+                                      2. add_vlans
+                                      3. clone_policies
+                                      4. hcl_inventory
+                                      5. hcl_status
+                                      6. server_inventory
+    -v or --api-key-v3:             Flag for API Key Version 3.
+    -wb or --workbook:              The Source Workbook for hcl_inventory
+    -y or --yaml-file:              The input YAML File.
 """
 #=============================================================================
 # Source Modules
@@ -72,6 +74,9 @@ def cli_arguments():
         '-i', '--ignore-tls', action = 'store_false',
         help = 'Ignore TLS server-side certificate verification.  Default is False.')
     Parser.add_argument(
+        '-j', '--json-file', default = None,
+        help = 'Input JSON File for HCL Inventory.')
+    Parser.add_argument(
         '-k', '--intersight-secret-key', default = os.getenv('intersight_secret_key'),
         help = 'Name of the file containing The Intersight secret key or contents of the secret key in environment.')
     Parser.add_argument(
@@ -80,9 +85,9 @@ def cli_arguments():
             '1. add_policies '\
             '2. add_vlan '\
             '3. clone_policies '\
-            '4. server_inventory '\
-            '5. hcl_inventory '\
-            '6. hcl_status.')
+            '4. hcl_inventory '\
+            '5. hcl_status '\
+            '6. server_inventory.')
     Parser.add_argument(
         '-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.')
     Parser.add_argument(
@@ -163,31 +168,31 @@ def main():
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightGray(f'  Begin Function: {kwargs.args.process}.')
     pcolor.LightGray(f'\n{"-"*108}\n')
-    if not kwargs.args.yaml_file == None:
-        if not os.path.isfile(kwargs.args.yaml_file):
+    if not kwargs.args.json_file == None:
+        if not os.path.isfile(kwargs.args.json_file):
             pcolor.Red(f'\n{"-"*108}\n')
-            pcolor.Red(f'  !!!ERROR!!!\n  Did not find the file {kwargs.args.yaml_file}.')
+            pcolor.Red(f'  !!!ERROR!!!\n  Did not find the file {kwargs.args.json_file}.')
             pcolor.Red(f'  Please Validate that you have specified the correct file and path.')
             pcolor.Red(f'\n{"-"*108}\n')
             len(False); sys.exit(1)
         else:
-            def try_utf8(yaml_file):
+            def try_utf8(json_file):
                 try:
-                    f = codecs.open(yaml_file, encoding='utf-8', errors='strict')
-                    for line in f: pass
+                    f = codecs.open(json_file, encoding='utf-8', errors='strict')
+                    for line in f: line = line
                     pcolor.Green("Valid utf-8"); return 'Good'
                 except UnicodeDecodeError:
                     pcolor.Green("invalid utf-8"); return None
             if 'hcl_inventory' in kwargs.args.process:
-                if try_utf8(kwargs.args.yaml_file) is None:
-                    yaml_file   = open(kwargs.args.yaml_file, 'r', encoding='utf-16')
-                else: yaml_file = open(kwargs.args.yaml_file, 'r')
-            else: yaml_file = open(kwargs.args.yaml_file, 'r')
-            kwargs.json_data = DotMap(yaml.safe_load(yaml_file))
+                if try_utf8(kwargs.args.json_file) is None:
+                    json_file   = open(kwargs.args.json_file, 'r', encoding='utf-16')
+                else: json_file = open(kwargs.args.json_file, 'r')
+            else: json_file = open(kwargs.args.json_file, 'r')
+            kwargs.json_data = json.load(json_file)
         if kwargs.args.process == 'hcl_inventory':
             json_data = []
             for e in kwargs.json_data:
-                if 'Cisco' in e.Hostname.Manufacturer: json_data.append(e)
+                if 'Cisco' in e['Hostname']['Manufacturer']: json_data.append(DotMap(e))
             kwargs.json_data = json_data
     process = kwargs.args.process
     eval(f'day2tools.tools(process).{process}(kwargs)')

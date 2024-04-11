@@ -158,6 +158,7 @@ class api(object):
                 elif i.get('IqnAddress'): iname = i.IqnAddress
                 elif i.get('Uuid'): iname = i.Uuid
                 elif i.get('PciSlot'): iname = str(i.PciSlot)
+                else: iname = i.Moid
                 if i.get('PcId') or i.get('PortId') or i.get('PortIdStart'):
                     api_dict[i.PortPolicy.Moid][iname].moid = i.Moid
                 else: api_dict[iname].moid = i.Moid

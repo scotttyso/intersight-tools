@@ -1,0 +1,6 @@
+{
+    "vcenters": {
+        "1": {"name": "vcenter.rich.ciscolabs.com"},
+        "2": {"name": "asgard-vcenter.rich.ciscolabs.com"}
+    }
+}
