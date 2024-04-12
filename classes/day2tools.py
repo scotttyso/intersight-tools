@@ -317,8 +317,6 @@ class tools(object):
         #======================================================
         # Determine Policies to Clone
         #======================================================
-        pcolor.Cyan(f'\n{"-"*108}\n\n  Beginning Policy Clone Process...')
-        pcolor.Cyan(f'\n{"-"*108}\n')
         kwargs = questions.target_platform(kwargs)
         kwargs = questions.build_policy_list(kwargs)
         kwargs.jdata = DotMap(
