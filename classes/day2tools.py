@@ -6,6 +6,7 @@ import sys
 try:
     from classes  import ezfunctions, isight, pcolor, questions
     from classes  import isight
+    from copy import deepcopy
     from datetime import datetime
     from dotmap   import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
@@ -317,23 +318,39 @@ class tools(object):
         #======================================================
         # Determine Policies to Clone
         #======================================================
-        kwargs = questions.target_platform(kwargs)
+        kwargs = questions.profile_type(kwargs)
         kwargs = questions.build_policy_list(kwargs)
+        for e in ['imc_access', 'iscsi_boot', 'firmware_authenticate', 'lan_connectivity', 'ldap', 'local_user', 'port', 'san_connectivity', 'storage', 'vlan', 'vsan']:
+            if e in kwargs.policy_list: kwargs.policy_list.remove(e)
         kwargs.jdata = DotMap(
             default      = '',
             description  = f'Select the policy types you would like to clone in the environment:',
             enum         = kwargs.policy_list,
             multi_select = True,
+            optional     = True,
             title        = 'Policies',
             type         = 'string')
         policy_types = ezfunctions.variable_prompt(kwargs)
+        pool_types = []
+        if kwargs.target_platform == 'FIAttached':
+            kwargs.jdata = DotMap(
+                default      = '',
+                description  = f'Select the pool types you would like to clone in the environment:',
+                enum         = kwargs.pool_list,
+                multi_select = True,
+                optional     = True,
+                title        = 'Pools',
+                type         = 'string')
+            pool_types = ezfunctions.variable_prompt(kwargs)
         #======================================================
         # Prompt User for Source and Destination Organization
         #======================================================
+        pool_types.extend(policy_types)
+        clone_types = pool_types
         orgs = list(kwargs.org_moids.keys())
         kwargs.jdata = DotMap(
             default     = orgs[0],
-            description = 'Select the Source Organization to clone the policies from.',
+            description = 'Select the Source Organization to clone the pools/policies from.',
             enum        = orgs, title = 'Organization', type = 'string')
         source_org               = ezfunctions.variable_prompt(kwargs)
         kwargs.jdata.description = 'Select the Destination Organization to clone the policies to.'
@@ -342,7 +359,7 @@ class tools(object):
         # Prompt User for Policies to Clone
         #======================================================
         kwargs.org = source_org
-        for e in policy_types:
+        for e in clone_types:
             kwargs.api_filter = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
             kwargs.method     = 'get'
             kwargs.uri        = kwargs.ezdata[e].intersight_uri
@@ -351,10 +368,13 @@ class tools(object):
             for d in kwargs[f'{e}_results']: kwargs[e][d.Name] = d
             policies = sorted([d.Name for d in kwargs[f'{e}_results']])
             kwargs.jdata  = DotMap(
-            default       = '',
-            description   = f'Select the `{e}` policies to clone from source org: `{source_org}` to destination org: `{destination_org}`.',
-            multi_select  = True,
-            enum          = policies, title = f'{e} Policies', type = 'string')
+                default       = '',
+                description   = f'Select the `{e}` policies to clone from source org: `{source_org}` to destination org: `{destination_org}`.',
+                multi_select  = True,
+                enum          = policies, title = f'{e} Policies', type = 'string')
+            if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', e):
+                kwargs.jdata.description.replace('policies', 'pools')
+                kwargs.jdata.title.replace('Policies', 'Pools')
             clone_poicies = ezfunctions.variable_prompt(kwargs)
             key_list = ['Description', 'Name', 'Tags']
             for k,v in kwargs.ezdata[e].allOf[1].properties.items():

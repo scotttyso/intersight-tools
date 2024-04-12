@@ -186,7 +186,7 @@ class intersight(object):
                                 if re.search('boolean|integer|string', b.type) and a != 'size':
                                     edict[a] = questions.prompt_user_item(a, b, kwargs)
                             accept = questions.prompt_user_to_accept(k, edict, kwargs)
-                            additional = questions.promp_user_to_add(k, kwargs)
+                            additional = questions.prompt_user_to_add(k, kwargs)
                             if accept == True: idict[k].append(edict)
                             if additional == False: config_inner = False
                             kwargs.inner_count += 1
@@ -201,7 +201,7 @@ class intersight(object):
                             accept = questions.prompt_user_to_accept(k, edict, kwargs)
                             if accept == True: idict[k] = edict; config = False
                 accept = questions.prompt_user_to_accept(self.type, idict, kwargs)
-                additional = questions.promp_user_to_add(self.type, kwargs)
+                additional = questions.prompt_user_to_add(self.type, kwargs)
                 if accept == True: ilist.append(idict)
                 if additional == False: config_object = False
                 kwargs.loop_count += 1

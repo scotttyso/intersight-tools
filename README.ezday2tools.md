@@ -42,11 +42,25 @@ python ezday2tools.py -p add_vlans -y add_vlans.yaml
 
   * supports cloning one or more policy types from source to destination organization.
   * supports cloning one or more policies of each policy type.
+  * policies with child policies are not supported currently.  If desired please open a Issue.  It just needs some additional development and I didn't have the need.
+
+Not supported:
+  * IMC Access
+  * iSCSI Boot
+  * LAN Connectivity
+  * LDAP
+  * Local User
+  * Port
+  * Profiles (chassis/domain/server)
+  * SAN Connectivity
+  * Storage
+  * VLAN
+  * VSAN
 
 #### Linux
 
 ```bash
-tyscott@TYSCOTT-DESKTOP:~$ ezday2tools.py -p clone_policies
+ezday2tools.py -p clone_policies
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -54,17 +68,22 @@ tyscott@TYSCOTT-DESKTOP:~$ ezday2tools.py -p clone_policies
 
 ------------------------------------------------------------------------------------------------------------
 
+
 ------------------------------------------------------------------------------------------------------------
 
  Select the Server Profile Target Platform.  Options are:
-  * FIAttached: Build Pools/Policies/Profiles for a Domain.
-  * Standalone: Build Pools/Policies/Profiles for Standalone Servers.
+   * chassis: Clone `chassis` Policies.
+   * domain: Clone `domain` Policies.
+   * FIAttached: Clone Domain Attached Server Pools/Policies.
+   * Standalone: Clone Standalone Server Pools/Policies.
  
     Select an Option Below:
-      1. FIAttached
-      2. Standalone
+      1. chassis
+      2. domain
+      3. FIAttached
+      4. Standalone
 
-Please Enter the Option Number to select for Target Platform.  [1]: 
+Please Enter the Option Number to select for Target Platform.  [3]: 
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -87,30 +106,41 @@ Please Enter the Option Number to select for Target Platform.  [1]:
      11. fibre_channel_network
      12. fibre_channel_qos
      13. firmware
-     14. firmware_authenticate
-     15. imc_access
-     16. ipmi_over_lan
-     17. iscsi_adapter
-     18. iscsi_boot
-     19. iscsi_static_target
-     20. lan_connectivity
-     21. local_user
-     22. power
-     23. san_connectivity
-     24. sd_card
-     25. serial_over_lan
-     26. snmp
-     27. storage
-     28. syslog
-     29. thermal
-     30. virtual_kvm
-     31. virtual_media
+     14. ipmi_over_lan
+     15. iscsi_adapter
+     16. iscsi_static_target
+     17. power
+     18. sd_card
+     19. serial_over_lan
+     20. snmp
+     21. syslog
+     22. thermal
+     23. virtual_kvm
+     24. virtual_media
 
-Please Enter the Option Number(s) to select for Policies: 1
+Please Enter the Option Number(s) to select for Policies.  [press enter to skip]: 1
 
 ------------------------------------------------------------------------------------------------------------
 
- Select the Source Organization to clone the policies from.
+ Select the pool types you would like to clone in the environment:
+ 
+     Note: Answer can be:
+       * Single: 1
+       * Multiple: `1,2,3` or `1-3,5-6`
+     Select Option(s) Below:
+      1. ip
+      2. iqn
+      3. mac
+      4. resource
+      5. uuid
+      6. wwnn
+      7. wwpn
+
+Please Enter the Option Number(s) to select for Pools.  [press enter to skip]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Source Organization to clone the pools/policies from.
  
     Select an Option Below:
       1. Asgard
@@ -132,7 +162,7 @@ Please Enter the Option Number to select for Organization.  [3]: 2
       4. RICH
       5. Wakanda
 
-Please Enter the Option Number to select for Organization.  [3]: 3
+Please Enter the Option Number to select for Organization.  [3]: 
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -146,16 +176,14 @@ Please Enter the Option Number to select for Organization.  [3]: 3
       2. M5-intel-virtual-tpm
       3. M6-intel-virtual-tpm
 
-Please Enter the Option Number(s) to select for bios Policies: 1
-     - Completed POST for Org: common Name: M5-intel-virtual - Moid: 66196a876275723101f316ae
+Please Enter the Option Number(s) to select for bios Policies: 3
+     - Completed POST for Org: common Name: M6-intel-virtual-tpm - Moid: 661980966275723101045b92
 
 ------------------------------------------------------------------------------------------------------------
 
    End Function: clone_policies.
 
 ------------------------------------------------------------------------------------------------------------
-
-tyscott@TYSCOTT-DESKTOP:~$ 
 ```
 
 ## EZDAY2TOOLS - `hcl_inventory`: Use Cases

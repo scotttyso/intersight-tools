@@ -29,6 +29,10 @@ def build_policy_list(kwargs):
         elif v.intersight_type == 'policy':
             if kwargs.target_platform == 'FIAttached':
                 if not '.' in k and ('chassis' in v.target_platforms or 'FIAttached' in v.target_platforms):  kwargs.policy_list.append(k)
+            elif kwargs.target_platform == 'chassis':
+                if not '.' in k and 'chassis' in v.target_platforms:  kwargs.policy_list.append(k)
+            elif kwargs.target_platform == 'domain':
+                if not '.' in k and 'domain' in v.target_platforms:  kwargs.policy_list.append(k)
             else:
                 if 'Standalone' in v.target_platforms and not '.' in k: kwargs.policy_list.append(k)
     return kwargs
@@ -248,27 +252,6 @@ def organization_shared(kwargs):
     return kwargs
 
 #=================================================================
-# Function: Prompt User to Load Previous Configurations
-#=================================================================
-def previous_configuration(kwargs):
-    dir_check = False; load_config = False
-    if os.path.exists(kwargs.args.dir):
-        for e in os.listdir(kwargs.args.dir):
-            if re.search('^policies|pools|profiles|templates|wizard$', e): dir_check = True
-        if dir_check == True and kwargs.args.load_config == False:
-            kwargs.jdata = DotMap(
-                default     = True,
-                description = f'Import Configuration found in `{kwargs.args.dir}`',
-                title       = 'Load Existing Configuration(s)',
-                type        = 'boolean')
-            load_config = ezfunctions.variable_prompt(kwargs)
-            kwargs.args.load_config = True
-        elif kwargs.args.load_config == True: load_config = True
-        if load_config == True and kwargs.args.load_config == True:
-            kwargs = DotMap(ezfunctions.load_previous_configurations(kwargs))
-    return kwargs
-
-#=================================================================
 # Function: Prompt User for Fibre-Channel Port Mode
 #=================================================================
 def port_mode_fc(kwargs):
@@ -300,6 +283,35 @@ def port_mode_fc(kwargs):
         else: port_modes = {'custom_mode':'FibreChannel','port_list':kwargs.fc_ports,}
     kwargs.port_modes.append(port_modes)
     # Return kwargs
+    return kwargs
+
+#=================================================================
+# Function: Prompt User for Target Platform
+#=================================================================
+def profile_type(kwargs):
+    kwargs.jdata           = kwargs.ezwizard.setup.properties.profile_type
+    kwargs.target_platform = ezfunctions.variable_prompt(kwargs)
+    return kwargs
+
+#=================================================================
+# Function: Prompt User to Load Previous Configurations
+#=================================================================
+def previous_configuration(kwargs):
+    dir_check = False; load_config = False
+    if os.path.exists(kwargs.args.dir):
+        for e in os.listdir(kwargs.args.dir):
+            if re.search('^policies|pools|profiles|templates|wizard$', e): dir_check = True
+        if dir_check == True and kwargs.args.load_config == False:
+            kwargs.jdata = DotMap(
+                default     = True,
+                description = f'Import Configuration found in `{kwargs.args.dir}`',
+                title       = 'Load Existing Configuration(s)',
+                type        = 'boolean')
+            load_config = ezfunctions.variable_prompt(kwargs)
+            kwargs.args.load_config = True
+        elif kwargs.args.load_config == True: load_config = True
+        if load_config == True and kwargs.args.load_config == True:
+            kwargs = DotMap(ezfunctions.load_previous_configurations(kwargs))
     return kwargs
 
 #=================================================================
@@ -359,7 +371,7 @@ def prompt_user_to_accept(item, idict, kwargs):
 #=================================================================
 # Function: Prompt User to Configure
 #=================================================================
-def promp_user_to_add(item, kwargs):
+def prompt_user_to_add(item, kwargs):
     kwargs.jdata = DotMap(
         default      = False,
         description  = f'Do You want to configure additional {item}?',

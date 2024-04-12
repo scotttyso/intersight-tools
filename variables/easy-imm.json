@@ -19155,6 +19155,18 @@
                         "sort": false,
                         "title": "REPLACE Version"
                     },
+                    "profile_type": {
+                        "type": "string",
+                        "default": "FIAttached",
+                        "description": "Select the Server Profile Target Platform.  Options are:\n  * chassis: Clone `chassis` Policies.\n  * domain: Clone `domain` Policies.\n  * FIAttached: Clone Domain Attached Server Pools/Policies.\n  * Standalone: Clone Standalone Server Pools/Policies.",
+                        "enum": [
+                            "chassis",
+                            "domain",
+                            "FIAttached",
+                            "Standalone"
+                        ],
+                        "title": "Target Platform"
+                    },
                     "profile_option": {
                         "type": "string",
                         "default": "existing",
@@ -19207,7 +19219,7 @@
                     "target_platform": {
                         "type": "string",
                         "default": "FIAttached",
-                        "description": "Select the Server Profile Target Platform.  Options are:\n * FIAttached: Build Pools/Policies/Profiles for a Domain.\n * Standalone: Build Pools/Policies/Profiles for Standalone Servers.",
+                        "description": "Select the Server Profile Target Platform.  Options are:\n * FIAttached: Build Pools/Policies/Profiles for a Domain Attached Servers.\n * Standalone: Build Pools/Policies/Profiles for Standalone Servers.",
                         "enum": [
                             "FIAttached",
                             "Standalone"

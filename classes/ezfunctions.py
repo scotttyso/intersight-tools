@@ -1567,6 +1567,7 @@ def variable_from_list(kwargs):
     #==============================================
     default     = kwargs.jdata.default
     description = kwargs.jdata.description
+    optional    = False
     title       = kwargs.jdata.title
     if not kwargs.jdata.get('multi_select'): kwargs.jdata.multi_select = False
     #==============================================
@@ -1591,14 +1592,22 @@ def variable_from_list(kwargs):
             if index < 10: pcolor.Cyan(f'     {index}. {value}')
             else: pcolor.Cyan(f'    {index}. {value}')
         if kwargs.jdata.get('multi_select') == True:
-            if not default == '':
+            if kwargs.jdata.get('optional') == True:
+                optional = True
+                var_selection   = input(f'\nPlease Enter the Option Number(s) to select for {title}.  [press enter to skip]: ')
+            elif not default == '':
                 var_selection   = input(f'\nPlease Enter the Option Number(s) to select for {title}.  [{default_index}]: ')
             else: var_selection = input(f'\nPlease Enter the Option Number(s) to select for {title}: ')
         else:
-            if not default == '':
+            if kwargs.jdata.get('optional') == True:
+                optional = True
+                var_selection   = input(f'\nPlease Enter the Option Number to select for {title}.  [press enter to skip]: ')
+            elif not default == '':
                 var_selection   = input(f'\nPlease Enter the Option Number to select for {title}.  [{default_index}]: ')
             else: var_selection = input(f'\nPlease Enter the Option Number to select for {title}: ')
-        if not default == '' and var_selection == '':
+        if   kwargs.jdata.get('optional') == True and var_selection == '' and kwargs.jdata.multi_select == False: return '', True
+        elif kwargs.jdata.get('optional') == True and var_selection == '' and kwargs.jdata.multi_select == True:  return [], True
+        elif not default == '' and var_selection == '':
             var_selection = default_index
         if kwargs.jdata.multi_select == False and re.search(r'^[0-9]+$', str(var_selection)):
             for index, value in enumerate(vars):
