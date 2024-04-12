@@ -40,16 +40,44 @@ pwsh
 ./vcenter-hcl-inventory.ps1 -j inventory.json
 ```
 
-See example inventory.json file in `examples/hcl_inventory`.
+See example `inventory.json` file in `examples/day2tools/hcl_inventory`.
 
-### EZDAY2TOOLS - `hcl_inventory`: Compare Inventory to Intersight and Create Excel File.
+### EZDAY2TOOLS - `hcl_inventory`: Compare Inventory to Intersight and Create Spreadsheet.
 
 From the previous PowerShell module use the output file for input to `ezday2tools.py` in example `2024-04-10_09-49-27.json`.
 
 #### Linux
 
 ```bash
-ezday2tools.py -dt hcl_inventory -j 2024-04-10_09-49-27.json
+ezday2tools.py -p hcl_inventory -j 2024-04-10_09-49-27.json
 ```
 
-See example Excel output in `examples/hcl_inventory`.
+#### Windows
+
+```powershell
+python ezday2tools.py -p hcl_inventory -j 2024-04-10_09-49-27.json
+```
+
+See example Excel output in `examples/day2tools/hcl_inventory`.
+
+## EZDAY2TOOLS - `server_inventory`: Use Cases
+
+  - Collect UCS Inventory and export to Spreadsheet.
+
+### EZDAY2TOOLS - `server_inventory`: Get Inventory from Intersight and Create Spreadsheet.
+
+#### Linux
+
+```bash
+ezday2tools.py -p server_inventory -fi
+```
+
+#### Windows
+
+```powershell
+python ezday2tools.py -p server_inventory -fi
+```
+
+Note: `-fi` pulls adds more details, without primarily focused on WWNN/WWPN for server profiles.
+
+See example Excel output in `examples/day2tools/server_inventory`.

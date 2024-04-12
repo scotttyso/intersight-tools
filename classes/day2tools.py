@@ -368,9 +368,7 @@ class tools(object):
                 elif re.search('boolean|integer|string', v.type):
                     if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
                     else: key_list.append(v.intersight_api)
-                else:
-                    print(json.dumps(v, indent=4))
-                    exit()
+                else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
             kwargs.bulk_list = []
             key_list = list(numpy.unique(numpy.array(key_list)))
             for d in clone_poicies:
@@ -478,8 +476,7 @@ class tools(object):
             if not indx == None: pdict[k].server_profile = profile_results[indx].Name
 
         if len(pdict) > 0:
-            #kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
-            kwargs.timezone = 'America/New_York'
+            kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
             kwargs = tools(self.type).setup_local_time(kwargs)
             # Build Named Style Sheets for Workbook
             kwargs = tools(self.type).workbook_styles(kwargs)
@@ -487,10 +484,6 @@ class tools(object):
             wb = kwargs.wb
             ws = wb.active
             ws.title = 'Inventory List'
-            # Read Server Inventory to Create Column Headers
-                #hcl_check       = 'unknown',
-                #hcl_status      = 'unknown',
-                #hcl_reason      = 'unknown',
             column_headers = [
                 'Domain','Model','Serial','Server','Profile','Firmware','vCenter','Cluster','Hostname', 'ESX Version', 'ESX Build',
                 'HCL Component Status', 'HCL Status', 'HCL Reason', 'UCS Tools Name', 'UCS Tools Install Date', 'UCS Tools Version']
@@ -545,126 +538,139 @@ class tools(object):
     # Function - Server Inventory
     #======================================================
     def server_inventory(self, kwargs):
-        for k, v in kwargs.org_moids.items(): kwargs.org = k
-        domains = DotMap()
-        servers = DotMap()
-        platform_types    = "('IMCBlade', 'IMCM4', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9', 'UCSFI', 'UCSFIISM')"
-        kwargs.api_filter = f"PlatformType in {platform_types}"
+        #======================================================
+        # Get Device Registrations and build domains/servers
+        #======================================================
+        kwargs.org = 'default'
+        kwargs.api_filter = f"PlatformType in ('IMCBlade', 'IMCM4', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9', 'UCSFI', 'UCSFIISM')"
         kwargs.method     = 'get'
-        kwargs.top1000    = True
         kwargs.uri        = 'asset/DeviceRegistrations'
         kwargs            = isight.api('device_registration').calls(kwargs)
         for e in kwargs.results:
             if re.search('UCSFI(ISM)?', e.PlatformType):
-                domains[e.Moid] = DotMap(name = e.DeviceHostname[0], serials = e.Serial, servers = DotMap(), type = e.PlatformType)
-        for e in kwargs.results:
-            if re.search('IMC', e.PlatformType):
-                parent = ''
+                kwargs.domains[e.Moid] = DotMap(name = e.DeviceHostname[0], serials = e.Serial, servers = DotMap(), type = e.PlatformType)
+            elif re.search('IMC', e.PlatformType):
+                parent = 'none'
                 if e.get('ParentConnection'): parent = e.ParentConnection.Moid
-                servers[e.Serial[0]] = dict(server_name = e.DeviceHostname[0], parent = parent, registration = e.Moid)
-        kwargs.top1000 = True
-        kwargs.uri     = 'compute/PhysicalSummaries'
-        kwargs         = isight.api('physical_summaries').calls(kwargs)
+                kwargs.servers[e.Serial[0]] = DotMap(dict(parent = parent, server_name = e.DeviceHostname[0]))
+        #======================================================
+        # Get Physical Summaries and extend servers dict
+        #======================================================
+        kwargs.api_filter = 'ignore'
+        kwargs.uri        = 'compute/PhysicalSummaries'
+        kwargs            = isight.api('physical_summaries').calls(kwargs)
         for e in kwargs.results:
-            dict(servers[e.Serial], **dict(
+            kwargs.servers[e.Serial] = DotMap(dict(kwargs.servers[e.Serial].toDict(), **dict(
                 chassis_id      = e.ChassisId,
+                domain          = 'Standalone',
                 hw_moid         = e.Moid,
                 mgmt_ip_address = e.MgmtIpAddress,
                 mgmt_mode       = e.ManagementMode,
                 model           = e.Model,
+                moid            = '',
                 name            = e.Name,
                 object_type     = e.SourceObjectType,
-                organization    = DotMap(),
-                platform        = e.PlatformType,
+                organization    = 'none',
+                platform_type   = e.PlatformType,
                 power_state     = e.OperPowerState,
                 registration    = e.RegisteredDevice.Moid,
                 server_dn       = e.Dn,
                 server_id       = e.ServerId,
-                server_profile  = e.ServiceProfile,
+                server_profile  = 'unassigned',
                 slot            = e.SlotId,
-                wwnn            = 'unassigned'))
-        # Obtain Server Profile Data
-        kwargs.method  = 'get'
-        kwargs.top1000 = True
-        kwargs.uri     = 'server/Profiles'
-        kwargs         = isight.api('server').calls(kwargs)
+                wwnn            = 'unassigned')))
+            if len(e.ServiceProfile) > 0: kwargs.servers[e.Serial].server_profile = e.ServiceProfile
+        for k in list(kwargs.servers.keys()):
+            if not kwargs.servers[k].get('hw_moid'): kwargs.servers.pop(k)
+            else: kwargs.hw_moids[kwargs.servers[k].hw_moid] = k
+        #======================================================
+        # Get Intersight Server Profiles
+        #======================================================
+        kwargs.api_filter = 'ignore'
+        kwargs.uri        = 'server/Profiles'
+        kwargs            = isight.api('server').calls(kwargs)
         if kwargs.results == None: prRed('empty results.  Exiting script...')
         profile_moids = []
         for e in kwargs.results:
-            org_name = [k for k, v in kwargs.org_moids.items() if v.moid == e.Organization.Moid][0]
-            if e.get('AssociatedServer'):
-                key_id = next(list(servers.keys())[list(servers.values()).index(e.AssignedServer.Moid)], None)
-                if not key_id == None:
-                    servers[key_id] = dict(servers[key_id], **dict(
-                        server_profile = e.Name,
-                        moid           = e.Moid,
-                        organization   = dict(name = org_name, moid = kwargs.org_moids[org_name].moid)))
-                    profile_moids.append(e.Moid)
-        servers = DotMap(servers)
-        names = "', '".join(profile_moids).strip("', '")
-        kwargs.api_filter = f"PoolPurpose eq 'WWNN' and AssignedToEntity.Moid in ('{names}')"
-        kwargs.build_skip = True
-        kwargs.uri        = 'fcpool/Leases'
-        kwargs            = isight.api('wwnn_pool_leases').calls(kwargs)
-        wwnn_leases       = kwargs.results
-        kwargs.api_filter = f"Profile.Moid in ('{names}')"
-        kwargs.uri        = 'vnic/FcIfs'
-        kwargs            = isight.api('assigned_vnics').calls(kwargs)
-        vhbas             = kwargs.results
-        kwargs.api_filter = f"Profile.Moid in ('{names}')"
-        kwargs.uri        = 'vnic/EthIfs'
-        kwargs            = isight.api('assigned_vnics').calls(kwargs)
-        vnics             = kwargs.results
-        names = "', '".join([e.EthQosPolicy.Moid for e in vnics]).strip("', '")
-        kwargs.api_filter = f"Moid in ('{names}')"
-        kwargs.uri        = 'vnic/EthQosPolicies'
-        kwargs            = isight.api('qos_policies').calls(kwargs)
-        qos_results       = kwargs.results
-        qos_policies      = DotMap()
-        for e in qos_results:
-            qos_policies[e.Moid].name = e.Name
-            qos_policies[e.Moid].mtu  = e.Mtu
-        for k in list(servers.keys()):
-            servers[k].vhbas = []
-            servers[k].vnics = []
-            for e in wwnn_leases:
-                if e.AssignedToEntity.Moid == servers[k].moid: servers[k].wwnn = e.WwnId
-            for e in vhbas:
-                if e.Profile.Moid == servers[k].moid:
-                    if e.WwpnAddressType == 'STATIC':
-                        servers[k].vhbas.append({'name': e.Name, 'switch_id':e.Placement.SwitchId,'wwpn_address':e.StaticWwpnAddress})
-                    else: servers[k].vhbas.append({'name': e.Name, 'switch_id':e.Placement.SwitchId,'wwpn_address':e.Wwpn})
-            #exit()
-            for e in vnics:
-                if e.Profile.Moid == servers[k].moid:
-                    servers[k].vnics.append({'name': e.Name, 'mac_address':e.MacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu})
-        for k, v in servers.items():
-            servers[k].vnics.sort(key=lambda ele: ele.name)
-            servers[k].vhbas.sort(key=lambda ele: ele.name)
-            if v.platform == 'UCSFI': servers[k].domain = domains[v.registration].name
-            elif len(v.parent) > 0: servers[k].domain = domains[v.parent].name
-        if len(servers) > 0:
-            kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
-            servers = DotMap(dict(sorted(servers.items())))
+            if e.AssociatedServer != None:
+                serial = kwargs.hw_moids[e.AssignedServer.Moid]
+                kwargs.servers[serial].moid           = e.Moid
+                kwargs.servers[serial].organization   = dict(name = kwargs.org_names[e.Organization.Moid], moid = e.Organization.Moid)
+                kwargs.servers[serial].server_profile = e.Name
+                profile_moids.append(e.Moid)
+        if len(profile_moids) > 0:
+            #======================================================
+            # Get WWPN Leases, vHBAs, vNICs, and QoS Policies
+            #======================================================
+            kwargs.names = profile_moids
+            kwargs.uri   = 'fcpool/Leases'
+            kwargs       = isight.api('wwnn_pool_leases').calls(kwargs)
+            wwnn_leases  = kwargs.results
+            kwargs.uri   = kwargs.ezdata['san_connectivity.vhbas'].intersight_uri
+            kwargs       = isight.api('profile_moid').calls(kwargs)
+            vhbas        = kwargs.results
+            kwargs.uri   = kwargs.ezdata['lan_connectivity.vnics'].intersight_uri
+            kwargs       = isight.api('profile_moid').calls(kwargs)
+            vnics        = kwargs.results
+            kwargs.names = list(numpy.unique(numpy.array([e.EthQosPolicy.Moid for e in vnics])))
+            kwargs.uri   = kwargs.ezdata.ethernet_qos.intersight_uri
+            kwargs       = isight.api('moid_filter').calls(kwargs)
+            qos_policies = DotMap()
+            for e in kwargs.results: qos_policies[e.Moid] = DotMap(mtu = e.Mtu, name = e.Name)
+            #======================================================
+            # Add vHBAs/vNICs to servers dict
+            #======================================================
+            for k in list(kwargs.servers.keys()):
+                kwargs.servers[k].vhbas = []
+                kwargs.servers[k].vnics = []
+                indx = next((index for (index, d) in enumerate(wwnn_leases) if d.AssignedToEntity.Moid == kwargs.servers[k].moid), None)
+                if indx != None: kwargs.servers[k].wwnn = wwnn_leases[indx].WwnId
+                for e in vhbas:
+                    if e.Profile.Moid == kwargs.servers[k].moid:
+                        if e.WwpnAddressType == 'STATIC':
+                            kwargs.servers[k].vhbas.append({'name': e.Name, 'order': e.Order, 'switch_id':e.Placement.SwitchId,'wwpn_address':e.StaticWwpnAddress})
+                        else: kwargs.servers[k].vhbas.append({'name': e.Name, 'order': e.Order, 'switch_id':e.Placement.SwitchId,'wwpn_address':e.Wwpn})
+                for e in vnics:
+                    if e.Profile.Moid == kwargs.servers[k].moid:
+                        if e.MacAddressType == 'STATIC':
+                            kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.StaticMacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order})
+                        else: kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.MacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order})
+        #======================================================
+        # BUILD Workbooks
+        #======================================================
+        if len(kwargs.servers) > 0:
+            #======================================================
+            # Sort server dictionary
+            #======================================================
+            kwargs.servers = DotMap(dict(sorted(kwargs.servers.items(), key=lambda ele: ele[1].server_profile)))
+            for k, v in kwargs.servers.items():
+                kwargs.servers[k].vnics = sorted(v.vnics, key=lambda ele: ele.order)
+                kwargs.servers[k].vhbas = sorted(v.vhbas, key=lambda ele: ele.order)
+                if v.platform_type == 'UCSFI': kwargs.servers[k].domain = kwargs.domains[v.registration].name
+                elif v.mgmt_mode != 'IntersightStandalone': kwargs.servers[k].domain = kwargs.domains[v.parent].name
+            #kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
+            kwargs.timezone = 'America/New_York'
             kwargs  = tools(self.type).setup_local_time(kwargs)
-            # Build Named Style Sheets for Workbook
+            #======================================================
+            # Build Workbooks and Style Sheets
+            #======================================================
+            workbook   = f'UCS-Inventory-Collector-{kwargs.time_short}.xlsx'
+            kwargs = tools(self.type).workbook_styles(kwargs)
+            wb = kwargs.wb; ws = wb.active; ws.title = 'Inventory List'
+            #======================================================
+            # Full Inventory Workbook
+            #======================================================
             if kwargs.args.full_inventory:
-                workbook = f'UCS-Inventory-Collector-{kwargs.time_short}.xlsx'
-                kwargs = tools(self.type).workbook_styles(kwargs)
-                wb = kwargs.wb; ws = wb.active; ws.title = 'Inventory List'
-                # Read Server Inventory to Create Column Headers
-                column_headers = ['Domain','Profile','Server','Serial']
+                #==================================================
+                # Create Column Headers - Extend with server dict
+                #==================================================
+                column_headers = ['Domain','Profile','Server','Serial','WWNN']
                 vhba_list = []; vnic_list = []
-                for i in list(servers.keys()):
-                    if servers[i].get('wwnn'):
-                        if not 'WWNN' in column_headers: column_headers.append('WWNN')
-                    if servers[i].get('vhbas'):
-                        for e in servers[i].vhbas:
-                            if not e.name in vhba_list: vhba_list.append(e.name)
-                    if servers[i].get('vnics'):
-                        for e in servers[i].vnics:
-                            if not e.name in vnic_list: vnic_list.append(e.name)
-                vhba_list.sort();  vnic_list.sort()
+                for i in list(kwargs.servers.keys()):
+                    for e in kwargs.servers[i].vhbas:
+                        if not e.name in vhba_list: vhba_list.append(e.name)
+                    for e in kwargs.servers[i].vnics:
+                        if not e.name in vnic_list: vnic_list.append(e.name)
                 column_headers = column_headers + vhba_list + vnic_list
                 for i in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = 30
                 cLength = len(column_headers)
@@ -676,18 +682,17 @@ class tools(object):
                 ws.append(column_headers)
                 for cell in ws['2:2']: cell.style = 'heading_2'
                 ws_row_count = 3
-                
-                # Populate the Columns with Server Inventory
-                for k, v in servers.items():
+                #==================================================
+                # Populate the Worksheet with Server Inventory
+                #==================================================
+                for k, v in kwargs.servers.items():
                     data = []
                     for i in column_headers:
                         column_count = 0
-                        if i == 'Domain':
-                            if len(v.domain) == 0: data.append(''); column_count += 1
-                            else: data.append(v.domain); column_count += 1
-                        elif i == 'Profile':
-                            if len(v.server_profile) == 0: data.append(''); column_count += 1
-                            else: data.append(v.server_profile); column_count += 1
+                        if   i == 'Domain':  data.append(v.domain); column_count += 1
+                        elif i == 'Profile': data.append(v.server_profile); column_count += 1
+                        elif i == 'Serial':  data.append(k); column_count += 1
+                        elif i == 'WWNN':    data.append(v.wwnn); column_count += 1
                         elif i == 'Server':
                             if not 'sys' in v.server_dn:
                                 if len(v.chassis_id) > 0: server_dn = f'sys/chassis-{v.chassis_id}/blade-{v.slot}'
@@ -695,46 +700,34 @@ class tools(object):
                             else: server_dn = v.server_dn
                             if len(server_dn) == 0: data.append(''); column_count += 1
                             else: data.append(server_dn); column_count += 1
-                        elif i == 'Serial':
-                            if len(k) == 0: data.append(''); column_count += 1
-                            else: data.append(k); column_count += 1
-                        elif i == 'WWNN':
-                            if len(v.wwnn) == 0: data.append(''); column_count += 1
-                            else: data.append(v.wwnn); column_count += 1
                         else:
-                            if v.get('vhbas'):
-                                for e in v.vhbas:
-                                    if i == e.name: data.append(e.wwpn_address); column_count += 1
-                            if v.get('vnics'):
-                                for e in v.vnics:
-                                    if i == e.name: data.append(e.mac_address); column_count += 1
+                            for e in v.vhbas:
+                                if i == e.name: data.append(e.wwpn_address); column_count += 1
+                            for e in v.vnics:
+                                if i == e.name: data.append(e.mac_address); column_count += 1
                         if column_count == 0: data.append('Not Configured')
-                        
-                    # Add the Columns to the Spreadsheet
                     ws.append(data)
                     for cell in ws[ws_row_count:ws_row_count]:
                         if ws_row_count % 2 == 0: cell.style = 'odd'
                         else: cell.style = 'even'
                     ws_row_count += 1
+            #======================================================
+            # WWPN Inventory Workbook
+            #======================================================
             else:
-                workbook = f'UCS-WWPN-Collector-{kwargs.time_short}.xlsx'
-                kwargs = tools(self.type).workbook_styles(kwargs)
-                wb = kwargs.wb
-                ws = wb.active
-                ws.title = 'WWPN List'
-        
-                # Read Server Inventory to Create Column Headers
+                #==================================================
+                # Create Column Headers - Extend with server dict
+                #==================================================
                 column_headers = ['Profile','Serial']
                 vhba_list = []
-                for key, value in servers.items():
-                    if value.get('wwnn'):
+                for k,v in kwargs.servers.items():
+                    if v.wwnn != 'unassigned':
                         if not 'WWNN' in column_headers: column_headers.append('WWNN')
-                    if value.get('vhbas'):
-                        for e in value.vhbas:
+                    if v.get('vhbas'):
+                        for e in v.vhbas:
                             if not e.name in vhba_list: vhba_list.append(e.name)
-                vhba_list.sort()
                 column_headers= column_headers + vhba_list
-                for i in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = 30
+                for x in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+x+1)].width = 30
                 cLength = len(column_headers)
                 ws_header = f'Collected UCS Data on {kwargs.time_long}'
                 data = [ws_header]
@@ -744,33 +737,29 @@ class tools(object):
                 ws.append(column_headers)
                 for cell in ws['2:2']: cell.style = 'heading_2'
                 ws_row_count = 3
-                
-                # Populate the Columns with Server Inventory
-                for k, v in servers.items():
+                #==================================================
+                # Populate the Worksheet with Server Inventory
+                #==================================================
+                for k, v in kwargs.servers.items():
                     data = []
                     for i in column_headers:
                         column_count = 0
-                        if i == 'Profile':
-                            if len(v.server_profile) == 0: data.append(''); column_count += 1
-                            else: data.append(v.server_profile); column_count += 1
-                        elif i == 'Serial': data.append(k); column_count += 1
-                        elif i == 'WWNN':
-                            if len(v.wwnn) == 0: data.append(''); column_count += 1
-                            else: data.append(v.wwnn); column_count += 1
+                        if   i == 'Profile': data.append(v.server_profile); column_count += 1
+                        elif i == 'Serial':  data.append(k); column_count += 1
+                        elif i == 'WWNN':    data.append(v.wwnn); column_count += 1
                         else:
                             if v.get('vhbas'):
                                 for e in v.vhbas:
                                     if i == e.name: data.append(e.wwpn_address); column_count += 1
                         if column_count == 0: data.append('Not Configured')
-                        
-                    # Add the Columns to the Spreadsheet
                     ws.append(data)
                     for cell in ws[ws_row_count:ws_row_count]:
                         if ws_row_count % 2 == 0: cell.style = 'odd'
                         else: cell.style = 'even'
                     ws_row_count += 1
-
+            #======================================================
             # Save the Workbook
+            #======================================================
             wb.save(filename=workbook)
 
     #======================================================
