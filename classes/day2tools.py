@@ -6,7 +6,6 @@ import sys
 try:
     from classes  import ezfunctions, isight, pcolor, questions
     from classes  import isight
-    from copy import deepcopy
     from datetime import datetime
     from dotmap   import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side

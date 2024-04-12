@@ -8,8 +8,31 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
    * `add_vlans`: Add a new VLAN to existing VLAN and Ethernet Network Group Policies.  If desired Create a new LAN Connectivity Policy.
    * `clone_policies`: Clone policies from one Organization to another.  Currently only supports policies without child policies.
    * `hcl_inventory`: Use UCS server inventory injested from vCenter to to check Intersight HCL inventory.
-   * `hcl_status`: Function to clone policies from one Organization to another.
    * `server_inventory`: Function to clone policies from one Organization to another.
+
+## EZDAY2TOOLS - `add_vlans`: Use Cases
+
+  - Add VLAN to VLAN Policy and Ethernet Network Groups to Organization List.  If desired also create a new LAN Connectivity Policy for the new VLAN.
+
+### EZDAY2TOOLS - `add_vlans`: Build the YAML definition File
+
+See example `examples/day2tools/add_vlans/add_vlans.json`.
+
+  * The function will loop through all `organizations` listed for `ethernet_network_groups`, `vlan_policy`, and `lan_connectivity`.
+  * `lan_connectivity` is optional.
+  * If `lan_connectivity` is defined all attributes shown are required.  Can have one or more `vnics`.
+
+#### Linux
+
+```bash
+ezday2tools.py -p add_vlans -y add_vlans.yaml
+```
+
+#### Windows
+
+```powershell
+python ezday2tools.py -p add_vlans -y add_vlans.yaml
+```
 
 ## EZDAY2TOOLS - `hcl_inventory`: Use Cases
 

@@ -86,8 +86,7 @@ def cli_arguments():
             '2. add_vlan '\
             '3. clone_policies '\
             '4. hcl_inventory '\
-            '5. hcl_status '\
-            '6. server_inventory.')
+            '5. server_inventory.')
     Parser.add_argument(
         '-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.')
     Parser.add_argument(
@@ -149,16 +148,15 @@ def main():
     #==============================================
     # Build Deployment Library
     #==============================================
-    if not re.search('^add_polices|add_vlans|clone_policies|hcl_inventory|hcl_status|server_inventory$', kwargs.args.process):
+    if not re.search('^add_polices|add_vlans|clone_policies|hcl_inventory|server_inventory$', kwargs.args.process):
         kwargs.jdata = DotMap(
             default = 'server_inventory',
             description = f'Select the Process to run:\n  * add_policies: Function to add policies to profiles.\n'\
                   '  * add_vlans: Function to add a VLAN to existing VLAN and Ethernet Network Group Policies and Create LAN Connectivity Policy.\n'\
                   '  * clone_policies: Function to clone policies from one Organization to another.\n'\
                   '  * hcl_inventory: Function to clone policies from one Organization to another.\n'\
-                  '  * hcl_status: Function to clone policies from one Organization to another.\n'\
                   '  * server_inventory: Function to clone policies from one Organization to another.\n',
-            enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'hcl_status', 'server_inventory'],
+            enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'server_inventory'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)
     kwargs = isight.api('organization').all_organizations(kwargs)
