@@ -19,95 +19,94 @@ except ImportError as e:
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-class yaml_dumper(yaml.Dumper):
-    def increase_indent(self, flow=False, indentless=False):
-        return super(yaml_dumper, self).increase_indent(flow, False)
-
 class tools(object):
     def __init__(self, type):
         self.type = type
 
-    #======================================================
+    #=============================================================================
     # Function - Add Policies
-    #======================================================
+    #=============================================================================
     def add_policies(self, kwargs):
-        #======================================================
-        # Check for YAML File Definition
-        #======================================================
-        pcolor.Cyan(f'\n{"-"*108}\n\n  Beginning Policy Append to Profiles...')
-        pcolor.Cyan(f'\n{"-"*108}\n')
-        if kwargs.args.yaml_file != None:
-            yaml_arg = True
-            ydata = DotMap(yaml.safe_load(open(kwargs.args.yaml_file, 'r')))
-        else: yaml_arg = False; ydata = DotMap()
-        #======================================================
-        # Build Platform Data
-        #======================================================
-        target_platforms = ['chassis', 'domain', 'FIAttached', 'Standalone']
-        target = DotMap()
-        for e in target_platforms:
-            target[e].policies = []
-        for k, v in kwargs.ezdata.items():
-            if v.get('target_platforms') and v.get('intersight_type') == 'policy':
-                for e in v.target_platforms:
-                    target[e].policies.append(k)
-        #======================================================
-        # Determine if the Profiles are FIAttached or Standalone
-        #======================================================
-        target_platforms = ['chassis', 'domain', 'server', 'server_template']
-        kwargs.jdata = DotMap()
-        if yaml_arg == False:
-            kwargs.jdata = DotMap(
-                default = 'server', description  = 'Select the Intersight Profile Type.',
-                enum = target_platforms,  multi_select = True, title = 'Profile Type(s)', type = 'string')
-            profile_types = ezfunctions.variable_prompt(kwargs)
-        else: profile_types = [e.type for e in ydata.profile_types]
-        kwargs.sub_type = DotMap()
-        if yaml_arg == False:
-            for e in profile_types:
-                if re.search('^server(_template)?$', e):
-                    kwargs.jdata = DotMap(
-                        default = 'FIAttached', description  = f'Select the {e} Profile Sub-Type.',
-                        enum = ['FIAttached', 'Standalone'], title = 'Profile Sub-Type', type = 'string')
-                    kwargs.sub_type[e] = ezfunctions.variable_prompt(kwargs)
-        else:
-            for e in ydata.profile_types:
-                if re.search('server|server_template'): kwargs.sub_type[e.type] = e.sub_type
-        #======================================================
+        #=============================================================================
+        # Prompt User for Source and Destination Organization
+        #=============================================================================
+        orgs = list(kwargs.org_moids.keys())
+        kwargs.jdata             = kwargs.ezwizard.setup.properties.organization
+        kwargs.jdata.description = 'Select the Source Organization for the pools/policies:'
+        kwargs.jdata.enum        = orgs
+        source_org               = ezfunctions.variable_prompt(kwargs)
+        kwargs.jdata.description = 'Select the Organization for the Profiles:'
+        destination_org          = ezfunctions.variable_prompt(kwargs)
+        #=============================================================================
+        # Prompt for Profile Type and obtain Pools/Policies
+        #=============================================================================
+        kwargs     = questions.profile_type(kwargs)
+        kwargs     = questions.build_policy_list(kwargs)
+        pool_types = []
+        if kwargs.target_platform == 'FIAttached':
+            kwargs.jdata       = kwargs.ezwizard.setup.properties.server_type
+            kwargs.server_type = ezfunctions.variable_prompt(kwargs)
+            print(kwargs.pool_list)
+            for e in ['ip', 'iqn', 'mac', 'wwnn', 'wwpn']:
+                if e in kwargs.pool_list: kwargs.pool_list.remove(e)
+            kwargs.jdata      = kwargs.ezwizard.setup.properties.pool_types
+            kwargs.jdata.enum = kwargs.pool_list
+            pool_types        = ezfunctions.variable_prompt(kwargs)
+        for e in ['ethernet_adapter', 'ethernet_network_control', 'ethernet_network_group', 'ethernet_qos', 'fc_zone', 'fibre_channel_adapter',
+                  'fibre_channel_network', 'fibre_channel_qos', 'firmware_authenticate', 'iscsi_adapter', 'iscsi_boot', 'iscsi_static_target']:
+            if e in kwargs.policy_list: kwargs.policy_list.remove(e)
+        kwargs.jdata      = kwargs.ezwizard.setup.properties.policy_types
+        kwargs.jdata.enum = kwargs.policy_list
+        policy_types      = ezfunctions.variable_prompt(kwargs)
+        #=============================================================================
         # Prompt User for Policies to Attach
-        #======================================================
-        for e in profile_types:
-            if yaml_arg == False:
-                if re.search('server(_template)?', e): policies = target[kwargs.sub_type[e]].policies
-                else: policies = target[e].policies
-                kwargs.jdata = DotMap(
-                    default      = policies[0],
-                    description  = f'Select the `{", ".join(profile_types)}` Policy Type(s) (can be multiple).',
-                    enum = policies, multi_select = True, title = 'Policy Type(s)', type = 'string')
-                target[e].update_policies = ezfunctions.variable_prompt(kwargs)
-            else: target[e].update_policies = ydata.policy_types
-        #======================================================
-        # Prompt for Organizations and Loop Through Target Platforms
-        #======================================================
-        if yaml_arg == False:  kwargs = tools(self.type).select_organizations(kwargs)
-        else: kwargs.organizations = ydata.organizations
-        for target_platform in profile_types:
-            for org in kwargs.organizations:
-                pcolor.Cyan(f'\n{"-"*108}\n\n  Starting `{target_platform}` Loop in Organization `{org}`.')
-                pcolor.Cyan(f'\n{"-"*108}\n')
-                tools(target_platform).update_profile(org, target, yaml_arg, ydata, kwargs)
-                pcolor.Cyan(f'\n{"-"*108}\n\n  Finished `{target_platform}` Loop in Organization `{org}`.')
-                pcolor.Cyan(f'\n{"-"*108}\n')
-            pcolor.Purple(f'\n{"-"*108}\n\n  Finished Updating `{target_platform}` Profiles...')
-            pcolor.Purple(f'\n{"-"*108}\n')
+        #=============================================================================
+        pool_types.extend(policy_types)
+        update_types = pool_types
+        kwargs.org   = source_org
+        kwargs.policy_bucket = []
+        kwargs.pools         = []
+        accept_policies = False
+        while accept_policies == False:
+            policy_names = DotMap()
+            for e in update_types:
+                kwargs.api_filter      = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
+                kwargs.method          = 'get'
+                kwargs.uri             = kwargs.ezdata[e].intersight_uri
+                kwargs                 = isight.api(e).calls(kwargs)
+                kwargs[f'{e}_results'] = kwargs.results
+                for d in kwargs[f'{e}_results']: kwargs[e][d.Name] = d
+                policies = sorted([d.Name for d in kwargs[f'{e}_results']])
+                kwargs.jdata  = DotMap(
+                    default     = '',
+                    description = f'Select the {e} policy from source org: `{source_org}` to attach to {kwargs.target_platform}(s) in org: `{destination_org}`.',
+                    enum        = policies, title = f'{e} Policy', type = 'string')
+                if type(kwargs.server_type) == str:
+                    kwargs.jdata.description = kwargs.jdata.description.replace(kwargs.target_platform, kwargs.server_type)
+                if re.search('^resource|uuid$', e):
+                    kwargs.jdata.description.replace('policy', 'pool')
+                    kwargs.jdata.title.replace('Policy', 'Pool')
+                policy_name = ezfunctions.variable_prompt(kwargs)
+                policy_names[e] = policy_name
+                indx = next((index for (index, d) in enumerate(kwargs[f'{e}_results']) if d['Name'] == policy_name), None)
+                if re.search('^resource|uuid$', e):
+                    kwargs.pools.append(DotMap(Moid=kwargs[f'{e}_results'][indx].Moid,ObjectType=kwargs[f'{e}_results'][indx].ObjectType))
+                else: kwargs.policy_bucket.append(DotMap(Moid=kwargs[f'{e}_results'][indx].Moid,ObjectType=kwargs[f'{e}_results'][indx].ObjectType))
+            answer = questions.prompt_user_to_accept('the `policy bucket update`', policy_names, kwargs)
+            if answer == True: accept_policies = True
+        #=============================================================================
+        # Update the Profiles
+        #=============================================================================
+        kwargs.org = destination_org
+        if len(kwargs.policy_bucket) > 0: kwargs = tools(kwargs.target_platform).profiles_update(kwargs)
 
-    #======================================================
+    #=============================================================================
     # Function - Add Vlans
-    #======================================================
+    #=============================================================================
     def add_vlans(self, kwargs):
-        #======================================================
+        #=============================================================================
         # Function - Add Vlans
-        #======================================================
+        #=============================================================================
         # Validate YAML configuration file is defined.
         if kwargs.args.yaml_file != None:
             ydata = DotMap(yaml.safe_load(open(kwargs.args.yaml_file, 'r'))).add_vlans
@@ -115,9 +114,9 @@ class tools(object):
             prRed(f'\n{"-"*108}\n\n  Missing Required YAML File Argument `-y`.  Exiting Process.')
             prRed(f'\n{"-"*108}\n')
             len(False); sys.exit(1)
-        #======================================================
+        #=============================================================================
         # Get VLAN List and Organizations from YAML configuration file.
-        #======================================================
+        #=============================================================================
         tags  = [{'key': 'Module','value': 'day2tools'}]
         kwargs.organizations = ydata.organizations
         for org in kwargs.organizations:
@@ -126,14 +125,14 @@ class tools(object):
             vlans      = ydata.vlan_policy.vlans
             pcolor.Cyan(f'\n{"-"*108}\n\n  Starting Loop on Organization {org}.')
             pcolor.Cyan(f'\n{"-"*108}\n')
-            #======================================================
+            #=============================================================================
             # Query the API for the VLAN Policies
-            #======================================================
+            #=============================================================================
             kwargs = isight.api_get(False, [vpolicy], 'vlan', kwargs)
             vlan_moid = kwargs.pmoids[vpolicy].moid
-            #======================================================
+            #=============================================================================
             # Query the API for the VLANs Attached to the VLAN Policy
-            #======================================================
+            #=============================================================================
             pcolor.Cyan(f'\n{"-"*108}\n\n  Checking VLAN Policy `{vpolicy}` for VLANs.')
             pcolor.Cyan(f'\n{"-"*108}\n')
             kwargs.api_filter = f"EthNetworkPolicy.Moid eq '{vlan_moid}'"
@@ -164,9 +163,9 @@ class tools(object):
                 kwargs.uri = kwargs.ezdata['vlan.vlans'].intersight_uri
                 kwargs     = isight.imm('vlan.vlans').bulk_request(kwargs)
             if len(ydata.ethernet_network_groups) > 0:
-                #======================================================
+                #=============================================================================
                 # Query the API for the Ethernet Network Group Policies
-                #======================================================
+                #=============================================================================
                 kwargs = isight.api_get(False, ydata.ethernet_network_groups, 'ethernet_network_group', kwargs)
                 eng_results  = kwargs.results
                 vlan_ids = [v.vlan_id for v in add_vlans]
@@ -187,9 +186,9 @@ class tools(object):
                 if len(kwargs.bulk_list) > 0:
                     kwargs.uri = kwargs.ezdata['ethernet_network_group'].intersight_uri
                     kwargs     = isight.imm(e).bulk_request(kwargs)
-            #======================================================
+            #=============================================================================
             # Loop through Policy Creation
-            #======================================================
+            #=============================================================================
             add_vlans = [e for e in ydata.vlan_policy.vlans]
             if len(ydata.lan_connectivity) > 0:
                 idata = DotMap(ethernet_adapter  = [], ethernet_network_control = [], ethernet_network_group = [],
@@ -208,9 +207,9 @@ class tools(object):
                     if re.search('ethernet_network_group|lan_connectivity', k):
                         idata[k]   = sorted(v, key=lambda ele: ele.vlan_id)
                     else: idata[k] = sorted(list(numpy.unique(numpy.array(v))))
-                #======================================================
+                #=============================================================================
                 # Query the API for the Ethernet Network Group Policies
-                #======================================================
+                #=============================================================================
                 kwargs   = isight.api_get(True, [e.name for e in idata.ethernet_network_group], 'ethernet_network_group', kwargs)
                 eth_eng  = kwargs.pmoids
                 eng_keys = list(eth_eng.keys())
@@ -234,22 +233,22 @@ class tools(object):
                 if len(kwargs.bulk_list) > 0:
                     kwargs.uri = kwargs.ezdata['ethernet_network_group'].intersight_uri
                     kwargs     = isight.imm('ethernet_network_group').bulk_request(kwargs)
-                #======================================================
+                #=============================================================================
                 # Query the API for Policies
-                #======================================================
+                #=============================================================================
                 pdata = DotMap()
                 ilist = ['ethernet_adapter', 'ethernet_network_control', 'ethernet_qos', 'mac']
                 for e in ilist:
                     kwargs   = isight.api_get(True, idata[e], e, kwargs)
                     pdata[e] = kwargs.pmoids
-                #======================================================
+                #=============================================================================
                 # Query the API for the LAN Connectivity Policies
-                #======================================================
+                #=============================================================================
                 kwargs       = isight.api_get(True, [e.name for e in idata.lan_connectivity], 'lan_connectivity', kwargs)
                 lan_policies = kwargs.pmoids
-                #======================================================
+                #=============================================================================
                 # Configure LAN Connectivity Policies
-                #======================================================
+                #=============================================================================
                 pcolor.Cyan(f'\n{"-"*108}\n')
                 for e in idata.lan_connectivity:
                     if e.name in list(lan_policies.keys()):
@@ -267,9 +266,9 @@ class tools(object):
                         kwargs        = isight.api(self.type).calls(kwargs)
                         lan_moid      = kwargs.pmoid
                         kwargs.isight[kwargs.org].policy.lan_connectivity[e.name] = lan_moid
-                    #======================================================
+                    #=============================================================================
                     # Configure vNIC Policies
-                    #======================================================
+                    #=============================================================================
                     kwargs.pmoid = lan_moid
                     kwargs = isight.api_get(True, [i.name for i in ydata.lan_connectivity.vnics], 'lan_connectivity.vnics', kwargs)
                     vnic_results = kwargs.pmoids
@@ -311,59 +310,46 @@ class tools(object):
         pcolor.Cyan(f'\n{"-"*108}\n\n  Finished Loop on Organization `{org}`.')
         pcolor.Cyan(f'\n{"-"*108}\n')
         
-    #======================================================
+    #=============================================================================
     # Function - Add Policies
-    #======================================================
+    #=============================================================================
     def clone_policies(self, kwargs):
-        #======================================================
-        # Determine Policies to Clone
-        #======================================================
+        #=============================================================================
+        # Prompt User for Source and Destination Organization
+        #=============================================================================
+        orgs = list(kwargs.org_moids.keys())
+        kwargs.jdata             = kwargs.ezwizard.setup.properties.organization
+        kwargs.jdata.description = 'Select the Source Organization to clone the pools/policies from:'
+        kwargs.jdata.enum        = orgs
+        source_org               = ezfunctions.variable_prompt(kwargs)
+        kwargs.jdata.description = 'Select the Destination Organization to clone the policies to:'
+        destination_org          = ezfunctions.variable_prompt(kwargs)
+        #=============================================================================
+        # Prompt for Profile Type and obtain Pools/Policies
+        #=============================================================================
         kwargs = questions.profile_type(kwargs)
         kwargs = questions.build_policy_list(kwargs)
         for e in ['imc_access', 'iscsi_boot', 'firmware_authenticate', 'lan_connectivity', 'ldap', 'local_user', 'port', 'san_connectivity', 'storage', 'vlan', 'vsan']:
             if e in kwargs.policy_list: kwargs.policy_list.remove(e)
-        kwargs.jdata = DotMap(
-            default      = '',
-            description  = f'Select the policy types you would like to clone in the environment:',
-            enum         = kwargs.policy_list,
-            multi_select = True,
-            optional     = True,
-            title        = 'Policies',
-            type         = 'string')
-        policy_types = ezfunctions.variable_prompt(kwargs)
-        pool_types = []
+        kwargs.jdata      = kwargs.ezwizard.setup.properties.policy_types
+        kwargs.jdata.enum = kwargs.policy_list,
+        policy_types      = ezfunctions.variable_prompt(kwargs)
+        pool_types        = []
         if kwargs.target_platform == 'FIAttached':
-            kwargs.jdata = DotMap(
-                default      = '',
-                description  = f'Select the pool types you would like to clone in the environment:',
-                enum         = kwargs.pool_list,
-                multi_select = True,
-                optional     = True,
-                title        = 'Pools',
-                type         = 'string')
-            pool_types = ezfunctions.variable_prompt(kwargs)
-        #======================================================
-        # Prompt User for Source and Destination Organization
-        #======================================================
+            kwargs.jdata      = kwargs.ezwizard.setup.properties.pool_types
+            kwargs.jdata.enum = kwargs.pool_list,
+            pool_types        = ezfunctions.variable_prompt(kwargs)
+        #=============================================================================
+        # Prompt User for Policies to Clone
+        #=============================================================================
         pool_types.extend(policy_types)
         clone_types = pool_types
-        orgs = list(kwargs.org_moids.keys())
-        kwargs.jdata = DotMap(
-            default     = orgs[0],
-            description = 'Select the Source Organization to clone the pools/policies from.',
-            enum        = orgs, title = 'Organization', type = 'string')
-        source_org               = ezfunctions.variable_prompt(kwargs)
-        kwargs.jdata.description = 'Select the Destination Organization to clone the policies to.'
-        destination_org          = ezfunctions.variable_prompt(kwargs)
-        #======================================================
-        # Prompt User for Policies to Clone
-        #======================================================
-        kwargs.org = source_org
+        kwargs.org  = source_org
         for e in clone_types:
-            kwargs.api_filter = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
-            kwargs.method     = 'get'
-            kwargs.uri        = kwargs.ezdata[e].intersight_uri
-            kwargs            = isight.api(e).calls(kwargs)
+            kwargs.api_filter      = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
+            kwargs.method          = 'get'
+            kwargs.uri             = kwargs.ezdata[e].intersight_uri
+            kwargs                 = isight.api(e).calls(kwargs)
             kwargs[f'{e}_results'] = kwargs.results
             for d in kwargs[f'{e}_results']: kwargs[e][d.Name] = d
             policies = sorted([d.Name for d in kwargs[f'{e}_results']])
@@ -403,9 +389,9 @@ class tools(object):
                 kwargs.uri = kwargs.ezdata[e].intersight_uri
                 kwargs     = isight.imm(e).bulk_request(kwargs)
 
-    #======================================================
+    #=============================================================================
     # Function - HCL Inventory
-    #======================================================
+    #=============================================================================
     def hcl_inventory(self, kwargs):
         kwargs.org = 'default'
         pdict = DotMap()
@@ -514,7 +500,6 @@ class tools(object):
             ws.append(column_headers)
             for cell in ws['2:2']: cell.style = 'heading_2'
             ws_row_count = 3
-            
             # Populate the Columns with Server Inventory
             for key, value in pdict.items():
                 # Add the Columns to the Spreadsheet
@@ -526,38 +511,147 @@ class tools(object):
                     if ws_row_count % 2 == 0: cell.style = 'odd'
                     else: cell.style = 'even'
                 ws_row_count += 1
-            
             # Save the Workbook
             wb.save(filename=workbook)
 
-    #======================================================
-    # Function - Prompt for Organizations
-    #======================================================
-    def select_organizations(self, kwargs):
-        kwargs.jdata              = kwargs.ezdata.organization.allOf[1].properties.name
-        kwargs.jdata.description  = 'Select the Organization(s) to Apply the changes to.'
-        kwargs.jdata.enum         = list(kwargs.org_moids.keys())
-        kwargs.jdata.multi_select = True
-        kwargs.jdata.title        = 'Intersight Organization(s)'
-        kwargs.organizations      = ezfunctions.variable_prompt(kwargs)
+    #=============================================================================
+    # Function - Profiles Update
+    #=============================================================================
+    def profiles_deploy(self, kwargs):
+        #=============================================================================
+        # Get Physical Devices
+        #=============================================================================
+        kwargs.names = []
+        for e in kwargs.profile_results:
+            if   e.get('AssignedServer'):  kwargs.names.append(e.AssignedServer.Moid)
+            elif e.get('AssignedChassis'): kwargs.names.append(e.AssignedChassis.Moid)
+            elif e.get('AssignedSwitch'):  kwargs.names.append(e.AssignedSwitch.Moid)
+        kwargs.method = 'get'
+        kwargs.uri    = kwargs.ezdata[self.type].intersight_uri_serial
+        kwargs        = isight.api('moid_filter').calls(kwargs)
+        phys_devices  = kwargs.results
+        profiles      = []
+        #=============================================================================
+        # Build Dictionary and Deploy Profiles
+        #=============================================================================
+        if re.search('chassis|server', self.type):
+            for e in kwargs.profile_names:
+                indx = next((index for (index, d) in enumerate(kwargs.profile_results) if d['Name'] == e), None)
+                kwargs.isight[kwargs.org].profile[self.type][e] = kwargs.profile_results[indx].Moid
+                if self.type == 'server': sname = 'AssignedServer'
+                if self.type == 'chassis': sname = 'AssignedChassis'
+                sindx = next((index for (index, d) in enumerate(phys_devices) if d['Moid'] == kwargs.profile_results[indx][sname].Moid), None)
+                profiles.append(DotMap(action='Deploy',name=e,serial_number=phys_devices[sindx].Serial))
+            if len(profiles) > 0: kwargs = isight.imm(self.type).profile_chassis_server_deploy(profiles, kwargs)
+        else:
+            for dp in kwargs.domain_names:
+                indx = next((index for (index, d) in enumerate(kwargs.domain_results) if d['Name'] == dp), None)
+                kwargs.isight[kwargs.org].profile[self.type][dp] = kwargs.domain_results[indx].Moid
+                switch_profiles = [e for e in kwargs.profile_results if e.SwitchClusterProfile.Moid == kwargs.domain_results[indx].Moid]
+                serials         = []
+                for e in switch_profiles:
+                    kwargs.isight[kwargs.org].profile['switch'][e.Name] = e.Moid
+                    sname = 'AssignedSwitch'
+                    sindx = next((index for (index, d) in enumerate(phys_devices) if d['Moid'] == e[sname].Moid), None)
+                    serials.append(phys_devices[sindx])
+                serials = sorted(serials, key=lambda ele: ele.SwitchId)
+                profiles.append(DotMap(action='Deploy',name=dp,serial_numbers=[e.Serial for e in serials]))
+            if len(profiles) > 0: kwargs = isight.imm(self.type).profile_domain_deploy(profiles, kwargs)
+        #=============================================================================
+        # Return kwargs
+        #=============================================================================
         return kwargs
 
-    #======================================================
+    #=============================================================================
+    # Function - Profiles Update
+    #=============================================================================
+    def profiles_update(self, kwargs):
+        #=============================================================================
+        # Obtain Profile Data.
+        #=============================================================================
+        org_moid = kwargs.org_moids[kwargs.org].moid
+        if kwargs.get('server_type') and type(kwargs.server_type) == str: utype = kwargs.server_type
+        else: utype = self.type
+        if re.search('^server(_template)?$', utype):
+            kwargs.api_filter   = f"Organization.Moid eq '{org_moid}' and TargetPlatform eq '{kwargs.target_platform}'"
+        else: kwargs.api_filter = f"Organization.Moid eq '{org_moid}'"
+        kwargs.method = 'get'
+        kwargs.uri    = kwargs.ezdata[utype].intersight_uri
+        kwargs        = isight.api(utype).calls(kwargs)
+        profiles      = kwargs.pmoids
+        if len(profiles.toDict()) == 0: isight.empty_results(kwargs)
+        kwargs.profile_results = kwargs.results
+        #=============================================================================
+        # Request from User Which Profiles to Apply this to.
+        #=============================================================================
+        kwargs.profile_names = sorted(list(profiles.keys()))
+        kwargs.jdata = DotMap(
+            default      = kwargs.profile_names[0],
+            description  = f'Select the `{utype}` Profiles to update.',
+            enum         = kwargs.profile_names,
+            multi_select = True,
+            title        = f'{self.type} Profiles')
+        kwargs.profile_names = ezfunctions.variable_prompt(kwargs)
+        if kwargs.target_platform == 'domain':
+            kwargs.domain_names    = kwargs.profile_names
+            kwargs.domain_results  = kwargs.profile_results
+            kwargs.names           = [profiles[e].moid for e in kwargs.profile_names]
+            kwargs.uri             = kwargs.ezdata[utype].intersight_uri_switch
+            kwargs                 = isight.api('switch_profiles').calls(kwargs)
+            profiles               = kwargs.pmoids
+            kwargs.profile_names   = list(profiles.keys())
+            kwargs.profile_results = kwargs.results
+        #=============================================================================
+        # Attach the Policies to the Profiles.
+        #=============================================================================
+        kwargs.bulk_list = []
+        for i in kwargs.profile_names:
+            original_bucket = profiles[i].policy_bucket
+            new_bucket = []
+            for e in original_bucket:
+                e.pop('ClassId'); e.pop('link')
+                indx = next((index for (index, d) in enumerate(kwargs.policy_bucket) if d['ObjectType'] == e['ObjectType']), None)
+                if indx == None: new_bucket.append(e.toDict())
+                else: new_bucket.append(kwargs.policy_bucket[indx].toDict())
+            policy_bucket = sorted(new_bucket, key=lambda ele: ele['ObjectType'])
+            api_body = {"Name":i,"PolicyBucket":policy_bucket,'pmoid':profiles[i].moid}
+            if len(kwargs.pools) > 0:
+                for e in kwargs.pools:
+                    if e.ObjectType == 'resourcepool.Pool': api_body.update({'ServerAssignmentMode':'Pool','ServerPool':e.toDict()})
+                    elif e.ObjectType == 'uuidpool.Pool':   api_body.update({'UuidAddressType':'Pool','UuidPool':e.toDict()})
+            kwargs.bulk_list.append(api_body)
+        #=============================================================================
+        # Send the Bulk Request
+        #=============================================================================
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = kwargs.ezdata[utype].intersight_uri
+            kwargs     = isight.imm(utype).bulk_request(kwargs)
+        #=============================================================================
+        # Prompt User to Deploy Profile(s)
+        #=============================================================================
+        if len(kwargs.bulk_list) > 0 and re.search('^chassis|domain|server$', utype):
+            kwargs.jdata             = kwargs.ezwizard.setup.properties.deploy_profiles
+            kwargs.jdata.description = kwargs.jdata.description.replace('server', utype)
+            deploy_profiles          = ezfunctions.variable_prompt(kwargs)
+            if deploy_profiles == True: tools(utype).profiles_deploy(kwargs)
+        return kwargs
+
+    #=============================================================================
     # Function - Setup Local Time
-    #======================================================
+    #=============================================================================
     def setup_local_time(self, kwargs):
         kwargs.datetime   = datetime.now(pytz.timezone(kwargs.timezone))
         kwargs.time_short = kwargs.datetime.strftime('%Y-%m-%d-%H-%M')
         kwargs.time_long  = kwargs.datetime.strftime('%Y-%m-%d %H:%M:%S %Z %z')
         return kwargs
 
-    #======================================================
+    #=============================================================================
     # Function - Server Inventory
-    #======================================================
+    #=============================================================================
     def server_inventory(self, kwargs):
-        #======================================================
+        #=============================================================================
         # Get Device Registrations and build domains/servers
-        #======================================================
+        #=============================================================================
         kwargs.org = 'default'
         kwargs.api_filter = f"PlatformType in ('IMCBlade', 'IMCM4', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9', 'UCSFI', 'UCSFIISM')"
         kwargs.method     = 'get'
@@ -570,9 +664,9 @@ class tools(object):
                 parent = 'none'
                 if e.get('ParentConnection'): parent = e.ParentConnection.Moid
                 kwargs.servers[e.Serial[0]] = DotMap(dict(parent = parent, server_name = e.DeviceHostname[0]))
-        #======================================================
+        #=============================================================================
         # Get Physical Summaries and extend servers dict
-        #======================================================
+        #=============================================================================
         kwargs.api_filter = 'ignore'
         kwargs.uri        = 'compute/PhysicalSummaries'
         kwargs            = isight.api('physical_summaries').calls(kwargs)
@@ -600,9 +694,9 @@ class tools(object):
         for k in list(kwargs.servers.keys()):
             if not kwargs.servers[k].get('hw_moid'): kwargs.servers.pop(k)
             else: kwargs.hw_moids[kwargs.servers[k].hw_moid] = k
-        #======================================================
+        #=============================================================================
         # Get Intersight Server Profiles
-        #======================================================
+        #=============================================================================
         kwargs.api_filter = 'ignore'
         kwargs.uri        = 'server/Profiles'
         kwargs            = isight.api('server').calls(kwargs)
@@ -616,9 +710,9 @@ class tools(object):
                 kwargs.servers[serial].server_profile = e.Name
                 profile_moids.append(e.Moid)
         if len(profile_moids) > 0:
-            #======================================================
+            #=============================================================================
             # Get WWPN Leases, vHBAs, vNICs, and QoS Policies
-            #======================================================
+            #=============================================================================
             kwargs.names = profile_moids
             kwargs.uri   = 'fcpool/Leases'
             kwargs       = isight.api('wwnn_pool_leases').calls(kwargs)
@@ -634,9 +728,9 @@ class tools(object):
             kwargs       = isight.api('moid_filter').calls(kwargs)
             qos_policies = DotMap()
             for e in kwargs.results: qos_policies[e.Moid] = DotMap(mtu = e.Mtu, name = e.Name)
-            #======================================================
+            #=============================================================================
             # Add vHBAs/vNICs to servers dict
-            #======================================================
+            #=============================================================================
             for k in list(kwargs.servers.keys()):
                 kwargs.servers[k].vhbas = []
                 kwargs.servers[k].vnics = []
@@ -652,13 +746,13 @@ class tools(object):
                         if e.MacAddressType == 'STATIC':
                             kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.StaticMacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order})
                         else: kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.MacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order})
-        #======================================================
+        #=============================================================================
         # BUILD Workbooks
-        #======================================================
+        #=============================================================================
         if len(kwargs.servers) > 0:
-            #======================================================
+            #=============================================================================
             # Sort server dictionary
-            #======================================================
+            #=============================================================================
             kwargs.servers = DotMap(dict(sorted(kwargs.servers.items(), key=lambda ele: ele[1].server_profile)))
             for k, v in kwargs.servers.items():
                 kwargs.servers[k].vnics = sorted(v.vnics, key=lambda ele: ele.order)
@@ -668,19 +762,19 @@ class tools(object):
             #kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
             kwargs.timezone = 'America/New_York'
             kwargs  = tools(self.type).setup_local_time(kwargs)
-            #======================================================
+            #=============================================================================
             # Build Workbooks and Style Sheets
-            #======================================================
+            #=============================================================================
             workbook   = f'UCS-Inventory-Collector-{kwargs.time_short}.xlsx'
             kwargs = tools(self.type).workbook_styles(kwargs)
             wb = kwargs.wb; ws = wb.active; ws.title = 'Inventory List'
-            #======================================================
+            #=============================================================================
             # Full Inventory Workbook
-            #======================================================
+            #=============================================================================
             if kwargs.args.full_inventory:
-                #==================================================
+                #=============================================================================
                 # Create Column Headers - Extend with server dict
-                #==================================================
+                #=============================================================================
                 column_headers = ['Domain','Profile','Server','Serial','WWNN']
                 vhba_list = []; vnic_list = []
                 for i in list(kwargs.servers.keys()):
@@ -699,9 +793,9 @@ class tools(object):
                 ws.append(column_headers)
                 for cell in ws['2:2']: cell.style = 'heading_2'
                 ws_row_count = 3
-                #==================================================
+                #=============================================================================
                 # Populate the Worksheet with Server Inventory
-                #==================================================
+                #=============================================================================
                 for k, v in kwargs.servers.items():
                     data = []
                     for i in column_headers:
@@ -728,13 +822,13 @@ class tools(object):
                         if ws_row_count % 2 == 0: cell.style = 'odd'
                         else: cell.style = 'even'
                     ws_row_count += 1
-            #======================================================
+            #=============================================================================
             # WWPN Inventory Workbook
-            #======================================================
+            #=============================================================================
             else:
-                #==================================================
+                #=============================================================================
                 # Create Column Headers - Extend with server dict
-                #==================================================
+                #=============================================================================
                 column_headers = ['Profile','Serial']
                 vhba_list = []
                 for k,v in kwargs.servers.items():
@@ -754,9 +848,9 @@ class tools(object):
                 ws.append(column_headers)
                 for cell in ws['2:2']: cell.style = 'heading_2'
                 ws_row_count = 3
-                #==================================================
+                #=============================================================================
                 # Populate the Worksheet with Server Inventory
-                #==================================================
+                #=============================================================================
                 for k, v in kwargs.servers.items():
                     data = []
                     for i in column_headers:
@@ -774,103 +868,14 @@ class tools(object):
                         if ws_row_count % 2 == 0: cell.style = 'odd'
                         else: cell.style = 'even'
                     ws_row_count += 1
-            #======================================================
+            #=============================================================================
             # Save the Workbook
-            #======================================================
+            #=============================================================================
             wb.save(filename=workbook)
 
-    #======================================================
-    # Function - Update Profile
-    #======================================================
-    def update_profile(self, org, target, yaml_arg, ydata, kwargs):
-        kwargs.org = org
-        policies = DotMap()
-        for policy in target[self.type].update_policies:
-            #======================================================
-            # Query API for List of Policies.
-            #======================================================
-            kwargs.api_filter = f"Organization.Moid eq '{kwargs.org_moids[org].moid}'"
-            kwargs.method     = 'get'
-            kwargs.uri        = kwargs.ezdata[policy].intersight_uri
-            kwargs            = isight.api(policy).calls(kwargs)
-            if kwargs.results == None: isight.empty_results(kwargs)
-            policies[policy] = kwargs.pmoids
-            #======================================================
-            # Prompt User for Policy to Attach.
-            #======================================================
-            kwargs.jdata = DotMap(
-                default      = list(policies[policy].keys())[0],
-                description  = f'Select the {policy} Policy to attach to the Profile(s).',
-                enum         = list(policies[policy].keys()),
-                title        = f'{policy} Policy Name')
-            policies[policy].name = ezfunctions.variable_prompt(kwargs)
-        #======================================================
-        # Obtain Profile Data.
-        #======================================================
-        kwargs.method  = 'get'
-        kwargs.top1000 = True
-        org_moid       = kwargs.org_moids[org].moid
-        if re.search('^server(_template)?$', self.type):
-            target_type = kwargs.sub_type[self.type]
-            kwargs.api_filter= f"Organization.Moid eq '{org_moid}' and TargetPlatform eq '{target_type}'"
-        else: kwargs.api_filter = f"Organization.Moid eq '{org_moid}'"
-        kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-        kwargs     = isight.api(self.type).calls(kwargs)
-        profiles   = kwargs.pmoids
-        for k,v in profiles.items(): profiles[k].name = k
-        if profiles == None: isight.empty_results(kwargs)
-        #======================================================
-        # Request from User Which Profiles to Apply this to.
-        #======================================================
-        if yaml_arg == False:
-            kwargs.jdata = DotMap(
-                default      = sorted(list(profiles.keys()))[0],
-                description  = f'Select the {self.type} Profiles to Apply the {policy} to.',
-                enum         = sorted(list(profiles.keys())),
-                multi_select = True,
-                title        = f'{self.type} Profiles')
-            profile_names = ezfunctions.variable_prompt(kwargs)
-        else: profile_names = ydata.profiles
-        #======================================================
-        # Attach the Policy to the Selected Server Profiles.
-        #======================================================
-        for i in profile_names:
-            pcolor.Purple(f'\n{"-"*108}\n  Starting on Server Profile `{i}`.\n{"-"*108}\n')
-            policy_bucket = profiles[i].policy_bucket
-            object_index  = dict((d.ObjectType, s) for s, d in enumerate(policy_bucket))
-            for e in policies.keys():
-                policy_moid = policies[e][policies[e].name].moid
-                object_type = kwargs.ezdata[e].ObjectType
-                policy_uri  = kwargs.ezdata[e].intersight_uri
-                #======================================================
-                # Index the Server List to find the Server Profile and 
-                # pull the Policy BucketSee if the Policy Type is 
-                # Already Attached.  If attached, Update to the new.
-                # Moid, else attach the Policy.
-                #======================================================
-                if object_index.get(object_type):
-                    type_index = object_index.get(object_type, -1)
-                    policy_link = f"https://www.intersight.com/api/v1/{policy_uri}/{policy_moid}"
-                    policy_bucket[type_index].update({'Moid':policy_moid, 'link': policy_link})
-                else:
-                    policy_bucket.append({'Moid': policy_moid, 'ObjectType': object_type})
-            pbucket = []
-            for x in policy_bucket: pbucket.append(x.toDict())
-            policy_bucket = sorted(pbucket, key=lambda ele: ele.ObjectType)
-            #======================================================
-            # Patch the Profile with new Policy Bucket.
-            #======================================================
-            kwargs.api_body = {"Name":profiles[i].name,"PolicyBucket":pbucket}
-            kwargs.method = 'patch'
-            kwargs.pmoid  = profiles[i].moid
-            if re.search('FIAttached|Standalone', self.type):
-                kwargs.uri   = kwargs.ezdata['server'].intersight_uri
-            else: kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-            kwargs = isight.api(self.type).calls(kwargs)
-
-    #======================================================
+    #=============================================================================
     # Function - Workbook Styles
-    #======================================================
+    #=============================================================================
     def workbook_styles(self, kwargs):
         wb = openpyxl.Workbook()
         # Build Named Style Sheets for Workbook

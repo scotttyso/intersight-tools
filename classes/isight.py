@@ -527,6 +527,7 @@ class api(object):
                     elif 'serial_number' == self.type:        api_filter = f"Serial in ('{names}')"
                     elif 'storage.drive_groups' == self.type: api_filter = f"Name in ('{names}') and StoragePolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'switch' == self.type:               api_filter = f"Name in ('{names}') and SwitchClusterProfile.Moid eq '{kwargs.pmoid}'"
+                    elif 'switch_profiles' == self.type:      api_filter = f"SwitchClusterProfile.Moid in ('{names}')"
                     elif 'user_role' == self.type:            api_filter = f"EndPointUser.Moid in ('{names}') and EndPointUserPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'vlan.vlans' == self.type:           api_filter = f"VlanId in ({names}) and EthNetworkPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'vsan.vsans' == self.type:           api_filter = f"VsanId in ({names}) and FcNetworkPolicy.Moid eq '{kwargs.pmoid}'"
@@ -2196,49 +2197,49 @@ class imm(object):
     # Function - Deploy Domain Profile if Action is Deploy
     #=============================================================================
     def profile_domain_deploy(self, profiles, kwargs):
-        deploy_profiles = False
-        for item in profiles:
-            for x in range(0,2):
-                if item.get('action') and item.get('serial_numbers'):
-                    if item.action == 'Deploy' and re.search(serial_regex, item.serial_numbers[x]):
-                        pname = f"{item.name}-{chr(ord('@')+x+1)}"
-                        kwargs.method = 'get_by_moid'
-                        kwargs.pmoid  = kwargs.isight[kwargs.org].profile['switch'][pname]
-                        kwargs.uri    = kwargs.ezdata['domain'].intersight_uri_switch
-                        kwargs = api('switch').calls(kwargs)
-                        r = kwargs.results
-                        if len(r.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", r.ConfigContext.ConfigState):
-                            deploy_profiles = True
-                            kwargs.cluster_update[item.name].pending_changes = True; break
         pending_changes = False
-        for e in kwargs.cluster_update.keys():
-            if kwargs.cluster_update[e].pending_changes == True: pending_changes = True
-        if deploy_profiles == True: pcolor.LightPurple(f'\n{"-"*108}\n')
-        if pending_changes == True: pcolor.Cyan('      * Sleeping for 120 Seconds'); time.sleep(120)
+        for item in profiles:
+            if item.get('action') and item.get('serial_numbers'):
+                serial_check = True
+                for e in item.serial_numbers:
+                    if not re.search(serial_regex, e): serial_check = False
+                if item.action == 'Deploy' and serial_check == True:
+                    kwargs.method = 'get'
+                    kwargs.names  = [kwargs.isight[kwargs.org].profile[self.type][item.name]]
+                    kwargs.uri    = kwargs.ezdata['domain'].intersight_uri_switch
+                    kwargs        = api('switch_profile').calls(kwargs)
+                    kwargs.cluster_update[item.name].names = []
+                    kwargs.cluster_update[item.name].pending_changes = False
+                    for r in kwargs.results:
+                        if len(r.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", r.ConfigContext.ConfigState):
+                            pending_changes = True
+                            kwargs.cluster_update[item.name].pending_changes = True
+                            kwargs.cluster_update[item.name].names.append(r.Name)
+        if pending_changes == True:
+            pcolor.LightPurple(f'\n{"-"*108}\n')
+            pcolor.Cyan('      * Sleeping for 120 Seconds'); time.sleep(120)
         for item in profiles:
             if kwargs.cluster_update[item.name].pending_changes == True:
-                for x in range(0,2):
-                    pname = f"{item.name}-{chr(ord('@')+x+1)}"
+                for pname in kwargs.cluster_update[item.name].names:
                     pcolor.Green(f'    - Beginning Profile Deployment for {pname}')
                     kwargs.api_body= {'Action':'Deploy'}
                     kwargs.method = 'patch'
                     kwargs.pmoid  = kwargs.isight[kwargs.org].profile['switch'][pname]
-                    kwargs = api('switch').calls(kwargs)
-        if deploy_profiles == True: pcolor.LightPurple(f'\n{"-"*108}\n'); time.sleep(60)
+                    kwargs = api('switch_profiles').calls(kwargs)
+        if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n'); time.sleep(60)
         for item in profiles:
             if kwargs.cluster_update[item.name].pending_changes == True:
-                for x in range(0,2):
-                    pname = f"{item.name}-{chr(ord('@')+x+1)}"
+                for pname in kwargs.cluster_update[item.name].names:
                     kwargs.method= 'get_by_moid'
                     kwargs.pmoid = kwargs.isight[kwargs.org].profile['switch'][pname]
                     deploy_complete = False
                     while deploy_complete == False:
-                        kwargs = api('switch').calls(kwargs)
+                        kwargs = api('switch_profiles').calls(kwargs)
                         if kwargs.results.ConfigContext.ControlAction == 'No-op':
                             pcolor.Green(f'    - Completed Profile Deployment for {pname}')
                             deploy_complete = True
                         else:  pcolor.Cyan(f'      * Deploy Still Occuring on {pname}.  Waiting 120 seconds.'); time.sleep(120)
-        if deploy_profiles == True: pcolor.LightPurple(f'\n{"-"*108}\n')
+        if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n')
         return kwargs
 
     #=============================================================================
@@ -2462,9 +2463,8 @@ class imm(object):
             for c in names:
                 kwargs.names  = []
                 if kwargs.isight[kwargs.org].profile[self.type].get(c):
-                    for x in range(0,2): kwargs.names.append(f"{c}-{chr(ord('@')+x+1)}")
-                    kwargs.pmoid = kwargs.isight[kwargs.org].profile[self.type][c]
-                    kwargs       = api('switch').calls(kwargs)
+                    kwargs.names = [kwargs.isight[kwargs.org].profile[self.type][c]]
+                    kwargs       = api('switch_profiles').calls(kwargs)
                     kwargs.switch_moids[c]   = kwargs.pmoids
                     kwargs.switch_results[c] = kwargs.results
         #=============================================================================
@@ -2504,10 +2504,11 @@ class imm(object):
         # Get Serial Moids
         #=============================================================================
         if len(kwargs.serials) > 0:
-            kwargs.names        = kwargs.serials
-            kwargs.uri          = ezdata.intersight_uri_serial
-            kwargs              = api('serial_number').calls(kwargs)
-            kwargs.serial_moids = kwargs.pmoids
+            kwargs.names          = kwargs.serials
+            kwargs.uri            = ezdata.intersight_uri_serial
+            kwargs                = api('serial_number').calls(kwargs)
+            kwargs.serial_moids   = kwargs.pmoids
+            kwargs.serial_results = kwargs.results
         kwargs.uri = ezdata.intersight_uri
         #=============================================================================
         # Create the Profiles with the Functions

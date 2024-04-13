@@ -4,11 +4,148 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
 
 ### Capabilities
 
-   * `add_policies`: Add policies to profiles.  Can select policies/types accross orgs to attach to chassis, domain, and server profiles for new capabilities or to change an existing policy.
-   * `add_vlans`: Add a new VLAN to existing VLAN and Ethernet Network Group Policies.  If desired Create a new LAN Connectivity Policy.
+   * `add_policies`: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
+   * `add_vlans`: Add a new VLAN to existing VLAN Policy and Ethernet Network Group Policies.  If desired Create a new LAN Connectivity Policy.
    * `clone_policies`: Clone policies from one Organization to another.  Currently only supports policies without child policies.
    * `hcl_inventory`: Use UCS server inventory injested from vCenter to to check Intersight HCL inventory.
    * `server_inventory`: Function to clone policies from one Organization to another.
+
+## EZDAY2TOOLS - `add_policies`: Use Case
+
+  - Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
+
+### EZDAY2TOOLS - `add_policies`: Run the wizard
+
+#### Linux
+
+```bash
+ezday2tools.py -p add_policies
+
+------------------------------------------------------------------------------------------------------------
+
+   Begin Function: add_policies.
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Source Organization for the pools/policies:
+ 
+    Select an Option Below:
+      1. Asgard
+      2. common
+      3. default
+      4. RICH
+      5. Wakanda
+
+Please Enter the Option Number to select for Organization.  [3]: 2
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Organization for the Profiles:
+ 
+    Select an Option Below:
+      1. Asgard
+      2. common
+      3. default
+      4. RICH
+      5. Wakanda
+
+Please Enter the Option Number to select for Organization.  [3]: 5
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Profile Type.  Options are:
+   * chassis: Chassis Profiles.
+   * domain: Domain Profiles.
+   * FIAttached: Domain Attached Server Profiles/Templates.
+   * Standalone: Standalone Server Profiles/Templates.
+ 
+    Select an Option Below:
+      1. chassis
+      2. domain
+      3. FIAttached
+      4. Standalone
+
+Please Enter the Option Number to select for Profile Type.  [3]: 1
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the policy types you would like to clone in the environment:
+ 
+     Note: Answer can be:
+       * Single: 1
+       * Multiple: `1,2,3` or `1-3,5-6`
+     Select Option(s) Below:
+      1. imc_access
+      2. power
+      3. snmp
+      4. syslog
+      5. thermal
+
+Please Enter the Option Number(s) to select for Policy Types.  [press enter to skip]: 3
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the snmp policy from source org: `common` to attach to chassis(s) in org: `Wakanda`.
+ 
+    Select an Option Below:
+      1. snmp
+
+Please Enter the Option Number to select for snmp Policy: 1
+
+------------------------------------------------------------------------------------------------------------
+
+    snmp: snmp
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Do You want to accept the above configuration for the `policy bucket update`?
+
+
+Enter `Y` for `True` or `N` for `False` for `Accept`. [Y]: 
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the `chassis` Profiles to update.
+ 
+     Note: Answer can be:
+       * Single: 1
+       * Multiple: `1,2,3` or `1-3,5-6`
+     Select Option(s) Below:
+      1. r143e-2-1
+
+Please Enter the Option Number(s) to select for chassis Profiles.  [1]: 
+     - Completed PATCH for Org: Wakanda > Name: r143e-2-1 - Moid: 6605c56077696e3201f34e73
+
+------------------------------------------------------------------------------------------------------------
+
+ Do you want to Deploy/Activate the `chassis` profiles?
+
+
+Enter `Y` for `True` or `N` for `False` for `Deploy Profiles`. [N]: Y
+
+------------------------------------------------------------------------------------------------------------
+
+     - Beginning Profile Deployment for `r143e-2-1`.
+     - Completed PATCH for Org: Wakanda > Name: r143e-2-1 - Moid: 6605c56077696e3201f34e73
+       * Deploy Still Occuring on `r143e-2-1`.  Waiting 60 seconds.
+     - Completed Profile Deployment for `r143e-2-1`.
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+   End Function: add_policies.
+
+------------------------------------------------------------------------------------------------------------
+
+```
 
 ## EZDAY2TOOLS - `add_vlans`: Use Cases
 
@@ -18,7 +155,7 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
 
 See example `examples/day2tools/add_vlans/add_vlans.json`.
 
-  * The function will loop through all `organizations` listed for `ethernet_network_groups`, `vlan_policy`, and `lan_connectivity`.
+  * The function will loop through all `organizations` listed.  To create `ethernet_network_groups`, a `vlan_policy`, and `lan_connectivity`.
   * `lan_connectivity` is optional.
   * If `lan_connectivity` is defined all attributes shown are required.  Can have one or more `vnics`.
 
@@ -42,7 +179,7 @@ python ezday2tools.py -p add_vlans -y add_vlans.yaml
 
   * supports cloning one or more policy types from source to destination organization.
   * supports cloning one or more policies of each policy type.
-  * policies with child policies are not supported currently.  If desired please open a Issue.  It just needs some additional development and I didn't have the need.
+  * policies with child policies are not supported currently.  If desired please open an Issue.  It just needs some additional development and I didn't have the need.
 
 Not supported:
   * IMC Access
@@ -71,12 +208,37 @@ ezday2tools.py -p clone_policies
 
 ------------------------------------------------------------------------------------------------------------
 
- Select the Server Profile Target Platform.  Options are:
-   * chassis: Clone `chassis` Policies.
-   * domain: Clone `domain` Policies.
-   * FIAttached: Clone Domain Attached Server Pools/Policies.
-   * Standalone: Clone Standalone Server Pools/Policies.
+ Select the Source Organization to clone the pools/policies from.
  
+    Select an Option Below:
+      1. Asgard
+      2. common
+      3. default
+      4. RICH
+      5. Wakanda
+
+Please Enter the Option Number to select for Organization.  [3]: 2
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Destination Organization to clone the policies to.
+ 
+    Select an Option Below:
+      1. Asgard
+      2. common
+      3. default
+      4. RICH
+      5. Wakanda
+
+Please Enter the Option Number to select for Organization.  [3]: 
+
+------------------------------------------------------------------------------------------------------------
+
+   * chassis: Chassis Profiles.
+   * domain: Domain Profiles.
+   * FIAttached: Domain Attached Server Profiles/Templates.
+   * Standalone: Standalone Server Profiles/Templates. 
+
     Select an Option Below:
       1. chassis
       2. domain
@@ -137,32 +299,6 @@ Please Enter the Option Number(s) to select for Policies.  [press enter to skip]
       7. wwpn
 
 Please Enter the Option Number(s) to select for Pools.  [press enter to skip]: 
-
-------------------------------------------------------------------------------------------------------------
-
- Select the Source Organization to clone the pools/policies from.
- 
-    Select an Option Below:
-      1. Asgard
-      2. common
-      3. default
-      4. RICH
-      5. Wakanda
-
-Please Enter the Option Number to select for Organization.  [3]: 2
-
-------------------------------------------------------------------------------------------------------------
-
- Select the Destination Organization to clone the policies to.
- 
-    Select an Option Below:
-      1. Asgard
-      2. common
-      3. default
-      4. RICH
-      5. Wakanda
-
-Please Enter the Option Number to select for Organization.  [3]: 
 
 ------------------------------------------------------------------------------------------------------------
 
@@ -246,6 +382,6 @@ ezday2tools.py -p server_inventory -fi
 python ezday2tools.py -p server_inventory -fi
 ```
 
-Note: `-fi` pulls adds more details, without primarily focused on WWNN/WWPN for server profiles.
+Note: `-fi` pulls adds more details; without, primarily focused of function is WWNN/WWPN identities for server profiles.
 
-See example Excel output in `examples/day2tools/server_inventory`.
+See example output in `examples/day2tools/server_inventory`.

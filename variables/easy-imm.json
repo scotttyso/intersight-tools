@@ -19081,6 +19081,12 @@
                         ],
                         "title": "Automation Type"
                     },
+                    "deploy_profiles": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Do you want to Deploy/Activate the `server` profiles?",
+                        "title": "Deploy Profiles"
+                    },
                     "deployment_method": {
                         "type": "Python",
                         "default": "",
@@ -19155,17 +19161,30 @@
                         "sort": false,
                         "title": "REPLACE Version"
                     },
-                    "profile_type": {
+                    "organization": {
                         "type": "string",
-                        "default": "FIAttached",
-                        "description": "Select the Server Profile Target Platform.  Options are:\n  * chassis: Clone `chassis` Policies.\n  * domain: Clone `domain` Policies.\n  * FIAttached: Clone Domain Attached Server Pools/Policies.\n  * Standalone: Clone Standalone Server Pools/Policies.",
-                        "enum": [
-                            "chassis",
-                            "domain",
-                            "FIAttached",
-                            "Standalone"
-                        ],
-                        "title": "Target Platform"
+                        "default": "default",
+                        "description": "Select the Organization:",
+                        "enum": [],
+                        "title": "Organization"
+                    },
+                    "policy_types": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the policy types you would like to clone in the environment:",
+                        "enum": [],
+                        "multi_select": true,
+                        "optional": true,
+                        "title": "Policy Types"
+                    },
+                    "pool_types": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the pool types you would like to clone in the environment:",
+                        "enum": [],
+                        "multi_select": true,
+                        "optional": true,
+                        "title": "Pool Types"
                     },
                     "profile_option": {
                         "type": "string",
@@ -19177,6 +19196,18 @@
                         ],
                         "title": "Profile Option"
                     },
+                    "profile_type": {
+                        "type": "string",
+                        "default": "FIAttached",
+                        "description": "Select the Profile Type.  Options are:\n  * chassis: Chassis Profiles.\n  * domain: Domain Profiles.\n  * FIAttached: Domain Attached Server Profiles/Templates.\n  * Standalone: Standalone Server Profiles/Templates.",
+                        "enum": [
+                            "chassis",
+                            "domain",
+                            "FIAttached",
+                            "Standalone"
+                        ],
+                        "title": "Profile Type"
+                    },
                     "server_profiles": {
                         "type": "string",
                         "default": "",
@@ -19185,6 +19216,16 @@
                         "multi_select": true,
                         "sort": false,
                         "title": "Server Profiles"
+                    },
+                    "server_type": {
+                        "type": "string",
+                        "default": "server_template",
+                        "description": "Select the Server Profile Type.  Options are:\n  * server: Server Profiles.\n  * server_template: Server Profile Templates.",
+                        "enum": [
+                            "server",
+                            "server_template"
+                        ],
+                        "title": "Server Type"
                     },
                     "sw_repo_os_cfg": {
                         "type": "string",

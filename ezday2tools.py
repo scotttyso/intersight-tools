@@ -148,14 +148,15 @@ def main():
     #==============================================
     # Build Deployment Library
     #==============================================
-    if not re.search('^add_polices|add_vlans|clone_policies|hcl_inventory|server_inventory$', kwargs.args.process):
+    if not re.search('^add_policies|add_vlans|clone_policies|hcl_inventory|server_inventory$', kwargs.args.process):
         kwargs.jdata = DotMap(
             default = 'server_inventory',
-            description = f'Select the Process to run:\n  * add_policies: Function to add policies to profiles.\n'\
-                  '  * add_vlans: Function to add a VLAN to existing VLAN and Ethernet Network Group Policies and Create LAN Connectivity Policy.\n'\
-                  '  * clone_policies: Function to clone policies from one Organization to another.\n'\
-                  '  * hcl_inventory: Function to clone policies from one Organization to another.\n'\
-                  '  * server_inventory: Function to clone policies from one Organization to another.\n',
+            description = f'Select the Process to run:\n'\
+                '  * add_policies: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.\n'\
+                '  * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies and Create LAN Connectivity Policy.\n'\
+                '  * clone_policies: Function to clone policies from one Organization to another.\n'\
+                '  * hcl_inventory: Function to clone policies from one Organization to another.\n'\
+                '  * server_inventory: Function to clone policies from one Organization to another.\n',
             enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'server_inventory'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)
