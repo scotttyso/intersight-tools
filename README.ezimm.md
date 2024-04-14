@@ -104,8 +104,8 @@ drwxr-x--- 34 tyscott tyscott 4096 Apr 14 19:06 ../
 drwxr-xr-x  2 tyscott tyscott 4096 Apr 14 19:06 policies/
 drwxr-xr-x  2 tyscott tyscott 4096 Apr 14 19:06 pools/
 drwxr-xr-x  2 tyscott tyscott 4096 Apr 14 19:06 profiles/
-tyscott@TYSCOTT-DESKTOP:~$ ```
-
+tyscott@TYSCOTT-DESKTOP:~$
+```
 
 Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
 
