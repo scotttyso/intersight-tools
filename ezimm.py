@@ -26,7 +26,7 @@ import os, sys
 script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
-    from classes import build, ezfunctions, imm, isight, lansan, pcolor, policies, pools, profiles, questions, quick_start, tf, validating
+    from classes import build, ezfunctions, isight, lansan, pcolor, policies, pools, profiles, questions, quick_start, tf, transition, validating
     from copy import deepcopy
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
@@ -405,7 +405,13 @@ def imm_transition(kwargs):
     #==============================================
     # Run through the IMM Transition Wizard
     #==============================================
-    kwargs = imm.transition('transition').policy_loop(kwargs)
+    kwargs = transition.intersight('transition').policy_loop(kwargs)
+    #==============================================
+    # Create YAML Files and return kwargs
+    #==============================================
+    kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
+    orgs = kwargs.orgs
+    ezfunctions.create_yaml(orgs, kwargs)
     return kwargs
 
 #=================================================================
@@ -549,7 +555,7 @@ def main():
     # Prompt User for Main Menu
     #==============================================
     kwargs = menu(kwargs)
-    if not re.search('Exit|Deploy', kwargs.deployment_type): kwargs = process_wizard(kwargs)
+    if re.search('Domain|Individual|OSInstall|Server', kwargs.deployment_type): kwargs = process_wizard(kwargs)
     pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*108}\n')
     sys.exit(0)
 

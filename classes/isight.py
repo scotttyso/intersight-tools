@@ -999,6 +999,10 @@ class imm(object):
             atemplate= kwargs.ezdata['ethernet_adapter.template'].properties
             api_body  = dict(api_body, **atemplate[item.adapter_template].toDict())
             api_body.pop('adapter_template')
+            if api_body.get('RssHashSettings'):
+                if api_body['RssHashSettings'].get('Enable'):
+                    api_body['RssSettings'] = api_body['RssHashSettings']['Enable']
+                    api_body['RssHashSettings'].pop('Enable')
         return api_body
 
     #=============================================================================

@@ -56,6 +56,57 @@ Examples:
 .\ezimm.py -d {export_destination_directory} -dt Convert -j {json_export_file_from_imm_tool.json}
 ```
 
+#### Example Output
+
+```bash
+tyscott@TYSCOTT-DESKTOP:~$ ezimm.py -j config-5fdc98d1-cff3-461d-b6a7-e9501bd603ee.json -d Convert_from_UCS
+
+------------------------------------------------------------------------------------------------------------
+
+  Starting the Easy IMM Wizard!
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Option to Perform:
+   * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model.
+   * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema.
+   * Domain:     Deploy a domain via cloning an existing profile or creating net new.
+   * Individual: Select individual pools, policies, profiles, or templates to build.
+   * OSInstall:  Install an Operating System with either new or existing profiles.
+   * Server:     Build server profiles/templates for Intersight Managed Servers.
+   * Exit:       Cancel the Wizard
+ 
+    Select an Option Below:
+      1. Convert
+      2. Deploy
+      3. Domain
+      4. Individual
+      5. OSInstall
+      6. Server
+      7. Exit
+
+Please Enter the Option Number to select for Deployment Type.  [5]: 1
+
+------------------------------------------------------------------------------------------------------------
+
+  !!! Procedures Complete !!!
+  Closing Environment and Exiting Script...
+
+------------------------------------------------------------------------------------------------------------
+
+tyscott@TYSCOTT-DESKTOP:~$ ll Convert_from_UCS/
+total 20
+drwxr-xr-x  5 tyscott tyscott 4096 Apr 14 19:06 ./
+drwxr-x--- 34 tyscott tyscott 4096 Apr 14 19:06 ../
+drwxr-xr-x  2 tyscott tyscott 4096 Apr 14 19:06 policies/
+drwxr-xr-x  2 tyscott tyscott 4096 Apr 14 19:06 pools/
+drwxr-xr-x  2 tyscott tyscott 4096 Apr 14 19:06 profiles/
+tyscott@TYSCOTT-DESKTOP:~$ ```
+
+
 Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
 
 ### Wizard - `Deploy`: Use Cases

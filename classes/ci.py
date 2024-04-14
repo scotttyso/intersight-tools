@@ -968,7 +968,6 @@ class imm(object):
                         if   'storage' in i.data_types:
                             if gen == 'gen5': adapter_policy= '16RxQs-5G'
                             else: adapter_policy= '16RxQs-4G'
-                            adapter_policy= '16RxQs-4G'
                             if kwargs.domain.cfg_qos_priorities == True: qos_policy = 'Platinum'
                             else: qos_policy = 'Best-Effort'
                         elif 'guests' in i.data_types:
