@@ -6104,7 +6104,7 @@
                         "properties": {
                             "boot_devices": {
                                 "type": "array",
-                                "description": "List of Boot Devices and their Attributes to Assign to the Boot Policy.\n  * `boot.FlexMmc` - UCS Standalone Only - Required Attributes:\n  * name\n  * object_type\n  * sub_type\n`boot.Iscsi` Required Attributes:\n  * interface_name\n  * name\n  * object_type\n\n`boot.Iscsi` Optional Attributes:\n  * bootloader\n  * enabled\n  * port\n  * slot\n\n`boot.LocalCdd` Required Attributes:\n  * name\n  * object_type\n\n`boot.LocalCdd` Optional Attributes:\n  * enabled\n\n`boot.LocalDisk` Required Attributes:\n  * name\n  * object_type\n\n`boot.LocalDisk` Optional Attributes:\n  * bootloader\n  * enabled\n  * slot\n\n`boot.Nvme` Required Attributes:\n  * name\n  * object_type\n\n`boot.Nvme` Optional Attributes:\n  * bootloader\n  * enabled\n\n`boot.PchStorage` Required Attributes:\n  * name\n  * object_type\n\n`boot.PchStorage` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n\n`boot.Pxe` Required Attributes:\n  * interface_name\n  * interface_source\n  * name\n  * object_type\n\n`boot.Pxe` Optional Attributes:\n  * bootloader\n  * enabled\n  * ip_type\n  * mac_ddress\n  * port\n  * slot\n\n`boot.San` Required Attributes:\n  * interface_name\n  * name\n  * object_type\n  * wwpn\n\n`boot.San` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n  * slot\n\n`boot.SdCard` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.SdCard` Optional Attributes:\n  * bootloader\n  * enabled\n  * lun\n\n`boot.UefiShell` Required Attributes:\n  * name\n  * object_type\n\n`boot.UefiShell` Optional Attributes:\n  * enabled\n\n`boot.Usb` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.Usb` Optional Attributes:\n  * enabled\n\n`boot.VirtualMedia` Required Attributes:\n  * name\n  * object_type\n  * sub_type\n\n`boot.VirtualMedia` Optional Attributes:\n  * enabled",
+                                "description": "List of Boot Devices and their Attributes to Assign to the Boot Policy.\n\n`flex_mmc` - UCS Standalone Only - Required Attributes:\n  * device_name\n  * device_type\n\n`flex_mmc` - Optional Attributes:\n  * subtype - Default is `flexmmc-mapped-dvd`.\n\n`http_boot` Required Attributes:\n  * device_name\n  * device_type\n  * interface_source\n\n`http_boot` Optional Attributes:\n  * enabled - Default is `true`.\n  * interface_name - Required if `interface_source` is `name`.\n  * ip_config_type - Default is `DHCP`.\n  * ip_type - Default is `IPv4`.\n  * ipv4_config - Required if `ip_config_type` is `Static` and `ip_type` is `IPv4`.\n  * ipv6_config - Required if `ip_config_type` is `Static` and `ip_type` is `IPv6`.\n  * mac_address - Required if `interface_source` is `mac`.\n  * port - Required if `interface_source` is `port`.\n  * protocol - Default is `HTTPS`.\n  * slot - Default is `MLOM`.\n  * uri - Required for Static IPv4/IPv6.  Note: Must be FQDN is protocol is `HTTPS`\n\n`iscsi_boot` Required Attributes:\n  * device_name\n  * device_type\n  * interface_name\n\n`iscsi_boot` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n  * port\n  * slot\n\n`local_cdd` Required Attributes:\n  * device_name\n  * device_type\n\n`local_cdd` Optional Attributes:\n  * enabled - Default is `true`.\n\n`local_disk` Required Attributes:\n  * device_name\n  * device_type\n\n`local_disk` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n  * slot - Default is `MSTOR-RAID`.\n\n`nvme` Required Attributes:\n  * device_name\n  * device_type\n\n`nvme` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n\n`pch_storage` Required Attributes:\n  * device_name\n  * device_type\n\n`pch_storage` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n  * lun - Default is `0`.\n\n`pxe_boot` Required Attributes:\n  * device_name\n  * device_type\n  * interface_source\n\n`pxe_boot` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n  * interface_name - Required if `interface_source` is `name`.\n  * ip_type - Default is `IPv4`.\n  * mac_address - Required if `interface_source` is `mac`.\n  * port - Required if interface_source is `port`.\n  * slot - Default is `MLOM`.\n\n`san_boot` Required Attributes:\n  * device_name\n  * device_type\n  * interface_name\n  * target_wwpn\n\n`san_boot` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n  * lun - Default is `0`.\n  * slot - Default is `MLOM`.\n\n`sd_card` Required Attributes:\n  * device_name\n  * device_type\n  * subtype - Default is `SDCARD`.\n\n`sd_card` Optional Attributes:\n  * bootloader\n  * enabled - Default is `true`.\n  * lun - Default is `0`.\n\n`uefi_shell` Required Attributes:\n  * device_name\n  * device_type\n\n`uefi_shell` Optional Attributes:\n  * enabled - Default is `true`.\n\n`usb` Required Attributes:\n  * device_name\n  * device_type\n  * subtype - Default is `usb-cd`.\n\n`usb` Optional Attributes:\n  * enabled - Default is `true`.\n\n`virtual_media` Required Attributes:\n  * device_name\n  * device_type\n  * subtype - Default is `kvm-mapped-dvd`.\n\n`virtual_media` Optional Attributes:\n  * enabled - Default is `true`.",
                                 "items": {
                                     "$ref": "#/components/schemas/boot_order.boot_devices"
                                 },
@@ -6140,13 +6140,45 @@
                 "intersight_api": "BootDevices",
                 "ObjectType": "boot.DeviceBase",
                 "required": [
-                    "name",
-                    "object_type"
+                    "device_name",
+                    "device_type"
                 ],
                 "title": "boot_device",
                 "properties": {
                     "bootloader": {
                         "$ref": "#/components/schemas/boot_order.boot_devices.boot_loader"
+                    },
+                    "device_name": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "A name that helps identify a boot device. It can be any string that adheres to the following constraints. It should start and end with an alphanumeric character. It can have underscores and hyphens. It cannot be more than 30 characters.",
+                        "intersight_api": "Name",
+                        "minLength": 1,
+                        "maxLength": 30,
+                        "pattern": "((^[a-zA-Z0-9]$){1,30}|(^(([a-zA-Z0-9])([a-zA-Z0-9_\\-]{0,28})([a-zA-Z0-9]))$))",
+                        "title": "device_name"
+                    },
+                    "device_type": {
+                        "type": "string",
+                        "default": "local_disk",
+                        "description": "The Boot Order Type to Assign to the Boot Device.  Allowed Values are:\n  * flex_mmc - UCS Standalone Only\n  * http_boot\n  * iscsi_boot\n  * local_cdd\n  * local_disk\n  * nvme\n  * pch_storage\n  * pxe_boot\n  * san_boot\n  * sd_card\n  * uefi_shell\n  * usb\n  * virtual_media",
+                        "intersight_api": "ObjectType",
+                        "enum": [
+                            "flex_mmc",
+                            "http_boot",
+                            "iscsi_boot",
+                            "local_cdd",
+                            "local_disk",
+                            "nvme",
+                            "pch_storage",
+                            "pxe_boot",
+                            "san_boot",
+                            "sd_card",
+                            "uefi_shell",
+                            "usb",
+                            "virtual_media"
+                        ],
+                        "title": "device_type"
                     },
                     "enabled": {
                         "type": "boolean",
@@ -6168,7 +6200,7 @@
                     "interface_source": {
                         "type": "string",
                         "default": "",
-                        "description": "Default when assigned is `name`.  Lists the supported Interface Source for PXE device. Supported values are \"name\" and \"mac\".\n  * `name` - Use interface name to select virtual ethernet interface.\n  * `mac` - Use MAC address to select virtual ethernet interface.\n  * `port` - Use port to select virtual ethernet interface.",
+                        "description": "Default is `name` when `device_type` is `http_boot` or `pxe_boot`.  Lists the supported Interface Source for device. Supported values are:\n  * `name` - Use interface name to select virtual ethernet interface.\n  * `mac` - Use MAC address to select virtual ethernet interface.\n  * `port` - Use port to select virtual ethernet interface.",
                         "intersight_api": "InterfaceSource",
                         "enum": [
                             "name",
@@ -6177,10 +6209,27 @@
                         ],
                         "title": "interface_source"
                     },
+                    "ipv4_config": {
+                        "$ref": "#/components/schemas/boot_order.boot_devices.ipv4_config"
+                    },
+                    "ipv6_config": {
+                        "$ref": "#/components/schemas/boot_order.boot_devices.ipv6_config"
+                    },
+                    "ip_config_type": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Default is `DHCP` when `device_type` is `http_boot`.  The IP config type to use during the `http_boot` process. For DHCP configuration, the IP address, DNS server, netmask and gateway details are obtained from DHCP server. For static configuration, please provide the IP address, DNS server, netmask, and gateway details.\n  * `DHCP` - The type of the IP config is DHCP.\n  * `Static` - The type of the IP config is Static.",
+                        "intersight_api": "IpConfigType",
+                        "enum": [
+                            "DHCP",
+                            "Static"
+                        ],
+                        "title": "ip_config_type"
+                    },
                     "ip_type": {
                         "type": "string",
                         "default": "",
-                        "description": "Default when assigned is `IPv4`.  The IP Address family type to use during the PXE Boot process.\n  * `None` - Default value if IpType is not specified.\n  * `IPv4` - The IPv4 address family type.\n  * `IPv6` - The IPv6 address family type.",
+                        "description": "Default is `IPv4` when `device_type` is `http_boot` or `pxe_boot`.  The IP Address family type to use during the `pxe_boot` and `http_boot` process(s).\n  * `IPv4` - The IPv4 address family type.\n  * `IPv6` - The IPv6 address family type.",
                         "intersight_api": "IpType",
                         "enum": [
                             "None",
@@ -6192,7 +6241,7 @@
                     "lun": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Default is `1`.  The Logical Unit Number (LUN) of the device. For SAN boot configuration to be deployed on a server with 1300 family of Cisco VIC adapters, the recommendation is for the boot LUN to be numbered as 0 to ensure that LUN is mounted as the first disk from which the server boots.",
+                        "description": "Default is `1`.  The Logical Unit Number (LUN) of the device. For `san_boot` configuration to be deployed on a server with 1300 family of Cisco VIC adapters, the recommendation is for the boot LUN to be numbered as 0 to ensure that LUN is mounted as the first disk from which the server boots.",
                         "intersight_api": "Lun",
                         "minimum": 0,
                         "maximum": 255,
@@ -6201,67 +6250,47 @@
                     "mac_address": {
                         "type": "string",
                         "default": "00:25:B5:0A:00:10",
-                        "description": "The MAC Address of the underlying virtual ethernet interface used by the PXE boot device.",
+                        "description": "The MAC Address of the underlying virtual ethernet interface used by `http_boot` and `pxe_boot` when `interface_source` is `mac`.",
                         "intersight_api": "MacAddress",
                         "minLength": 17,
                         "maxLength": 17,
-                        "pattern": "^$|^(((\\d|([a-f]|[A-F])){2}:){5}(\\d|([a-f]|[A-F])){2})$",
+                        "pattern": "^(((\\d|([a-f]|[A-F])){2}:){5}(\\d|([a-f]|[A-F])){2})$",
                         "title": "mac_address"
-                    },
-                    "name": {
-                        "type": "string",
-                        "default": "default",
-                        "description": "A name that helps identify a boot device. It can be any string that adheres to the following constraints. It should start and end with an alphanumeric character. It can have underscores and hyphens. It cannot be more than 30 characters.",
-                        "intersight_api": "Name",
-                        "minLength": 1,
-                        "maxLength": 30,
-                        "pattern": "((^[a-zA-Z0-9]$){1,30}|(^(([a-zA-Z0-9])([a-zA-Z0-9_\\-]{0,28})([a-zA-Z0-9]))$))",
-                        "title": "name"
-                    },
-                    "object_type": {
-                        "type": "string",
-                        "default": "boot.LocalDisk",
-                        "description": "The Boot Order Type to Assign to the Boot Device.  Allowed Values are:\n  * boot.FlexMmc - UCS Standalone Only\n  * boot.Iscsi\n  * boot.LocalCdd\n  * boot.LocalDisk\n  * boot.Nvme\n  * boot.PchStorage\n  * boot.Pxe\n  * boot.San\n  * boot.SdCard\n  * boot.UefiShell\n  * boot.Usb\n  * boot.VirtualMedia",
-                        "intersight_api": "ObjectType",
-                        "enum": [
-                            "boot.FlexMmc",
-                            "boot.Iscsi",
-                            "boot.LocalCdd",
-                            "boot.LocalDisk",
-                            "boot.Nvme",
-                            "boot.PchStorage",
-                            "boot.Pxe",
-                            "boot.San",
-                            "boot.SdCard",
-                            "boot.UefiShell",
-                            "boot.Usb",
-                            "boot.VirtualMedia"
-                        ],
-                        "title": "object_type"
                     },
                     "port": {
                         "type": "integer",
                         "default": -1,
-                        "description": "boot.Iscsi can be 0-255.  boot.Pxe is the Port ID of the adapter and values can be between -1 (not defined) and 255.",
+                        "description": "`iscsi_boot` can be 0-255.  `pxe_boot` is the Port ID of the adapter and values can be between -1 (not defined) and 255.",
                         "intersight_api": "Port",
                         "minimum": -1,
                         "maximum": 255,
                         "title": "port"
                     },
+                    "protocol": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Default is `HTTPS` when `device_type` is `http_boot`.  Protocol to be used for HTTP boot. HTTPS require root certificate for authentication.\n  * `HTTPS` - Secure HTTP protocol, certificate required for authentication.\n  * `HTTP` - HTTP protocol without security certificate requirement.",
+                        "intersight_api": "IpConfigType",
+                        "enum": [
+                            "HTTP",
+                            "HTTPS"
+                        ],
+                        "title": "protocol"
+                    },
                     "slot": {
                         "type": "string",
                         "default": "MSTOR-RAID",
-                        "description": "Options for boot.Iscsi, boot.Pxe and boot.San are 1-255, MLOM, L1, L2.  boot.Iscsi and boot.Pxe also support L and OCP.  For boot.LocalDisk values can be 1-205, FMEZZ1-SAS, HBA, M, MRAID, MRAID1, MRAID2, MSTOR-RAID, SAS, RAID.",
+                        "description": "Options for `iscsi_boot`, `pxe_boot` and `san_boot` are 1-255, MLOM, L1, L2.  `scsi_boot` and `pxe_boot` also support L and OCP.  For `local_disk` values can be 1-205, FMEZZ1-SAS, HBA, M, MRAID, MRAID1, MRAID2, MSTOR-RAID, SAS, RAID.",
                         "intersight_api": "Slot",
                         "minLength": 1,
                         "maxLength": 10,
                         "pattern": "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]|FMEZZ1-SAS|HBA|L1|L2|M|MLOM|MRAID|MRAID[1-2]?|MSTOR-RAID|SAS|RAID)$",
                         "title": "slot"
                     },
-                    "sub_type": {
+                    "subtype": {
                         "type": "string",
                         "default": "None",
-                        "description": "The subtype for the selected device type.\nThe Following Boot Order Types utilize the Subtype Attribute:The subtype for the selected device type.\nThe Following Boot Order Types utilize the Subtype Attribute:\nboot.FlexMmc - Below are the Supported Subtype Values:\n* `None` - No sub type for FlexMMC boot device.\n  * `flexmmc-mapped-dvd` - Use of FlexMMC DVD as subtype for embedded storage.\n  * `flexmmc-mapped-hdd` - Use of FlexMMC HDD as subtype for embedded storage.\nboot.SdCard - Below are the Supported Subtype Values:\n  * None - No sub type for SD card boot device.\n  * flex-util - Use of FlexUtil (microSD) card as sub type for SD card boot device.\n  * flex-flash - Use of FlexFlash (SD) card as sub type for SD card boot device.\n  * SDCARD - Use of SD card as sub type for the SD Card boot device.\nboot.Usb - Below are the Supported Subtype Values:\n  * None - No sub type for USB boot device.\n  * usb-cd - Use of Compact Disk (CD) as sub-type for the USB boot device.\n  * usb-fdd - Use of Floppy Disk Drive (FDD) as sub-type for the USB boot device.\n  * usb-hdd - Use of Hard Disk Drive (HDD) as sub-type for the USB boot device.\nboot.VirtualMedia - Below are the Supported Subtype Values:\n  * None - No sub type for virtual media.\n  * cimc-mapped-dvd - The virtual media device is mapped to a virtual DVD device.\n  * cimc-mapped-hdd - The virtual media device is mapped to a virtual HDD device.\n  * kvm-mapped-dvd - A KVM mapped DVD virtual media device.\n  * kvm-mapped-hdd - A KVM mapped HDD virtual media device.\n  * kvm-mapped-fdd - A KVM mapped FDD virtual media device.\nboot.SdCard - Below are the Supported Subtype Values:\n  * None - No sub type for SD card boot device.\n  * flex-util - Use of FlexUtil (microSD) card as sub type for SD card boot device.\n  * flex-flash - Use of FlexFlash (SD) card as sub type for SD card boot device.\n  * SDCARD - Use of SD card as sub type for the SD Card boot device.\nboot.Usb - Below are the Supported Subtype Values:\n  * None - No sub type for USB boot device.\n  * usb-cd - Use of Compact Disk (CD) as sub-type for the USB boot device.\n  * usb-fdd - Use of Floppy Disk Drive (FDD) as sub-type for the USB boot device.\n  * usb-hdd - Use of Hard Disk Drive (HDD) as sub-type for the USB boot device.\nboot.VirtualMedia - Below are the Supported Subtype Values:\n  * None - No sub type for virtual media.\n  * cimc-mapped-dvd - The virtual media device is mapped to a virtual DVD device.\n  * cimc-mapped-hdd - The virtual media device is mapped to a virtual HDD device.\n  * kvm-mapped-dvd - A KVM mapped DVD virtual media device.\n  * kvm-mapped-hdd - A KVM mapped HDD virtual media device.\n  * kvm-mapped-fdd - A KVM mapped FDD virtual media device.",
+                        "description": "The subtype for the selected device type.\n\nThe Following Boot Order Device Types utilize the defined Subtype Attribute:\n\nflex_mmc - Below are the Supported Subtype Values:\n  * `None` - No sub type for FlexMMC boot device.\n  * `flexmmc-mapped-dvd` - Use of FlexMMC DVD as subtype for embedded storage.\n  * `flexmmc-mapped-hdd` - Use of FlexMMC HDD as subtype for embedded storage.\n\nsd_card - Below are the Supported Subtype Values:\n  * None - No sub type for SD card boot device.\n  * flex-util - Use of FlexUtil (microSD) card as sub type for SD card boot device.\n  * flex-flash - Use of FlexFlash (SD) card as sub type for SD card boot device.\n  * SDCARD - Use of SD card as sub type for the SD Card boot device.\n\nusb - Below are the Supported Subtype Values:\n  * None - No sub type for USB boot device.\n  * usb-cd - Use of Compact Disk (CD) as sub-type for the USB boot device.\n  * usb-fdd - Use of Floppy Disk Drive (FDD) as sub-type for the USB boot device.\n  * usb-hdd - Use of Hard Disk Drive (HDD) as sub-type for the USB boot device.\n\nvirtual_media - Below are the Supported Subtype Values:\n  * None - No sub type for virtual media.\n  * cimc-mapped-dvd - The virtual media device is mapped to a virtual DVD device.\n  * cimc-mapped-hdd - The virtual media device is mapped to a virtual HDD device.\n  * kvm-mapped-dvd - A KVM mapped DVD virtual media device.\n  * kvm-mapped-fdd - A KVM mapped FDD virtual media device.\n  * kvm-mapped-hdd - A KVM mapped HDD virtual media device.",
                         "intersight_api": "Subtype",
                         "enum": [
                             "None",
@@ -6279,17 +6308,27 @@
                             "usb-fdd",
                             "usb-hdd"
                         ],
-                        "title": "sub_type"
+                        "title": "subtype"
                     },
-                    "wwpn": {
+                    "target_wwpn": {
                         "type": "string",
-                        "default": "20:00:00:25:B5:00:00:00",
-                        "description": "The WWPN Address of the underlying fibre channel interface used by the SAN boot device. Value must be in hexadecimal format xx:xx:xx:xx:xx:xx:xx:xx.",
+                        "default": "",
+                        "description": "The WWPN Address of the Target fibre channel interface used by the SAN boot device. Value must be in hexadecimal format xx:xx:xx:xx:xx:xx:xx:xx.",
                         "intersight_api": "Wwpn",
                         "minLength": 23,
                         "maxLength": 23,
-                        "pattern": "^$|(^([0-9a-fA-F]{2}:){7}[0-9a-fA-F]{2}$)",
-                        "title": "wwpn"
+                        "pattern": "(^([0-9a-fA-F]{2}:){7}[0-9a-fA-F]{2}$)",
+                        "title": "target_wwpn"
+                    },
+                    "uri": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Must be FQDN if `protocol` is `HTTPS`.  Boot resource location in URI format.  Required if device_type is `http_boot` and ip_config_type is `Static`.",
+                        "intersight_api": "Uri",
+                        "minLength": 1,
+                        "maxLength": 10,
+                        "pattern": "^((http|https)://(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|(cifs|https|nfs)?://(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})$",
+                        "title": "uri"
                     }
                 }
             },
@@ -6333,6 +6372,115 @@
                         "maxLength": 256,
                         "pattern": "^[a-zA-Z0-9_\\. :-\\\\]+$",
                         "title": "path"
+                    }
+                }
+            },
+            "boot_order.boot_devices.ipv4_config": {
+                "type": "object",
+                "description": "Http Boot Static IPv4 Settings.  Options are:\n  * dns_ip\n  * gateway_ip\n  * network_mask\n  * static_ip",
+                "intersight_api": "StaticIpV4Settings",
+                "ObjectType": "boot.StaticIpV4Settings",
+                "required": [
+                    "dns_ip",
+                    "gateway_ip",
+                    "network_mask",
+                    "static_ip"
+                ],
+                "title": "ipv4_config - Http Boot Static IPv4 Configuration.",
+                "properties": {
+                    "dns_ip": {
+                        "type": "string",
+                        "default": "208.67.220.220",
+                        "description": "IP address for the DNS server.  Example `208.67.220.220`.",
+                        "intersight_api": "DnsIp",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                        "title": "dns_ip"
+                    },
+                    "gateway_ip": {
+                        "type": "string",
+                        "default": "198.18.0.1",
+                        "description": "IP address of the default gateway.  Example `198.18.0.1`.",
+                        "intersight_api": "GatewayIp",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                        "title": "gateway_ip"
+                    },
+                    "network_mask": {
+                        "type": "string",
+                        "default": "255.255.255.0",
+                        "description": "Network mask for IPv4 Static Configuration.  Example `255.255.255.0`.",
+                        "intersight_api": "NetworkMask",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                        "title": "network_mask"
+                    },
+                    "static_ip": {
+                        "type": "string",
+                        "default": "198.18.0.10",
+                        "description": "'Ipv4 static address.  Example `198.18.0.10`.",
+                        "intersight_api": "Ip",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$",
+                        "title": "static_ip"
+                    }
+                }
+            },
+            "boot_order.boot_devices.ipv6_config": {
+                "type": "object",
+                "description": "Http Boot Static IPv6 Settings.  Options are:\n  * dns_ip\n  * gateway_ip\n  * prefix_length\n  * static_ip",
+                "intersight_api": "StaticIpV6Settings",
+                "ObjectType": "boot.StaticIpV6Settings",
+                "required": [
+                    "dns_ip",
+                    "gateway_ip",
+                    "prefix_length",
+                    "static_ip"
+                ],
+                "title": "ipv6_config - Http Boot Static IPv6 Configuration.",
+                "properties": {
+                    "dns_ip": {
+                        "type": "string",
+                        "default": "208.67.220.220",
+                        "description": "IP address for the DNS server.  Example `208.67.220.220`.",
+                        "intersight_api": "DnsIp",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
+                        "title": "dns_ip"
+                    },
+                    "gateway_ip": {
+                        "type": "string",
+                        "default": "198.18.0.1",
+                        "description": "IP address of the default gateway.  Example `198.18.0.1`.",
+                        "intersight_api": "GatewayIp",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
+                        "title": "gateway_ip"
+                    },
+                    "prefix_length": {
+                        "type": "integer",
+                        "default": 64,
+                        "description": "A prefix length which masks the IP address and divides the IP address into network address and host address.  Example `255.255.255.0`.",
+                        "intersight_api": "PrefixLength",
+                        "minimum": 1,
+                        "maximum": 128,
+                        "title": "prefix_length"
+                    },
+                    "static_ip": {
+                        "type": "string",
+                        "default": "2001:db8::10",
+                        "description": "'Ipv6 static address.  Example `2001:db8::10`.",
+                        "intersight_api": "Ip",
+                        "minLength": 7,
+                        "maxLength": 15,
+                        "pattern": "^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
+                        "title": "static_ip"
                     }
                 }
             },
@@ -7001,7 +7149,7 @@
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Default is `false`.  Status of Precision Time Protocol (PTP) on the virtual ethernet interface. PTP can be enabled only on one vNIC on an adapter.",
-                                "intersightApi": "$ref:vnic.PtpSettings:Enabled",
+                                "intersight_api": "$ref:vnic.PtpSettings:Enabled",
                                 "title": "enable_precision_time_protocol"
                             },
                             "enable_vxlan_offload": {
@@ -7041,7 +7189,7 @@
                                 "default": 5,
                                 "description": "Default is `5`.  Uplink Failback Timeout in seconds when uplink failover is enabled for a vNIC. After a vNIC has started using its secondary interface, this setting controls how long the primary interface must be available before the system resumes using the primary interface for the vNIC.",
                                 "intersight_api": "UplinkFailbackTimeout",
-                                "minimum": 1,
+                                "minimum": 0,
                                 "maximum": 600,
                                 "title": "uplink_failback_timeout"
                             }
@@ -7189,7 +7337,7 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true`.  Receive Side Scaling allows the incoming traffic to be spread across multiple CPU cores.",
-                        "intersightApi": "Enable",
+                        "intersight_api": "Enable",
                         "title": "enable_receive_side_scaling"
                     },
                     "enable_tcp_and_ipv4_hash": {
@@ -9893,7 +10041,7 @@
                                 "default": 1,
                                 "description": "Default is `1`.  The number of times to retry the connection in case of a failure during iSCSI LUN discovery.",
                                 "intersight_api": "LunBusyRetryCount",
-                                "minimum": 1,
+                                "minimum": 0,
                                 "maximum": 60,
                                 "title": "lun_busy_retry_count"
                             },
@@ -9902,7 +10050,7 @@
                                 "default": 1,
                                 "description": "Default is `1`.  The number of seconds to wait until Cisco UCS assumes that the initial login has failed and the iSCSI adapter is unavailable.",
                                 "intersight_api": "ConnectionTimeOut",
-                                "minimum": 1,
+                                "minimum": 0,
                                 "maximum": 255,
                                 "title": "tcp_connection_timeout"
                             }
@@ -11417,7 +11565,7 @@
                             "snooping_state": {
                                 "type": "string",
                                 "default": "Enabled",
-                                "description": "Default is `Enabled`.  Administrative state of the IGMP Snooping for this VLAN.\n  * `Enabled` - Admin configured Enabled State.\n  * `Disabled` - Admin configured Disabled State.",
+                                "description": "Default is `Enabled`.  Administrative state of IGMP Snooping for this VLAN.\n  * `Enabled` - Admin configured Enabled State.\n  * `Disabled` - Admin configured Disabled State.",
                                 "intersight_api": "SnoopingState",
                                 "enum": [
                                     "Enabled",
@@ -16625,34 +16773,34 @@
                     "boot_drive": {
                         "type": "boolean",
                         "default": true,
-                        "description": "(bool) This flag enables this virtual drive to be used as a boot drive.",
+                        "description": "Default is `true`.  This flag enables this virtual drive to be used as a boot drive.",
                         "intersight_api": "BootDrive",
                         "title": "boot_drive"
                     },
                     "expand_to_available": {
                         "type": "boolean",
                         "default": true,
-                        "description": "(bool) This flag enables the virtual drive to use all the space available in the disk group. When this flag is enabled, the size property is ignored.",
+                        "description": "Default is `true`.  This flag enables the virtual drive to use all the space available in the disk group. When this flag is enabled, the size property is ignored.",
                         "intersight_api": "ExpandToAvailable",
                         "title": "expand_to_available"
                     },
                     "name": {
                         "type": "string",
                         "default": "vd0",
-                        "description": "The name of the virtual drive. The name can be between 1 and 15 alphanumeric characters. Spaces or any special characters other than - (hyphen), _ (underscore), : (colon), and . (period) are not allowed.",
+                        "description": "Default is `vd0`.  The name of the virtual drive. The name can be between 1 and 15 alphanumeric characters. Spaces or any special characters other than - (hyphen), _ (underscore), : (colon), and . (period) are not allowed.",
                         "intersight_api": "Name",
                         "minLength": 1,
-                        "maxLength": 64,
+                        "maxLength": 15,
                         "pattern": "^[a-zA-Z0-9_\\.:-]+$",
                         "title": "name"
                     },
                     "size": {
                         "type": "integer",
                         "default": 1,
-                        "description": "(int) Virtual drive size in MebiBytes. Size is mandatory field except when the Expand to Available option is enabled.",
+                        "description": "Default is `1`.  Virtual drive size in MebiBytes. Size is mandatory field except when the Expand to Available option is enabled.",
                         "intersight_api": "Size",
                         "minimum": 1,
-                        "maximum": 64,
+                        "maximum": 40000000000,
                         "title": "size"
                     },
                     "virtual_drive_policy": {
@@ -16729,35 +16877,38 @@
                 "intersight_api": "VirtualDrivePolicy",
                 "ObjectType": "storage.VirtualDrivePolicy",
                 "required": [],
-                "title": "virtual_drive_poliy - Storage Virtual Drive Policy.",
+                "title": "virtual_drive_policy - Storage Virtual Drive Policy.",
                 "properties": {
                     "access_policy": {
                         "type": "string",
                         "default": "Default",
-                        "description": "(string) Access policy that host has on this virtual drive.\n  * Default - Use platform default access mode.\n  * ReadWrite - Enables host to perform read-write on the VD.\n  * ReadOnly - Host can only read from the VD.\n  * Blocked - Host can neither read nor write to the VD.",
+                        "description": "Default is `Default`.  Access policy that host has on this virtual drive.\n  * Default - Use platform default access mode.\n  * ReadWrite - Enables host to perform read-write on the VD.\n  * ReadOnly - Host can only read from the VD.\n  * Blocked - Host can neither read nor write to the VD.",
                         "intersight_api": "AccessPolicy",
                         "enum": [
                             "Default",
-                            "NoChange",
-                            "Enable",
-                            "Disable"
+                            "ReadWrite",
+                            "ReadOnly",
+                            "Blocked"
                         ],
                         "title": "access_policy"
                     },
                     "drive_cache": {
                         "type": "string",
                         "default": "Default",
-                        "description": "(string) Disk cache policy for the virtual drive.\n  * Default - Use platform default drive cache mode.\n  * NoChange - Drive cache policy is unchanged.\n  * Enable - Enables IO caching on the drive.\n  * Disable - Disables IO caching on the drive.",
+                        "description": "Default is `Default`.  Disk cache policy for the virtual drive.\n  * Default - Use platform default drive cache mode.\n  * NoChange - Drive cache policy is unchanged.\n  * Enable - Enables IO caching on the drive.\n  * Disable - Disables IO caching on the drive.",
                         "intersight_api": "DriveCache",
                         "enum": [
-                            ""
+                            "Default",
+                            "NoChange",
+                            "Enable",
+                            "Disable"
                         ],
                         "title": "drive_cache"
                     },
                     "read_policy": {
                         "type": "string",
                         "default": "Default",
-                        "description": "(string) Read ahead mode to be used to read data from this virtual drive.\n  * Default - Use platform default read ahead mode.\n  * ReadAhead - Use read ahead mode for the policy.\n  * NoReadAhead - Do not use read ahead mode for the policy.",
+                        "description": "Default is `Default`.  Read ahead mode to be used to read data from this virtual drive.\n  * Default - Use platform default read ahead mode.\n  * ReadAhead - Use read ahead mode for the policy.\n  * NoReadAhead - Do not use read ahead mode for the policy.",
                         "intersight_api": "ReadPolicy",
                         "enum": [
                             "Default",
@@ -16769,7 +16920,7 @@
                     "strip_size": {
                         "type": "integer",
                         "default": 64,
-                        "description": "(int) Desired strip size - Allowed values are 64, 128, 256, 512, 1024.\n  * 64 - Number of bytes in a strip is 64 Kibibytes.\n  * 128 - Number of bytes in a strip is 128 Kibibytes.\n  * 256 - Number of bytes in a strip is 256 Kibibytes.\n  * 512 - Number of bytes in a strip is 512 Kibibytes.\n  * 1024 - Number of bytes in a strip is 1024 Kibibytes or 1 Mebibyte.",
+                        "description": "Default is `Default`.  Desired strip size - Allowed values are 64, 128, 256, 512, 1024.\n  * 64 - Number of bytes in a strip is 64 Kibibytes.\n  * 128 - Number of bytes in a strip is 128 Kibibytes.\n  * 256 - Number of bytes in a strip is 256 Kibibytes.\n  * 512 - Number of bytes in a strip is 512 Kibibytes.\n  * 1024 - Number of bytes in a strip is 1024 Kibibytes or 1 Mebibyte.",
                         "intersight_api": "StripSize",
                         "enum": [
                             64,
@@ -16783,7 +16934,7 @@
                     "write_policy": {
                         "type": "string",
                         "default": "Default",
-                        "description": "(string) Write mode to be used to write data to this virtual drive.\n  * Default - Use platform default write mode.\n  * WriteThrough - Data is written through the cache and to the physical drives. Performance is improved, because subsequent reads of that data can be satisfied from the cache.\n  * WriteBackGoodBbu - Data is stored in the cache, and is only written to the physical drives when space in the cache is needed. Virtual drives requesting this policy fall back to Write Through caching when the battery backup unit (BBU) cannot guarantee the safety of the cache in the event of a power failure.\n  * AlwaysWriteBack - With this policy, write caching remains Write Back even if the battery backup unit is defective or discharged.",
+                        "description": "Default is `Default`.  Write mode to be used to write data to this virtual drive.\n  * Default - Use platform default write mode.\n  * WriteThrough - Data is written through the cache and to the physical drives. Performance is improved, because subsequent reads of that data can be satisfied from the cache.\n  * WriteBackGoodBbu - Data is stored in the cache, and is only written to the physical drives when space in the cache is needed. Virtual drives requesting this policy fall back to Write Through caching when the battery backup unit (BBU) cannot guarantee the safety of the cache in the event of a power failure.\n  * AlwaysWriteBack - With this policy, write caching remains Write Back even if the battery backup unit is defective or discharged.",
                         "intersight_api": "WritePolicy",
                         "enum": [
                             "Default",
@@ -16815,27 +16966,16 @@
                         "required": [],
                         "title": "switch_control",
                         "properties": {
-                            "ethernet_switching_mode": {
+                            "fabric_port_channel_vhba_reset": {
                                 "type": "string",
-                                "default": "end-host",
-                                "description": "Default is `end-host`.  Enable or Disable Ethernet End Host Switching Mode.\n  * `end-host` - In end-host mode, the fabric interconnects appear to the upstream devices as end hosts with multiple links.  In this mode, the switch does not run Spanning Tree Protocol and avoids loops by following a set of rules for traffic forwarding.  In case of ethernet switching mode - Ethernet end-host mode is also known as Ethernet host virtualizer.\n  * `switch` - In switch mode, the switch runs Spanning Tree Protocol to avoid loops, and broadcast and multicast packets are handled in the traditional way.  This is the traditional switch mode.",
-                                "intersight_api": "EthernetSwitchingMode",
+                                "default": "Disabled",
+                                "description": "Default is `Disabled`.  When enabled, a Registered State Change Notification (RSCN) is sent to the VIC adapter when any member port within the fabric port-channel goes down and vHBA would reset to restore the connection immediately. When disabled (default), vHBA reset is done only when all the members of a fabric port-channel are down.\n  * `Disabled` - Admin configured Disabled State.\n  * `Enabled` - Admin configured Enabled State.",
+                                "intersight_api": "FabricPcVhbaReset",
                                 "enum": [
-                                    "end-host",
-                                    "switch"
+                                    "Disabled",
+                                    "Enabled"
                                 ],
-                                "title": "ethernet_switching_mode"
-                            },
-                            "fc_switching_mode": {
-                                "type": "string",
-                                "default": "end-host",
-                                "description": "Default is `end-host`.  Enable or Disable FC End Host Switching Mode.\n  * `end-host` - In end-host mode, the fabric interconnects appear to the upstream devices as end hosts with multiple links.  In this mode, the switch does not run Spanning Tree Protocol and avoids loops by following a set of rules for traffic forwarding.  In case of ethernet switching mode - Ethernet end-host mode is also known as Ethernet host virtualizer.\n  * `switch` - In switch mode, the switch runs Spanning Tree Protocol to avoid loops, and broadcast and multicast packets are handled in the traditional way.  This is the traditional switch mode.",
-                                "intersight_api": "FcSwitchingMode",
-                                "enum": [
-                                    "end-host",
-                                    "switch"
-                                ],
-                                "title": "fc_switching_mode"
+                                "title": "fabric_port_channel_vhba_reset"
                             },
                             "mac_address_table_aging": {
                                 "type": "string",
@@ -16866,6 +17006,28 @@
                                 "minimum": 1,
                                 "maximum": 3915,
                                 "title": "reserved_vlan_start_id"
+                            },
+                            "switching_mode_ethernet": {
+                                "type": "string",
+                                "default": "end-host",
+                                "description": "Default is `end-host`.  Enable or Disable Ethernet End Host Switching Mode.\n  * `end-host` - In end-host mode, the fabric interconnects appear to the upstream devices as end hosts with multiple links.  In this mode, the switch does not run Spanning Tree Protocol and avoids loops by following a set of rules for traffic forwarding.  In case of ethernet switching mode - Ethernet end-host mode is also known as Ethernet host virtualizer.\n  * `switch` - In switch mode, the switch runs Spanning Tree Protocol to avoid loops, and broadcast and multicast packets are handled in the traditional way.  This is the traditional switch mode.",
+                                "intersight_api": "EthernetSwitchingMode",
+                                "enum": [
+                                    "end-host",
+                                    "switch"
+                                ],
+                                "title": "switching_mode_ethernet"
+                            },
+                            "switching_mode_fc": {
+                                "type": "string",
+                                "default": "end-host",
+                                "description": "Default is `end-host`.  Enable or Disable FC End Host Switching Mode.\n  * `end-host` - In end-host mode, the fabric interconnects appear to the upstream devices as end hosts with multiple links.  In this mode, the switch does not run Spanning Tree Protocol and avoids loops by following a set of rules for traffic forwarding.  In case of ethernet switching mode - Ethernet end-host mode is also known as Ethernet host virtualizer.\n  * `switch` - In switch mode, the switch runs Spanning Tree Protocol to avoid loops, and broadcast and multicast packets are handled in the traditional way.  This is the traditional switch mode.",
+                                "intersight_api": "FcSwitchingMode",
+                                "enum": [
+                                    "end-host",
+                                    "switch"
+                                ],
+                                "title": "switching_mode_fc"
                             },
                             "udld_global_settings": {
                                 "$ref": "#/components/schemas/switch_control.udld_global_settings"
@@ -16937,8 +17099,7 @@
                         "additionalProperties": false,
                         "description": "The syslog policy configure the syslog server to receive CIMC log entries.",
                         "required": [
-                            "local_logging",
-                            "remote_logging"
+                            "local_logging"
                         ],
                         "title": "syslog",
                         "properties": {

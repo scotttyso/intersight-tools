@@ -77,10 +77,10 @@ class imm(object):
         for vic in vics:
             pvars = {
                 'boot_devices': [{
+                    'device_name': 'kvm',
+                    'device_type': 'virtual_media',
                     'enabled': True,
-                    'name': 'kvm',
-                    'object_type': 'boot.VirtualMedia',
-                    'sub_type': 'kvm-mapped-dvd'
+                    'subtype': 'kvm-mapped-dvd'
                 }],
                 'boot_mode': 'Uefi',
                 'description': f'{boot_type} Boot Policy',
@@ -94,10 +94,10 @@ class imm(object):
                         for e in v:
                             for s in e['wwpns'][chr(ord('@')+x+1).lower()]:
                                 pvars['boot_devices'].append({
+                                    'device_name':  e.svm + '-' + s.interface,
+                                    'device_type': 'san_boot',
                                     'enabled': True,
                                     'interface_name': f'vhba{x+1}',
-                                    'name':  e.svm + '-' + s.interface,
-                                    'object_type': 'boot.San',
                                     'slot': vic.split(":")[1],
                                     'wwpn': s.wwpn
                                 })
@@ -105,33 +105,33 @@ class imm(object):
                 fabrics = ['a', 'b']
                 for fab in fabrics:
                         pvars['boot_devices'].append({
+                            'device_name': f'storage-{fab}',
+                            'device_type': 'iscsi_boot',
                             'enabled': True,
                             'interface_name': f'storage-{fab}',
-                            'name': f'storage-{fab}',
-                            'object_type': 'boot.Iscsi',
                             'slot': vic.split(":")[1]
                         })
             elif 'm2' in boot_type:
                 pvars['boot_devices'].extend([{
+                    'device_name': f'm2',
+                    'device_type': 'local_disk',
                     'enabled': True,
-                    'name': f'm2',
-                    'object_type': 'boot.LocalDisk',
                     'slot':'MSTOR-RAID'
                 },{
+                    'device_name': f'network_pxe',
+                    'device_type': 'pxe_boot',
                     'enabled': True,
                     'interface_name': '',
                     'interface_source': 'name',
-                    'name': f'network_pxe',
-                    'object_type': 'boot.Pxe',
                     'port': 1,
                     'slot': vic.split(":")[1]
                 }])
             if 'azurestack' in kwargs.args.deployment_type:
-                indx = next((index for (index, d) in enumerate(pvars['boot_devices']) if d['object_type'] == 'boot.Pxe'), None)
+                indx = next((index for (index, d) in enumerate(pvars['boot_devices']) if d['device_type'] == 'pxe_boot'), None)
                 pvars['boot_devices'][indx]['interface_source'] = 'port'
                 pvars['boot_devices'][indx].pop('interface_name')
             if 'gen' in vic:
-                indx = next((index for (index, d) in enumerate(pvars['boot_devices']) if d['object_type'] == 'boot.Pxe'), None)
+                indx = next((index for (index, d) in enumerate(pvars['boot_devices']) if d['device_type'] == 'pxe_boot'), None)
                 pvars['boot_devices'][indx].pop('port')
                 if len(kwargs.virtualization) > 0 and len(kwargs.virtualization[0].virtual_switches) > 0:
                     if re.search('vswitch0', kwargs.virtualization[0].virtual_switches[0].name, re.IGNORECASE):
@@ -142,14 +142,14 @@ class imm(object):
                     pvars['boot_devices'][indx]['interface_name'] = name
             pvars['boot_devices'].append({
                 'enabled': True,
-                'name': 'cimc',
-                'object_type': 'boot.VirtualMedia',
-                'sub_type': 'cimc-mapped-dvd'
+                'device_name': 'cimc',
+                'device_type': 'virtual_media',
+                'subtype': 'cimc-mapped-dvd'
             })
             pvars['boot_devices'].append({
                 'enabled': True,
-                'name': 'uefishell',
-                'object_type': 'boot.UefiShell'
+                'device_name': 'uefishell',
+                'device_type': 'uefi_shell'
             })
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
@@ -1702,7 +1702,7 @@ class imm(object):
         else: switch_mode = 'end-host'
         pvars = dict(
             description       = f'sw-ctrl {descr} Policy',
-            fc_switching_mode = switch_mode,
+            switching_mode_fc = switch_mode,
             name              = 'sw-ctrl',
             vlan_port_count_optimization = True,
         )

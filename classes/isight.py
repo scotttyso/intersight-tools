@@ -10,7 +10,7 @@ try:
     from dotmap import DotMap
     from intersight_auth import IntersightAuth, repair_pem
     from operator import itemgetter
-    from stringcase import snakecase
+    from stringcase import pascalcase, snakecase
     import json, numpy, os, re, requests, time, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -697,16 +697,31 @@ class imm(object):
     # Function - Boot Order Policy Modification
     #=============================================================================
     def boot_order(self, api_body, item, kwargs):
+        args = DotMap(
+            flex_mmc      = DotMap( Enabled = True, Subtype = "flexmmc-mapped-dvd" ),
+            http_boot     = DotMap( Enabled = True,InterfaceName = "vnic0", InterfaceSource = "name", IpConfigType = "DHCP", IpType = "IPv4", MacAddress = "",
+                                   Port = -1, Protocol = "HTTPS", Slot = "MLOM", Uri = ""),
+            iscsi_boot    = DotMap(Enabled = True, InterfaceName = "vnic0", Port = 0, Slot = "MLOM" ),
+            local_disk    = DotMap(Enabled = True, Slot = "MSTOR-RAID" ),
+            nvme          = DotMap(Enabled = True),
+            pch_storage   = DotMap(Enabled = True, Lun = 0 ),
+            pxe_boot      = DotMap(Enabled = True, InterfaceName = "vnic0", InterfaceSource = "name", IpType = "IPv4", MacAddress = "", Port = -1, Slot = "MLOM" ),
+            san_boot      = DotMap(Enabled = True, InterfaceName = "vnic0", Lun = 0, Slot = "MLOM", Wwpn = "20:00:00:25:B5:00:00:00" ),
+            sd_card       = DotMap(Enabled = True, Subtype = "SDCARD", Lun = 0 ),
+            uefi_shell    = DotMap(Enabled = True),
+            usb           = DotMap(Enabled = True, Subtype = "usb-cd" ),
+            virtual_media = DotMap(Enabled = True, Subtype = "kvm-mapped-dvd" ))
         ezdata = kwargs.ezdata['boot_order.boot_devices'].properties
         if item.get('boot_devices'):
             api_body['BootDevices'] = []
             for i in item.boot_devices:
-                boot_dev = {'Name':i.name,'ObjectType':i.object_type}
+                object_type = pascalcase(i.device_type.replace('_boot', ''))
+                boot_dev = {'Name':i.device_name,'ObjectType':f'boot.{object_type}'}
                 for k, v in i.items():
                     if k in ezdata: boot_dev.update({ezdata[k].intersight_api:v})
                 bkeys = list(boot_dev.keys())
-                if not 'Enabled' in bkeys: boot_dev['Enabled'] = True
-                if not 'IpType' in bkeys and 'boot.Pxe' == i.object_type: boot_dev['IpType'] = 'IPv4'
+                for e in list(args[i.device_type].keys()):
+                    if not e in bkeys: boot_dev[e] = args[i.device_type][e]
                 boot_dev = dict(sorted(boot_dev.items()))
                 api_body['BootDevices'].append(deepcopy(boot_dev))
         return api_body
@@ -2731,6 +2746,8 @@ class imm(object):
                     kwargs.sensitive_var = f"vmedia_password_{api_body['Mappings'][x]['Password']}"
                     kwargs = ezfunctions.sensitive_var_value(kwargs)
                     api_body['Mappings'][x]['Password'] = kwargs.var_value
+                if api_body['Mappings'][x].get('FileLocation') and api_body['Mappings'][x].get('MountProtocol') == 'nfs':
+                    api_body['Mappings'][x]['MountProtocol'] = (api_body['Mappings'][x]['MountProtocol']).replace('nfs://', '')
         return api_body
 
     #=============================================================================
