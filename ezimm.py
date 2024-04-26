@@ -422,23 +422,24 @@ def menu(kwargs):
     # Prompt User for Deployment Type and Loading Configurations
     #=================================================================
     pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Wizard!\n\n{"-"*108}\n')
-    kwargs = questions.setup_deployment_type(kwargs)
+    kwargs = questions.main_menu.deployment_type(kwargs)
     if   kwargs.deployment_type == 'Exit': return kwargs
     elif kwargs.deployment_type == 'Convert': kwargs = imm_transition(kwargs); return kwargs
-    kwargs = questions.previous_configuration(kwargs)
+    kwargs = questions.main_menu.previous_configuration(kwargs)
     if kwargs.deployment_type == 'Deploy': kwargs = deploy(kwargs); return kwargs
     kwargs.main_menu_list = []
     #=================================================================
     # Prompt User with Questions
     #=================================================================
-    kwargs = questions.organization(kwargs)
+    kwargs = questions.orgs.organization(kwargs)
     if not kwargs.get('profile_option') and kwargs.deployment_type == 'OSInstall':
         kwargs.jdata          = kwargs.ezwizard.setup.properties.profile_option
         kwargs.profile_option = ezfunctions.variable_prompt(kwargs)
     else: kwargs.profile_option = 'new'
     if not re.search('Individual', kwargs.deployment_type):
         if (re.search('OSInstall', kwargs.deployment_type) and kwargs.profile_option == 'existing'): pass
-        elif not kwargs.imm_dict.orgs[kwargs.org].wizard.setup.get('shared_org'): questions.organization_shared(kwargs)
+        elif type(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.shared_org) == str: kwargs.use_shared_org = True
+        else: questions.orgs.organization_shared(kwargs)
     if len(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.toDict()) == 0:
         kwargs = build.intersight('setup').setup(kwargs)
     else:
@@ -472,7 +473,7 @@ def process_wizard(kwargs):
                 kwargs = build.intersight(p).ezimm(kwargs)
     elif kwargs.build_type == 'Machine' and kwargs.deployment_type == 'Domain':
         if kwargs.discovery == True:
-            kwargs = build.intersight('domain').domain_discovery(kwargs)
+            kwargs = build.intersight('domain').domain_setup(kwargs)
         kwargs = build.intersight('quick_start').quick_start_domain(kwargs)
     #==============================================
     # Create YAML Files
@@ -521,6 +522,7 @@ def main():
     if kwargs.args.intersight_secret_key:
         if '~' in kwargs.args.intersight_secret_key:
             kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
+    kwargs.args.dir  = os.path.abspath(kwargs.args.dir)
     kwargs.home      = Path.home()
     kwargs.logger    = logger
     kwargs.op_system = platform.system()

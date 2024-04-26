@@ -21,11 +21,11 @@ from pyVmomi import vim # pyright: ignore
 #=====================================================
 # Function - Create Cluster using vAPIv2
 #=====================================================
-def create_cluster_vapi2(context, cluster_name, pargs):
+def create_cluster_vapi2(context, cluster_name, kwargs):
     """Create a cluster from the Datacenter managed object."""
 
     # Get the host folder for the Datacenter using the save identifier
-    datacenter = pargs.vcenter.datacenter.moid
+    datacenter = kwargs.vcenter.datacenter.moid
 
     folder_summaries = context.client.vcenter.Folder.list(
         Folder.FilterSpec(type=Folder.Type.HOST, datacenters=set([datacenter])))
@@ -49,29 +49,29 @@ def create_cluster_vapi2(context, cluster_name, pargs):
     cluster_spec.dasConfig = ha_spec
     cluster_spec.drsConfig = drs_spec
     cluster_mo = folder_mo.CreateClusterEx(cluster_name, spec=cluster_spec)
-    pargs.vcenter.cluster[cluster_name].moid = cluster_mo
+    kwargs.vcenter.cluster[cluster_name].moid = cluster_mo
 
     print("Created Cluster '{}' ({})".format(cluster_mo._moId, cluster_name))
-    return pargs
+    return kwargs
 
 
 #=====================================================
 # Function - Find Cluster and obtain Moid
 #=====================================================
-def detect_cluster(context, cluster_name, pargs):
+def detect_cluster(context, cluster_name, kwargs):
     """Find the cluster to run the vcenter samples"""
     filter_spec = Cluster.FilterSpec(names =set([cluster_name]),
-                                     datacenters =set([pargs.vcenter.datacenter.moid]))
+                                     datacenters =set([kwargs.vcenter.datacenter.moid]))
     cluster_summaries = context.client.vcenter.Cluster.list(filter_spec)
 
     if len(cluster_summaries) > 0:
         cluster = cluster_summaries[0].cluster
-        pargs.vcenter.cluster[cluster_name].moid = cluster
+        kwargs.vcenter.cluster[cluster_name].moid = cluster
         print("Detected cluster '{}' as {}".format(cluster_name, cluster))
-        return True, pargs
+        return True, kwargs
     else:
         print("Cluster '{}' not found".format(cluster_name))
-        return False, pargs
+        return False, kwargs
 
 
 #=====================================================

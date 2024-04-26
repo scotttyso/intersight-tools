@@ -796,8 +796,8 @@ def message_invalid_vsan_id(vsan_policy, vsan_id, vsan_list):
 # Function - Message Starting Over
 #=============================================================================
 def message_starting_over(policy_type):
-    pcolor.Cyan(f'\n{"-"*54}\n\n  Starting `{policy_type}` Section over.')
-    pcolor.Cyan(f'\n{"-"*54}\n')
+    pcolor.Yellow(f'\n{"-"*54}\n\n  Starting `{policy_type}` Section over.')
+    pcolor.Yellow(f'\n{"-"*54}\n')
 
 #=============================================================================
 # Function - Change Policy Description to Sentence
@@ -956,6 +956,7 @@ def remove_duplicates(orgs, plist, kwargs):
                 if type(kwargs.imm_dict.orgs[org][d][e]) == list:
                     idict[org][d][e] = []
                     for i in kwargs.imm_dict.orgs[org][d][e]:
+                        i = dict(sorted(i.items()))
                         if not i in idict[org][d][e]: idict[org][d][e].append(i)
                     kwargs.imm_dict.orgs[org][d][e] = deepcopy(idict[org][d][e])
             kwargs.imm_dict.orgs[org][d] = DotMap(sorted(kwargs.imm_dict.orgs[org][d].items()))
@@ -1720,14 +1721,14 @@ def vlan_list_full(vlan_list):
     if re.search(r',', str(vlan_list)):
         vlist = vlan_list.split(',')
         for v in vlist:
-            if re.fullmatch('^\\d{1,4}\\-\\d{1,4}$', v):
+            if re.search(r'-', v):
                 a,b = v.split('-'); a = int(a); b = int(b); vrange = range(a,b+1)
                 for vl in vrange: full_vlan_list.append(int(vl))
-            elif re.fullmatch('^\\d{1,4}$', v): full_vlan_list.append(int(v))
+            else: full_vlan_list.append(int(v))
     elif re.search('\\-', str(vlan_list)):
         a,b = vlan_list.split('-'); a = int(a); b = int(b); vrange = range(a,b+1)
         for v in vrange: full_vlan_list.append(int(v))
-    else: full_vlan_list.append(vlan_list)
+    else: full_vlan_list.append(int(vlan_list))
     return full_vlan_list
 
 #=============================================================================

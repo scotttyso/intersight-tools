@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, './classes')
 import classes.ezfunctions
-import classes.vmware
+import classes.vmw
 
 # Global Variables
 excel_workbook = None

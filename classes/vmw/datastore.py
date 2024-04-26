@@ -18,7 +18,7 @@ from com.vmware.vcenter_client import Host
 from pyVmomi import vim # pyright: ignore
 
 
-def detect_nfs_datastore_on_host(context, datastore_name, host_name, pargs):
+def detect_nfs_datastore_on_host(context, datastore_name, host_name, kwargs):
     # Use vAPI find the Host managed identities
     host_summaries = context.client.vcenter.Host.list(
         Host.FilterSpec(names=set([host_name])))
@@ -34,11 +34,11 @@ def detect_nfs_datastore_on_host(context, datastore_name, host_name, pargs):
                 datastore = datastore_mo._moId
                 print("Detected NFS Volume '{}' as {} on Host '{}' ({})".
                       format(datastore_name, datastore, host_name, host))
-                pargs.esxhosts[host_name].datastores[datastore_name] = datastore
-                return True, pargs
+                kwargs.esxhosts[host_name].datastores[datastore_name] = datastore
+                return True, kwargs
 
     print("NFS Volume '{}' missing on Host '{}'".format(datastore_name, host_name))
-    return False, pargs
+    return False, kwargs
 
 
 def cleanup_nfs_datastore(context):
@@ -71,15 +71,15 @@ def cleanup_nfs_datastore(context):
                 # TODO Do we need to do this?
 
 
-def setup_nfs_datastore_on_host(context, datastore_name, host_name, pargs):
+def setup_nfs_datastore_on_host(context, datastore_name, host_name, kwargs):
     """Mount the NFS volume on one ESX hosts using the VIM API."""
-    host    = pargs.esxhosts[host_name].moid
+    host    = kwargs.esxhosts[host_name].moid
     host_mo = vim.HostSystem(host, context.soap_stub)
 
     datastore_system = host_mo.configManager.datastoreSystem
     try:
         datastore_mo = datastore_system.CreateNasDatastore(
-            vim.host.NasVolume.Specification(remoteHost=pargs.netapp.nfs.ip,
+            vim.host.NasVolume.Specification(remoteHost=kwargs.netapp.nfs.ip,
                                              remotePath=f'/{datastore_name}',
                                              localPath=datastore_name,
                                              accessMode=vim.host.MountInfo.AccessMode.readWrite,
@@ -94,7 +94,7 @@ def setup_nfs_datastore_on_host(context, datastore_name, host_name, pargs):
         for datastore_mo in host_mo.datastore:
             info = datastore_mo.info
             if (isinstance(info, vim.host.NasDatastoreInfo) and
-                           info.nas.remoteHost == pargs.netapp.nfs.ip and
+                           info.nas.remoteHost == kwargs.netapp.nfs.ip and
                            info.nas.remotePath == f'/{datastore_name}'):
                 if info.name == datastore_name:
                     print("Found NFS Volume '{}' ({}) on Host '{}' ({})".
@@ -103,7 +103,7 @@ def setup_nfs_datastore_on_host(context, datastore_name, host_name, pargs):
                     return datastore_mo._moId
                 else:
                     print("Found NFS remote host '{}' and path '{}' on Host '{}' ({}) as '{}'".
-                          format(pargs.netapp.nfs.ip, f'/{datastore_name}', host_name,
+                          format(kwargs.netapp.nfs.ip, f'/{datastore_name}', host_name,
                                  host_mo._moId, info.name))
 
                     print("Renaming NFS Volume '{}' ({}) to '{}'".
@@ -143,11 +143,11 @@ def detect_vmfs_datastore(context, host_name, datastore_name):
     return False
 
 
-def create_vmfs_datastore(context, pargs):
+def create_vmfs_datastore(context, kwargs):
     datastore_name = 'unknown'
     """Find VMFS datastore given host and datastore names"""
     #context.testbed.entities['HOST_VMFS_DATASTORE_IDS'] = {}
-    for host_summary in pargs.host_summaries:
+    for host_summary in kwargs.host_summaries:
         # Convert the host identifier into a ManagedObject
         esx_host = host_summary.name
         host     = host_summary.host
@@ -191,12 +191,12 @@ def create_vmfs_datastore(context, pargs):
 
         return False
 
-def setup_vmfs_datastore(context, pargs):
+def setup_vmfs_datastore(context, kwargs):
     datastore_name = 'unknown'
-    print(pargs.host_summaries)
+    print(kwargs.host_summaries)
     """Find VMFS datastore given host and datastore names"""
     #context.testbed.entities['HOST_VMFS_DATASTORE_IDS'] = {}
-    for host_summary in pargs.host_summaries:
+    for host_summary in kwargs.host_summaries:
         # Convert the host identifier into a ManagedObject
         esx_host = host_summary.name
         host     = host_summary.host

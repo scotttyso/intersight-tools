@@ -348,7 +348,6 @@ class intersight(object):
     # Function - Modify Server Profiles
     #=============================================================================
     def modify_server(pvars, kwargs):
-        print(pvars)
         key_list = ['boot_order_policy,boot_policy','ucs_server_template,ucs_server_profile_template']
         pvars = intersight.replace_keys(key_list, pvars)
         pkeys = list(pvars.keys())
@@ -375,7 +374,6 @@ class intersight(object):
                 pvars.targets[x].reservations = []
                 for e in temp_dict:
                     edict = deepcopy(e)
-                    print(edict)
                     edict = intersight.replace_keys(key_list, edict)
                     pvars.targets[x].reservations.append(edict)
         pvars = DotMap(sorted(pvars.items()))
@@ -624,9 +622,6 @@ class intersight(object):
                         elif p2 == 'vlan':                     pvars = intersight.modify_vlan(pvars)
                         elif p2 == 'vsan':                     pvars = intersight.modify_vsan(pvars)
                         elif re.search('ip|iqn|mac|uuid|wwnn|wwpn', p2): pvars = intersight.modify_pools(pvars)
-                        #else:
-                        #    print(json.dumps(pvars, indent=4))
-                        #    print(key,p1,p2)
                         kwargs.class_path = f'{p1},{p2}'
                         kwargs = ezfunctions.ez_append(pvars, kwargs)
         # Return kwargs

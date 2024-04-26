@@ -36,7 +36,7 @@ def get_unverified_session():
     Note this is not recommended in production code.
     @return: a requests session with verification disabled.
     """
+    requests.packages.urllib3.disable_warnings()
     session = requests.session()
     session.verify = False
-    requests.packages.urllib3.disable_warnings()
     return session

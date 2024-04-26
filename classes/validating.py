@@ -661,6 +661,15 @@ def uuid_suffix(varName, varValue):
         return False
     else: return True
 
+def vlan_list(vlan_list):
+    for e in vlan_list:
+        if not validators.between(e, min=1, max=4093):
+            pcolor.Red(f'\n{"-"*108}')
+            pcolor.Red(f'   !!! ERROR !!! VLAN Id `{e}` is invalid.  It must be an integer between 1 and 4093:')
+            pcolor.Red(f'{"-"*108}')
+            return False
+    return True
+
 def vlans(var, kwargs):
     row_num = kwargs['row_num']
     ws = kwargs['ws']

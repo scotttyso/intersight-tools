@@ -4041,8 +4041,8 @@ def port_modes(kwargs):
         for e in kwargs.fc_ports:
             pcolor.Yellow(f'  * PortId: {e.port}, optic: {e.optic}')
         if kwargs.domain.type == 'UCS-FI-6536':
-            kwargs.jdata   = kwargs.ezwizard.fabric.properties.port_mode_gen5
-        else: kwargs.jdata = kwargs.ezwizard.fabric.properties.port_mode_gen4
+            kwargs.jdata   = kwargs.ezwizard.port.properties.port_mode_gen5
+        else: kwargs.jdata = kwargs.ezwizard.port.properties.port_mode_gen4
         fc_ports = ezfunctions.variable_prompt(**kwargs)
         x = fc_ports.split('-')
         fc_ports = [int(x[0]),int(x[1])]

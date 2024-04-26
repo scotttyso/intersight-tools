@@ -20,24 +20,24 @@ def folder_list_datacenter_folder(context):
     return context.client.vcenter.Folder.list(Folder.FilterSpec(type=Folder.Type.DATACENTER))
 
 
-def detect_datacenter(context, pargs):
+def detect_datacenter(context, kwargs):
     """Find the datacenter with the given name"""
-    datacenter_name = pargs.vcenter.datacenter.name
+    datacenter_name = kwargs.vcenter.datacenter.name
     names = set([datacenter_name])
     datacenter_summaries = context.client.vcenter.Datacenter.list(
         Datacenter.FilterSpec(names=names))
     if len(datacenter_summaries) > 0:
         datacenter = datacenter_summaries[0].datacenter
-        pargs.vcenter.datacenter.moid = datacenter
+        kwargs.vcenter.datacenter.moid = datacenter
         print("Detected Datacenter '{}' as {}".
               format(datacenter_name, datacenter))
-        return True, pargs
+        return True, kwargs
     else:
         print("Datacenter '{}' doesn't exist.".format(datacenter_name))
-        return False, pargs
+        return False, kwargs
 
 
-def create_datacenter(context, pargs):
+def create_datacenter(context, kwargs):
     """Create datacenters for running vcenter samples"""
     # Find a Folder in which to put the Datacenters
     folder_summaries = folder_list_datacenter_folder(context)
@@ -46,19 +46,19 @@ def create_datacenter(context, pargs):
           format(folder, folder_summaries[0].name))
 
     # Create datacenter
-    datacenter_name = pargs.vcenter.datacenter
-    pargs.datacenter = context.client.vcenter.Datacenter.create(
+    datacenter_name = kwargs.vcenter.datacenter
+    kwargs.datacenter = context.client.vcenter.Datacenter.create(
         Datacenter.CreateSpec(name=datacenter_name, folder=folder)
     )
-    print("Created Datacenter '{}' ({})".format(pargs.datacenter, datacenter_name))
-    return pargs
+    print("Created Datacenter '{}' ({})".format(kwargs.datacenter, datacenter_name))
+    return kwargs
 
 
-def remove_datacenters(context, pargs):
+def remove_datacenters(context, kwargs):
     """Remove datacenters"""
 
     # Look for the two datacenters
-    datacenter_name = pargs.vcenter.datacenter
+    datacenter_name = kwargs.vcenter.datacenter
     names = set([datacenter_name])
 
     datacenter_summaries = context.client.vcenter.Datacenter.list(

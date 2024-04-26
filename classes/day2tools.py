@@ -40,8 +40,8 @@ class tools(object):
         #=============================================================================
         # Prompt for Profile Type and obtain Pools/Policies
         #=============================================================================
-        kwargs     = questions.profile_type(kwargs)
-        kwargs     = questions.build_policy_list(kwargs)
+        kwargs     = questions.profiles.profile_type(kwargs)
+        kwargs     = questions.policies.build_policy_list(kwargs)
         pool_types = []
         if kwargs.target_platform == 'FIAttached':
             kwargs.jdata       = kwargs.ezwizard.setup.properties.server_type
@@ -92,7 +92,7 @@ class tools(object):
                 if re.search('^resource|uuid$', e):
                     kwargs.pools.append(DotMap(Moid=kwargs[f'{e}_results'][indx].Moid,ObjectType=kwargs[f'{e}_results'][indx].ObjectType))
                 else: kwargs.policy_bucket.append(DotMap(Moid=kwargs[f'{e}_results'][indx].Moid,ObjectType=kwargs[f'{e}_results'][indx].ObjectType))
-            answer = questions.prompt_user_to_accept('the `policy bucket update`', policy_names, kwargs)
+            answer = questions.prompt_user.to_accept('the `policy bucket update`', policy_names, kwargs)
             if answer == True: accept_policies = True
         #=============================================================================
         # Update the Profiles
@@ -327,8 +327,8 @@ class tools(object):
         #=============================================================================
         # Prompt for Profile Type and obtain Pools/Policies
         #=============================================================================
-        kwargs = questions.profile_type(kwargs)
-        kwargs = questions.build_policy_list(kwargs)
+        kwargs = questions.profiles.profile_type(kwargs)
+        kwargs = questions.policies.build_policy_list(kwargs)
         for e in ['imc_access', 'iscsi_boot', 'firmware_authenticate', 'lan_connectivity', 'ldap', 'local_user', 'port', 'san_connectivity', 'storage', 'vlan', 'vsan']:
             if e in kwargs.policy_list: kwargs.policy_list.remove(e)
         kwargs.jdata      = kwargs.ezwizard.setup.properties.policy_types
@@ -479,7 +479,7 @@ class tools(object):
             if not indx == None: pdict[k].server_profile = profile_results[indx].Name
 
         if len(pdict) > 0:
-            kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
+            kwargs.timezone = questions.prompt_user.for_timezone(kwargs)
             kwargs = tools(self.type).setup_local_time(kwargs)
             # Build Named Style Sheets for Workbook
             kwargs = tools(self.type).workbook_styles(kwargs)
@@ -759,7 +759,7 @@ class tools(object):
                 kwargs.servers[k].vhbas = sorted(v.vhbas, key=lambda ele: ele.order)
                 if v.platform_type == 'UCSFI': kwargs.servers[k].domain = kwargs.domains[v.registration].name
                 elif v.mgmt_mode != 'IntersightStandalone': kwargs.servers[k].domain = kwargs.domains[v.parent].name
-            #kwargs.timezone = questions.prompt_user_for_timezone(kwargs)
+            kwargs.timezone = questions.prompt_user.for_timezone(kwargs)
             kwargs.timezone = 'America/New_York'
             kwargs  = tools(self.type).setup_local_time(kwargs)
             #=============================================================================

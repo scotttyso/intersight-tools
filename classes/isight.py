@@ -386,29 +386,28 @@ class api(object):
             payload = kwargs.api_body
             retries = 3
             uri     = kwargs.uri
-            url     = kwargs.args.url
+            url     = f'{kwargs.args.url}/api/v1'
             for i in range(retries):
                 try:
                     def send_error():
                         pcolor.Red(json.dumps(kwargs.api_body, indent=4))
                         pcolor.Red(kwargs.api_body)
                         pcolor.Red(f'!!! ERROR !!!')
-                        if kwargs.method == 'get_by_moid': pcolor.Red(f'  URL: {url}/api/v1/{uri}/{moid}')
-                        elif kwargs.method ==    'delete': pcolor.Red(f'  URL: {url}/api/v1/{uri}/{moid}')
-                        elif kwargs.method ==       'get': pcolor.Red(f'  URL: {url}/api/v1/{uri}{aargs}')
-                        elif kwargs.method ==     'patch': pcolor.Red(f'  URL: {url}/api/v1/{uri}/{moid}')
-                        elif kwargs.method ==      'post': pcolor.Red(f'  URL: {url}/api/v1/{uri}')
+                        if kwargs.method == 'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif kwargs.method ==    'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif kwargs.method ==       'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
+                        elif kwargs.method ==     'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif kwargs.method ==      'post': pcolor.Red(f'  URL: {url}/{uri}')
                         pcolor.Red(f'  Running Process: {kwargs.method} {self.type}')
-                        pcolor.Red(f'    Error status is {status}')
+                        pcolor.Red(f'    Error status is {response}')
                         for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
                         len(False); sys.exit(1)
-                    if 'get_by_moid' in kwargs.method: response = requests.get(   f'{url}/api/v1/{uri}/{moid}', auth=aauth)
-                    elif 'delete' in kwargs.method:    response = requests.delete(f'{url}/api/v1/{uri}/{moid}', auth=aauth)
-                    elif 'get' in kwargs.method:       response = requests.get(   f'{url}/api/v1/{uri}{aargs}', auth=aauth)
-                    elif 'patch' in kwargs.method:     response = requests.patch( f'{url}/api/v1/{uri}/{moid}', auth=aauth, json=payload)
-                    elif 'post' in kwargs.method:      response = requests.post(  f'{url}/api/v1/{uri}',        auth=aauth, json=payload)
-                    status = response
-                    if re.search('40[0|3]', str(status)):
+                    if 'get_by_moid' in kwargs.method: response = requests.get(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                    elif 'delete' in kwargs.method: response = requests.delete(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                    elif 'get' in kwargs.method:    response = requests.get(   f'{url}/{uri}{aargs}', verify=False, auth=aauth)
+                    elif 'patch' in kwargs.method:  response = requests.patch( f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
+                    elif 'post' in kwargs.method:   response = requests.post(  f'{url}/{uri}',        verify=False, auth=aauth, json=payload)
+                    if re.search('40[0|3]', str(response)):
                         retry_action = False
                         #send_error()
                         for k, v in (response.json()).items():
@@ -419,7 +418,7 @@ class api(object):
                             time.sleep(45)
                             continue
                         else: send_error()
-                    elif not re.search('(20[0-9])', str(status)): send_error()
+                    elif not re.search('(20[0-9])', str(response)): send_error()
                 except requests.HTTPError as e:
                     if re.search('Your token has expired', str(e)) or re.search('Not Found', str(e)):
                         kwargs.results = False
@@ -431,23 +430,24 @@ class api(object):
                         kwargs.running = True
                         return kwargs
                     else:
-                        pcolor.Red(f"Exception when calling {kwargs.uri}: {e}\n")
+                        pcolor.Red(f"Exception when calling {url}/{uri}: {e}\n")
                         len(False); sys.exit(1)
                 break
             #=============================================================================
             # Print Debug Information if Turned on
             #=============================================================================
             api_results = DotMap(response.json())
-            if int(debug_level) >= 1: pcolor.Cyan(str(response))
+            if int(debug_level) >= 1: pcolor.Cyan(f'RESPONSE: {str(response)}')
             if int(debug_level)>= 5:
-                if kwargs.method == 'get_by_moid': pcolor.Cyan(f'  URL: {url}/api/v1/{uri}/{moid}')
-                elif kwargs.method ==       'get': pcolor.Cyan(f'  URL: {url}/api/v1/{uri}{aargs}')
-                elif kwargs.method ==     'patch': pcolor.Cyan(f'  URL: {url}/api/v1/{uri}/{moid}')
-                elif kwargs.method ==      'post': pcolor.Cyan(f'  URL: {url}/api/v1/{uri}')
-            if int(debug_level) >= 6: pcolor.Cyan(api_results)
-            if int(debug_level) == 7:
-                pcolor.Cyan(json.dumps(payload, indent=4))
+                if   kwargs.method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
+                elif kwargs.method ==         'get': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}{aargs}')
+                elif kwargs.method ==       'patch': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
+                elif kwargs.method ==        'post': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}')
+            if int(debug_level) >= 6:
+                pcolor.Cyan('HEADERS:')
                 pcolor.Cyan(json.dumps(dict(response.headers), indent=4))
+                if len(payload) > 0: pcolor.Cyan('PAYLOAD:'); pcolor.Cyan(json.dumps(payload, indent=4))
+            if int(debug_level) == 7: pcolor.Cyan(json.dumps(api_results, indent=4))
             #=============================================================================
             # Gather Results from the apiCall
             #=============================================================================
@@ -464,7 +464,7 @@ class api(object):
                 else:
                     kwargs.pmoid = api_results.Moid
                     if kwargs.api_body.get('Name'): kwargs.pmoids[kwargs.api_body['Name']] = kwargs.pmoid
-            elif 'inventory' in kwargs.uri: icount = 0
+            elif 'inventory' in kwargs.uri: pass
             elif kwargs.build_skip == False: kwargs.pmoids = api.build_pmoid_dictionary(self, api_results, kwargs)
             #=============================================================================
             # Print Progress Notifications
@@ -508,15 +508,16 @@ class api(object):
                     regex2 = re.compile('(ip|iqn|mac|uuid|wwnn|wwpn)_leases')
                     if re.search('(vlans|vsans|port.port_)', self.type): names = ", ".join(map(str, kwargs.names))
                     else: names = "', '".join(kwargs.names).strip("', '")
-                    if re.search('(organization|resource_group)', self.type): api_filter = f"Name in ('{names}')"
-                    else: api_filter = f"Name in ('{names}') and Organization.Moid eq '{org_moid}'"
-                    if   'ancestors'    == self.type:         api_filter = f"Ancestors/any(t:t/Moid in ('{names}'))"
+                    if re.search('^(organization|resource_group)$', self.type): api_filter = f"Name in ('{names}')"
+                    elif 'ancestors'    == self.type:         api_filter = f"Ancestors/any(t:t/Moid in ('{names}'))"
                     elif 'asset_target' == self.type:         api_filter = f"TargetId in ('{names}')"
                     elif 'connectivity.vhbas' in self.type:   api_filter = f"Name in ('{names}') and SanConnectivityPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'connectivity.vnics' in self.type:   api_filter = f"Name in ('{names}') and LanConnectivityPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'hcl_status' == self.type:           api_filter = f"ManagedObject.Moid in ('{names}')"
                     elif 'iam_role' == self.type:             api_filter = f"Name in ('{names}') and Type eq 'IMC'"
                     elif 'iqn_pool_leases' == self.type:      api_filter = f"AssignedToEntity.Moid in ('{names}')"
+                    elif 'multi_org' in self.type:            api_filter = f"Organization.Moid in ('{names}')"
+                    elif 'parent_moids' in self.type:         api_filter = f"{kwargs.parent}.Moid in ('{names}')"
                     elif 'port.port_channel_' in self.type:   api_filter = f"PcId in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'port.port_modes' == self.type:      api_filter = f"PortIdStart in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'port.port_role_' in self.type:      api_filter = f"PortId in ({names}) and PortPolicy.Moid eq '{kwargs.pmoid}'"
@@ -534,6 +535,7 @@ class api(object):
                     elif 'wwnn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWNN' and AssignedToEntity.Moid in ('{names}')"
                     elif 'wwpn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWPN' and AssignedToEntity.Moid in ('{names}')"
                     elif re.search('ww(n|p)n', self.type):    api_filter = api_filter + f" and PoolPurpose eq '{self.type.upper()}'"
+                    else: api_filter = f"Name in ('{names}') and Organization.Moid eq '{org_moid}'"
                     if api_filter == '': ''
                     else: api_args = f'?$filter={api_filter}'
                 elif kwargs.api_filter == 'ignore': api_args=''
@@ -586,13 +588,13 @@ class api(object):
                     kwargs.results = results
         else:
             kwargs.api_args = ''
-            kwargs = api_calls(kwargs)
+            kwargs          = api_calls(kwargs)
         #=============================================================================
         # Return kwargs
         #=============================================================================
-        if kwargs.get('api_filter'): kwargs.pop('api_filter')
-        if kwargs.get('build_skip'): kwargs.pop('build_skip')
-        if kwargs.get('top1000'): kwargs.pop('top1000')
+        kwargs_keys = list(kwargs.keys())
+        if 'api_filter' in kwargs_keys: kwargs.pop('api_filter')
+        if 'build_skip' in kwargs_keys: kwargs.pop('build_skip')
         return kwargs
 
     #=============================================================================
@@ -1054,8 +1056,8 @@ class imm(object):
         for e in ['cco_password', 'cco_user']:
             if os.environ.get(e) == None:
                 kwargs.sensitive_var = e
-                kwargs = ezfunctions.sensitive_var_value(kwargs)
-                os.environ[e] = kwargs.value
+                kwargs               = ezfunctions.sensitive_var_value(kwargs)
+                os.environ[e]        = kwargs.value
         kwargs.api_body = {
             'ObjectType':'softwarerepository.Authorization','Password':os.environ['cco_password'],
             'RepositoryType':'Cisco','UserId':os.environ['cco_user']}
@@ -1414,8 +1416,13 @@ class imm(object):
     # Function - Network Connectivity Policy Modification
     #=============================================================================
     def network_connectivity(self, api_body, item, kwargs):
-        dns_list = ['v4', 'v6']; kwargs = kwargs
-        for i in dns_list:
+        ip_versions = ['v4', 'v6']; kwargs = kwargs
+        body_keys = list(api_body.keys())
+        if 'dns_servers_ipv6' in body_keys:
+            if len(api_body['dns_servers_ipv6']) > 0: api_body['EnableIpv6'] = True
+        if 'EnableIpv6dnsFromDhcp' in body_keys:
+            if api_body['EnableIpv6dnsFromDhcp'] == True: api_body['EnableIpv6'] = True
+        for i in ip_versions:
             dtype = f'dns_servers_{i}'
             if dtype in api_body:
                 if len(item[dtype]) > 0: api_body.update({f'PreferredIp{i}dnsServer':item[dtype][0]})
@@ -1631,6 +1638,9 @@ class imm(object):
         #=============================================================================
         def policies_to_api(api_body, kwargs):
             kwargs.uri   = kwargs.ezdata[self.type].intersight_uri
+            if not api_body.get('Descr'):
+                policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+                api_body['Description'] = f'{api_body["Name"]} {policy_title} Policy.'
             if api_body['Name'] in kwargs.isight[kwargs.org].policy[self.type]:
                 indx = next((index for (index, d) in enumerate(kwargs.policy_results) if d['Name'] == api_body['Name']), None)
                 patch_policy = imm(self.type).compare_body_result(api_body, kwargs.policy_results[indx])

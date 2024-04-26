@@ -4,7 +4,8 @@ wrap = textwrap.TextWrapper()
 # Functions: Print in Color
 #=============================================================================
 def print_process(cchar, ptext):
-    if len(ptext) <= 109: print(f"\033[{cchar} {ptext}\033[00m")
+    if type(ptext) == dict or type(ptext) == list: print(f"\033[{cchar}{ptext}\033[00m")
+    elif len(ptext) <= 109: print(f"\033[{cchar} {ptext}\033[00m")
     elif re.search(r'^\[|\{', ptext): print(f"\033[{cchar}{ptext}\033[00m")
     elif re.search(r'^\n[\+\-\*]', ptext): print(f"\033[{cchar}{ptext}\033[00m")
     elif re.search(r'^$', ptext): print(f"\033[{cchar}{ptext}\033[00m")

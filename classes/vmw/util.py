@@ -25,7 +25,7 @@ def pp(value):
     return output.getvalue()
 
 
-def parse_cli_args_vm(vm_name, pargs):
+def parse_cli_args_vm(vm_name, kwargs):
     """
     Parse the server IP, credential and vm name used by vcenter vm samples.
     Use values from command line arguments if present, otherwise use values
@@ -36,8 +36,7 @@ def parse_cli_args_vm(vm_name, pargs):
     parser.add_argument('-n', '--vm_name',
                         action='store',
                         help='Name of the testing vm')
-    args = process_cli_args(parser.parse_args(), pargs)
-
+    args = process_cli_args(parser.parse_args(), kwargs)
     if args.vm_name:
         vm_name = args.vm_name
     else:
@@ -45,37 +44,32 @@ def parse_cli_args_vm(vm_name, pargs):
     if not vm_name:
         raise Exception("vm name is required")
     print("vm name = {}".format(vm_name))
-
     return args.server, args.username, args.password, args.cleardata, \
            args.skipverification, vm_name
 
 
-def process_cli_args(args, pargs):
+def process_cli_args(args, kwargs):
     """
     Verify if required inputs (server, username and password) are provided.
     If they are not passed through cmd arguments, we will try to get them from
     testbed.py. If they are not configured in testbed.py either, we will raise
     an exception to remind the user to provide them.
     """
-
     if not args.server:
         print("Using vcenter server specified in testbed.py")
-        args.server = pargs.vcenter_server
+        args.server = kwargs.vcenter_server
     if not args.server:
         raise Exception("vcenter server is required")
     print("vcenter server = {}".format(args.server))
-
     if not args.username:
         print("Using vc user specified in testbed.py")
-        args.username = pargs.vcenter_user
+        args.username = kwargs.vcenter_user
     if not args.username:
         raise Exception("vc username is required")
     print("vc username = {}".format(args.username))
-
     if not args.password:
         print("Using vc password specified in testbed.py")
-        args.password = pargs.vcenter_password
-
+        args.password = kwargs.vcenter_password
     return args
 
 
@@ -85,13 +79,10 @@ class Context(object):
     def __init__(self, service_instance, client):
         # Testbed configuration
         #self._testbed = testbed
-
         # pyVmomi SOAP Service Instance
         self._service_instance = service_instance
-
         # vAPI vSphere client
         self._client = client
-
         self._option = {}
 
     #@property
@@ -101,39 +92,30 @@ class Context(object):
     #@testbed.setter
     #def testbed(self, value):
     #    self._testbed = value
-
     @property
     def service_instance(self):
         return self._service_instance
-
     @service_instance.setter
     def service_instance(self, value):
         self._service_instance = value
-
     @property
     def soap_stub(self):
         return self._service_instance._stub
-
     @soap_stub.setter
     def soap_stub(self, value):
         self._soap_stub = value
-
     @property
     def client(self):
         return self._client
-
     @client.setter
     def client(self, value):
         self._client = value
-
     @property
     def option(self):
         return self._option
-
     @option.setter
     def option(self, value):
         self._option = value
-
     def to_option_string(self):
         s = ['=' * 79,
              'Testbed Options:',
