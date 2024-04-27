@@ -466,37 +466,20 @@ class policies(object):
     # Function: Announcement
     #=========================================================================
     def announcement(self, kwargs):
+        policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
         if   kwargs.profile_type == 'chassis':  name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.name
         elif kwargs.profile_type == 'domain':   name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.name
         elif kwargs.profile_type == 'server':   name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server.name
         elif kwargs.profile_type == 'template': name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template.name
         for e in kwargs.ezdata.ezimm_class.properties.policies.enum:
             if self.type in kwargs.ezdata.ezimm_class.properties[e].enum: yaml_file = e
-        base_folder  = kwargs.args.dir
-        policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
-        if type(kwargs.optional_policy) == bool and kwargs.optional_policy == True:
-            pcolor.LightPurple(f'\n{"-"*108}\n')
-            pcolor.Cyan(f'  The next group of questions will be for configuring a(n) `{policy_title}` Policy to attach to {kwargs.profile_type} profile '\
-                        f'`{name}`.  The wizard will ask for input and confirm the policy inputs before proceeding to the next policy.\n')
-            pcolor.Cyan(f'  This wizard will save the configuration for the `{self.type}` policy to the following file:')
-            pcolor.Yellow(f'    - {base_folder}{os.sep}policies{os.sep}{yaml_file}.yaml')
-            pcolor.LightPurple(f'\n{"-"*108}\n')
-            kwargs.jdata = DotMap(
-                description = f'Do you want to add a(n) `{policy_title}` to `{name}`:',
-                default = True,
-                title = f'{policy_title} Policy',
-                type = 'boolean')
-            kwargs.optional_answer = ezfunctions.variable_prompt(kwargs)
-        else:
-            pcolor.LightPurple(f'\n{"-"*108}\n')
-            pcolor.Cyan(f'  The next group of questions will be for configuring a(n) `{policy_title}` Policy to attach to {kwargs.profile_type} profile '\
-                        f'`{name}`.  The wizard will ask for input and confirm the policy inputs before proceeding to the next policy.\n')
-            pcolor.Cyan(f'  This wizard will save the configuration for the `{self.type}` policy to the following file:')
-            pcolor.Yellow(f'    - {base_folder}{os.sep}policies{os.sep}{yaml_file}.yaml')
-            pcolor.LightPurple(f'\n{"-"*108}\n')
-            input(f'\n Press Enter to Continue: ')
-            kwargs.optional_answer = True
-        kwargs.pop('optional_policy')
+        pcolor.LightPurple(f'\n{"-"*108}\n')
+        pcolor.Cyan(f'  The next group of questions will be for configuring a(n) `{policy_title}` Policy to attach to {kwargs.profile_type} profile '\
+                    f'`{name}`.  The wizard will ask for input and confirm the policy inputs before proceeding to the next policy.\n')
+        pcolor.Cyan(f'  This wizard will save the configuration for the `{self.type}` policy to the following file:')
+        pcolor.Yellow(f'    - {kwargs.args.dir}{os.sep}policies{os.sep}{yaml_file}.yaml')
+        pcolor.LightPurple(f'\n{"-"*108}\n')
+        input(f'\n Press Enter to Continue: ')
         return kwargs
 
     #=========================================================================
@@ -526,12 +509,199 @@ class policies(object):
         ezfunctions.create_yaml(orgs, kwargs)
 
     #=========================================================================
+    # Function: Prompt User for Ethernet Network Control Policy Settings
+    #=========================================================================
+    def ethernet_network_control(self, kwargs):
+        policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata              = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default      = 'both-cdp-lldp'
+                pvars.name                = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata              = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.cdp_enable)
+                kwargs.jdata.description  = 'Do you want to Enable CDP for this policy?'
+                pvars.cdp_enable          = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata              = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.lldp_enable_receive)
+                kwargs.jdata.description  = 'Do you want to Enable LLDP for this policy?'
+                pvars.lldp_enable_receive = ezfunctions.variable_prompt(kwargs)
+                if pvars.lldp_enable_recieve == True: pvars.lldp_enable_transmit
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                accept = prompt_user(self.type).to_accept(f'the {policy_title} Policy', pvars, kwargs)
+                if accept == True:
+                    kwargs.class_path = f'policies,{self.type}'
+                    kwargs            = ezfunctions.ez_append(pvars, kwargs)
+                    if kwargs.use_shared_org == True:  kwargs.policy_name = f'{kwargs.shared_org}/{pvars.name}'
+                    else: kwargs.policy_name = pvars.name
+                    policy_accept = True
+                else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Ethernet Network Group Policy Settings
+    #=========================================================================
+    def ethernet_network_group(self, kwargs):
+        policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            if type(kwargs.vlan_policy) == str: vlan_policy = kwargs.vlan_policy
+            else: vlan_policy = policies('vlan').vlan(kwargs)
+            kwargs = policies.vlan_ranges(vlan_policy, kwargs)
+            vlans  = kwargs.vlans, vlan_range = kwargs.vlan_range
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata         = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default = 'eth-grp'
+                pvars.name           = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata         = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.allowed_vlans)
+                pvars.allowed_vlans  = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata         = deepcopy(kwargs.ezwizard[self.type].properties.configure_native_vlan)
+                configure_native     = ezfunctions.variable_prompt(kwargs)
+                if configure_native == True:
+                    kwargs.jdata      = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.native_vlan)
+                    pvars.native_vlan = int(ezfunctions.variable_prompt(kwargs))
+                vlan_full   = ezfunctions.vlan_list_full(pvars.allowed_vlans)
+                if not pvars.native_vlan in vlan_full:
+                    vlan_full.append(pvars.native_vlan); vlan_full = sorted(vlan_full)
+                skip_prompt = False
+                valid_vlans = validating.vlan_list(vlan_full)
+                if valid_vlans == False: skip_prompt = True; break
+                pcolor.Yellow('')
+                for e in vlan_full:
+                    if not e in vlans:
+                        pcolor.Yellow(f'  * !!! ERROR !!! - VLAN `{e}` is not in the VLAN Policy.  VLAN Policy VLANS are: `{vlan_range}`')
+                        skip_prompt = True; break
+                pcolor.Yellow('')
+                if valid_vlans == False: skip_prompt = True; break
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                if skip_prompt == True: accept = False
+                else: accept = prompt_user(self.type).to_accept(f'the {policy_title} Policy', pvars, kwargs)
+                if accept == True:
+                    kwargs.class_path = f'policies,{self.type}'
+                    kwargs            = ezfunctions.ez_append(pvars, kwargs)
+                    if kwargs.use_shared_org == True:  kwargs.policy_name = f'{kwargs.shared_org}/{pvars.name}'
+                    else: kwargs.policy_name = pvars.name
+                    policy_accept = True
+                else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Flow Control Policy Settings
+    #=========================================================================
+    def flow_control(self, kwargs):
+        policy_title       = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata              = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default      = 'flow-ctrl'
+                pvars.name                = ezfunctions.variable_prompt(kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                accept = prompt_user(self.type).to_accept(f'the {policy_title} Policy', pvars, kwargs)
+                if accept == True:
+                    kwargs.class_path = f'policies,{self.type}'
+                    kwargs            = ezfunctions.ez_append(pvars, kwargs)
+                    if kwargs.use_shared_org == True:  kwargs.policy_name = f'{kwargs.shared_org}/{pvars.name}'
+                    else: kwargs.policy_name = pvars.name
+                    policy_accept = True
+                else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Link Aggregation Policy Settings
+    #=========================================================================
+    def link_aggregation(self, kwargs):
+        policy_title       = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata              = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default      = 'link-agg'
+                pvars.name                = ezfunctions.variable_prompt(kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                accept = prompt_user(self.type).to_accept(f'the {policy_title} Policy', pvars, kwargs)
+                if accept == True:
+                    kwargs.class_path = f'policies,{self.type}'
+                    kwargs            = ezfunctions.ez_append(pvars, kwargs)
+                    if kwargs.use_shared_org == True:  kwargs.policy_name = f'{kwargs.shared_org}/{pvars.name}'
+                    else: kwargs.policy_name = pvars.name
+                    policy_accept = True
+                else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Link Control Policy Settings
+    #=========================================================================
+    def link_control(self, kwargs):
+        policy_title       = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata              = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default      = 'link-ctrl'
+                pvars.name                = ezfunctions.variable_prompt(kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                accept = prompt_user(self.type).to_accept(f'the {policy_title} Policy', pvars, kwargs)
+                if accept == True:
+                    kwargs.class_path = f'policies,{self.type}'
+                    kwargs            = ezfunctions.ez_append(pvars, kwargs)
+                    if kwargs.use_shared_org == True:  kwargs.policy_name = f'{kwargs.shared_org}/{pvars.name}'
+                    else: kwargs.policy_name = pvars.name
+                    policy_accept = True
+                else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
     # Function: Prompt User for Network Connectivity Policy Settings
     #=========================================================================
     def network_connectivity(self, kwargs):
-        policies(self.type).announcement(kwargs)
         policy_name = policies(self.type).policy_select(kwargs)
         if policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
@@ -590,9 +760,9 @@ class policies(object):
     # Function: Prompt User for NTP Policy Settings
     #=========================================================================
     def ntp(self, kwargs):
-        policies(self.type).announcement(kwargs)
         policy_name = policies(self.type).policy_select(kwargs)
         if policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
@@ -632,6 +802,21 @@ class policies(object):
         return kwargs
 
     #=========================================================================
+    # Function: Ask user if they want to attach the policy
+    #=========================================================================
+    def optional(self, kwargs):
+        policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        if   kwargs.profile_type == 'chassis':  name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.name
+        elif kwargs.profile_type == 'domain':   name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.name
+        elif kwargs.profile_type == 'server':   name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server.name
+        elif kwargs.profile_type == 'template': name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template.name
+        kwargs.jdata = DotMap(
+            description = f'Do you want to add a(n) `{policy_title}` to `{name}`:',
+            default = True, title = f'{policy_title} Policy', type = 'boolean')
+        optional_answer = ezfunctions.variable_prompt(kwargs)
+        return optional_answer
+
+    #=========================================================================
     # Function: Prompt User for Network Connectivity Policy Settings
     #=========================================================================
     def policy_select(self, kwargs):
@@ -668,13 +853,13 @@ class policies(object):
     # Function: Prompt User for Port Policy Settings
     #=========================================================================
     def port(self, kwargs):
-        policies(self.type).announcement(kwargs)
         args = DotMap()
         args.fabric_a.name = 'Create New'; args.fabric_b.name = 'Create New'
         #for e in ['A', 'B']:
         #    pcolor.Yellow(f'\n\n ** Fabric {e} Port Policy **')
         #    args[f'fabric_{e.lower()}'].name = policies(self.type).policy_select(kwargs)
         if args.fabric_a.name == 'Create New' or args.fabric_b.name == 'Create New':
+            policies(self.type).announcement(kwargs)
             kwargs.available_ports    = []
             kwargs.fc_converted_ports = []
             kwargs.domain = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain
@@ -774,13 +959,13 @@ class policies(object):
                 kwargs.jdata = deepcopy(kwargs.ezwizard.port.properties.breakout_ports)
                 eth_breakout = ezfunctions.variable_prompt(kwargs)
                 if eth_breakout == True:
-                    pvars, kwargs = policies('port_breakouts').port_breakouts(kwargs)
+                    pvars, kwargs = policies('port_breakouts').port_eth_breakouts(kwargs)
                 #=====================================================================
                 # Loop Thru Ethernet Uplink Types
                 #=====================================================================
                 kwargs.jdata = deepcopy(kwargs.ezwizard.port.properties.uplink_types_eth)
                 uplink_types = ezfunctions.variable_prompt(kwargs)
-                for e in uplink_types: pvars, kwargs = eval(f'policies(port.{e}).{e}(pvars, kwargs)')
+                for e in uplink_types: pvars, kwargs = eval(f'policies(f"port.{e}").{e}(pvars, kwargs)')
                 #=====================================================================
                 # Configure Server Ports
                 #=====================================================================
@@ -810,7 +995,7 @@ class policies(object):
     #=========================================================================
     # Function: Prompt User for Fibre-Channel Port Mode
     #=========================================================================
-    def port_breakouts(self, pvars, kwargs):
+    def port_eth_breakouts(self, pvars, kwargs):
         if not pvars.port_modes: pvars.port_modes = []
         sub_accept = False
         while sub_accept == False:
@@ -839,6 +1024,74 @@ class policies(object):
             else: ezfunctions.message_starting_over(self.type)
         kwargs.available_ports = sorted(kwargs.available_ports)
         # Return kwargs
+        return pvars, kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Appliance Port-Channels
+    #=========================================================================
+    def port_channel_appliances(self, pvars, kwargs):
+        pvars, kwargs = policies(self.type).port_channel_ethernet_uplinks(pvars, kwargs)
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
+        return pvars, kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Fibre-Channel Uplink Port-Channels
+    #=========================================================================
+    def port_channel_ethernet_uplinks(self, pvars, kwargs):
+        pvars[self.type] = []
+        sub_accept = False
+        while sub_accept == False:
+            edict  = DotMap(interfaces = [])
+            #=====================================================================
+            # Prompt User for: admin_speed, interfaces, pc_ids, and vsan_ids
+            #=====================================================================
+            policy_title      = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+            kwargs.jdata      = deepcopy(kwargs.ezdata[self.type].properties.admin_speed)
+            edict.admin_speed = ezfunctions.variable_prompt(kwargs)
+            if self.type == 'port_channel_appliances':
+                kwargs.jdata   = deepcopy(kwargs.ezdata[self.type].properties.mode)
+                edict.mode     = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata   = deepcopy(kwargs.ezdata[self.type].properties.priority)
+                edict.priority = ezfunctions.variable_prompt(kwargs)
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_interfaces)
+            kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
+            kwargs.jdata.enum        = kwargs.available_ports
+            interfaces               = ezfunctions.variable_prompt(kwargs)
+            edict, pc_ids            = policies.port_channel_interfaces(edict, interfaces)
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_ids)
+            kwargs.jdata.default     = pc_ids
+            edict.pc_ids             = (ezfunctions.variable_prompt(kwargs)).split(',')
+            #=====================================================================
+            # Prompt User for: Policies to Attach to the Port-Channel
+            #=====================================================================
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_policies)
+            kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
+            if   self.type == 'port_channel_appliances':   kwargs.jdata.enum = ['link_aggregation', 'None']
+            elif self.type == 'port_channel_fcoe_uplinks': kwargs.jdata.enum = ['link_aggregation', 'link_control', 'None']
+            policies = ezfunctions.variable_prompt(kwargs)
+            if type(policies) == list: policies = [policies]
+            if self.type == 'port_channel_appliances': policies.extend(['ethernet_network_control', 'ethernet_network_group'])
+            policies = sorted(policies)
+            for e in policies:
+                kwargs.skip_policy_announcement = True
+                kwargs = eval(f'policies(f"{e}").{e}(kwargs)')
+                edict[e] = kwargs.policy_name
+            kwargs.skip_policy_announcement = False
+            #=====================================================================
+            # Prompt User to Accept the Policy
+            #=====================================================================
+            accept = prompt_user(f'the {policy_title} Port').to_accept(f'the {policy_title}', edict, kwargs)
+            if accept == True:
+                for e in interfaces: kwargs.available_ports.remove(e)
+                pvars[self.type].append(edict)
+                additional = prompt_user(self.type).to_configure_additional(False, kwargs)
+                if additional == False: sub_accept = True
+            else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
         return pvars, kwargs
 
     #=========================================================================
@@ -878,6 +1131,16 @@ class policies(object):
                 additional = prompt_user(self.type).to_configure_additional(False, kwargs)
                 if additional == False: sub_accept = True
             else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
+        return pvars, kwargs
+
+    #=========================================================================
+    # Function: Prompt User for FCOE Uplink Port-Channels
+    #=========================================================================
+    def port_channel_fcoe_uplinks(self, pvars, kwargs):
+        pvars, kwargs = policies(self.type).port_channel_fcoe_uplinks(pvars, kwargs)
         #=====================================================================
         # Return pvars and kwargs
         #=====================================================================
@@ -937,10 +1200,78 @@ class policies(object):
         return pvars, kwargs
 
     #=========================================================================
+    # Function: Prompt User for Appliance Ports
+    #=========================================================================
+    def port_role_appliances(self, pvars, kwargs):
+        pvars, kwargs = policies(self.type).port_role_ethernet_uplinks(pvars, kwargs)
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
+        return pvars, kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Fibre-Channel Uplink Port-Channels
+    #=========================================================================
+    def port_role_ethernet_uplinks(self, pvars, kwargs):
+        pvars[self.type] = []
+        sub_accept = False
+        while sub_accept == False:
+            edict  = DotMap(interfaces = [])
+            #=====================================================================
+            # Prompt User for: admin_speed, interfaces, pc_ids, and vsan_ids
+            #=====================================================================
+            policy_title      = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+            kwargs.jdata      = deepcopy(kwargs.ezdata[self.type].properties.admin_speed)
+            edict.admin_speed = ezfunctions.variable_prompt(kwargs)
+            if self.type == 'port_channel_appliances':
+                kwargs.jdata   = deepcopy(kwargs.ezdata[self.type].properties.mode)
+                edict.mode     = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata   = deepcopy(kwargs.ezdata[self.type].properties.priority)
+                edict.priority = ezfunctions.variable_prompt(kwargs)
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_interfaces)
+            kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
+            kwargs.jdata.enum        = kwargs.available_ports
+            interfaces               = ezfunctions.variable_prompt(kwargs)
+            edict, pc_ids            = policies.port_channel_interfaces(edict, interfaces)
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_ids)
+            kwargs.jdata.default     = pc_ids
+            edict.pc_ids             = (ezfunctions.variable_prompt(kwargs)).split(',')
+            #=====================================================================
+            # Prompt User for: Policies to Attach to the Port-Channel
+            #=====================================================================
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_policies)
+            kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
+            if   self.type == 'port_channel_appliances':   kwargs.jdata.enum = ['link_aggregation', 'None']
+            elif self.type == 'port_channel_fcoe_uplinks': kwargs.jdata.enum = ['link_aggregation', 'link_control', 'None']
+            policies = ezfunctions.variable_prompt(kwargs)
+            if type(policies) == list: policies = [policies]
+            if self.type == 'port_channel_appliances': policies.extend(['ethernet_network_control', 'ethernet_network_group'])
+            policies = sorted(policies)
+            for e in policies:
+                kwargs.skip_policy_announcement = True
+                kwargs = eval(f'policies(f"{e}").{e}(kwargs)')
+                edict[e] = kwargs.policy_name
+            kwargs.skip_policy_announcement = False
+            #=====================================================================
+            # Prompt User to Accept the Policy
+            #=====================================================================
+            accept = prompt_user(f'the {policy_title} Port').to_accept(f'the {policy_title}', edict, kwargs)
+            if accept == True:
+                for e in interfaces: kwargs.available_ports.remove(e)
+                pvars[self.type].append(edict)
+                additional = prompt_user(self.type).to_configure_additional(False, kwargs)
+                if additional == False: sub_accept = True
+            else: ezfunctions.message_starting_over(self.type)
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
+        return pvars, kwargs
+
+    #=========================================================================
     # Function: Prompt User for Fibre-Channel Storage Ports
     #=========================================================================
     def port_role_fc_storage(self, pvars, kwargs):
-        pvars, kwargs = policies('port_role_fc_storage').port_role_fc_uplinks(pvars, kwargs)
+        pvars, kwargs = policies(self.type).port_role_fc_uplinks(pvars, kwargs)
         #=====================================================================
         # Return pvars and kwargs
         #=====================================================================
@@ -993,6 +1324,16 @@ class policies(object):
         return pvars, kwargs
 
     #=========================================================================
+    # Function: Prompt User for FCOE Uplink Ports
+    #=========================================================================
+    def port_role_fcoe_uplinks(self, pvars, kwargs):
+        pvars, kwargs = policies(self.type).port_role_ethernet_uplinks(pvars, kwargs)
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
+        return pvars, kwargs
+
+    #=========================================================================
     # Function: Prompt User for Fibre-Channel Uplink Ports
     #=========================================================================
     def port_role_interfaces(interfaces):
@@ -1013,11 +1354,11 @@ class policies(object):
     # Function: Prompt User for SNMP Policy Settings
     #=========================================================================
     def snmp(self, kwargs):
-        kwargs.optional_policy = True
-        kwargs = policies(self.type).announcement(kwargs)
-        if kwargs.optional_answer == True: policy_name = policies(self.type).policy_select(kwargs)
+        optional_answer = policies(self.type).optional(kwargs)
+        if optional_answer == True: policy_name = policies(self.type).policy_select(kwargs)
         else: policy_name = 'skip_policy'
         if policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
@@ -1108,9 +1449,9 @@ class policies(object):
     # Function: Prompt User for System QoS Policy Settings
     #=========================================================================
     def system_qos(self, kwargs):
-        policies(self.type).announcement(kwargs)
         policy_name = policies(self.type).policy_select(kwargs)
         if policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
@@ -1148,11 +1489,11 @@ class policies(object):
     # Function: Prompt User for Syslog Policy Settings
     #=========================================================================
     def syslog(self, kwargs):
-        kwargs.optional_policy = True
-        kwargs = policies(self.type).announcement(kwargs)
-        if kwargs.optional_answer == True: policy_name = policies(self.type).policy_select(kwargs)
+        optional_answer = policies(self.type).optional(kwargs)
+        if optional_answer == True: policy_name = policies(self.type).policy_select(kwargs)
         else: policy_name = 'skip_policy'
         if policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
@@ -1236,9 +1577,9 @@ class policies(object):
         #=====================================================================
         # Function: VLAN Policy Loop
         #=====================================================================
-        policies(self.type).announcement(kwargs)
         policy_name = policies(self.type).policy_select(kwargs)
         if policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
             pcolor.Yellow('\n\n  * A Multicast Policy is required for the VLAN Policy.')
             mcast_name = policies('multicast').policy_select(kwargs)
             if mcast_name == 'Create New': kwargs = multicast(kwargs)
@@ -1343,11 +1684,10 @@ class policies(object):
     #=========================================================================
     # Function: Prompt User for VLAN Policy Settings
     #=========================================================================
-    def vsan(self, kwargs):
+    def vlan_ranges(vlan_policy, kwargs):
         #=====================================================================
         # Get VLAN Policy Attributes
         #=====================================================================
-        vlan_policy  = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.vlan_policies[0]
         vlans = []
         if '/' in vlan_policy: org_name, vlan_policy = vlan_policy.split('/')
         else: org_name = kwargs.org
@@ -1361,8 +1701,21 @@ class policies(object):
             for e in kwargs.results: vlans.append(e.VlanId)
         else:
             for e in kwargs.imm_dict.orgs[org_name].policies.vlan[indx].vlans: vlans.extend(ezfunctions.vlan_list_full(e.vlan_list))
-        vlans = sorted(vlans)
-        vlan_range = ezfunctions.vlan_list_format(vlans)
+        kwargs.vlans = sorted(vlans)
+        kwargs.vlan_range = ezfunctions.vlan_list_format(vlans)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for VLAN Policy Settings
+    #=========================================================================
+    def vsan(self, kwargs):
+        #=====================================================================
+        # Get VLAN Policy Attributes
+        #=====================================================================
+        vlan_policy = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.vlan_policies[0]
+        kwargs      = policies.vlan_ranges(vlan_policy, kwargs)
+        vlans       = kwargs.vlans
+        vlan_range  = kwargs.vlan_range
         #=====================================================================
         # Begin VSAN Policy Loop
         #=====================================================================

@@ -8108,7 +8108,7 @@
                             "cdp_enable": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Default is `false`.  Enables the CDP on an interface.",
+                                "description": "Default is `false`.  Enables CDP on an interface.",
                                 "intersight_api": "CdpEnabled",
                                 "title": "cdp_enable"
                             },
@@ -8178,17 +8178,17 @@
                             "allowed_vlans": {
                                 "type": "string",
                                 "default": "1-10",
-                                "description": "Allowed VLAN IDs of the virtual interface. A list of comma seperated VLAN ids and/or VLAN id ranges.",
+                                "description": "Allowed VLAN IDs of the vnic or ethernet uplink. A list of comma seperated VLAN ids and/or VLAN id ranges.",
                                 "intersight_api": "$ref:VlanSettings:fabric.VlanSettings:AllowedVlans",
                                 "minLength": 1,
                                 "maxLength": 1024,
-                                "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                                "pattern": "^$|^(((\\d{1,4})|(\\d{1,4}-\\d{1,4}))(,((\\d{1,4})|(\\d{1,4}-\\d{1,4})))*)$",
                                 "title": "action_on_uplink_fail"
                             },
                             "native_vlan": {
                                 "type": "integer",
                                 "default": 1,
-                                "description": "Default is `1`.  Native VLAN ID of the virtual interface or the corresponding vethernet on the peer Fabric Interconnect to which the virtual interface is connected. If the native VLAN is not a part of the allowed VLANs, it will automatically be added to the list of allowed VLANs.",
+                                "description": "Default is `1`.  Native VLAN ID of the vnic or ethernet uplink. If the native VLAN is not a part of the allowed VLANs, it will automatically be added to the list of allowed VLANs.",
                                 "intersight_api": "$ref:VlanSettings:fabric.VlanSettings:NativeVlan",
                                 "minimum": 1,
                                 "maximum": 4093,
@@ -13473,11 +13473,11 @@
                     "mode": {
                         "type": "string",
                         "default": "trunk",
-                        "description": "Default is `trunk`.  Port mode to be set on the appliance port-channel.\n  * `trunk` - Trunk Mode Switch Port Type.\n  * `access` - Access Mode Switch Port Type.",
+                        "description": "Default is `trunk`.  Port mode to be set on the appliance port-channel.\n  * `access` - Access Mode Switch Port Type.\n  * `trunk` - Trunk Mode Switch Port Type.",
                         "intersight_api": "Mode",
                         "enum": [
-                            "trunk",
-                            "access"
+                            "access",
+                            "trunk"
                         ],
                         "title": "mode"
                     },
@@ -16521,7 +16521,7 @@
                                 "intersight_api": "GlobalHotSpares",
                                 "minLength": 1,
                                 "maxLength": 64,
-                                "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                                "pattern": "^$|^(((\\d{1,2})|(\\d{1,2}-\\d{1,2}))(,((\\d{1,2})|(\\d{1,2}-\\d{1,2})))*)$",
                                 "title": "global_hot_spares"
                             },
                             "hybrid_slot_configuration:direct_attached_nvme_slots": {
@@ -16531,7 +16531,7 @@
                                 "intersight_api": "DirectAttachedNvmeSlots",
                                 "minLength": 1,
                                 "maxLength": 32,
-                                "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                                "pattern": "^$|^(((\\d{1,2})|(\\d{1,2}-\\d{1,2}))(,((\\d{1,2})|(\\d{1,2}-\\d{1,2})))*)$",
                                 "title": "hybrid_slot_configuration:direct_attached_nvme_slots"
                             },
                             "hybrid_slot_configuration:raid_attached_nvme_slots": {
@@ -16541,7 +16541,7 @@
                                 "intersight_api": "RaidAttachedNvmeSlots",
                                 "minLength": 1,
                                 "maxLength": 32,
-                                "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                                "pattern": "^$|^(((\\d{1,2})|(\\d{1,2}-\\d{1,2}))(,((\\d{1,2})|(\\d{1,2}-\\d{1,2})))*)$",
                                 "title": "hybrid_slot_configuration:raid_attached_nvme_slots"
                             },
                             "m2_raid_configuration": {
@@ -16689,7 +16689,7 @@
                         "intersight_api": "NumDedicatedHotSpares",
                         "minLength": 1,
                         "maxLength": 64,
-                        "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                        "pattern": "^$|^(((\\d{1,2})|(\\d{1,2}-\\d{1,2}))(,((\\d{1,2})|(\\d{1,2}-\\d{1,2})))*)$",
                         "title": "num_dedicated_hot_spares"
                     },
                     "number_of_spans": {
@@ -16728,7 +16728,7 @@
                         "intersight_api": "DedicatedHotSpares",
                         "minLength": 0,
                         "maxLength": 64,
-                        "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                        "pattern": "^$|^(((\\d{1,2})|(\\d{1,2}-\\d{1,2}))(,((\\d{1,2})|(\\d{1,2}-\\d{1,2})))*)$",
                         "title": "dedicated_hot_spares"
                     },
                     "drive_array_spans": {
@@ -16868,7 +16868,7 @@
                         "intersight_api": "DriveSlots",
                         "minLength": 0,
                         "maxLength": 64,
-                        "pattern": "^$|^((\\d+\\-\\d+)|(\\d+))(,((\\d+\\-\\d+)|(\\d+)))*$",
+                        "pattern": "^$|^(((\\d{1,2})|(\\d{1,2}-\\d{1,2}))(,((\\d{1,2})|(\\d{1,2}-\\d{1,2})))*)$",
                         "title": "drive_slots"
                     },
                     "virtual_drive_policy": {
@@ -18256,6 +18256,31 @@
             }
         },
         "wizard": {
+            "ethernet_network_group": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Ethernet Network Group Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Ethernet Network Grou Policies",
+                "properties": {
+                    "configure_native_vlan": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Do you want to configure the Native VLAN for the Ethernet Network Group Policy?",
+                        "title": "Configure Native VLAN"
+                    },
+                    "snmp_version": {
+                        "type": "string",
+                        "default": "V3",
+                        "description": "What SNMP Version do you want to configure?",
+                        "enum": [
+                            "V2",
+                            "V3"
+                        ],
+                        "title": "SNMP Version"
+                    }
+                }
+            },
             "os.configuration.azurestack": {
                 "type": "object",
                 "additionalProperties": false,
@@ -19709,11 +19734,19 @@
                     "port_channel_ids": {
                         "type": "string",
                         "default": "1,1",
-                        "description": "Enter the Port-Channel Identifier(s) for Fabric A and Fabric B.  In Example; if you want pc_id 1 for Fabric A and pc_id 2 for Fabric B, enter it as 1,2.  If you want to use the same pc_id for both fabrics just enter the pc_id number.",
+                        "description": "Enter the Port-Channel Identifier(s) for Fabric A and Fabric B.  In Example; if you want pc_id 1 for Fabric A and pc_id 2 for Fabric B, enter it as 1,2.  If you want to use the same pc_id for both fabrics just enter the pc_id number, i.e. `1`.",
                         "minLength": 0,
                         "maxLength": 9,
                         "pattern": "^$|^[0-9]{1,4},[0-9]{1,4}$|^[0-9]{1,4}$",
                         "title": "Port-Channel Identifier(s)"
+                    },
+                    "port_channel_interfaces": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Which Interfaces would you like to assign to the REPLACE?",
+                        "enum": [],
+                        "multi_select": true,
+                        "title": "the REPLACE interfaces"
                     },
                     "port_channel_fc_interfaces": {
                         "type": "string",
@@ -19722,6 +19755,19 @@
                         "enum": [],
                         "multi_select": true,
                         "title": "the Fibre-Channel Port-Channel interfaces"
+                    },
+                    "port_channel_policies": {
+                        "type": "string",
+                        "default": "None",
+                        "description": "Select any of the Optional Policies that you would like to attach to the REPLACE.  Select `None` to attach none of them.",
+                        "enum": [
+                            "ethernet_network_group",
+                            "flow_control",
+                            "link_aggregation",
+                            "link_control",
+                            "None"
+                        ],
+                        "title": "REPLACE Policies"
                     },
                     "port_mode_6400": {
                         "type": "string",
