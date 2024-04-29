@@ -1068,17 +1068,16 @@ class policies(object):
             #=====================================================================
             kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_policies)
             kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
-            if   self.type == 'port_channel_appliances':   kwargs.jdata.enum = ['link_aggregation', 'None']
-            elif self.type == 'port_channel_fcoe_uplinks': kwargs.jdata.enum = ['link_aggregation', 'link_control', 'None']
-            policies = ezfunctions.variable_prompt(kwargs)
-            if type(policies) == list: policies = [policies]
-            if self.type == 'port_channel_appliances': policies.extend(['ethernet_network_control', 'ethernet_network_group'])
-            policies = sorted(policies)
-            for e in policies:
-                kwargs.skip_policy_announcement = True
+            kwargs.jdata.title       = (kwargs.jdata.title).replace('REPLACE', policy_title)
+            if   self.type == 'port_channel_appliances':   kwargs.jdata.enum = ['link_aggregation']
+            elif self.type == 'port_channel_fcoe_uplinks': kwargs.jdata.enum = ['link_aggregation', 'link_control']
+            port_policies = ezfunctions.variable_prompt(kwargs)
+            if type(port_policies) == str: port_policies = [port_policies]
+            if self.type == 'port_channel_appliances': port_policies.extend(['ethernet_network_control', 'ethernet_network_group'])
+            port_policies = sorted(port_policies)
+            for e in port_policies:
                 kwargs = eval(f'policies(f"{e}").{e}(kwargs)')
                 edict[e] = kwargs.policy_name
-            kwargs.skip_policy_announcement = False
             #=====================================================================
             # Prompt User to Accept the Policy
             #=====================================================================
@@ -1210,7 +1209,7 @@ class policies(object):
         return pvars, kwargs
 
     #=========================================================================
-    # Function: Prompt User for Fibre-Channel Uplink Port-Channels
+    # Function: Prompt User for Ethernet Uplink(s)
     #=========================================================================
     def port_role_ethernet_uplinks(self, pvars, kwargs):
         pvars[self.type] = []
@@ -1223,42 +1222,49 @@ class policies(object):
             policy_title      = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
             kwargs.jdata      = deepcopy(kwargs.ezdata[self.type].properties.admin_speed)
             edict.admin_speed = ezfunctions.variable_prompt(kwargs)
-            if self.type == 'port_channel_appliances':
+            kwargs.jdata      = deepcopy(kwargs.ezdata[self.type].properties.fec)
+            edict.fec         = ezfunctions.variable_prompt(kwargs)
+            if self.type == 'port_role_appliances':
                 kwargs.jdata   = deepcopy(kwargs.ezdata[self.type].properties.mode)
                 edict.mode     = ezfunctions.variable_prompt(kwargs)
                 kwargs.jdata   = deepcopy(kwargs.ezdata[self.type].properties.priority)
                 edict.priority = ezfunctions.variable_prompt(kwargs)
-            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_interfaces)
+            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.fc_uplink_interfaces)
             kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
             kwargs.jdata.enum        = kwargs.available_ports
-            interfaces               = ezfunctions.variable_prompt(kwargs)
-            edict, pc_ids            = policies.port_channel_interfaces(edict, interfaces)
-            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_ids)
-            kwargs.jdata.default     = pc_ids
-            edict.pc_ids             = (ezfunctions.variable_prompt(kwargs)).split(',')
+            edict.interfaces         = ezfunctions.variable_prompt(kwargs)
+            intf_map                 = policies.port_role_interfaces(edict.interfaces)
             #=====================================================================
-            # Prompt User for: Policies to Attach to the Port-Channel
+            # Prompt User for: Policies to Attach to the Port(s)
             #=====================================================================
-            kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_channel_policies)
-            kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
-            if   self.type == 'port_channel_appliances':   kwargs.jdata.enum = ['link_aggregation', 'None']
-            elif self.type == 'port_channel_fcoe_uplinks': kwargs.jdata.enum = ['link_aggregation', 'link_control', 'None']
-            policies = ezfunctions.variable_prompt(kwargs)
-            if type(policies) == list: policies = [policies]
-            if self.type == 'port_channel_appliances': policies.extend(['ethernet_network_control', 'ethernet_network_group'])
-            policies = sorted(policies)
-            for e in policies:
-                kwargs.skip_policy_announcement = True
+            port_policies = []
+            if not self.type == 'port_role_appliances':
+                kwargs.jdata             = deepcopy(kwargs.ezwizard.port.properties.port_role_policies)
+                kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
+                kwargs.jdata.title       = (kwargs.jdata.title).replace('REPLACE', policy_title)
+                if self.type == 'port_role_fcoe_uplinks': kwargs.jdata.enum = ['link_control']
+                port_policies = ezfunctions.variable_prompt(kwargs)
+            if type(port_policies) == str: port_policies = [port_policies]
+            if self.type == 'port_role_appliances': port_policies.extend(['ethernet_network_control', 'ethernet_network_group'])
+            port_policies = sorted(port_policies)
+            for e in port_policies:
                 kwargs = eval(f'policies(f"{e}").{e}(kwargs)')
                 edict[e] = kwargs.policy_name
-            kwargs.skip_policy_announcement = False
             #=====================================================================
             # Prompt User to Accept the Policy
             #=====================================================================
             accept = prompt_user(f'the {policy_title} Port').to_accept(f'the {policy_title}', edict, kwargs)
             if accept == True:
-                for e in interfaces: kwargs.available_ports.remove(e)
-                pvars[self.type].append(edict)
+                for e in edict.interfaces: kwargs.available_ports.remove(e)
+                edict.pop('interfaces')
+                for e in list(intf_map.keys()):
+                    for x in list(intf_map[e].aggregates.keys()):
+                        port_list = ezfunctions.vlan_list_format(intf_map[e].aggregates[x])
+                        edict.breakout_port_id = x; edict.port_list = port_list; edict.slot_id = e
+                        if e == 1: edict.pop('slot_id')
+                        if x == 0: edict.pop('breakout_port_id')
+                        edict = DotMap(sorted(edict.items()))
+                        pvars[self.type].append(edict)
                 additional = prompt_user(self.type).to_configure_additional(False, kwargs)
                 if additional == False: sub_accept = True
             else: ezfunctions.message_starting_over(self.type)
@@ -1311,7 +1317,7 @@ class policies(object):
                 for e in list(intf_map.keys()):
                     for x in list(intf_map[e].aggregates.keys()):
                         port_list = ezfunctions.vlan_list_format(intf_map[e].aggregates[x])
-                        pdict = DotMap(admin_speed = edict.admin_speed, breakout_port_id = x, port_list = port_list, slot_id = e, vsan_ids = edict.vsan_ids)
+                        pdict     = DotMap(admin_speed = edict.admin_speed, breakout_port_id = x, port_list = port_list, slot_id = e, vsan_ids = edict.vsan_ids)
                         if e == 1: pdict.pop('slot_id')
                         if x == 0: pdict.pop('breakout_port_id')
                         pvars[self.type].append(pdict)

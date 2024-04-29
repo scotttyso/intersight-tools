@@ -26,7 +26,7 @@ import os, sys
 script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
-    from classes import build, ezfunctions, isight, lansan, pcolor, policies, pools, profiles, questions, quick_start, tf, transition, validating
+    from classes import build, ezfunctions, isight, pcolor, questions, tf, terraform, transition, validating
     from copy import deepcopy
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
@@ -73,7 +73,8 @@ def cli_arguments():
             4.  Individual \
             5.  OSInstall \
             6.  Server \
-            7.  Exit')
+            7.  StateUpdate \
+            8.  Exit')
     Parser.add_argument(
         '-f', '--intersight-fqdn', default ='intersight.com',
         help = 'The Directory to use for the Creation of the YAML Configuration Files.')
@@ -426,7 +427,8 @@ def menu(kwargs):
     if   kwargs.deployment_type == 'Exit': return kwargs
     elif kwargs.deployment_type == 'Convert': kwargs = imm_transition(kwargs); return kwargs
     kwargs = questions.main_menu.previous_configuration(kwargs)
-    if kwargs.deployment_type == 'Deploy': kwargs = deploy(kwargs); return kwargs
+    if   kwargs.deployment_type == 'StateUpdate': kwargs = terraform.state('state_update').state_import(kwargs); return kwargs
+    elif kwargs.deployment_type == 'Deploy': kwargs = deploy(kwargs); return kwargs
     kwargs.main_menu_list = []
     #=================================================================
     # Prompt User with Questions

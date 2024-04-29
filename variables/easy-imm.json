@@ -19723,6 +19723,14 @@
                         "description": "Do you want to convert ports to Fibre-Channel Mode?",
                         "title": "Convert Unified Ports"
                     },
+                    "eth_uplink_interfaces": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Which Interfaces would you like to configure as REPLACE Uplinks, that will share the same `vsan_id`.",
+                        "enum": [],
+                        "multi_select": true,
+                        "title": "the REPLACE Uplink interfaces"
+                    },
                     "fc_uplink_interfaces": {
                         "type": "string",
                         "default": "",
@@ -19758,15 +19766,16 @@
                     },
                     "port_channel_policies": {
                         "type": "string",
-                        "default": "None",
-                        "description": "Select any of the Optional Policies that you would like to attach to the REPLACE.  Select `None` to attach none of them.",
+                        "default": "",
+                        "description": "Select any of the Optional Policies that you would like to attach to the REPLACE.",
                         "enum": [
                             "ethernet_network_group",
                             "flow_control",
                             "link_aggregation",
-                            "link_control",
-                            "None"
+                            "link_control"
                         ],
+                        "optional": true,
+                        "multi_select": true,
                         "title": "REPLACE Policies"
                     },
                     "port_mode_6400": {
@@ -19805,6 +19814,19 @@
                         ],
                         "sort": false,
                         "title": "Port Mode"
+                    },
+                    "port_role_policies": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select any of the Optional Policies that you would like to attach to the REPLACE.",
+                        "enum": [
+                            "ethernet_network_group",
+                            "flow_control",
+                            "link_control"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policies"
                     },
                     "uplink_types_eth": {
                         "type": "string",
@@ -19952,7 +19974,7 @@
                     "deployment_type": {
                         "type": "string",
                         "default": "OSInstall",
-                        "description": "Select the Option to Perform:\n  * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model.\n  * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema.\n  * Domain:     Deploy a domain via cloning an existing profile or creating net new.\n  * Individual: Select individual pools, policies, profiles, or templates to build.\n  * OSInstall:  Install an Operating System with either new or existing profiles.\n  * Server:     Build server profiles/templates for Intersight Managed Servers.\n  * Exit:       Cancel the Wizard",
+                        "description": "Select the Option to Perform:\n  * Convert:    Convert a configuration export from Intersight Transition Tool to the YAML data model.\n  * Deploy:     Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema.\n  * Domain:     Deploy a domain via cloning an existing profile or creating net new.\n  * Individual: Select individual pools, policies, profiles, or templates to build.\n  * OSInstall:  Install an Operating System with either new or existing profiles.\n  * Server:     Build server profiles/templates for Intersight Managed Servers.\n  * StateUpdate: Use this to update the Terraform State file with the vNICs from the YAML Configuration Files, in the specified directory.\n  * Exit:       Cancel the Wizard",
                         "enum": [
                             "Convert",
                             "Deploy",
@@ -19960,6 +19982,7 @@
                             "Individual",
                             "OSInstall",
                             "Server",
+                            "StateUpdate",
                             "Exit"
                         ],
                         "sort": false,
