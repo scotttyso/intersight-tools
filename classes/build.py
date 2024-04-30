@@ -122,9 +122,7 @@ class intersight(object):
         kwargs.profile_type = 'domain'
         if not 'vlan_policies' in profile_setup_keys: kwargs = questions.policies('vlan').vlan(kwargs)
         if not 'port_policies' in profile_setup_keys: kwargs = questions.policies('port').port(kwargs)
-        exit()
         policies    = ['network_connectivity_policy', 'ntp_policy', 'snmp_policy', 'syslog_policy', 'system_qos_policy']
-        policies = ['snmp_policy']
         for e in policies:
             policy = (e.replace('_policies', '')).replace('_policy', '')
             if not e in profile_setup_keys: kwargs = eval(f'questions.policies(policy).{policy}(kwargs)')
@@ -867,21 +865,25 @@ class intersight(object):
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.deployment_method = 'Python'
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery         = True
             for e in ['assignment_method', 'build_type', 'deployment_method', 'discovery']: setup_list.remove(e)
+            for e in ['assignment_method', 'build_type', 'target_platform', 'discovery']:
+                kwargs[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]
         elif re.search('Domain', kwargs.deployment_type):
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.assignment_method = 'Serial'
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.build_type        = 'Machine'
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform   = 'domain'
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery         = True
             for e in ['assignment_method', 'build_type', 'target_platform', 'operating_systems', 'discovery']: setup_list.remove(e)
+            for e in ['assignment_method', 'build_type', 'target_platform', 'discovery']:
+                kwargs[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]
         elif re.search('FIAttached|Standalone', kwargs.deployment_type):
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery         = True
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform   = kwargs.deployment_type
-            for e in ['discovery', 'target_platform']: setup_list.remove(e)
+            for e in ['discovery', 'target_platform']: setup_list.remove(e); kwargs[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]
         elif kwargs.deployment_type == 'Individual':
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.assignment_method = 'Serial'
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.build_type        = 'Interactive'
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.discovery         = False
-            for e in ['assignment_method', 'build_type', 'discovery']: setup_list.remove(e)
+            for e in ['assignment_method', 'build_type', 'discovery']: setup_list.remove(e); kwargs[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]
         for e in setup_list:
             if not kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]: kwargs = eval(f'questions.main_menu.{e}(kwargs)')
             else: kwargs[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup[e]

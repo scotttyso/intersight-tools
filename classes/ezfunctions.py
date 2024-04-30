@@ -1590,8 +1590,9 @@ def variable_from_list(kwargs):
         for index, value in enumerate(vars):
             index += 1
             if value == default: default_index = index
-            if index < 10: pcolor.Cyan(f'     {index}. {value}')
-            else: pcolor.Cyan(f'    {index}. {value}')
+            if   index < 10:  pcolor.Cyan(f'      {index}. {value}')
+            elif index < 100: pcolor.Cyan(f'     {index}. {value}')
+            elif index > 99:  pcolor.Cyan(f'    {index}. {value}')
         if kwargs.jdata.get('multi_select') == True:
             if kwargs.jdata.get('optional') == True:
                 optional = True

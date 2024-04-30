@@ -14306,7 +14306,7 @@
                     "auto_negotiation": {
                         "type": "boolean",
                         "default": true,
-                        "description": "",
+                        "description": "Default is `true`.  Auto negotiation configuration for server port. This configuration is required only for FEX Model N9K-C93180YC-FX3 connected with 100G speed port on UCS-FI-6536 and should be set as True.",
                         "intersight_api": "AutoNegotiationDisabled",
                         "title": "auto_negotiation"
                     },
@@ -14326,15 +14326,15 @@
                         "intersight_api": "PreferredDeviceType",
                         "enum": [
                             "Auto",
-                            "RackServer",
-                            "Chassis"
+                            "Chassis",
+                            "RackServer"
                         ],
                         "title": "connected_device_type"
                     },
                     "device_number": {
                         "type": "integer",
                         "default": 1,
-                        "description": "Preferred device ID to be configured by user for the connected device. This ID must be specified together with the 'PreferredDeviceType' property. This ID will only takes effect if the actual connected device matches the 'PreferredDeviceType'. If the preferred ID is not available, the ID is automatically allocated and assigned by the system. If different preferred IDs are specified for the ports connected to the same device, only the preferred ID (if specified) of the port that is discovered first will be considered.",
+                        "description": "Default is `1`.  Preferred device ID to be configured by user for the connected device. This ID must be specified together with the 'PreferredDeviceType' property. This ID will only takes effect if the actual connected device matches the 'PreferredDeviceType'. If the preferred ID is not available, the ID is automatically allocated and assigned by the system. If different preferred IDs are specified for the ports connected to the same device, only the preferred ID (if specified) of the port that is discovered first will be considered.",
                         "intersight_api": "PreferredDeviceId",
                         "minimum": 1,
                         "maximum": 160,
@@ -18256,28 +18256,128 @@
             }
         },
         "wizard": {
+            "ethernet_network_control": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Ethernet Network Control Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Ethernet Network Control Policies",
+                "properties": {
+                    "optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "enum": [
+                            "action_on_uplink_fail",
+                            "mac_register_mode",
+                            "mac_security_forge"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
+                    }
+                }
+            },
             "ethernet_network_group": {
                 "type": "object",
                 "additionalProperties": false,
                 "description": "Ethernet Network Group Policy Settings for build deployment wizard.",
                 "required": [],
-                "title": "Ethernet Network Grou Policies",
+                "title": "Ethernet Network Group Policies",
                 "properties": {
                     "configure_native_vlan": {
                         "type": "boolean",
                         "default": false,
                         "description": "Do you want to configure the Native VLAN for the Ethernet Network Group Policy?",
                         "title": "Configure Native VLAN"
-                    },
-                    "snmp_version": {
+                    }
+                }
+            },
+            "flow_control": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Flow Control Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Flow Control Policies",
+                "properties": {
+                    "optional_attributes": {
                         "type": "string",
-                        "default": "V3",
-                        "description": "What SNMP Version do you want to configure?",
+                        "default": "",
+                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
                         "enum": [
-                            "V2",
-                            "V3"
+                            "priority",
+                            "receive",
+                            "send"
                         ],
-                        "title": "SNMP Version"
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
+                    }
+                }
+            },
+            "link_aggregation": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Link Aggregation Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Link Aggregation Policies",
+                "properties": {
+                    "optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "enum": [
+                            "lacp_rate",
+                            "suspend_individual"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
+                    }
+                }
+            },
+            "link_control": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Link Control Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Link Control Policies",
+                "properties": {
+                    "optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "enum": [
+                            "admin_state",
+                            "mode"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
+                    }
+                }
+            },
+            "multicast": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Multicast Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Multicast Policies",
+                "properties": {
+                    "optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "enum": [
+                            "querier_ip_address",
+                            "querier_ip_address_peer",
+                            "querier_state",
+                            "snooping_state",
+                            "source_ip_proxy_state"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
                     }
                 }
             },
@@ -19717,6 +19817,25 @@
                         "multi_select": true,
                         "title": "Select the ports to Convert"
                     },
+                    "connected_count": {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Enter the Number of REPLACE connected to the domain.",
+                        "maximum": 160,
+                        "minimum": 1,
+                        "title": "Number of REPLACE Connected"
+                    },
+                    "connected_devices": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the types of servers connected to the domain.",
+                        "enum": [
+                            "Chassis",
+                            "RackServer"
+                        ],
+                        "multi_select": true,
+                        "title": "Connected Device Types"
+                    },
                     "convert_unified": {
                         "type": "boolean",
                         "default": true,
@@ -19828,6 +19947,14 @@
                         "multi_select": true,
                         "title": "REPLACE Policies"
                     },
+                    "server_interfaces": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Which Interfaces would you like to configure for REPLACE IDENTITY.",
+                        "enum": [],
+                        "multi_select": true,
+                        "title": "the REPLACE IDENTITY Interfaces"
+                    },
                     "uplink_types_eth": {
                         "type": "string",
                         "default": "port_channel_ethernet_uplinks",
@@ -19855,14 +19982,33 @@
                         "multi_select": true,
                         "title": "Fibre-Channel Uplink Type(s)"
                     },
-                    "vsan_ids": {
+                    "vsan_id": {
                         "type": "string",
-                        "default": "100,200",
-                        "description": "Enter the VSAN Identifiers for Fabric A and Fabric B.  In Example; if you want vsan_id `1` for Fabric A and vsan_id `2` for Fabric B, enter it as `1,2`.  If you use the same vsan_id for both fabrics enter it as just the single vsan_id.",
-                        "minLength": 0,
-                        "maxLength": 9,
-                        "pattern": "^$|^[0-9]{1,4},[0-9]{1,4}$|^[0-9]{1,4}$",
-                        "title": "VSAN Identifier(s)"
+                        "default": "",
+                        "description": "Select the VSAN Identifier for Fabric REPLACE.",
+                        "enum": [],
+                        "title": "Fabric REPLACE VSAN Identifier"
+                    }
+                }
+            },
+            "port.port_role_servers": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Port Role Servers Settings for build deployment wizard.",
+                "required": [],
+                "title": "Port Role Servers",
+                "properties": {
+                    "optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "enum": [
+                            "auto_negotiation",
+                            "fec"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
                     }
                 }
             },

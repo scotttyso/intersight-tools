@@ -140,7 +140,7 @@ The `-l` option will load the YAML from the directory without prompting you to l
 
 ### IMPORTANT NOTES
 
-Take a look at the pools/policies/profiles/templates folders in the [easy-imm repository](https://github.com/terraform-cisco-modules/easy-imm).
+Take a look at the (pools|policies|profiles|templates) folders in the [easy-imm repository](https://github.com/terraform-cisco-modules/easy-imm).
 
 Take notice of the `ezi.yaml` extension on the files.  This is how the  YAML schema will recognize the files as part of the library to be read by the script.
 
@@ -165,7 +165,7 @@ Soon the Schema for these YAML Files have been registered with [*SchemaStore*](h
 
 #### Wizard - `Domain/Server`: Build/Push configuration defined using [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) data model
 
-The easy-imm repository provides a YAML data model to manage Intersight configuration (pools/policies/profiles/templates) as Infrasctructure as Code (IaC).
+The easy-imm repository provides a YAML data model to manage Intersight configuration (pools|policies|profiles|templates) as Infrasctructure as Code (IaC).
 
 The `Domain` and `Server` options allow you to walk thru a wizard based configuration to build the YAML files through a wizard based approach.  If Python is chosen to push the configuration to Intersight, it will deploy the configuration when complete just like the `Deploy` option.
 
@@ -178,6 +178,8 @@ The `Domain` and `Server` options allow you to walk thru a wizard based configur
 ```bash
 ./ezimm.py -d {easy-imm-directory} -dt Server
 ```
+
+See example output under `examples/ezimm/domain/`
 
 ### Wizard - `OSInstall`: Use Cases
 
@@ -221,7 +223,7 @@ export root_password="<your_root_password>"
 $env:root_password="<your_root_password>"
 ```
 
-See examples under `examples/os_install/`
+See examples under `examples/ezimm/os_install/`
 
 ## Wizard Help Menu
 

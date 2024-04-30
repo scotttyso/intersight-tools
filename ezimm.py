@@ -442,16 +442,13 @@ def menu(kwargs):
         if (re.search('OSInstall', kwargs.deployment_type) and kwargs.profile_option == 'existing'): pass
         elif type(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.shared_org) == str: kwargs.use_shared_org = True
         else: questions.orgs.organization_shared(kwargs)
-    if len(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.toDict()) == 0:
-        kwargs = build.intersight('setup').setup(kwargs)
-    else:
-        orgs = list(kwargs.imm_dict.orgs.keys())
-        if kwargs.org in orgs:
-            for org in orgs:
-                if kwargs.imm_dict.orgs[org].get('wizard') and kwargs.imm_dict.orgs[org].wizard.get('setup'):
-                    kwargs.org = org
-                    for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
-                    kwargs = build.intersight('setup').setup(kwargs)
+    orgs = list(kwargs.imm_dict.orgs.keys())
+    if kwargs.org in orgs:
+        for org in orgs:
+            if kwargs.imm_dict.orgs[org].get('wizard') and kwargs.imm_dict.orgs[org].wizard.get('setup'):
+                kwargs.org = org
+                for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
+                kwargs = build.intersight('setup').setup(kwargs)
     return kwargs
 
 
@@ -477,6 +474,10 @@ def process_wizard(kwargs):
         if kwargs.discovery == True:
             kwargs = build.intersight('domain').domain_setup(kwargs)
         kwargs = build.intersight('quick_start').quick_start_domain(kwargs)
+    print('here')
+    print(kwargs.build_type)
+    print(kwargs.deployment_type)
+    exit()
     #==============================================
     # Create YAML Files
     #==============================================
