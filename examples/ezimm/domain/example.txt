@@ -263,9 +263,6 @@ Please Enter the Option Number to select for Switch Control Policy.  [1]: 2
 
 
 Enter `Y` for `True` or `N` for `False` for `Convert Unified Ports`. [Y]: 
-DotMap(vlan=[DotMap(name='aci-vlans', vlans=[DotMap(multicast_policy='common/mcast', name='aci-vlan', vlan_list='101-103,1000-1199')])])
-common
-aci-vlans
  
 
   ** Configuring VSAN Policy for Port Policy Consumption **
