@@ -1,13 +1,11 @@
 # pip freeze -q -r requirements.txt
 argparse
-base64
 collection
-crypt
 dotmap
 GitPython
 git_status_checker
 inflect
-intersight_auth
+intersight-auth
 ipaddress
 jinja2
 json_ref_dict

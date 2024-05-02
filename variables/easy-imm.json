@@ -9453,7 +9453,7 @@
                 ]
             },
             "imc_access": {
-                "description": "Policy to configure server or chassis management options.",
+                "description": "Enables you to manage and configure your network through mapping of IP pools to the server profile. This policy allows you to configure a VLAN and associate it with an IP address through the IP pool address.  In-Band IP address, Out-of-Band IP address, or both In-Band and Out-of-Band IP addresses can be configured using IMC Access Policy and are supported on the following:\n  * Drive Security, SNMP, Syslog, and vMedia policies\n  * vKVM, IPMI, SOL, and vMedia policies using vKVM client",
                 "intersight_type": "policy",
                 "intersight_uri": "access/Policies",
                 "ObjectType": "access.Policy",
@@ -9495,14 +9495,14 @@
                             "ipv4_address_configuration": {
                                 "type": "boolean",
                                 "default": true,
-                                "description": "Default is `true`.  This flag enables the use of IPv4 address for end-point access.",
+                                "description": "Default is `true`.  This is only applicable to the `inband_ip_pool`.  This flag enables the use of IPv4 address for end-point access.",
                                 "intersight_api": "$ref:AddressType:access.AddressType:EnableIpV4",
                                 "title": "ipv4_address_configuration"
                             },
                             "ipv6_address_configuration": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Default is `false`.  This flag enables the use of IPv6 address for end-point access.",
+                                "description": "Default is `false`.  This is only applicable to the `inband_ip_pool`.  This flag enables the use of IPv6 address for end-point access.",
                                 "intersight_api": "$ref:AddressType:access.AddressType:EnableIpV6",
                                 "title": "ipv6_address_configuration"
                             },
@@ -9841,19 +9841,6 @@
                         "title": "secondary_dns"
                     }
                 }
-            },
-            "ip.reservations": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "The IP reservation object, used to hold reserved addresses.",
-                "intersight_api": "reservations",
-                "intersight_uri": "ippool/Reservations",
-                "intersight_type": "pool",
-                "ObjectType": "ippool.Reservation",
-                "required": [
-                    "identities"
-                ],
-                "title": "IP Identity Reservations"
             },
             "ipmi_over_lan": {
                 "description": "Intelligent Platform Management Interface Over LAN Policy.",
@@ -13454,7 +13441,7 @@
                     "interfaces": {
                         "type": "array",
                         "description": "List of interfaces to assign to the Port-Channel Policy.\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
-                        "intersight_api": "fabric.PcMember",
+                        "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
                         },
@@ -13484,7 +13471,7 @@
                     "pc_ids": {
                         "type": "array",
                         "description": "The Port-Channel Identifiers to assign to the Port-Channel.  If one is defined both switches will be assigned the same pc_id.  If two are defined, they will be different.",
-                        "intersight_api": "not_applicable",
+                        "intersight_api": "PcId",
                         "items": {
                             "type": "integer",
                             "default": 1,
@@ -13555,7 +13542,7 @@
                     "interfaces": {
                         "type": "array",
                         "description": "List of interfaces to assign to the Port-Channel Policy.\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
-                        "intersight_api": "fabric.PcMember",
+                        "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
                         },
@@ -13594,7 +13581,7 @@
                     "pc_ids": {
                         "type": "array",
                         "description": "The Port-Channel Identifiers to assign to the Port-Channel.  If one is defined both switches will be assigned the same pc_id.  If two are defined, they will be different.",
-                        "intersight_api": "not_applicable",
+                        "intersight_api": "PcId",
                         "items": {
                             "type": "integer",
                             "default": 1,
@@ -13637,7 +13624,7 @@
                     "interfaces": {
                         "type": "array",
                         "description": "List of interfaces to assign to the Port-Channel Policy.\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
-                        "intersight_api": "fabric.PcMember",
+                        "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
                         },
@@ -13708,7 +13695,7 @@
                     "interfaces": {
                         "type": "array",
                         "description": "list of interfaces {breakout_port_id/port_id/slot_id} to assign to the Port-Channel Policy.\n  * breakout_port_id: Default is `0`.  Breakout port Identifier of the Switch Interface.  When a port is not configured as a breakout port, the aggregatePortId is set to 0, and unused.  When a port is configured as a breakout port, the 'aggregatePortId' port number as labeled on the equipment, e.g. the id of the port on the switch.\n  * port_id - Port ID to Assign to the LAN Port-Channel Policy.\n  * slot_id: Default is `1`.  Slot Identifier of the Switch/FEX/Chassis Interface.",
-                        "intersight_api": "fabric.PcMember",
+                        "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
                         },
@@ -13737,7 +13724,7 @@
                     "pc_ids": {
                         "type": "array",
                         "description": "The Port-Channel Identifiers to assign to the Port-Channel.  If one is defined both switches will be assigned the same pc_id.  If two are defined, they will be different.",
-                        "intersight_api": "not_applicable",
+                        "intersight_api": "PcId",
                         "items": {
                             "type": "integer",
                             "default": 1,
@@ -13931,7 +13918,7 @@
                         "type": "string",
                         "default": "5-10",
                         "description": "A string containing the List of Ports to Configure.\nIn example: '1-5', '1,3,5', '1-5,10-16', or just '1'.",
-                        "intersight_api": "not_applicable",
+                        "intersight_api": "PortId",
                         "minLength": 1,
                         "maxLength": 256,
                         "pattern": "^(((\\d+)|(\\d+-\\d+))(,((\\d+)|(\\d+-\\d+)))*)$",
@@ -14046,7 +14033,7 @@
                         "type": "string",
                         "default": "5-10",
                         "description": "A string containing the List of Ports to Configure.\nIn example: '1-5', '1,3,5', '1-5,10-16', or just '1'.",
-                        "intersight_api": "not_applicable",
+                        "intersight_api": "PortId",
                         "minLength": 1,
                         "maxLength": 256,
                         "pattern": "^(((\\d+)|(\\d+-\\d+))(,((\\d+)|(\\d+-\\d+)))*)$",
@@ -14455,7 +14442,7 @@
                             "power_redundancy": {
                                 "type": "string",
                                 "default": "Grid",
-                                "description": "Default is `Grid`.  Sets the Power Redundancy Mode of the Chassis.  Redundancy Mode determines the number of PSUs the chassis keeps as redundant.  N+2 mode is only supported for Cisco UCS X series Chassis.\n  * `Grid` - Grid Mode requires two power sources. If one source fails, the surviving PSUs connected to the other source provides power to the chassis.\n  * `NotRedundant` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements. No Redundant PSUs are maintained.\n  * `N+1` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus one additional PSU for redundancy.\n  * `N+2` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus two additional PSU for redundancy. This Mode is only supported for UCS X series Chassis.",
+                                "description": "Default is `Grid`.  Sets the Power Redundancy Mode of the Chassis/Server.  Redundancy Mode determines the number of PSUs the chassis keeps as redundant.  N+2 mode is only supported for Cisco UCS X series Chassis.\n  * `Grid` - Grid Mode requires two power sources. If one source fails, the surviving PSUs connected to the other source provides power to the chassis.\n  * `NotRedundant` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements. No Redundant PSUs are maintained.\n  * `N+1` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus one additional PSU for redundancy.\n  * `N+2` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus two additional PSU for redundancy. This Mode is only supported for UCS X series Chassis.",
                                 "intersight_api": "RedundancyMode",
                                 "enum": [
                                     "Grid",
@@ -18256,6 +18243,53 @@
             }
         },
         "wizard": {
+            "domain": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Domain Profile Settings for build deployment wizard.",
+                "title": "Domain Profile",
+                "properties": {
+                    "domain_policies": {
+                        "type": "string",
+                        "default": "New",
+                        "description": "Are there any policies below that you do not want to clone to the new domain?",
+                        "enum": [],
+                        "optional": true,
+                        "title": "Source Domain Assigned Policies"
+                    },
+                    "domain_source": {
+                        "type": "string",
+                        "default": "New",
+                        "description": "Select how you would like to create this new domain profile.\n  * Clone - Use an existing domain profile to create the new domain profile\n  * New - Create a new domain profile",
+                        "enum": [
+                            "Clone",
+                            "New"
+                        ],
+                        "title": "Domain Configuration Source"
+                    },
+                    "physical_domain": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Physical Domain to configure.",
+                        "enum": [],
+                        "title": "Physical Domain"
+                    },
+                    "resource_group": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Resource Group in organization `ORG` to Assign `DOMAIN`.",
+                        "enum": [],
+                        "title": "Organization Resource Group"
+                    },
+                    "source_domain": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select the Domain Profile source you would like to create this new domain from.",
+                        "enum": [],
+                        "title": "Source Domain"
+                    }
+                }
+            },
             "ethernet_network_control": {
                 "type": "object",
                 "additionalProperties": false,
@@ -18266,7 +18300,7 @@
                     "optional_attributes": {
                         "type": "string",
                         "default": "",
-                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
                         "enum": [
                             "action_on_uplink_fail",
                             "mac_register_mode",
@@ -18303,7 +18337,7 @@
                     "optional_attributes": {
                         "type": "string",
                         "default": "",
-                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
                         "enum": [
                             "priority",
                             "receive",
@@ -18312,6 +18346,26 @@
                         "optional": true,
                         "multi_select": true,
                         "title": "REPLACE Policy Optional Attributes"
+                    }
+                }
+            },
+            "imc_access": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "IMC Access Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "IMC Access Policies",
+                "properties": {
+                    "mgmt_types": {
+                        "type": "string",
+                        "default": "out_of_band",
+                        "description": "Select the Management interface(s) to configure with an IP Pool for the IMC Access Policy.",
+                        "enum": [
+                            "inband",
+                            "out_of_band"
+                        ],
+                        "multi_select": true,
+                        "title": "Management Interfaces"
                     }
                 }
             },
@@ -18325,7 +18379,7 @@
                     "optional_attributes": {
                         "type": "string",
                         "default": "",
-                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
                         "enum": [
                             "lacp_rate",
                             "suspend_individual"
@@ -18346,7 +18400,7 @@
                     "optional_attributes": {
                         "type": "string",
                         "default": "",
-                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
                         "enum": [
                             "admin_state",
                             "mode"
@@ -18367,7 +18421,7 @@
                     "optional_attributes": {
                         "type": "string",
                         "default": "",
-                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
                         "enum": [
                             "querier_ip_address",
                             "querier_ip_address_peer",
@@ -19794,6 +19848,33 @@
                     }
                 }
             },
+            "pools": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "General Pool Settings for build deployment wizard.",
+                "required": [],
+                "title": "Pools",
+                "properties": {
+                    "ip_protocols": {
+                        "type": "string",
+                        "default": "IPv4",
+                        "description": "Which IP Protocols Would you like to Configure for the IP Pool?\n  * `IPv4` - The IPv4 address family type.\n  * `IPv6` - The IPv6 address family type.",
+                        "enum": [
+                            "IPv4",
+                            "IPv6"
+                        ],
+                        "multi_select": true,
+                        "title": "IP Protocol(s)"
+                    },
+                    "pool": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Select a REPLACE Pool to apply to the PROFILE_TYPE Profile, or `Create New` to create a new policy.",
+                        "enum": [],
+                        "title": "REPLACE Pool"
+                    }
+                }
+            },
             "port": {
                 "type": "object",
                 "additionalProperties": false,
@@ -20001,10 +20082,45 @@
                     "optional_attributes": {
                         "type": "string",
                         "default": "",
-                        "description": "Typically the attributes below are not required but you can select any of the optional arguments you would like to add to the REPLACE Policy?",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
                         "enum": [
                             "auto_negotiation",
                             "fec"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
+                    }
+                }
+            },
+            "power": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Power Policy Settings for build deployment wizard.",
+                "required": [],
+                "title": "Power Policies",
+                "properties": {
+                    "chassis_optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
+                        "enum": [
+                            "dynamic_power_rebalancing",
+                            "extended_power_capacity",
+                            "power_allocation",
+                            "power_save_mode"
+                        ],
+                        "optional": true,
+                        "multi_select": true,
+                        "title": "REPLACE Policy Optional Attributes"
+                    },
+                    "server_optional_attributes": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Typically the attributes below are left at the default value.  But you can select any of these arguments you would like to change the default value for the REPLACE Policy?",
+                        "enum": [
+                            "power_priority",
+                            "power_profiling"
                         ],
                         "optional": true,
                         "multi_select": true,
@@ -20040,8 +20156,8 @@
                     "profile_count": {
                         "type": "integer",
                         "default": 3,
-                        "description": "Enter the Number of Server Profile(s) to create.",
-                        "maximum": 100,
+                        "description": "Enter the Number of Server Profile(s) to create.  `intersight.com` supports a maximum of 75 synchronouos OS Installs.  CVA/PVA support a maximum of 25 synchronous OS Installs.",
+                        "maximum": 75,
                         "minimum": 1,
                         "title": "Server Profile Count"
                     },
@@ -20078,7 +20194,7 @@
                 "type": "object",
                 "additionalProperties": false,
                 "description": "Wizard Main Menu Setup Questions.",
-                "title": "Profile",
+                "title": "Setup",
                 "properties": {
                     "assignment_method": {
                         "type": "string",
@@ -20190,13 +20306,6 @@
                         "description": "Select the Organization:",
                         "enum": [],
                         "title": "Organization"
-                    },
-                    "physical_domain": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Select the Physical Domain to configure.",
-                        "enum": [],
-                        "title": "Physical Domain"
                     },
                     "policy_types": {
                         "type": "string",

@@ -324,54 +324,6 @@ def create_terraform_workspaces(orgs, kwargs):
     return kwargs
      
 #=================================================================
-# Function: Deploy Configuration to Intersight
-#=================================================================
-def deploy(kwargs):
-    kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
-    #==============================================
-    # Create YAML Files
-    #==============================================
-    orgs = kwargs.orgs
-    ezfunctions.create_yaml(orgs, kwargs)
-    #==============================================
-    # Pools
-    #==============================================
-    pool_list = []
-    for k, v in kwargs.ezdata.items():
-        if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
-    for ptype in pool_list:
-        for org in orgs:
-            kwargs.org = org
-            if kwargs.imm_dict.orgs[org].get('pools'):
-                if ptype in kwargs.imm_dict.orgs[org]['pools']:  kwargs = eval(f"isight.imm(ptype).pools(kwargs)")
-    #==============================================
-    # Policies
-    #==============================================
-    policy_list = []
-    for k, v in kwargs.ezdata.items():
-        if v.intersight_type == 'policy' and not '.' in k: policy_list.append(k)
-    for ptype in policy_list:
-        for org in orgs:
-            kwargs.org = org
-            if kwargs.imm_dict.orgs[org].get('policies'):
-                if ptype in kwargs.imm_dict.orgs[org]['policies']:  kwargs = eval(f"isight.imm(ptype).policies(kwargs)")
-    #==============================================
-    # Profiles
-    #==============================================
-    for org in orgs:
-        kwargs.org = org
-        if kwargs.imm_dict.orgs[org].get('templates'):
-            if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"isight.imm('server_template').profiles(kwargs)")
-    for org in orgs:
-        kwargs.org = org
-        if kwargs.imm_dict.orgs[org].get('profiles'):
-            profile_list = ['domain', 'chassis', 'server']
-            for i in profile_list:
-                if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"isight.imm(i).profiles(kwargs)")
-    # return kwargs
-    return kwargs
-
-#=================================================================
 # Function: Intersight Transition Tool Configuration Conversion
 #=================================================================
 def imm_transition(kwargs):
@@ -428,7 +380,7 @@ def menu(kwargs):
     elif kwargs.deployment_type == 'Convert': kwargs = imm_transition(kwargs); return kwargs
     kwargs = questions.main_menu.previous_configuration(kwargs)
     if   kwargs.deployment_type == 'StateUpdate': kwargs = terraform.state('state_update').state_import(kwargs); return kwargs
-    elif kwargs.deployment_type == 'Deploy': kwargs = deploy(kwargs); return kwargs
+    elif kwargs.deployment_type == 'Deploy': kwargs = isight.imm.deploy(kwargs); return kwargs
     kwargs.main_menu_list = []
     #=================================================================
     # Prompt User with Questions
@@ -474,10 +426,6 @@ def process_wizard(kwargs):
         if kwargs.discovery == True:
             kwargs = build.intersight('domain').domain_setup(kwargs)
         kwargs = build.intersight('quick_start').quick_start_domain(kwargs)
-    print('here')
-    print(kwargs.build_type)
-    print(kwargs.deployment_type)
-    exit()
     #==============================================
     # Create YAML Files
     #==============================================
@@ -492,7 +440,7 @@ def process_wizard(kwargs):
         ezfunctions.merge_easy_imm_repository(kwargs)
         kwargs = ezfunctions.terraform_provider_config(kwargs)
         kwargs = create_terraform_workspaces(orgs, kwargs)
-    elif re.search('Domain|Individual|Server', kwargs.deployment_type): kwargs = deploy(kwargs)
+    elif re.search('Individual|Server', kwargs.deployment_type): kwargs = isight.imm.deploy(kwargs)
     return kwargs
 
 #=================================================================

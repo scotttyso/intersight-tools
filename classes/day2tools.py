@@ -361,20 +361,18 @@ class tools(object):
             if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', e):
                 kwargs.jdata.description.replace('policies', 'pools')
                 kwargs.jdata.title.replace('Policies', 'Pools')
-            clone_poicies = ezfunctions.variable_prompt(kwargs)
+            clone_policies = ezfunctions.variable_prompt(kwargs)
             key_list = ['Description', 'Name', 'Tags']
             for k,v in kwargs.ezdata[e].allOf[1].properties.items():
-                if v.type == 'array':
-                    key_list.append(v['items'].intersight_api)
-                elif v.type == 'object':
-                    key_list.append(v.intersight_api)
+                if v.type == 'array': key_list.append(v['items'].intersight_api)
+                elif v.type == 'object': key_list.append(v.intersight_api)
                 elif re.search('boolean|integer|string', v.type):
                     if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
                     else: key_list.append(v.intersight_api)
                 else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
             kwargs.bulk_list = []
             key_list = list(numpy.unique(numpy.array(key_list)))
-            for d in clone_poicies:
+            for d in clone_policies:
                 api_body = kwargs[e][d]
                 for key in list(api_body.keys()):
                     if not key in key_list: api_body.pop(key)

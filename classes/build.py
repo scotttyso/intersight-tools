@@ -7,7 +7,7 @@ try:
     from classes import ezfunctions, isight, pcolor, questions
     from copy import deepcopy
     from dotmap import DotMap
-    import ipaddress, json, inflect, os, re, urllib3
+    import ipaddress, json, inflect, numpy, os, re, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -30,7 +30,176 @@ class intersight(object):
         ezfunctions.create_yaml(orgs, kwargs)
 
     #=========================================================================
-    # Function: Domain Discovery
+    # Function: Chassis Setup
+    #=========================================================================
+    def chassis_setup(self, kwargs):
+        setup_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.keys())
+        return kwargs
+
+    #=========================================================================
+    # Function: Chassis Setup
+    #=========================================================================
+    def clone_key_list(policy_dict):
+        key_list = ['Description', 'Name', 'Tags']
+        for k,v in policy_dict.items():
+            if v.type == 'array': key_list.append(v['items'].intersight_api)
+            elif v.type == 'object': key_list.append(v.intersight_api)
+            elif re.search('boolean|integer|string', v.type):
+                if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
+                else: key_list.append(v.intersight_api)
+            else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
+        return key_list
+
+    #=========================================================================
+    # Function: Clone Policy
+    #=========================================================================
+    def clone_policy(self, destination_org, policy, kwargs):
+        source_org     = policy.split('/')[0]
+        kwargs.method  = 'get'
+        kwargs.names   = [kwargs.org_moid[source_org].moid]
+        kwargs.uri     = kwargs.ezdata[self.type].intersight_uri
+        kwargs         = isight.api('multi_org').calls(kwargs)
+        policy_results = kwargs.results
+        policy_names   = [e.Name for e in kwargs.results]
+        policy_name    = policy.split('/')[1]
+        create_policy  = True
+        if policy_name in policy_names: create_policy = False
+        if create_policy == True:
+            key_list = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
+            indx     = next((index for (index, d) in enumerate(kwargs.policies[self.type]) if d['Name'] == policy_name), None)
+            kwargs.original_index = indx
+            api_body              = kwargs.policies[self.type][indx]
+            for k in list(api_body.keys()):
+                if not k in key_list: api_body.pop(k)
+            api_body.Name         = policy_name
+            api_body.ObjectType   = kwargs.ezdata[self.type].ObjectType
+            api_body.Organization = {'Moid':kwargs.org_moids[destination_org].moid, 'ObjectType':'organization.Organization'}
+            kwargs.bulk_list = []
+            kwargs.bulk_list.append(api_body)
+            #=============================================================================
+            # POST Bulk Request
+            #=============================================================================
+            kwargs.uri         = kwargs.ezdata[self.type].intersight_uri
+            kwargs             = isight.imm(self.type).bulk_request(kwargs)
+            if re.search('port|vlan|vsan', self.type):
+                if re.search('vlan|vsan', self.type): kwargs = intersight(f'{self.type}.{self.type}s').clone_children(destination_org, policy, kwargs)
+                kwargs.api
+        return kwargs
+
+    #=========================================================================
+    # Function: Clone Policy Children
+    #=========================================================================
+    def clone_children(self, destination_org, policy, kwargs):
+        policy_name    = policy.split('/')[1]
+        parent_policy  = self.type.split('.')[0]
+        source_org     = policy.split('/')[0]
+        if self.type == 'vlan.vlans': kwargs.parent = 'EthNetworkPolicy'
+        else: kwargs.parent = 'FcNetworkPolicy'
+        key_list           = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
+        kwargs.bulk_list   = []
+        kwargs.method      = 'get'
+        kwargs.names       = [kwargs.policies[parent_policy][kwargs.original_index].Moid]
+        kwargs.parent_moid = kwargs.isight[destination_org].policy[parent_policy][policy_name]
+        kwargs.uri         = kwargs.ezdata[self.type].intersight_uri
+        kwargs             = isight.api('parent_moids').calls(kwargs)
+        policy_results     = kwargs.results
+        for k, v in kwargs.ezdata[self.type].allOf[1].properties.items():
+            if '_policy' in k: pass
+        policy_names   = [e.Name for e in kwargs.results]
+        create_policy  = True
+        if policy_name in policy_names: create_policy = False
+        if create_policy == True:
+            kwargs.bulk_list = []
+            key_list = ['Description', 'Name', 'Tags']
+            for k,v in kwargs.ezdata[e].allOf[1].properties.items():
+                if v.type == 'array': key_list.append(v['items'].intersight_api)
+                elif v.type == 'object': key_list.append(v.intersight_api)
+                elif re.search('boolean|integer|string', v.type):
+                    if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
+                    else: key_list.append(v.intersight_api)
+                else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
+            indx = next((index for (index, d) in enumerate(kwargs.policies[self.type]) if d['Name'] == policy_name), None)
+            kwargs.parent_index   = indx
+            api_body              = kwargs.policies[self.type][indx]
+            for k in list(api_body.keys()):
+                if not k in key_list: api_body.pop(k)
+            api_body.Name         = policy_name
+            api_body.ObjectType   = kwargs.ezdata[self.type].ObjectType
+            api_body.Organization = {'Moid':kwargs.org_moids[destination_org].moid, 'ObjectType':'organization.Organization'}
+            kwargs.bulk_list.append(api_body)
+            #=============================================================================
+            # POST Bulk Request if Post List > 0
+            #=============================================================================
+            if len(kwargs.bulk_list) > 0:
+                kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+                kwargs     = isight.imm(self.type).bulk_request(kwargs)
+            if re.search('port|vlan|vsan', self.type):
+                if self.type == 'port': kwargs = intersight('port').clone_vxan(kwargs)
+                kwargs.api
+        return kwargs
+
+    #=========================================================================
+    # Function: Build Server Profile Dict from Source
+    #=========================================================================
+    def domain_profiles_create_from_source(self, item, kwargs):
+        pvars = DotMap(port_policies = [], vlan_policies = [], vsan_policies = [])
+        kwargs.names = []
+        for e in item.SwitchProfiles: kwargs.names.append(e.Moid)
+        kwargs.method   = 'get'
+        kwargs.uri      = kwargs.ezdata.domain.intersight_uri_switch
+        kwargs          = isight.api('moid_filter').calls(kwargs)
+        switch_profiles = kwargs.results
+        for x in range(0,len(switch_profiles)):
+            i = switch_profiles[x]
+            if i.PolicyBucket:
+                kwargs.method = 'get_by_moid'
+                for e in i.PolicyBucket:
+                    pkeys        = list(kwargs.policies.keys())
+                    key_id       = [k for k, v in kwargs.ezdata.items() if v.ObjectType == e.ObjectType][0]
+                    kwargs.pmoid = e.Moid
+                    kwargs.uri   = kwargs.ezdata[key_id].intersight_uri
+                    kwargs       = isight.api(key_id).calls(kwargs)
+                    kwargs.isight[kwargs.org_names[kwargs.results.Organization.Moid]].policy[key_id][kwargs.results.Name] = kwargs.results.Moid
+                    if not key_id in pkeys: kwargs.policies[key_id].append(kwargs.results)
+                    if re.search('port|vlan|vsan', key_id):
+                        pvars[f'{key_id}_policies'].append(f'{kwargs.org_names[kwargs.results.Organization.Moid]}/{kwargs.results.Name}')
+                    elif x == 0: pvars[f'{key_id}_policy'] = f'{kwargs.org_names[kwargs.results.Organization.Moid]}/{kwargs.results.Name}'
+        if item.Tags: pvars['tags'] = item.Tags
+        kwargs.jdata      = kwargs.ezwizard.domain.properties.domain_policies
+        kwargs.jdata.enum = [k for k in pvars.keys() if 'polic' in k]
+        exclude_policies  = ezfunctions.variable_prompt(kwargs)
+        if type(exclude_policies) == str: exclude_policies = [exclude_policies]
+        for e in exclude_policies: pvars.pop(e)
+        for k in pvars.keys():
+            if kwargs.use_shared_org == True: org = kwargs.shared_org
+            else: org = kwargs.org
+            def org_check(org, policy):
+                in_org = False
+                if  org in policy: in_org = True
+                return in_org
+            ptype = (k.replace('_policy')).replace('_policies')
+            if 'polic' in k:
+                if 'policies' in k:
+                    for x in range(0,len(pvars[k])):
+                        in_org = org_check(pvars[k][x])
+                        if in_org == False:
+                            kwargs      = intersight(ptype).clone_policy(org, pvars[k][x], kwargs)
+                            policy      = pvars[k][x].split('/')
+                            pvars[k][x] = f'{org}/{policy[1]}'
+                            pvars[k][x] = pvars[k][x].replace(f'{kwargs.org}/', '')
+                else:
+                    in_org = org_check(pvars[k])
+                    if in_org == False:
+                        kwargs   = intersight(ptype).clone_policy(org, pvars[k], kwargs)
+                        policy   = pvars[k].split('/')
+                        pvars[k] = f'{org}/{policy[1]}'
+                        pvars[k] = pvars[k].replace(f'{kwargs.org}/', '')
+        for e in list(pvars.keys()): kwargs.imm_dict.orgs[kwargs.org].wizard.domain[e] = pvars[e]
+        # Return kwargs
+        return kwargs
+
+    #=========================================================================
+    # Function: Domain Setup
     #=========================================================================
     def domain_setup(self, kwargs):
         setup_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.keys())
@@ -52,12 +221,12 @@ class intersight(object):
             #=========================================================================
             # Prompt User for Physical Domain
             #=========================================================================
-            domains = kwargs.results
-            names   = [e.DeviceHostname[0] for e in domains]
-            names.sort()
-            kwargs.jdata         = kwargs.ezwizard.setup.properties.physical_domain
-            kwargs.jdata.default = names[0]
-            kwargs.jdata.enum    = names
+            domains      = kwargs.results
+            domain_names = [e.DeviceHostname[0] for e in domains]
+            domain_names.sort()
+            kwargs.jdata         = deepcopy(kwargs.ezwizard.domain.properties.physical_domain)
+            kwargs.jdata.default = domain_names[0]
+            kwargs.jdata.enum    = domain_names
             phys_domain          = ezfunctions.variable_prompt(kwargs)
             indx  = next((index for (index, d) in enumerate(domains) if d['DeviceHostname'][0] == phys_domain), None)
             args.model          = domains[indx].Pid[0]
@@ -69,7 +238,7 @@ class intersight(object):
             #=========================================================================
             # Domain Profile name
             #=========================================================================
-            kwargs.jdata             = kwargs.ezdata.abstract_profile.properties.name
+            kwargs.jdata             = deepcopy(kwargs.ezdata.abstract_profile.properties.name)
             kwargs.jdata.description = 'Domain Profile Name\n\n' + kwargs.jdata.description
             kwargs.jdata.default     = args.name
             args.name = ezfunctions.variable_prompt(kwargs)
@@ -88,12 +257,8 @@ class intersight(object):
             if len(kwargs.names) > 1:
                 names = [e.Name for e in kwargs.results]
                 names.sort()
-                kwargs.jdata = DotMap(
-                    default     = names[0],
-                    enum        = names,
-                    description = f'Select the Resource Group in organization `{kwargs.org}` to Assign `{args.name}`.',
-                    title       = 'Organization Resource Group',
-                    type        = 'string')
+                kwargs.jdata   = deepcopy(kwargs.ezwizard.domain.properties.resource_group)
+                kwargs.jdata.description = (kwargs.jdata.description.replace('ORG', kwargs.org)).replace('DOMAIN', args.name)
                 resource_group = ezfunctions.variable_prompt(kwargs)
                 indx = next((index for (index, d) in enumerate(kwargs.results) if d['Name'] == resource_group), None)
                 rgroup = kwargs.results[indx]
@@ -113,6 +278,20 @@ class intersight(object):
                     kwargs = isight.api('resource_group').calls(kwargs)
                 else: pcolor.Cyan(f'\n   Domain already assigned to Organization `{kwargs.org}` Resource Group `{rgroup.Name}`\n')
             intersight.create_yaml_files(kwargs)
+            #=========================================================================
+            # Domain Configuration Source - Clone/New
+            #=========================================================================
+            kwargs.jdata   = kwargs.ezwizard.domain.properties.domain_source
+            profile_source = ezfunctions.variable_prompt(kwargs)
+            if profile_source == 'Clone':
+                domain_names.remove(phys_domain)
+                kwargs.jdata         = kwargs.ezwizard.domain.properties.source_domain
+                kwargs.jdata.default = domain_names[0]
+                kwargs.jdata.enum    = domain_names
+                source_domain        = ezfunctions.variable_prompt(kwargs)
+                indx  = next((index for (index, d) in enumerate(domains) if d['DeviceHostname'][0] == source_domain), None)
+                kwargs = intersight('domain').domain_profiles_create_from_source(domains[indx], kwargs)
+
         else:
             for e in ['model', 'moid', 'name', 'serial_numbers']:
                 args[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[e]
@@ -126,7 +305,32 @@ class intersight(object):
         for e in policies:
             policy = (e.replace('_policies', '')).replace('_policy', '')
             if not e in profile_setup_keys: kwargs = eval(f'questions.policies(policy).{policy}(kwargs)')
-        exit()
+        #=========================================================================
+        # Build the Domain Profile Dictionary
+        #=========================================================================
+        domain_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.keys())
+        policies.extend(['name', 'port_policies', 'serial_numbers', 'switch_control_policy', 'vlan_policies'])
+        policies = sorted(policies)
+        pvars = DotMap(action = 'Deploy')
+        for e in policies:
+            if e in domain_keys: pvars[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[e]
+        kwargs.class_path = f'profiles,domain'
+        kwargs = ezfunctions.ez_append(pvars, kwargs)
+        #=========================================================================
+        # Loop through Policy List and Build Dictionaries for Chassis
+        #=========================================================================
+        if 'chassis' in setup_keys:
+            profile_setup_keys   = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.keys())
+        else: profile_setup_keys = []
+        kwargs.profile_type = 'chassis'
+        if not 'imc_access' in profile_setup_keys: kwargs = eval(f'questions.policies(policy).{policy}(kwargs)')
+        if kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.model == 'UCSX-S9108-100G':
+            policies   = ['power_policy', 'thermal_policy']
+        else: policies = ['imc_access_policy', 'power_policy', 'snmp_policy', 'thermal_policy']
+        for e in policies:
+            policy = e.replace('_policy', '')
+            if not e in profile_setup_keys: kwargs = eval(f'questions.policies(policy).{policy}(kwargs)')
+        kwargs = isight.imm.deploy(kwargs)
         return kwargs
 
     #=========================================================================
@@ -599,7 +803,8 @@ class intersight(object):
                 kwargs.pmoid = e.Moid
                 kwargs.uri   = kwargs.ezdata[key_id].intersight_uri
                 kwargs       = isight.api(key_id).calls(kwargs)
-                pvars[f'{key_id}_policy'] = kwargs.results.Name
+                pvars[f'{key_id}_policy'] = f'{kwargs.org_names[kwargs.results.Organization.Moid]}/{kwargs.results.Name}'
+                pvars[f'{key_id}_policy'] = pvars[f'{key_id}_policy'].replace(f'{kwargs.org}/', '')
         if item.Tags: pvars['tags'] = item.Tags
         if item.UuidAddressType == 'POOL':
             kwargs.pmoid       = item.UuidPool.Moid
@@ -773,6 +978,7 @@ class intersight(object):
             # Prompt user for Profile Count
             #=========================================================================
             kwargs.jdata = kwargs.ezwizard.server.properties.profile_count
+            if not 'intersight.com' in kwargs.args.intersight_fqdn: kwargs.jdata.maximum = 25
             pcount = int(ezfunctions.variable_prompt(kwargs))
             #=========================================================================
             # Remove Servers already assigned to profiles

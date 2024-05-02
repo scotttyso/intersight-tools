@@ -951,6 +951,56 @@ class imm(object):
         return patch_return
 
     #=============================================================================
+    # Function: Deploy Configuration to Intersight
+    #=============================================================================
+    def deploy(kwargs):
+        kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
+        #=========================================================================
+        # Create YAML Files
+        #=========================================================================
+        orgs = kwargs.orgs
+        ezfunctions.create_yaml(orgs, kwargs)
+        #=========================================================================
+        # Pools
+        #=========================================================================
+        pool_list = []
+        for k, v in kwargs.ezdata.items():
+            if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
+        for ptype in pool_list:
+            for org in orgs:
+                kwargs.org = org
+                if kwargs.imm_dict.orgs[org].get('pools'):
+                    if ptype in kwargs.imm_dict.orgs[org]['pools']:  kwargs = eval(f"imm(ptype).pools(kwargs)")
+        #=========================================================================
+        # Policies
+        #=========================================================================
+        policy_list = []
+        for k, v in kwargs.ezdata.items():
+            if v.intersight_type == 'policy' and not '.' in k: policy_list.append(k)
+        for ptype in policy_list:
+            for org in orgs:
+                kwargs.org = org
+                if kwargs.imm_dict.orgs[org].get('policies'):
+                    if ptype in kwargs.imm_dict.orgs[org]['policies']:  kwargs = eval(f"imm(ptype).policies(kwargs)")
+        #=========================================================================
+        # Profiles
+        #=========================================================================
+        for org in orgs:
+            kwargs.org = org
+            if kwargs.imm_dict.orgs[org].get('templates'):
+                if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"imm('server_template').profiles(kwargs)")
+        for org in orgs:
+            kwargs.org = org
+            if kwargs.imm_dict.orgs[org].get('profiles'):
+                profile_list = ['domain', 'chassis', 'server']
+                for i in profile_list:
+                    if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"imm(i).profiles(kwargs)")
+        #=========================================================================
+        # return kwargs
+        #=========================================================================
+        return kwargs
+
+    #=============================================================================
     # Function - Assign Drive Groups to Storage Policies
     #=============================================================================
     def drive_groups(self, kwargs):

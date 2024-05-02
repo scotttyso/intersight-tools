@@ -626,6 +626,46 @@ class policies(object):
         return kwargs
 
     #=========================================================================
+    # Function: Prompt User for IMC Access Policy Settings
+    #=========================================================================
+    def imc_access(self, kwargs):
+        def inband_vlan(pvars, kwargs):
+            kwargs.jdata = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.inband_vlan_id)
+            pvars.inband_vlan_id = ezfunctions.variable_prompt(kwargs)
+            return pvars
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default = 'kvm'
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata = deepcopy(kwargs.ezwizard[self.type].properties.mgmt_types)
+                mgmt_types   = ezfunctions.variable_prompt(kwargs)
+                for e in mgmt_types:
+                    ptitle = (e.replace('_', ' ')).title()
+                    pcolor.Yellow(f'\n\n  ** IP Pool for {ptitle}  **')
+                    pvars[f'{e}_ip_pool'] = pools('ip').ip(kwargs)
+                    if e == 'inband':
+                        pvars = inband_vlan(pvars, kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                policy_accept, kwargs = policies(self.type).add_to_imm_dict(pvars, kwargs)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        if kwargs.profile_type == 'chassis':
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = kwargs.policy_name
+        elif kwargs.profile_type == 'server':
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
     # Function: Prompt User for Link Aggregation Policy Settings
     #=========================================================================
     def link_aggregation(self, kwargs):
@@ -677,8 +717,8 @@ class policies(object):
     # Function: Prompt User for Network Connectivity Policy Settings
     #=========================================================================
     def network_connectivity(self, kwargs):
-        policy_name = policies(self.type).policy_select(kwargs)
-        if policy_name == 'Create New':
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
             policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
@@ -720,10 +760,10 @@ class policies(object):
         # Add Policy to Dictionaries, Update YAML and Return kwargs
         #=====================================================================
         if kwargs.profile_type == 'domain':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = kwargs.policy_name
         elif kwargs.profile_type == 'server':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = policy_name
-        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
         policies.create_yaml_files(kwargs)
         return kwargs
 
@@ -731,8 +771,8 @@ class policies(object):
     # Function: Prompt User for NTP Policy Settings
     #=========================================================================
     def ntp(self, kwargs):
-        policy_name = policies(self.type).policy_select(kwargs)
-        if policy_name == 'Create New':
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
             policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
@@ -749,7 +789,7 @@ class policies(object):
                     if len(ntp_server) > 0: ntp_servers.append(ntp_server)
                     else: break
                 timezone = prompt_user.for_timezone(kwargs)
-                pvars.name = name; pvars.ntp_servers = ntp_servers; pvars.timezone = timezone
+                pvars.name   = name; pvars.ntp_servers = ntp_servers; pvars.timezone = timezone
                 #=====================================================================
                 # Prompt User to Accept the Policy
                 #=====================================================================
@@ -758,10 +798,10 @@ class policies(object):
         # Add Policy to Dictionaries, Update YAML and Return kwargs
         #=====================================================================
         if kwargs.profile_type == 'domain':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = kwargs.policy_name
         elif kwargs.profile_type == 'server':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = policy_name
-        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
         policies.create_yaml_files(kwargs)
         return kwargs
 
@@ -787,7 +827,11 @@ class policies(object):
         if '.' in self.type: ppolicy = self.type.split('.')[1]
         else: ppolicy = self.type
         policy_title             = ezfunctions.mod_pol_description((ppolicy.replace('_', ' ')).capitalize())
-        kwargs.jdata             = deepcopy(kwargs.ezwizard[self.type].properties.optional_attributes)
+        if   self.type == 'power' and kwargs.profile_type == 'chassis':
+            kwargs.jdata   = deepcopy(kwargs.ezwizard[self.type].properties.chassis_optional_attributes)
+        elif self.type == 'power':
+            kwargs.jdata   = deepcopy(kwargs.ezwizard[self.type].properties.server_optional_attributes)
+        else: kwargs.jdata = deepcopy(kwargs.ezwizard[self.type].properties.optional_attributes)
         kwargs.jdata.description = (kwargs.jdata.description).replace('REPLACE', policy_title)
         kwargs.jdata.title       = (kwargs.jdata.title).replace('REPLACE', policy_title)
         attributes = ezfunctions.variable_prompt(kwargs)
@@ -802,7 +846,7 @@ class policies(object):
         return pvars, kwargs
 
     #=========================================================================
-    # Function: Prompt User for Network Connectivity Policy Settings
+    # Function: Prompt User for New or Existing Policy
     #=========================================================================
     def policy_select(self, kwargs):
         kwargs.names  = [kwargs.org_moids[kwargs.org].moid]
@@ -987,10 +1031,12 @@ class policies(object):
                 #=====================================================================
                 # Configure Server Ports
                 #=====================================================================
-                if not 'port_role_servers' in pkeys:
-                    pvars, kwargs = policies('port.port_role_servers').port_role_servers(pvars, kwargs)
-                    kwargs.imm_dict.orgs[kwargs.org].policies.port[indx].port_role_servers = pvars[e]
-                    policies.create_yaml_files(kwargs)
+                ddict = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain
+                if ddict.model != 'UCSX-S9108-100G':
+                    if not 'port_role_servers' in pkeys:
+                        pvars, kwargs = policies('port.port_role_servers').port_role_servers(pvars, kwargs)
+                        kwargs.imm_dict.orgs[kwargs.org].policies.port[indx].port_role_servers = pvars[e]
+                        policies.create_yaml_files(kwargs)
                 #=====================================================================
                 # Prompt User to Accept the Policy
                 #=====================================================================
@@ -1448,8 +1494,9 @@ class policies(object):
             #=====================================================================
             # Prompt User for: admin_speed, interfaces, pc_ids, and vsan_ids
             #=====================================================================
-            policy_title      = ezfunctions.mod_pol_description((port_policy.replace('_', ' ')).capitalize())
-            kwargs.jdata      = deepcopy(kwargs.ezwizard.port.properties.connected_devices)
+            policy_title = ezfunctions.mod_pol_description((port_policy.replace('_', ' ')).capitalize())
+            kwargs.jdata = deepcopy(kwargs.ezwizard.port.properties.connected_devices)
+            if kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.model == 'UCSX-S9108-100G': kwargs.jdata.optional = True
             connected_devices = ezfunctions.variable_prompt(kwargs)
             for device_type in connected_devices:
                 if not edict.get(device_type): edict[device_type].interfaces = []
@@ -1507,20 +1554,55 @@ class policies(object):
         return pvars, kwargs
 
     #=========================================================================
+    # Function: Prompt User for Power Policy Settings
+    #=========================================================================
+    def power(self, kwargs):
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                if kwargs.profile_type == 'chassis': kwargs.jdata.default = 'chassis'
+                else: kwargs.jdata.default = 'server'
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.power_redundancy)
+                pvars.power_redundancy = ezfunctions.variable_prompt(kwargs)
+                if kwargs.profile_type == 'server':
+                    kwargs.jdata = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.power_restore)
+                    pvars.power_restore = ezfunctions.variable_prompt(kwargs)
+                kwargs = policies('power').optional_attributes(kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                policy_accept, kwargs = policies(self.type).add_to_imm_dict(pvars, kwargs)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        if kwargs.profile_type == 'chassis':
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = kwargs.policy_name
+        elif kwargs.profile_type == 'server':
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
     # Function: Prompt User for SNMP Policy Settings
     #=========================================================================
     def snmp(self, kwargs):
         optional_answer = policies(self.type).optional(kwargs)
-        if optional_answer == True: policy_name = policies(self.type).policy_select(kwargs)
-        else: policy_name = 'skip_policy'
-        if policy_name == 'Create New':
+        if optional_answer == True: kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        else: kwargs.policy_name = 'skip_policy'
+        if kwargs.policy_name == 'Create New':
             policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
                 kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
                 kwargs.jdata.default = 'snmp'
-                pvars.name = ezfunctions.variable_prompt(kwargs)
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
                 for e in ['system_contact', 'system_location', 'snmp_port']:
                     kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
                     pvars[e] = ezfunctions.variable_prompt(kwargs)
@@ -1555,24 +1637,17 @@ class policies(object):
                 #=====================================================================
                 # Prompt User to Accept the Policy
                 #=====================================================================
-                accept = prompt_user(self.type).to_accept('the Syslog Policy', pvars, kwargs)
-                if accept == True:
-                    kwargs.class_path = f'policies,{self.type}'
-                    kwargs            = ezfunctions.ez_append(pvars, kwargs)
-                    if kwargs.use_shared_org == True:  policy_name = f'{kwargs.shared_org}/{pvars.name}'
-                    else: policy_name = pvars.name
-                    policy_accept = True
-                else: ezfunctions.message_starting_over(self.type)
+                policy_accept, kwargs = policies(self.type).add_to_imm_dict(pvars, kwargs)
         #=====================================================================
         # Add Policy to Dictionaries, Update YAML and Return kwargs
         #=====================================================================
         if kwargs.profile_type == 'chassis':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = kwargs.policy_name
         elif kwargs.profile_type == 'domain':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = kwargs.policy_name
         elif kwargs.profile_type == 'server':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = policy_name
-        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
         policies.create_yaml_files(kwargs)
         return kwargs
 
@@ -1609,15 +1684,15 @@ class policies(object):
     # Function: Prompt User for System QoS Policy Settings
     #=========================================================================
     def system_qos(self, kwargs):
-        policy_name = policies(self.type).policy_select(kwargs)
-        if policy_name == 'Create New':
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
             policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
                 kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
                 kwargs.jdata.default = 'system-qos'
-                pvars.name = ezfunctions.variable_prompt(kwargs)
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
                 kwargs.jdata = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.jumbo_mtu)
                 kwargs.jdata.description = 'Do you have Jumbo MTU Configured in your Network Environment?'
                 pvars.jumbo_mtu = ezfunctions.variable_prompt(kwargs)
@@ -1634,7 +1709,7 @@ class policies(object):
         #=====================================================================
         # Add Policy to Dictionaries, Update YAML and Return kwargs
         #=====================================================================
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = policy_name
+        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = kwargs.policy_name
         policies.create_yaml_files(kwargs)
         return kwargs
 
@@ -1643,16 +1718,16 @@ class policies(object):
     #=========================================================================
     def syslog(self, kwargs):
         optional_answer = policies(self.type).optional(kwargs)
-        if optional_answer == True: policy_name = policies(self.type).policy_select(kwargs)
-        else: policy_name = 'skip_policy'
-        if policy_name == 'Create New':
+        if optional_answer == True: kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        else: kwargs.policy_name = 'skip_policy'
+        if kwargs.policy_name == 'Create New':
             policies(self.type).announcement(kwargs)
             policy_accept = False
             while policy_accept == False:
                 pvars = DotMap()
                 kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
                 kwargs.jdata.default = 'syslog'
-                pvars.name = ezfunctions.variable_prompt(kwargs)
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
                 kwargs.jdata = deepcopy(kwargs.ezdata['syslog.local_logging'].properties.minimum_severity)
                 pvars.local_logging.minimum_severity = ezfunctions.variable_prompt(kwargs)
                 pvars.remote_logging = []
@@ -1689,12 +1764,42 @@ class policies(object):
         # Add Policy to Dictionaries, Update YAML and Return kwargs
         #=====================================================================
         if kwargs.profile_type == 'chassis':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = kwargs.policy_name
         elif kwargs.profile_type == 'domain':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[f'{self.type}_policy'] = kwargs.policy_name
         elif kwargs.profile_type == 'server':
-            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = policy_name
-        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = policy_name
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Thermal Policy Settings
+    #=========================================================================
+    def thermal(self, kwargs):
+        kwargs.policy_name = policies(self.type).policy_select(kwargs)
+        if kwargs.policy_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            policy_accept = False
+            while policy_accept == False:
+                pvars = DotMap()
+                kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
+                kwargs.jdata.default = 'chassis'
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata = deepcopy(kwargs.ezdata[self.type].allOf[1].properties.fan_control_mode)
+                pvars.fan_control_mode = ezfunctions.variable_prompt(kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                policy_accept, kwargs = policies(self.type).add_to_imm_dict(pvars, kwargs)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        if kwargs.profile_type == 'chassis':
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[f'{self.type}_policy'] = kwargs.policy_name
+        elif kwargs.profile_type == 'server':
+            kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server[f'{self.type}_policy'] = kwargs.policy_name
+        else: kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template[f'{self.type}_policy'] = kwargs.policy_name
         policies.create_yaml_files(kwargs)
         return kwargs
 
@@ -1712,7 +1817,7 @@ class policies(object):
                 pcolor.Yellow('\n\n  * Multicast Policy Settings.  *')
                 kwargs.jdata = deepcopy(kwargs.ezdata.abstract_policy.properties.name)
                 kwargs.jdata.default = 'mcast'
-                pvars.name = ezfunctions.variable_prompt(kwargs)
+                pvars.name   = ezfunctions.variable_prompt(kwargs)
                 #=====================================================================
                 # Prompt User to Accept the Policy
                 #=====================================================================
@@ -2027,6 +2132,118 @@ class policies(object):
         return args, kwargs
 
 #=============================================================================
+# Build IMM Pools
+#=============================================================================
+class pools(object):
+    def __init__(self, type):
+        self.type = type
+
+    #=========================================================================
+    # Function: Prompt User to Add Pool to IMM Dictionary
+    #=========================================================================
+    def add_to_imm_dict(self, pvars, kwargs):
+        pool_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        accept       = prompt_user(self.type).to_accept(f'the {pool_title} Policy', pvars, kwargs)
+        if accept == True:
+            kwargs.class_path = f'policies,{self.type}'
+            kwargs            = ezfunctions.ez_append(pvars, kwargs)
+            if kwargs.use_shared_org == True:  kwargs.pool_name = f'{kwargs.shared_org}/{pvars.name}'
+            else: kwargs.pool_name = pvars.name
+            pool_accept = True
+        else: ezfunctions.message_starting_over(self.type)
+        return pool_accept, kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Flow Control Policy Settings
+    #=========================================================================
+    def ip(self, kwargs):
+        kwargs.pool_name = pools(self.type).pool_select(kwargs)
+        if kwargs.pool_name == 'Create New':
+            policies(self.type).announcement(kwargs)
+            pool_accept = False
+            while pool_accept == False:
+                pvars = DotMap()
+                kwargs.jdata         = deepcopy(kwargs.ezdata.abstract_pool.properties.name)
+                kwargs.jdata.default = 'ip'
+                pvars.name           = ezfunctions.variable_prompt(kwargs)
+                kwargs.jdata         = deepcopy(kwargs.ezwizard.pools.properties.ip_protocols)
+                ip_protocols         = ezfunctions.variable_prompt(kwargs)
+                for protocol in ip_protocols:
+                    pvars, kwargs = pools(f'ip.{protocol.lower()}_blocks').ip_blocks(protocol, pvars, kwargs)
+                #=====================================================================
+                # Prompt User to Accept the Policy
+                #=====================================================================
+                pool_accept, kwargs = pools(self.type).add_to_imm_dict(pvars, kwargs)
+        #=====================================================================
+        # Add Policy to Dictionaries, Update YAML and Return kwargs
+        #=====================================================================
+        policies.create_yaml_files(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Prompt User for Flow Control Policy Settings
+    #=========================================================================
+    def ip_blocks(self, protocol, pvars, kwargs):
+        p = protocol.lower()
+        pcolor.Yellow(f'\n\n You can enter multiple {protocol} blocks.  When finished press enter on the `from` field with no value.')
+        if 'v4' in protocol: attr_list = ['from', 'to', 'gateway', 'netmask', 'primary_dns', 'secondary_dns']
+        else: attr_list = ['from', 'to', 'gateway', 'prefix', 'primary_dns', 'secondary_dns']
+        count                = 0
+        pvars[f'{p}_blocks'] = []
+        block_accept         = False
+        while block_accept == False:
+            edict = DotMap()
+            for e in attr_list:
+                kwargs.jdata = deepcopy(kwargs.ezdata[self.type].allOf[1].properties[e])
+                if count >= 1 and e == 'from': kwargs.jdata.optional = True
+                edict[e] = ezfunctions.variable_prompt(kwargs)
+                count += 1
+            #=====================================================================
+            # Prompt User to Accept the Policy
+            #=====================================================================
+            accept = prompt_user(f'the {protocol} Block IP').to_accept(f'the {protocol}', edict, kwargs)
+            if accept == True: pvars[f'{p}_blocks'].append(edict); block_accept = True
+            else: ezfunctions.message_starting_over(f'{protocol} Block')
+        #=====================================================================
+        # Return pvars and kwargs
+        #=====================================================================
+        return pvars, kwargs
+
+    #=========================================================================
+    # Function: Prompt User for New or Existing Pool
+    #=========================================================================
+    def pool_select(self, kwargs):
+        kwargs.names  = [kwargs.org_moids[kwargs.org].moid]
+        if kwargs.use_shared_org == True: kwargs.names.append(kwargs.org_moids[kwargs.shared_org].moid)
+        kwargs.method = 'get'
+        kwargs.uri    = deepcopy(kwargs.ezdata[self.type].intersight_uri)
+        kwargs        = isight.api('multi_org').calls(kwargs)
+        pool_keys     = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
+        for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].pool[self.type][e.Name] = e.Moid
+        org_keys = list(kwargs.org_moids.keys())
+        for org in org_keys:
+            pkeys = list(kwargs.imm_dict.orgs[org].pools.keys())
+            if self.type in pkeys:
+                for e in kwargs.imm_dict.orgs[org].pools[self.type]: pool_keys.append(f'{org}/{e.name}')
+        pool_keys = sorted(list(numpy.unique(numpy.array(pool_keys))))
+        if len(pool_keys) > 0:
+            pool_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+            kwargs.jdata = deepcopy(kwargs.ezwizard.pools.properties.pool)
+            kwargs.jdata.description = (
+                kwargs.jdata.description.replace('REPLACE', pool_title)).replace('PROFILE_TYPE', (kwargs.profile_type).capitalize())
+            kwargs.jdata.title = kwargs.jdata.title.replace('REPLACE', pool_title)
+            if type(kwargs.ignore_create_new) == bool and kwargs.ignore_create_new == True: pass
+            else: pool_keys.append('Create New')
+            kwargs.jdata.default = pool_keys[0]
+            kwargs.jdata.enum    = pool_keys
+            kwargs.jdata.sort    = False
+            pool_name = ezfunctions.variable_prompt(kwargs)
+            pool_name = pool_name.replace(f'{kwargs.org}/', '')
+        else: pool_name = 'Create New'
+        return pool_name
+
+
+#=============================================================================
 # Build IMM Profiles
 #=============================================================================
 class profiles(object):
@@ -2139,8 +2356,10 @@ class prompt_user(object):
     # Function: Prompt User to Accept Configuration
     #=========================================================================
     def to_accept(self, item, idict, kwargs):
-        policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
-        pcolor.Green(f'\n{"-"*108}\n\n  {policy_title} Policy:\n')
+        if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', self.type): ptype = 'Pool'
+        else: ptype = 'Policy'
+        ptitle = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+        pcolor.Green(f'\n{"-"*108}\n\n  {ptitle} {ptype}:\n')
         yfile = open('yaml.txt', 'w')
         yfile.write(yaml.dump(idict.toDict(), Dumper=yaml_dumper, default_flow_style=False))
         yfile.close()
