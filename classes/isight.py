@@ -2001,7 +2001,7 @@ class imm(object):
         # Build Child Policy Map
         #=============================================================================
         kwargs.cp = DotMap(); kwargs.port_types = []; kwargs.ports = []
-        for k,v in kwargs.ezdata.port.allOf[0].properties.items():
+        for k,v in kwargs.ezdata.port.allOf[1].properties.items():
             if re.search('^port_(cha|rol)', k): kwargs.port_types.append(k)
         for e in kwargs.port_types:
             kwargs.port_type[e].names = []

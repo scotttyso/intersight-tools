@@ -13232,6 +13232,7 @@
                 "title": "port - Port - Intersight Uri: fabric/PortPolicies",
                 "x-allOf-name": "fabric.PortPolicy",
                 "allOf": [
+                    {},
                     {
                         "type": "object",
                         "description": "A policy for all the physical ports of the Fabric Interconnect.",

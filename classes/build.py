@@ -37,7 +37,60 @@ class intersight(object):
         return kwargs
 
     #=========================================================================
-    # Function: Chassis Setup
+    # Function: Clone Policy Children
+    #=========================================================================
+    def clone_children(self, destination_org, policy, kwargs):
+        policy_name    = policy.split('/')[1]
+        parent_policy  = self.type.split('.')[0]
+        source_org     = policy.split('/')[0]
+        parent_object  = kwargs.ezdata[parent_policy].ObjectType
+        
+        kwargs.parent  = kwargs.ezdata[parent_policy].ObjectType.split('.')[1]
+        key_list            = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
+        associated_policies = []
+        kwargs.bulk_list    = []
+        kwargs.method       = 'get'
+        kwargs.names        = [kwargs.policies[parent_policy][kwargs.original_index].Moid]
+        kwargs.parent_moid  = kwargs.isight[destination_org].policy[parent_policy][policy_name]
+        kwargs.uri          = kwargs.ezdata[self.type].intersight_uri
+        kwargs              = isight.api('parent_moids').calls(kwargs)
+        policy_results      = kwargs.results
+        for k, v in kwargs.ezdata[self.type].allOf[1].properties.items():
+            if '_policy' in k: associated_policies.append({k:v.object_type})
+        policy_names   = [e.Name for e in kwargs.results]
+        create_policy  = True
+        if policy_name in policy_names: create_policy = False
+        if create_policy == True:
+            kwargs.bulk_list = []
+            key_list = ['Description', 'Name', 'Tags']
+            for k,v in kwargs.ezdata[e].allOf[1].properties.items():
+                if v.type == 'array': key_list.append(v['items'].intersight_api)
+                elif v.type == 'object': key_list.append(v.intersight_api)
+                elif re.search('boolean|integer|string', v.type):
+                    if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
+                    else: key_list.append(v.intersight_api)
+                else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
+            indx = next((index for (index, d) in enumerate(kwargs.policies[self.type]) if d['Name'] == policy_name), None)
+            kwargs.parent_index   = indx
+            api_body              = kwargs.policies[self.type][indx]
+            for k in list(api_body.keys()):
+                if not k in key_list: api_body.pop(k)
+            api_body.Name         = policy_name
+            api_body.ObjectType   = kwargs.ezdata[self.type].ObjectType
+            api_body.Organization = {'Moid':kwargs.org_moids[destination_org].moid, 'ObjectType':'organization.Organization'}
+            kwargs.bulk_list.append(api_body)
+            #=============================================================================
+            # POST Bulk Request if Post List > 0
+            #=============================================================================
+            if len(kwargs.bulk_list) > 0:
+                kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+                kwargs     = isight.imm(self.type).bulk_request(kwargs)
+            if re.search('port|vlan|vsan', self.type):
+                if self.type == 'port': kwargs = intersight('port').clone_vxan(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function: Copy Dictionary Keys to key_list
     #=========================================================================
     def clone_key_list(policy_dict):
         key_list = ['Description', 'Name', 'Tags']
@@ -48,6 +101,7 @@ class intersight(object):
                 if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
                 else: key_list.append(v.intersight_api)
             else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
+        key_list = [e for e in key_list if not '_policy' in e]
         return key_list
 
     #=========================================================================
@@ -83,59 +137,10 @@ class intersight(object):
             kwargs             = isight.imm(self.type).bulk_request(kwargs)
             if re.search('port|vlan|vsan', self.type):
                 if re.search('vlan|vsan', self.type): kwargs = intersight(f'{self.type}.{self.type}s').clone_children(destination_org, policy, kwargs)
-                kwargs.api
-        return kwargs
-
-    #=========================================================================
-    # Function: Clone Policy Children
-    #=========================================================================
-    def clone_children(self, destination_org, policy, kwargs):
-        policy_name    = policy.split('/')[1]
-        parent_policy  = self.type.split('.')[0]
-        source_org     = policy.split('/')[0]
-        if self.type == 'vlan.vlans': kwargs.parent = 'EthNetworkPolicy'
-        else: kwargs.parent = 'FcNetworkPolicy'
-        key_list           = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
-        kwargs.bulk_list   = []
-        kwargs.method      = 'get'
-        kwargs.names       = [kwargs.policies[parent_policy][kwargs.original_index].Moid]
-        kwargs.parent_moid = kwargs.isight[destination_org].policy[parent_policy][policy_name]
-        kwargs.uri         = kwargs.ezdata[self.type].intersight_uri
-        kwargs             = isight.api('parent_moids').calls(kwargs)
-        policy_results     = kwargs.results
-        for k, v in kwargs.ezdata[self.type].allOf[1].properties.items():
-            if '_policy' in k: pass
-        policy_names   = [e.Name for e in kwargs.results]
-        create_policy  = True
-        if policy_name in policy_names: create_policy = False
-        if create_policy == True:
-            kwargs.bulk_list = []
-            key_list = ['Description', 'Name', 'Tags']
-            for k,v in kwargs.ezdata[e].allOf[1].properties.items():
-                if v.type == 'array': key_list.append(v['items'].intersight_api)
-                elif v.type == 'object': key_list.append(v.intersight_api)
-                elif re.search('boolean|integer|string', v.type):
-                    if re.search(r'\$ref\:', v.intersight_api): key_list.append(v.intersight_api.split(':')[1])
-                    else: key_list.append(v.intersight_api)
-                else: pcolor.Yellow(json.dumps(v, indent=4)); sys.exit(1)
-            indx = next((index for (index, d) in enumerate(kwargs.policies[self.type]) if d['Name'] == policy_name), None)
-            kwargs.parent_index   = indx
-            api_body              = kwargs.policies[self.type][indx]
-            for k in list(api_body.keys()):
-                if not k in key_list: api_body.pop(k)
-            api_body.Name         = policy_name
-            api_body.ObjectType   = kwargs.ezdata[self.type].ObjectType
-            api_body.Organization = {'Moid':kwargs.org_moids[destination_org].moid, 'ObjectType':'organization.Organization'}
-            kwargs.bulk_list.append(api_body)
-            #=============================================================================
-            # POST Bulk Request if Post List > 0
-            #=============================================================================
-            if len(kwargs.bulk_list) > 0:
-                kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-                kwargs     = isight.imm(self.type).bulk_request(kwargs)
-            if re.search('port|vlan|vsan', self.type):
-                if self.type == 'port': kwargs = intersight('port').clone_vxan(kwargs)
-                kwargs.api
+                elif self.type == 'port':
+                    for k,v in kwargs.ezdata[self.type].allOf[1].properties.items():
+                        if 'port_' in k: kwargs = intersight(f'{self.type}.{k}').clone_children(destination_org, policy, kwargs)
+                    #kwargs = intersight(f'{self.type}.{k}').clone_ports(destination_org, policy, kwargs)
         return kwargs
 
     #=========================================================================

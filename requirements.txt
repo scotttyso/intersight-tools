@@ -15,7 +15,7 @@ openpyxl
 ordered_set
 phonenumbers
 pycryptodome
-pyexpect
+pexpect
 pyopenssl==22.0.0
 pytz
 pyvmomi
