@@ -34,7 +34,7 @@ class state(object):
 
     def state_import(self, kwargs):
         system_shell = os.environ['SHELL']
-        child = pexpect.spawn(system_shell, encoding='utf-8', timeout=60, codec_errors='ignore')
+        child = pexpect.spawn(system_shell, encoding='utf-8', maxread=1, timeout=60, codec_errors='ignore')
         child.logfile_read = sys.stdout
         kwargs = isight.api('organization').all_organizations(kwargs)
         orgs   = list(kwargs.imm_dict.orgs.keys())
