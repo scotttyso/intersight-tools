@@ -28,8 +28,7 @@ class state(object):
             command = f'terraform import module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"] {moid}'
             child.sendline(command)
             child.expect(moid)
-            child.wait()
-            #child.expect('Import successful')
+            child.expect('Import successful')
         pcolor.Cyan('')
         return kwargs
 
