@@ -400,6 +400,9 @@ class api(object):
                         elif kwargs.method ==      'post': pcolor.Red(f'  URL: {url}/{uri}')
                         pcolor.Red(f'  Running Process: {kwargs.method} {self.type}')
                         pcolor.Red(f'    Error status is {response}')
+                        #print(response.content)
+                        #print(response.text)
+                        #exit()
                         for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
                         len(False); sys.exit(1)
                     if 'get_by_moid' in kwargs.method: response = requests.get(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
@@ -407,6 +410,9 @@ class api(object):
                     elif 'get' in kwargs.method:    response = requests.get(   f'{url}/{uri}{aargs}', verify=False, auth=aauth)
                     elif 'patch' in kwargs.method:  response = requests.patch( f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
                     elif 'post' in kwargs.method:   response = requests.post(  f'{url}/{uri}',        verify=False, auth=aauth, json=payload)
+                    #print(response.content)
+                    #print(response.text)
+                    #exit()
                     if re.search('40[0|3]', str(response)):
                         retry_action = False
                         #send_error()
