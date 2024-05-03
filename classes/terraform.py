@@ -28,13 +28,14 @@ class state(object):
             command = f'terraform import module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"] {moid}'
             child.sendline(command)
             child.expect(moid)
-            child.expect('Import successful')
+            child.wait()
+            #child.expect('Import successful')
         pcolor.Cyan('')
         return kwargs
 
     def state_import(self, kwargs):
         system_shell = os.environ['SHELL']
-        child = pexpect.spawn(system_shell, encoding='utf-8', maxread=1, timeout=60, codec_errors='ignore')
+        child = pexpect.spawn(system_shell, encoding='utf-8', timeout=60, codec_errors='ignore')
         child.logfile_read = sys.stdout
         kwargs = isight.api('organization').all_organizations(kwargs)
         orgs   = list(kwargs.imm_dict.orgs.keys())
