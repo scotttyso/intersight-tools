@@ -84,9 +84,10 @@ def cli_arguments():
         help = 'Which Process to run with the Script.  Options are:  '\
             '1. add_policies '\
             '2. add_vlan '\
-            '3. clone_policies '\
-            '4. hcl_inventory '\
-            '5. server_inventory.')
+            '3. chassis_inventory '\
+            '4. clone_policies '\
+            '5. hcl_inventory '\
+            '6. server_inventory.')
     Parser.add_argument(
         '-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.')
     Parser.add_argument(
@@ -130,7 +131,6 @@ def main():
     kwargs.logger        = logger
     kwargs.op_system     = platform.system()
     kwargs.imm_dict.orgs = DotMap()
-
     #================================================
     # Import Stored Parameters
     #================================================
@@ -148,16 +148,17 @@ def main():
     #==============================================
     # Build Deployment Library
     #==============================================
-    if not re.search('^add_policies|add_vlans|clone_policies|hcl_inventory|server_inventory$', kwargs.args.process):
+    if not re.search('^add_policies|add_vlans|clone_policies|hcl_status|inventory|server_identities$', kwargs.args.process):
         kwargs.jdata = DotMap(
             default = 'server_inventory',
             description = f'Select the Process to run:\n'\
                 '  * add_policies: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.\n'\
-                '  * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies and Create LAN Connectivity Policy.\n'\
+                '  * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.\n'\
                 '  * clone_policies: Function to clone policies from one Organization to another.\n'\
-                '  * hcl_inventory: Function to clone policies from one Organization to another.\n'\
-                '  * server_inventory: Function to clone policies from one Organization to another.\n',
-            enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'server_inventory'],
+                '  * hcl_status: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.\n'\
+                '  * inventory: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.\n'\
+                '  * server_identities: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-f` option at the CLI.\n',
+            enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'inventory', 'server_identities'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)
     kwargs = isight.api('organization').all_organizations(kwargs)

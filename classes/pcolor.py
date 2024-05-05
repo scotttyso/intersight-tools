@@ -28,10 +28,11 @@ def print_process(cchar, ptext):
     elif re.search(r'^[a-zA-Z0-9\-\=\!]', ptext):
         print(textwrap.fill(f"\033[{cchar}{ptext}\033[00m", replace_whitespace=False, width=108))
     else:
-        print('ERROR with PCOLOR, didnt match regex') 
-        print(f'value `{ptext}`')
-        print(re.search(r'^([.\r\n]*)$', ptext).group(1))
-        exit()
+        print(textwrap.fill(f"\033[{cchar}{ptext}\033[00m", replace_whitespace=False, width=108))
+        #print('ERROR with PCOLOR, didnt match regex') 
+        #print(f'value `{ptext}`')
+        #print(re.search(r'^([.\r\n]*)$', ptext).group(1))
+        #exit()
 
 def Black(ptext):      cchar = '98m'; print_process(cchar, ptext)
 def Cyan(ptext):       cchar = '96m'; print_process(cchar, ptext)
