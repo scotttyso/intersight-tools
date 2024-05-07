@@ -25,11 +25,13 @@ class state(object):
         else: policy = 'intersight_vnic_fc_if'
         for v in kwargs.names:
             moid    = kwargs.isight[kwargs.org].policy[f'{self.type}.{kwargs.vnic}'][v]
+            print(moid)
             #command = f'terraform import module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"] {moid}'
             result = subprocess.run(
-                ['terraform', 'import', f'module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"]', moid],
+                ['terraform', 'import', f'module.policies[\"map\"].{policy}.map[\"{kwargs.org}/{kwargs.policy}/{v}\"]', moid],
                 capture_output=True,
                 text=True)
+            pcolor.Yellow(result.stderr)
             pcolor.Yellow(result.stdout)
             #child.sendline(command)
             #child.expect(moid)

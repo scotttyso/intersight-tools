@@ -4,11 +4,12 @@
 def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
-    from classes  import ezfunctions, isight, pcolor, questions
-    from copy     import deepcopy
-    from datetime import datetime
-    from dotmap   import DotMap
+    from classes         import ezfunctions, isight, pcolor, questions
+    from copy            import deepcopy
+    from datetime        import datetime
+    from dotmap          import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
+    from stringcase      import pascalcase, snakecase
     import json, numpy, pytz, openpyxl, re, urllib3, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -454,9 +455,9 @@ class tools(object):
                             if v.parent == e.Moid: domain_map[k].hostname = e.DeviceHostname
             for k, v in pdict.items():
                 if v.get('registered_moid'): pdict[k].domain = domain_map[v.registered_moid].hostname[0]
-        hw_moids = DotMap()
-        for k,v in pdict.items(): hw_moids[v.moid].serial = k
-        kwargs.names      = list(hw_moids.keys())
+        hardware_moids = DotMap()
+        for k,v in pdict.items(): hardware_moids[v.moid].serial = k
+        kwargs.names      = list(hardware_moids.keys())
         kwargs.uri        = 'cond/HclStatuses'
         kwargs            = isight.api('hcl_status').calls(kwargs)
         hcl_results       = kwargs.results
@@ -518,141 +519,201 @@ class tools(object):
         kwargs.domains  = DotMap(json.load(open(f'{kwargs.script_path}/QA/domains.json', 'r')))
         kwargs.chassis  = DotMap(json.load(open(f'{kwargs.script_path}/QA/chassis.json', 'r')))
         kwargs.servers  = DotMap(json.load(open(f'{kwargs.script_path}/QA/servers.json', 'r')))
-        # kwargs = isight.api('firmware').inventory_firmware(kwargs)
-        # kwargs = isight.api('domains').inventory_domains(kwargs)
-        # kwargs = isight.api('chassis').inventory_chassis(kwargs)
-        # kwargs = isight.api('servers').inventory_servers(kwargs)
-        kwargs = tools('workbook').inventory_workbook(kwargs)
-        if len(kwargs.servers) > 0:
-            kwargs = tools('workbook').inventory_workbook(kwargs)
+        #=====================================================================
+        # Running Firmware
+        #=====================================================================
+        kwargs.api_filter = 'ignore'
+        kwargs.org        = 'default'
+        # kwargs = isight.api('firmware').running_firmware(kwargs)
+        # #=====================================================================
+        # # Domain Inventory
+        # #=====================================================================
+        # kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
+        # kwargs = isight.api('domains').domain_device_registrations(kwargs)
+        # kwargs.api_filter = f"SwitchType eq 'FabricInterconnect'"
+        # kwargs = isight.api('domains').domain_network_elements(kwargs)
+        # for e in ['switch_profiles', 'cluster_profiles']:
+        #     kwargs.api_filter = 'ignore'
+        #     kwargs = eval(f"isight.api('domains').domain_{e}(kwargs)")
+        # #=====================================================================
+        # # Chassis Inventory
+        # #=====================================================================
+        # for e in ['equipment', 'io_cards', 'profiles']:
+        #     kwargs.api_filter = 'ignore'
+        #     kwargs = eval(f"isight.api('chassis').chassis_{e}(kwargs)")
+        #=====================================================================
+        # Server Inventory
+        #=====================================================================
+        # for e in ['physical_summaries', 'children_equipment', 'profiles', 'virtual_drives']:
+        #     kwargs.api_filter = 'ignore'
+        #     kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
+        # print(json.dumps(kwargs.servers, indent=4))
+        # exit()
+        #=====================================================================
+        # Contract Inventory
+        #=====================================================================
+        kwargs.api_filter = 'ignore'
+        kwargs = isight.api('contracts').domain_network_elements(kwargs)
+        kwargs.chassis = DotMap(sorted(kwargs.chassis.items(), key=lambda ele: ele[1].name))
+        kwargs.domains = DotMap(sorted(kwargs.domains.items(), key=lambda ele: ele[1].name))
+        kwargs.servers = DotMap(sorted(kwargs.servers.items(), key=lambda ele: ele[1].name))
+        if len(kwargs.servers) > 0: kwargs = tools('workbook').inventory_workbook(kwargs)
         return kwargs
 
     #=========================================================================
-    # Function - Build Inventory Workbook
+    # Function - Inventory Workbook
     #=========================================================================
     def inventory_workbook(self, kwargs):
         #=====================================================================
-        # Sort server dictionary
+        # Workbook Setup
         #=====================================================================
-        kwargs.servers = DotMap(dict(sorted(kwargs.servers.items(), key=lambda ele: ele[1].server_profile)))
-        for k, v in kwargs.servers.items():
-            kwargs.servers[k].vnics = sorted(v.vnics, key=lambda ele: ele.order)
-            kwargs.servers[k].vhbas = sorted(v.vhbas, key=lambda ele: ele.order)
-            if v.platform_type == 'UCSFI': kwargs.servers[k].domain = kwargs.domains[v.registration].name
-            elif v.mgmt_mode != 'IntersightStandalone': kwargs.servers[k].domain = kwargs.domains[v.parent].name
-        kwargs.timezone = questions.prompt_user.for_timezone(kwargs)
+        #kwargs.timezone = questions.prompt_user.for_timezone(kwargs)
         kwargs.timezone = 'America/New_York'
-        kwargs  = tools(self.type).setup_local_time(kwargs)
+        kwargs          = tools(self.type).setup_local_time(kwargs)
+        workbook        = f'UCS-Inventory-Collector-{kwargs.time_short}.xlsx'
+        kwargs          = tools(self.type).workbook_styles(kwargs)
+        kwargs          = tools('domain').inventory_worksheet_domain(kwargs)
         #=====================================================================
-        # Build Workbooks and Style Sheets
+        # Setup Domain Inventory WorkSheet
         #=====================================================================
-        workbook   = f'UCS-Inventory-Collector-{kwargs.time_short}.xlsx'
-        kwargs = tools(self.type).workbook_styles(kwargs)
-        wb = kwargs.wb; ws = wb.active; ws.title = 'Inventory List'
-        #=====================================================================
-        # Full Inventory Workbook
-        #=====================================================================
-        if kwargs.args.full_inventory:
-            #=================================================================
-            # Create Column Headers - Extend with server dict
-            #=================================================================
-            column_headers = ['Domain','Profile','Server','Serial','WWNN']
-            vhba_list = []; vnic_list = []
-            for i in list(kwargs.servers.keys()):
-                for e in kwargs.servers[i].vhbas:
-                    if not e.name in vhba_list: vhba_list.append(e.name)
-                for e in kwargs.servers[i].vnics:
-                    if not e.name in vnic_list: vnic_list.append(e.name)
-            column_headers = column_headers + vhba_list + vnic_list
-            for i in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = 30
-            cLength = len(column_headers)
-            ws_header = f'Collected UCS Data on {kwargs.time_long}'
-            data = [ws_header]
+        column_headers = ['Organization', 'Name', 'Model', 'Serial A', 'Serial B', 'Management Mode', 'Profile', 'Firmware']
+        column_width   = DotMap()
+        ws             = kwargs.wb.active
+        ws.title       = 'Domain Inventory'
+        for e in column_headers: column_width[e] = len(e)
+        for k in list(kwargs.domains.keys()):
+            for e in column_headers:
+                key = snakecase(e).replace('__', '_')
+                if   key == 'serial_a': elength = len(kwargs.domains[k].serial[0])
+                elif key == 'serial_b': elength = len(kwargs.domains[k].serial[1])
+                elif key == 'firmware': elength = len(kwargs.domains[k].firmware[0])
+                else:  elength = len(kwargs.domains[k][key])
+                if column_width[e] < elength: column_width[e] = elength
+        for i in range(0,len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = column_width[column_headers[i]]
+        ws_header     = f'UCS Domain Inventory {kwargs.time_long}'
+        data          = [ws_header]; ws.append(data)
+        column_length = len(column_headers)
+        ws.merge_cells(f'A1:{chr(ord("@")+column_length)}1')
+        for cell in ws['1:1']: cell.style = 'heading_1'
+        ws.append(column_headers)
+        for cell in ws['2:2']: cell.style = 'heading_2'
+        ws_row_count = 3
+        #=================================================================
+        # Populate the Worksheet with Domain Inventory
+        #=================================================================
+        for k in list(kwargs.domains.keys()):
+            data = []
+            for e in column_headers:
+                key = snakecase(e).replace('__', '_')
+                if   key == 'serial_a': data.append(kwargs.domains[k].serial[0])
+                elif key == 'serial_b': data.append(kwargs.domains[k].serial[1])
+                elif key == 'firmware': data.append(kwargs.domains[k].firmware[0])
+                else: data.append(kwargs.domains[k][key])
             ws.append(data)
-            ws.merge_cells(f'A1:{chr(ord("@")+cLength)}1')
-            for cell in ws['1:1']: cell.style = 'heading_1'
-            ws.append(column_headers)
-            for cell in ws['2:2']: cell.style = 'heading_2'
-            ws_row_count = 3
-            #=================================================================
-            # Populate the Worksheet with Server Inventory
-            #=================================================================
-            for k, v in kwargs.servers.items():
-                data = []
-                for i in column_headers:
-                    column_count = 0
-                    if   i == 'Domain':  data.append(v.domain); column_count += 1
-                    elif i == 'Profile': data.append(v.server_profile); column_count += 1
-                    elif i == 'Serial':  data.append(k); column_count += 1
-                    elif i == 'WWNN':    data.append(v.wwnn); column_count += 1
-                    elif i == 'Server':
-                        if not 'sys' in v.server_dn:
-                            if len(v.chassis_id) > 0: server_dn = f'sys/chassis-{v.chassis_id}/blade-{v.slot}'
-                            else: server_dn = f'sys/rack-unit-{v.server_id}'
-                        else: server_dn = v.server_dn
-                        if len(server_dn) == 0: data.append(''); column_count += 1
-                        else: data.append(server_dn); column_count += 1
-                    else:
-                        for e in v.vhbas:
-                            if i == e.name: data.append(e.wwpn_address); column_count += 1
-                        for e in v.vnics:
-                            if i == e.name: data.append(e.mac_address); column_count += 1
-                    if column_count == 0: data.append('Not Configured')
-                ws.append(data)
-                for cell in ws[ws_row_count:ws_row_count]:
-                    if ws_row_count % 2 == 0: cell.style = 'odd'
-                    else: cell.style = 'even'
-                ws_row_count += 1
-        #=====================================================================
-        # WWPN Inventory Workbook
-        #=====================================================================
-        else:
-            #=================================================================
-            # Create Column Headers - Extend with server dict
-            #=================================================================
-            column_headers = ['Profile','Serial']
-            vhba_list = []
-            for k,v in kwargs.servers.items():
-                if v.wwnn != 'unassigned':
-                    if not 'WWNN' in column_headers: column_headers.append('WWNN')
-                if v.get('vhbas'):
-                    for e in v.vhbas:
-                        if not e.name in vhba_list: vhba_list.append(e.name)
-            column_headers= column_headers + vhba_list
-            for x in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+x+1)].width = 30
-            cLength = len(column_headers)
-            ws_header = f'Collected UCS Data on {kwargs.time_long}'
-            data = [ws_header]
-            ws.append(data)
-            ws.merge_cells(f'A1:{chr(ord("@")+cLength)}1')
-            for cell in ws['1:1']: cell.style = 'heading_1'
-            ws.append(column_headers)
-            for cell in ws['2:2']: cell.style = 'heading_2'
-            ws_row_count = 3
-            #=================================================================
-            # Populate the Worksheet with Server Inventory
-            #=================================================================
-            for k, v in kwargs.servers.items():
-                data = []
-                for i in column_headers:
-                    column_count = 0
-                    if   i == 'Profile': data.append(v.server_profile); column_count += 1
-                    elif i == 'Serial':  data.append(k); column_count += 1
-                    elif i == 'WWNN':    data.append(v.wwnn); column_count += 1
-                    else:
-                        if v.get('vhbas'):
-                            for e in v.vhbas:
-                                if i == e.name: data.append(e.wwpn_address); column_count += 1
-                    if column_count == 0: data.append('Not Configured')
-                ws.append(data)
-                for cell in ws[ws_row_count:ws_row_count]:
-                    if ws_row_count % 2 == 0: cell.style = 'odd'
-                    else: cell.style = 'even'
-                ws_row_count += 1
+            for cell in ws[ws_row_count:ws_row_count]:
+                if ws_row_count % 2 == 0: cell.style = 'odd'
+                else: cell.style = 'even'
+            ws_row_count += 1
         #=====================================================================
         # Save the Workbook and return kwargs
         #=====================================================================
-        wb.save(filename=workbook)
+        kwargs.wb.save(filename=workbook)
+        return kwargs
+
+    #=========================================================================
+    # Function - Inventory Workbook - Chassis Worksheet
+    #=========================================================================
+    def inventory_worksheet_chassis(self, kwargs):
+        column_headers = ['Organization', 'Name', 'Model', 'Serial', 'Management Mode', 'Profile', 'IFM Model', 'IFM A Serial', 'IFM A Version',
+                          'IFM B Serial', 'IFM B Version', 'X Fabric Model', 'X Fabric A Serial', 'X Fabric B Serial']
+        for x in range(1,9): column_headers.append(f'Slot {x}')
+        column_width   = DotMap()
+        ws             = kwargs.wb.active
+        ws.title       = 'Chassis Inventory'
+        for e in column_headers: column_width[e] = len(e)
+        for k in list(kwargs.chassis.keys()):
+            for e in column_headers:
+                key = snakecase(e).replace('__', '_')
+                if   key == 'ifm_model': elength = len(kwargs.chassis[k].if_modules[0].model)
+                elif re.search('(IFM|X Fabric) . Serial'): elength = len(kwargs.chassis[k].if_modules[0].version)
+                elif key == 'firmware': elength = len(kwargs.chassis[k].firmware[0])
+                else:  elength = len(kwargs.chassis[k][key])
+                if column_width[e] < elength: column_width[e] = elength
+        for i in range(0,len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = column_width[column_headers[i]] + 5
+        ws_header     = f'UCS Domain Inventory {kwargs.time_long}'
+        data          = [ws_header]; ws.append(data)
+        column_length = len(column_headers)
+        ws.merge_cells(f'A1:{chr(ord("@")+column_length)}1')
+        for cell in ws['1:1']: cell.style = 'heading_1'
+        ws.append(column_headers)
+        for cell in ws['2:2']: cell.style = 'heading_2'
+        ws_row_count = 3
+        #=====================================================================
+        # Populate the Worksheet with Domain Inventory
+        #=====================================================================
+        for k in list(kwargs.domains.keys()):
+            data = []
+            for e in column_headers:
+                key = snakecase(e).replace('__', '_')
+                if   key == 'serial_a': data.append(kwargs.domains[k].serial[0])
+                elif key == 'serial_b': data.append(kwargs.domains[k].serial[1])
+                elif key == 'firmware': data.append(kwargs.domains[k].firmware[0])
+                else: data.append(kwargs.domains[k][key])
+            ws.append(data)
+            for cell in ws[ws_row_count:ws_row_count]:
+                if ws_row_count % 2 == 0: cell.style = 'odd'
+                else: cell.style = 'even'
+            ws_row_count += 1
+        #=====================================================================
+        # Return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Inventory Workbook - Domain Worksheet
+    #=========================================================================
+    def inventory_worksheet_domain(self, kwargs):
+        column_headers = ['Organization', 'Name', 'Model', 'Serial', 'Management Mode', 'Profile', 'Firmware']
+        column_width   = DotMap()
+        ws             = kwargs.wb.active
+        ws.title       = 'Domain Inventory'
+        for e in column_headers: column_width[e] = len(e)
+        for k in list(kwargs.domains.keys()):
+            for e in column_headers:
+                key = snakecase(e).replace('__', '_')
+                if   key == 'serial_a': elength = len(kwargs.domains[k].serial[0])
+                elif key == 'serial_b': elength = len(kwargs.domains[k].serial[1])
+                elif key == 'firmware': elength = len(kwargs.domains[k].firmware[0])
+                else:  elength = len(kwargs.domains[k][key])
+                if column_width[e] < elength: column_width[e] = elength
+        for i in range(0,len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = column_width[column_headers[i]] + 5
+        ws_header     = f'UCS Domain Inventory {kwargs.time_long}'
+        data          = [ws_header]; ws.append(data)
+        column_length = len(column_headers)
+        ws.merge_cells(f'A1:{chr(ord("@")+column_length)}1')
+        for cell in ws['1:1']: cell.style = 'heading_1'
+        ws.append(column_headers)
+        for cell in ws['2:2']: cell.style = 'heading_2'
+        ws_row_count = 3
+        #=====================================================================
+        # Populate the Worksheet with Domain Inventory
+        #=====================================================================
+        for k in list(kwargs.domains.keys()):
+            data = []
+            for e in column_headers:
+                key = snakecase(e).replace('__', '_')
+                if   key == 'serial_a': data.append(kwargs.domains[k].serial[0])
+                elif key == 'serial_b': data.append(kwargs.domains[k].serial[1])
+                elif key == 'firmware': data.append(kwargs.domains[k].firmware[0])
+                else: data.append(kwargs.domains[k][key])
+            ws.append(data)
+            for cell in ws[ws_row_count:ws_row_count]:
+                if ws_row_count % 2 == 0: cell.style = 'odd'
+                else: cell.style = 'even'
+            ws_row_count += 1
+        #=====================================================================
+        # Return kwargs
+        #=====================================================================
         return kwargs
 
     #=========================================================================
@@ -815,7 +876,7 @@ class tools(object):
             kwargs.servers[e.Serial] = DotMap(dict(kwargs.servers[e.Serial].toDict(), **dict(
                 chassis_id      = e.ChassisId,
                 domain          = 'Standalone',
-                hw_moid         = e.Moid,
+                hardware_moid   = e.Moid,
                 mgmt_ip_address = e.MgmtIpAddress,
                 mgmt_mode       = e.ManagementMode,
                 model           = e.Model,
@@ -833,8 +894,8 @@ class tools(object):
                 wwnn            = 'unassigned')))
             if len(e.ServiceProfile) > 0: kwargs.servers[e.Serial].server_profile = e.ServiceProfile
         for k in list(kwargs.servers.keys()):
-            if not kwargs.servers[k].get('hw_moid'): kwargs.servers.pop(k)
-            else: kwargs.hw_moids[kwargs.servers[k].hw_moid] = k
+            if not kwargs.servers[k].get('hardware_moid'): kwargs.servers.pop(k)
+            else: kwargs.hardware_moids[kwargs.servers[k].hardware_moid] = k
         #=====================================================================
         # Get Intersight Server Profiles
         #=====================================================================
@@ -845,7 +906,7 @@ class tools(object):
         profile_moids = []
         for e in kwargs.results:
             if e.AssociatedServer != None:
-                serial = kwargs.hw_moids[e.AssignedServer.Moid]
+                serial = kwargs.hardware_moids[e.AssignedServer.Moid]
                 kwargs.servers[serial].moid           = e.Moid
                 kwargs.servers[serial].organization   = dict(name = kwargs.org_names[e.Organization.Moid], moid = e.Organization.Moid)
                 kwargs.servers[serial].server_profile = e.Name
@@ -918,18 +979,17 @@ class tools(object):
                 if v.platform_type == 'UCSFI': kwargs.servers[k].domain = kwargs.domains[v.registration].name
                 elif v.mgmt_mode != 'IntersightStandalone': kwargs.servers[k].domain = kwargs.domains[v.parent].name
             kwargs.timezone = questions.prompt_user.for_timezone(kwargs)
-            kwargs.timezone = 'America/New_York'
-            kwargs  = tools(self.type).setup_local_time(kwargs)
+            kwargs          = tools(self.type).setup_local_time(kwargs)
             #=================================================================
             # Build Workbooks and Style Sheets
             #=================================================================
-            workbook   = f'UCS-Inventory-Collector-{kwargs.time_short}.xlsx'
+            workbook   = f'UCS-Server-Identities-{kwargs.time_short}.xlsx'
             kwargs = tools(self.type).workbook_styles(kwargs)
-            wb = kwargs.wb; ws = wb.active; ws.title = 'Inventory List'
+            wb = kwargs.wb; ws = wb.active; ws.title = 'Identity List'
             #=================================================================
             # Full Inventory Workbook
             #=================================================================
-            if kwargs.args.full_inventory:
+            if kwargs.args.full_identities:
                 #=============================================================
                 # Create Column Headers - Extend with server dict
                 #=============================================================

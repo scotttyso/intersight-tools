@@ -68,8 +68,8 @@ def cli_arguments():
         '-f', '--intersight-fqdn', default = 'intersight.com',
         help = 'The Intersight hostname for the API endpoint. The default is intersight.com.')
     Parser.add_argument(
-        '-fi', '--full-inventory', action = 'store_true',
-        help = 'Used in conjunction with srv-inventory to pull more indepth inventory.')
+        '-fi', '--full-identities', action = 'store_true',
+        help = 'Used in conjunction with server_identities to pull more indepth Identity inventory.')
     Parser.add_argument(
         '-i', '--ignore-tls', action = 'store_false',
         help = 'Ignore TLS server-side certificate verification.  Default is False.')
@@ -157,7 +157,7 @@ def main():
                 '  * clone_policies: Function to clone policies from one Organization to another.\n'\
                 '  * hcl_status: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.\n'\
                 '  * inventory: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.\n'\
-                '  * server_identities: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-f` option at the CLI.\n',
+                '  * server_identities: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.\n',
             enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'inventory', 'server_identities'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)

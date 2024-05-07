@@ -200,11 +200,11 @@ class api(object):
         #=====================================================
         # Attach Server Profile Moid to Dict
         #=====================================================
-        kwargs.server_profiles = DotMap(); boot_moids = []; hw_moids = []; profile_moids = []
+        kwargs.server_profiles = DotMap(); boot_moids = []; hardware_moids = []; profile_moids = []
         for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
             kwargs.server_profiles[e.name] = DotMap(e)
             kwargs.server_profiles[e.name].hardware_moid = e.moid
-            hw_moids.append(e.moid)
+            hardware_moids.append(e.moid)
         pcolor.Cyan(f'\n   - Pulling Server Identity Inventory for the following Server Profiles(s):')
         for k,v in kwargs.server_profiles.items(): pcolor.Cyan(f'     * Serial: {e.serial} Name: {k}')
         #=====================================================
@@ -274,8 +274,7 @@ class api(object):
                                                mac = e.MacAddress, name = e.Name, order = e.Order, switch = e.Placement.SwitchId))
                 kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda ele: ele.order)
         else:
-            kwargs.names      = hw_moids
-            #kwargs.api_filter = f"Ancestors/any(t:t/Moid in '{names_join}')"
+            kwargs.names      = hardware_moids
             kwargs.uri        = 'adapter/HostEthInterfaces'
             kwargs            = api('ancestors').calls(kwargs)
             adapter_results   = kwargs.results
@@ -603,205 +602,218 @@ class api(object):
         return kwargs
 
     #=========================================================================
-    # Function - Build Chassis Inventory Dictionary
+    # Function - Chassis Inventory - Equipment
     #=========================================================================
-    def inventory_chassis(self, kwargs):
-        #=====================================================================
-        # Physical Chassis Inventory
-        #=====================================================================
-        kwargs_keys = list(kwargs.keys())
-        if not 'org' in kwargs_keys: kwargs.org = 'default'
-        kwargs.method     = 'get'
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'equipment/Chasses'
-        kwargs            = api('chassis').calls(kwargs)
-        kwargs.chassis    = DotMap()
+    def chassis_equipment(self, kwargs):
+        kwargs.method = 'get'
+        kwargs.uri    = 'equipment/Chasses'
+        kwargs        = api('chassis').calls(kwargs)
         for e in kwargs.results:
             kwargs.chassis[e.Moid] = DotMap(
                 blades           = [d.Moid for d in e.Blades],
                 chassis_id       = e.ChassisId,
-                domain           = kwargs.domains[e.RegisteredDevice.Moid],
+                contract         = None,
+                domain           = e.RegisteredDevice.Moid,
                 dn               = e.Dn,
-                hw_moid          = e.Moid,
+                hardware_moid    = e.Moid,
                 if_modules       = [DotMap(), DotMap()],
-                mgmt_mode        = e.ManagementMode,
+                management_mode  = e.ManagementMode,
                 model            = e.Model,
                 name             = e.Name,
                 organization     = 'default',
                 profile          = 'Unassigned',
                 profile_moid     = 'None',
-                registration     = e.RegisteredDevice.Moid,
                 serial           = e.Serial,
-                slots            = DotMap({str(x):'Open' for x in range(1,9)}),
+                slot             = DotMap({str(x):'Open' for x in range(1,9)}),
                 x_fabric_modules = [DotMap(), DotMap()])
             if len(e.ServiceProfile) > 0: kwargs.servers[e.Serial].server_profile = e.ServiceProfile
         #=====================================================================
-        # Chassis Profile
+        # return kwargs
         #=====================================================================
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'chassis/Profiles'
-        kwargs            = api('chassis').calls(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function - Chassis Inventory - IFM/IOMs - Explander Modules / X-Fabric
+    #=========================================================================
+    def chassis_io_cards(self, kwargs):
+        filter_check = False
+        if kwargs.api_filter: api_filter = deepcopy(kwargs.api_filter); filter_check = True
+        if filter_check == True: kwargs.api_filter = api_filter
+        kwargs.method = 'get'
+        kwargs.uri    = 'equipment/ExpanderModules'
+        kwargs        = api('expander_modules').calls(kwargs)
+        for e in kwargs.results:
+            indx = e.ModuleId - 1
+            kwargs.chassis[e.EquipmentChassis.Moid].x_fabric_modules[indx] = DotMap(moid = e.Moid, model = e.Model, serial = e.Serial)
+        for k in list(kwargs.chassis.keys()):
+            if len(kwargs.chassis[k].x_fabric_modules[0].toDict()) == 0: kwargs.chassis[k].x_fabric_modules = None
+        if filter_check == True: kwargs.api_filter = api_filter
+        kwargs.uri = 'equipment/IoCards'
+        kwargs     = api('io_cards').calls(kwargs)
+        for e in kwargs.results:
+            indx = ord(e.ConnectionPath) - 65
+            kwargs.chassis[e.EquipmentChassis.Moid].if_modules[indx] = DotMap(moid = e.Moid, model = e.Model, serial = e.Serial, version = e.Version)
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Chassis Inventory - Chassis Profiles
+    #=========================================================================
+    def chassis_profiles(self, kwargs):
+        kwargs.method = 'get'
+        kwargs.uri    = 'chassis/Profiles'
+        kwargs        = api('chassis').calls(kwargs)
         for e in kwargs.results:
             if not e.AssignedChassis == None:
                 kwargs.chassis[e.AssignedChassis.Moid].organization = kwargs.org_names[e.Organization.Moid]
                 kwargs.chassis[e.AssignedChassis.Moid].profile      = e.Name
                 kwargs.chassis[e.AssignedChassis.Moid].profile_moid = e.Moid
         #=====================================================================
-        # IFM/IOMs and X-Fabric
+        # return kwargs
         #=====================================================================
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'equipment/IoCards'
-        kwargs            = api('io_cards').calls(kwargs)
-        for e in kwargs.results:
-            indx = ord(e.ConnectionPath) - 65
-            kwargs.chassis[e.EquipmentChassis.Moid].if_modules[indx] = DotMap(moid = e.Moid, model = e.Model, serial = e.Serial, version = e.Version)
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'equipment/ExpanderModules'
-        kwargs            = api('io_cards').calls(kwargs)
-        for e in kwargs.results:
-            indx = e.ModuleId - 1
-            kwargs.chassis[e.EquipmentChassis.Moid].x_fabric_modules[indx] = DotMap(moid = e.Moid, model = e.Model, serial = e.Serial)
-        for k in list(kwargs.chassis.keys()):
-            if len(kwargs.chassis[k].x_fabric_modules[0].toDict()) == 0: kwargs.chassis[k].x_fabric_modules = None
         return kwargs
 
     #=========================================================================
-    # Function - Build Domain Inventory Dictionary
+    # Function - Domain Inventory - Cluster Profiles
     #=========================================================================
-    def inventory_domains(self, kwargs):
-        #=====================================================================
-        # Device Registrations - Base Domain Parameters
-        #=====================================================================
-        kwargs_keys = list(kwargs.keys())
-        if not 'org' in kwargs_keys: kwargs.org = 'default'
-        kwargs.method     = 'get'
-        kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
-        kwargs.uri        = 'asset/DeviceRegistrations'
-        kwargs            = api('device_registration').calls(kwargs)
+    def domain_cluster_profiles(self, kwargs):
+        kwargs.method = 'get'
+        kwargs.uri    = 'fabric/SwitchClusterProfiles'
+        kwargs        = api('cluster_profile').calls(kwargs)
         for e in kwargs.results:
-            kwargs.domains[e.Moid] = DotMap(
-                firmware     = [],
-                hw_moids     = [],
-                mgmt_mode    = '',
-                model        = '',
-                name         = e.DeviceHostname[0],
-                organization = 'default',
-                profile      = 'Unassigned',
-                profile_moid = 'None',
-                registration = e.Moid,
-                serials      = e.Serial,
-                type         = e.PlatformType)
+            if kwargs.switch_profile[e.Moid].assigned == True:
+                kwargs.domains[kwargs.switch_profile[e.Moid].registration].profile      = e.Name
+                kwargs.domains[kwargs.switch_profile[e.Moid].registration].profile_moid = e.Moid
+                kwargs.domains[kwargs.switch_profile[e.Moid].registration].organization = kwargs.org_names[e.Organization.Moid]
         #=====================================================================
-        # Network Elements - Hardware Configuration
+        # return kwargs
         #=====================================================================
-        kwargs.api_filter = f"SwitchType eq 'FabricInterconnect'"
-        kwargs.order_by   = 'SwitchId'
-        kwargs.uri        = 'network/Elements'
-        kwargs            = api('fabric_interconnect').calls(kwargs)
-        for e in kwargs.results:
-            kwargs.domains[e.RegisteredDevice.Moid].firmware.append(kwargs.firmware[e.UcsmRunningFirmware.Moid].version)
-            kwargs.domains[e.RegisteredDevice.Moid].hw_moids.append(e.Moid)
-            kwargs.domains[e.RegisteredDevice.Moid].mgmt_mode = e.ManagementMode
-            kwargs.domains[e.RegisteredDevice.Moid].model     = e.Model
-        network_elements  = DotMap({e:k for k,v in kwargs.domains.items() for e in v.hw_moids})
-        #=====================================================================
-        # Domain Switch Profiles
-        #=====================================================================
-        kwargs.api_filter = 'ignore'
-        kwargs.order_by   = 'Name'
-        kwargs.uri        = 'fabric/SwitchProfiles'
-        kwargs            = api('switch_profiles').calls(kwargs)
-        switch_profile    = DotMap()
-        for e in kwargs.results:
-            switch_keys = list(switch_profile.keys())
-            if not '' in switch_keys: switch_profile[e.SwitchClusterProfile.Moid] = DotMap(assigned = False, )
-            if e.AssignedSwitch != None:
-                switch_profile[e.SwitchClusterProfile.Moid].assigned     = True
-                switch_profile[e.SwitchClusterProfile.Moid].registration = network_elements[e.AssignedSwitch.Moid]
-        #=====================================================================
-        # Domain Cluster Profiles
-        #=====================================================================
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'fabric/SwitchClusterProfiles'
-        kwargs            = api('domain').calls(kwargs)
-        for e in kwargs.results:
-            if switch_profile[e.Moid].assigned == True:
-                kwargs.domains[switch_profile[e.Moid].registration].profile      = e.Name
-                kwargs.domains[switch_profile[e.Moid].registration].profile_moid = e.Moid
-                kwargs.domains[switch_profile[e.Moid].registration].organization = kwargs.org_names[e.Organization.Moid]
         return kwargs
     
     #=========================================================================
-    # Function - Build Firmware Inventory Dictionary
+    # Function - Domain Inventory - Device Registrations
     #=========================================================================
-    def inventory_firmware(self, kwargs):
-        kwargs_keys = list(kwargs.keys())
-        if not 'org' in kwargs_keys: kwargs.org = 'default'
-        kwargs.method     = 'get'
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'firmware/RunningFirmwares'
-        kwargs            = api('firmware').calls(kwargs)
-        kwargs.firmware   = DotMap({e.Moid:{'version':e.Version} for e in kwargs.results})
+    def domain_device_registrations(self, kwargs):
+        kwargs.method = 'get'
+        kwargs.uri    = 'asset/DeviceRegistrations'
+        kwargs        = api('device_registration').calls(kwargs)
+        for e in kwargs.results:
+            kwargs.domains[e.Moid] = DotMap(
+                contract        = None,
+                firmware        = [],
+                hardware_moids  = [],
+                management_mode = '',
+                model           = '',
+                name            = e.DeviceHostname[0],
+                organization    = 'default',
+                profile         = 'Unassigned',
+                profile_moid    = 'None',
+                registration    = e.Moid,
+                serial          = e.Serial,
+                type            = e.PlatformType)
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
         return kwargs
 
     #=========================================================================
-    # Function - Build Server Inventory Dictionary
+    # Function - Domain Inventory - Network Elements
     #=========================================================================
-    def inventory_servers(self, kwargs):
-        #=====================================================================
-        # Server Dictionary - Base Parameters
-        #=====================================================================
-        kwargs_keys = list(kwargs.keys())
-        if not 'org' in kwargs_keys: kwargs.org = 'default'
-        kwargs.method     = 'get'
-        kwargs.api_filter = 'ignore'
-        kwargs.uri        = 'compute/PhysicalSummaries'
-        kwargs            = api('server').calls(kwargs)
+    def domain_network_elements(self, kwargs):
+        kwargs.method   = 'get'
+        kwargs.order_by = 'SwitchId'
+        kwargs.uri      = 'network/Elements'
+        kwargs          = api('serial_number').calls(kwargs)
         for e in kwargs.results:
-            kwargs.servers[e.Moid] = DotMap(
-                adapters            = DotMap(),
-                chassis             = None,
-                domain              = None,
-                dn                  = e.Dn,
-                gpus                = DotMap({str(x):'N/A' for x in range(1,9)}),
-                hw_moid             = e.Moid,
-                kvm_ip_addresses    = ', '.join([d.Address for d in e.KvmIpAddresses]),
-                memory_avialable    = e.AvailableMemory,
-                memory              = DotMap({str(x):'N/A' for x in range(1,33)}),
-                memory_total        = e.TotalMemory,
-                model               = e.Model,
-                name                = e.Name,
-                object_type         = e.SourceObjectType,
-                pci_node            = None,
-                platform_type       = e.PlatformType,
-                power_state         = e.OperPowerState,
-                processors          = DotMap({str(x):'N/A' for x in range(1,3)}),
-                profile             = e.ServiceProfile,
-                server_id           = e.ServerId,
-                serial              = e.Serial,
-                slot                = e.SlotId,
-                storage_controllers = None,
-                tpm                 = None,
-                user_label          = e.UserLabel)
-            if e.EquipmentChassis != None:
-                kwargs.servers[e.Moid].chassis = deepcopy(kwargs.chassis[e.EquipmentChassis.Moid])
-                kwargs.servers[e.Moid].domain  = deepcopy(kwargs.chassis[e.EquipmentChassis.Moid].domain)
-                for d in ['blades', 'domain']: kwargs.servers[e.Moid].chassis.pop(d)
-                kwargs.chassis[e.EquipmentChassis.Moid].slots[str(e.SlotId)] = ':'.join([e.Model, e.Serial])
-                if re.search('410|480', e.Model):
-                    kwargs.chassis[e.EquipmentChassis.Moid].slots[str(e.SlotId+1)] = ','.join([e.Model, e.Serial])
-        #=================================================================================
-        # Adapters - GPUs - Memory - PCI Nodes - Processors - TPM Chips - Server Profiles
-        #=================================================================================
-        storage = DotMap()
+            kwargs.domains[e.RegisteredDevice.Moid].firmware.append(kwargs.firmware[e.UcsmRunningFirmware.Moid].version)
+            kwargs.domains[e.RegisteredDevice.Moid].hardware_moids.append(e.Moid)
+            kwargs.domains[e.RegisteredDevice.Moid].management_mode = e.ManagementMode
+            kwargs.domains[e.RegisteredDevice.Moid].model     = e.Model
+        kwargs.network_elements  = DotMap({e:k for k,v in kwargs.domains.items() for e in v.hardware_moids})
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Domain Inventory - Switch Profiles
+    #=========================================================================
+    def domain_switch_profiles(self, kwargs):
+        kwargs.method   = 'get'
+        kwargs.order_by = 'Name'
+        kwargs.uri      = 'fabric/SwitchProfiles'
+        kwargs          = api('switch_profiles').calls(kwargs)
+        kwargs.switch_profile = DotMap()
+        for e in kwargs.results:
+            switch_keys = list(kwargs.switch_profile.keys())
+            if not '' in switch_keys: kwargs.switch_profile[e.SwitchClusterProfile.Moid] = DotMap(assigned = False, )
+            if e.AssignedSwitch != None:
+                kwargs.switch_profile[e.SwitchClusterProfile.Moid].assigned     = True
+                kwargs.switch_profile[e.SwitchClusterProfile.Moid].registration = kwargs.network_elements[e.AssignedSwitch.Moid]
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Inventory Contract Status - Chassis|Domain|Servers
+    #=========================================================================
+    def inventory_contracts(self, kwargs):
+        sdict = DotMap()
+        kwargs_keys = list(kwargs.keys())
+        if 'chassis' in kwargs_keys:
+            for k,v in kwargs.chassis.items(): sdict[v.serial] = DotMap(moid = k, type = 'chassis')
+        if 'servers' in kwargs_keys:
+            for k,v in kwargs.servers.items(): sdict[v.serial] = DotMap(moid = k, type = 'servers')
+        kwargs.method = 'get'
+        kwargs.uri    = 'asset/DeviceContractInformations'
+        kwargs        = api('contracts').calls(kwargs)
+        serial_keys = list(sdict.keys())
+        for e in kwargs.results:
+            if e.DeviceId in serial_keys:
+                contract = DotMap()
+                dtype    = sdict[e.DeviceId].type
+                moid     = sdict[e.DeviceId].moid
+                for d in ['ContractStatus', 'ContractStatusReason', 'DeviceId', 'DeviceType', 'SalesOrderNumber', 'ServiceDescription',
+                          'ServiceEndDate', 'ServiceLevel']:
+                    key = snakecase(d); contract[key] = e[d]
+                if kwargs[dtype][moid].contract == None: kwargs[dtype][moid].contract = DotMap()
+                kwargs[dtype][moid].contract[e.DeviceId] = contract
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Build Running Firmware Inventory Dictionary
+    #=========================================================================
+    def running_firmware(self, kwargs):
+        kwargs.method   = 'get'
+        kwargs.uri      = 'firmware/RunningFirmwares'
+        kwargs          = api('firmware').calls(kwargs)
+        kwargs.firmware = DotMap({e.Moid:{'version':e.Version} for e in kwargs.results})
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Server Inventory - Adapters|Drives|GPUs|Memory|PCI Nodes|Processors|Storage Controllers|TPM Chips
+    #=========================================================================
+    def server_children_equipment(self, kwargs):
+        filter_check = False
+        if kwargs.api_filter: api_filter = deepcopy(kwargs.api_filter); filter_check = True
+        kwargs.method              = 'get'
+        kwargs.storage_controllers = DotMap()
         pcolor.Cyan('')
-        for e in ['pci/Nodes:pci_nodes', 'graphics/Cards:gpus', 'adapter/Units:adapters', 'memory/Units:memory', 'processor/Units:processors',
-                  'storage/Controllers:storage_controllers', 'storage/PhysicalDisks:disks', 'equipment/Tpms:tpm', 'server/Profiles:profiles']:
-            kwargs.uri, etype = e.split(':')
+        for i in ['pci/Nodes:pci_nodes', 'graphics/Cards:gpus', 'adapter/Units:adapters', 'memory/Units:memory', 'processor/Units:processors',
+                  'storage/Controllers:storage_controllers', 'storage/PhysicalDisks:disks', 'equipment/Tpms:tpm']:
+            kwargs.uri, etype = i.split(':')
             pcolor.Cyan(f'  * Querying `{kwargs.uri}` for Inventory.')
-            kwargs.api_filter = 'ignore'
-            kwargs            = api(etype).calls(kwargs)
-            if etype == 'profiles': server_keys = list(kwargs.servers.keys())
+            if filter_check == True: kwargs.api_filter = api_filter
+            kwargs = api(etype).calls(kwargs)
             for e in kwargs.results:
                 if etype == 'adapters':
                     ancestor = e.Ancestors[0].Moid
@@ -814,8 +826,8 @@ class api(object):
                 if etype == 'adapters':
                     kwargs.servers[ancestor].adapters[pci_slot] = DotMap(adapter_id = e.AdapterId, model = e.Model, serial = e.Serial, pci_slot=e.PciSlot)
                 elif etype == 'disks':
-                    if storage[e.Ancestors[0].Moid].disks == None: storage[e.Ancestors[0].Moid].disks = DotMap()
-                    storage[e.Ancestors[0].Moid].disks[str(e.DiskId)] = DotMap(
+                    if kwargs.storage_controllers[e.Ancestors[0].Moid].disks == None: kwargs.storage_controllers[e.Ancestors[0].Moid].disks = DotMap()
+                    kwargs.storage_controllers[e.Ancestors[0].Moid].disks[str(e.DiskId)] = DotMap(
                         disk_state = e.DiskState, firmware = [kwargs.firmware[d.Moid].version for d in e.RunningFirmware],
                         drive_state = e.DriveState, model = e.Model, pid = e.Pid, serial = e.Serial, size = e.Size, vendor = e.Vendor)
                 elif etype == 'gpus':
@@ -835,30 +847,113 @@ class api(object):
                     kwargs.pci_nodes[e.Moid] = DotMap(dn = e.Dn, gpus = DotMap({str(x):'N/A' for x in range(1,5)}), model = e.Model, moid = e.Moid,
                                                       serial = e.Serial, server = e.ComputeBlade.Moid, slot = e.SlotId)
                 elif etype == 'processors': kwargs.servers[e.Ancestors[1].Moid][etype][str(e.ProcessorId)] = e.Model
-                elif etype == 'profiles':
-                    if e.AssociatedServer != None and e.AssignedServer.Moid in server_keys:
-                        kwargs.servers[e.AssignedServer.Moid].moid         = e.Moid
-                        kwargs.servers[e.AssignedServer.Moid].organization = kwargs.org_names[e.Organization.Moid]
-                        kwargs.servers[e.AssignedServer.Moid].profile      = e.Name
                 elif etype == 'storage_controllers':
-                    if len(e.Ancestors) == 1: ancestor = e.Ancestors[0].Moid
-                    else: ancestor = e.Ancestors[1].Moid
-                    storage[e.Moid] = DotMap(ancestor = ancestor, controller_id = e.ControllerId, firmware = None, disks = None,
-                                             model = e.Model, moid = e.Moid, serial = e.Serial, slot = e.PciSlot, virtual_drives = None)
-                    if len(e.RunningFirmware) > 0: storage[e.Moid].firmware = [kwargs.firmware[d.Moid].version for d in e.RunningFirmware]
+                    for d in e.Ancestors:
+                        if d.ObjectType == 'compute.Blade': ancestor = d.Moid; break
+                        elif d.ObjecType == 'compute.RackUnit': ancestor = d.Moid; break
+                    kwargs.storage_controllers[e.Moid] = DotMap(
+                        ancestor = ancestor, controller_id = e.ControllerId, firmware = None, disks = None,
+                        model = e.Model, moid = e.Moid, serial = e.Serial, slot = e.PciSlot, virtual_drives = None)
+                    if len(e.RunningFirmware) > 0:
+                        kwargs.storage_controllers[e.Moid].firmware = [kwargs.firmware[d.Moid].version for d in e.RunningFirmware]
                 elif etype == 'tpm': kwargs.servers[ancestor].tpm = DotMap(active = e.ActivationStatus, model = e.Model, present = True, serial = e.Serial)
         #=====================================================================
         # Add PCI Nodes / GPUs and Storage Controllers to Server Dictionary
         #=====================================================================
         for k,v in kwargs.pci_nodes.items(): kwargs.servers[v.server].pci_node = v
         for k,v in kwargs.servers.items():
-            if v.pci_node != None: kwargs.chassis[v.chassis.hw_moid].slots[str(v.pci_node.slot)] = ':'.join([v.pci_node.model, v.pci_node.serial])
-        for k,v in storage.items():
-            edict = deepcopy(v); ancestor = v.ancestor; edict.pop('ancestor')
-            if edict.slot == '': storage_id = edict.controller_id
-            else: storage_id = edict.slot
-            if kwargs.servers[ancestor].storage_controllers == None: kwargs.servers[ancestor].storage_controllers = DotMap()
-            kwargs.servers[ancestor].storage_controllers[str(storage_id)] = edict
+            if v.pci_node != None: kwargs.chassis[v.chassis].slot[str(v.pci_node.slot)] = ':'.join([v.pci_node.model, v.pci_node.serial])
+        for k,v in kwargs.storage_controllers.items():
+            if kwargs.servers[v.ancestor].storage_controllers == None: kwargs.servers[v.ancestor].storage_controllers = DotMap()
+            kwargs.servers[v.ancestor].storage_controllers[k] = v
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Server Inventory - Physical Summaries
+    #=========================================================================
+    def server_physical_summaries(self, kwargs):
+        kwargs.method = 'get'
+        kwargs.uri    = 'compute/PhysicalSummaries'
+        kwargs        = api('server').calls(kwargs)
+        for e in kwargs.results:
+            kwargs.servers[e.Moid] = DotMap(
+                adapters            = DotMap(),
+                chassis             = None,
+                contract            = None,
+                domain              = None,
+                dn                  = e.Dn,
+                gpus                = DotMap({str(x):'N/A' for x in range(1,9)}),
+                hardware_moid       = e.Moid,
+                kvm_ip_addresses    = ', '.join([d.Address for d in e.KvmIpAddresses]),
+                memory_avialable    = e.AvailableMemory,
+                memory              = DotMap({str(x):'N/A' for x in range(1,33)}),
+                memory_total        = e.TotalMemory,
+                model               = e.Model,
+                name                = e.Name,
+                object_type         = e.SourceObjectType,
+                pci_node            = None,
+                platform_type       = e.PlatformType,
+                power_state         = e.OperPowerState,
+                processors          = DotMap({str(x):'N/A' for x in range(1,3)}),
+                profile             = e.ServiceProfile,
+                server_id           = e.ServerId,
+                serial              = e.Serial,
+                slot                = e.SlotId,
+                storage_controllers = None,
+                tpm                 = None,
+                user_label          = e.UserLabel)
+            if e.EquipmentChassis != None:
+                kwargs.servers[e.Moid].chassis = e.EquipmentChassis.Moid
+                kwargs.servers[e.Moid].domain  = deepcopy(kwargs.chassis[e.EquipmentChassis.Moid].domain)
+                kwargs.chassis[e.EquipmentChassis.Moid].slot[str(e.SlotId)] = ':'.join([e.Model, e.Serial])
+                if re.search('410|480', e.Model):
+                    kwargs.chassis[e.EquipmentChassis.Moid].slot[str(e.SlotId+1)] = ','.join([e.Model, e.Serial])
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Server Inventory - Server Profiles
+    #=========================================================================
+    def server_profiles(self, kwargs):
+        server_keys   = list(kwargs.servers.keys())
+        kwargs.method = 'get'
+        kwargs.uri    = kwargs.ezdata['server'].intersight_uri
+        pcolor.Cyan(f'  * Querying `{kwargs.uri}` for Inventory.')
+        kwargs = api('server_profile').calls(kwargs)
+        for e in kwargs.results:
+            if e.AssociatedServer != None and e.AssignedServer.Moid in server_keys:
+                kwargs.servers[e.AssignedServer.Moid].moid         = e.Moid
+                kwargs.servers[e.AssignedServer.Moid].organization = kwargs.org_names[e.Organization.Moid]
+                kwargs.servers[e.AssignedServer.Moid].profile      = e.Name
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Server Inventory - Server Profiles
+    #=========================================================================
+    def server_virtual_drives(self, kwargs):
+        kwargs.method = 'get'
+        kwargs.uri    = 'storage/VirtualDrives'
+        pcolor.Cyan(f'  * Querying `{kwargs.uri}` for Inventory.')
+        kwargs = api('virtual_drives').calls(kwargs)
+        for e in kwargs.results:
+            ancestor = kwargs.storage_controllers[e.StorageController.Moid].ancestor
+            storage  = e.StorageController.Moid
+            if kwargs.servers[ancestor].storage_controllers[storage].virtual_drives == None:
+                kwargs.servers[ancestor].storage_controllers[storage].virtual_drives = DotMap()
+            data = DotMap()
+            for d in ['AccessPolicy', 'ActualWriteCachePolicy', 'AvailableSize', 'BlockSize', 'Bootable', 'Dn', 'DriveCache',
+                      'DriveSecurity', 'DriveState', 'IoPolicy', 'Model', 'Moid', 'Name', 'OperState', 'Presence', 'ReadPolicy',
+                      'SecurityFlags', 'Size', 'StripSize', 'Type', 'VirtualDriveId']:
+                data[snakecase(d)] = e[d]
+            kwargs.servers[ancestor].storage_controllers[storage].virtual_drives[e.Moid] = data
         #=====================================================================
         # return kwargs
         #=====================================================================
