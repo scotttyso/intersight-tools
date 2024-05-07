@@ -150,7 +150,7 @@ def main():
     #==============================================
     if not re.search('^add_policies|add_vlans|clone_policies|hcl_status|inventory|server_identities$', kwargs.args.process):
         kwargs.jdata = DotMap(
-            default = 'server_inventory',
+            default = 'server_identities',
             description = f'Select the Process to run:\n'\
                 '  * add_policies: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.\n'\
                 '  * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.\n'\
