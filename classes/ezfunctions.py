@@ -813,30 +813,23 @@ def mod_pol_description(pol_description):
 # Function - Change Policy Description to Sentence
 #=============================================================================
 def name_prefix_suffix(policy, kwargs):
-    name_prefix = ''
-    name_suffix = ''
-    if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', policy): ptype = 'pools'
-    elif re.search('chassis|domain|server|server_template', policy): ptype = 'profiles'
+    if   re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', policy): ptype = 'pools'
+    elif re.search('^(chassis|domain|server)_template$', policy): ptype = 'templates'
+    elif re.search('^chassis|domain|server$', policy): ptype = 'profiles'
     else: ptype = 'policies'
-    if kwargs.imm_dict.orgs[kwargs.org][ptype].get('name_prefix'):
-        if kwargs.imm_dict.orgs[kwargs.org][ptype].name_prefix.get(policy):
-            if len(kwargs.imm_dict.orgs[kwargs.org][ptype].name_prefix[policy]) > 0:
-                name_prefix = kwargs.imm_dict.orgs[kwargs.org][ptype].name_prefix[policy]
-    if name_prefix == '':
-        if kwargs.imm_dict.orgs[kwargs.org][ptype].get('name_prefix'):
-            if kwargs.imm_dict.orgs[kwargs.org][ptype].name_prefix.get('default'):
-                if len(kwargs.imm_dict.orgs[kwargs.org][ptype].name_prefix['default']) > 0:
-                    name_prefix = kwargs.imm_dict.orgs[kwargs.org][ptype].name_prefix['default']
-    if kwargs.imm_dict.orgs[kwargs.org][ptype].get('name_suffix'):
-        if kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix.get(policy):
-            if len(kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix[policy]) > 0:
-                name_suffix = kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix[policy]
-    if name_suffix == '':
-        if kwargs.imm_dict.orgs[kwargs.org][ptype].get('name_suffix'):
-            if kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix.get('default'):
-                if len(kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix['default']) > 0:
-                    name_suffix = kwargs.imm_dict.orgs[kwargs.org][ptype].name_suffix['default']
-    return name_prefix, name_suffix
+    args  = DotMap(name_prefix = '', name_suffix = '')
+    pkeys = list(kwargs.imm_dict.orgs[kwargs.org][ptype].keys())
+    for e in ['name_prefix', 'name_suffix']:
+        if e in pkeys:
+            nkeys = list(kwargs.imm_dict.orgs[kwargs.org][ptype][e].keys())
+            if policy in nkeys:
+                if len(kwargs.imm_dict.orgs[kwargs.org][ptype][e][policy]) > 0:
+                    args[e] = kwargs.imm_dict.orgs[kwargs.org][ptype][e][policy]
+            if args[e] == '':
+                if 'default' in nkeys:
+                    if len(kwargs.imm_dict.orgs[kwargs.org][ptype][e]['default']) > 0:
+                        args[e] = kwargs.imm_dict.orgs[kwargs.org][ptype][e]['default']
+    return args.name_prefix, args.name_suffix
 
 #=============================================================================
 # Function - Naming Rule

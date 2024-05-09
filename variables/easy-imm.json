@@ -7,7 +7,7 @@
       },
       "info": {
         "description": "Cisco Easy IMM Data Model JSON Schema.  See: https://github.com/terraform-cisco-modules/easy-imm",
-        "version": "3.1.2",
+        "version": "4.1.12",
         "title": "Cisco Intersight Managed Mode Schema",
         "license": {
           "name": "MIT",

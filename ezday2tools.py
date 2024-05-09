@@ -135,6 +135,7 @@ def main():
     # Import Stored Parameters
     #================================================
     ezdata          = DotMap(materialize(RefDict(f'{script_path}{os.sep}variables{os.sep}easy-imm.json')))
+    kwargs.ez_tags  = {'Key':'ezday2tools','Value':ezdata.info.version}
     kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
     kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
     #==============================================

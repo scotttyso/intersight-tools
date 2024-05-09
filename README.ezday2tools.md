@@ -153,7 +153,7 @@ Enter `Y` for `True` or `N` for `False` for `Deploy Profiles`. [N]: Y
 
 ### EZDAY2TOOLS - `add_vlans`: Build the YAML definition File
 
-See example `examples/day2tools/add_vlans/add_vlans.json`.
+See example `examples/day2tools/add_vlans/add_vlans.yaml`.
 
   * The function will loop through all `organizations` listed.  To create `ethernet_network_groups`, a `vlan_policy`, and `lan_connectivity`.
   * `lan_connectivity` is optional.
@@ -170,6 +170,95 @@ ezday2tools.py -p add_vlans -y add_vlans.yaml
 ```powershell
 python ezday2tools.py -p add_vlans -y add_vlans.yaml
 ```
+
+### Example Output
+
+```
+tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlans$ ezday2tools.py -y add_vlans.yaml
+
+------------------------------------------------------------------------------------------------------------
+
+ Select the Process to run:
+   * add_policies: Update Policies attached to chassis, domain, server profiles/templates within the
+     same organization or from a shared organization.
+   * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.
+     Optionally can also create LAN Connectivity Policies.
+   * clone_policies: Function to clone policies from one Organization to another.
+   * hcl_status: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
+   * inventory: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
+   * server_identities: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the
+     fibre-channel identities. To get full identities list add the `-fi` option at the CLI.
+ 
+ 
+    Select an Option Below:
+       1. add_policies
+       2. add_vlans
+       3. clone_policies
+       4. hcl_inventory
+       5. inventory
+       6. server_identities
+
+Please Enter the Option Number to select for Day2Tools Process.  [6]: 2
+
+------------------------------------------------------------------------------------------------------------
+
+   Begin Function: add_vlans.
+
+------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------
+
+   Beginning Ethernet Network Group Policies Deployments.
+
+       * Skipping Org: Common; Ethernet Network Group Policy: `ESX`.  Intersight Matches Configuration.
+         Moid: 660af2316f626932018a62e8
+       * Skipping Org: Common; Ethernet Network Group Policy: `UPLINK`.  Intersight Matches
+         Configuration.  Moid: 65bbdf2e6f626932017a44cd
+       * Skipping Org: Common; Ethernet Network Group Policy: `301-NIC-A`.  Intersight Matches
+         Configuration.  Moid: 663ce2dc6f626932019a2c38
+       * Skipping Org: Common; Ethernet Network Group Policy: `1444-NIC-A`.  Intersight Matches
+         Configuration.  Moid: 663ce2dc6f626932019a2c53
+ 
+   Completed Ethernet Network Group Policies Deployments.
+
+------------------------------------------------------------------------------------------------------------
+
+   Beginning Lan Connectivity Policies Deployments.
+
+       * Skipping Org: Common; Lan Connectivity Policy: `301`.  Intersight Matches Configuration.
+         Moid: 663ce36e4ff5f73001def317
+       * Skipping Org: Common; Lan Connectivity Policy: `1444`.  Intersight Matches Configuration.
+         Moid: 663ce36e4ff5f73001def31f
+       * Skipping Org: Common; Lan Connectivity Policy `301`: VNIC: `NIC-A`.  Intersight Matches
+         Configuration.  Moid: 663ce3b04ff5f73001df4a5b
+       * Skipping Org: Common; Lan Connectivity Policy `1444`: VNIC: `NIC-A`.  Intersight Matches
+         Configuration.  Moid: 663ce3b04ff5f73001df4b18
+ 
+   Completed Lan Connectivity Policies Deployments.
+
+------------------------------------------------------------------------------------------------------------
+
+   Beginning VLAN Policies Deployments.
+
+       * Skipping Org: Common; VLAN Policy: `VLAN`.  Intersight Matches Configuration.  Moid:
+         65bbdea96f626932017a0825
+       * Skipping Org: Common; VLAN Policy: `VLAN`, VLAN: `301`.  Intersight Matches Configuration.
+         Moid: 663bb2df6f62693201e7c451
+       * Skipping Org: Common; VLAN Policy: `VLAN`, VLAN: `1444`.  Intersight Matches Configuration.
+         Moid: 663cee226f62693201a20f91
+ 
+   Completed VLAN Policies Deployments.
+
+------------------------------------------------------------------------------------------------------------
+
+   End Function: add_vlans.
+
+------------------------------------------------------------------------------------------------------------
+
+tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlans$ 
+```
+
 
 ## EZDAY2TOOLS - `clone_policies`: Use Cases
 

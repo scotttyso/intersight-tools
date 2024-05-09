@@ -17,6 +17,16 @@ except ImportError as e:
 oregex = re.compile('fabric.([a-zA-z]+(Mode|Role)|V[l|s]an)|vnic.(Eth|Fc)If|iam.EndPointUserRole|DriveGroup|Ldap(Group|Provider)')
 policy_regex = re.compile('(network_connectivity|ntp|port|snmp|switch_control|syslog|system_qos|vlan|vsan)')
 
+#=============================================================================
+# Function - Change Policy Description to Sentence
+#=============================================================================
+def mod_pol_description(pol_description):
+    pdescr = str.title(pol_description.replace('_', ' '))
+    pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
+    pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
+    pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
+    return pdescr.replace('Vlan', 'VLAN')
+
 # Errors & Notifications
 def begin_loop(ptype1, ptype2):
     pcolor.LightGray(f'\n{"-"*108}\n')
@@ -63,9 +73,12 @@ def completed_item(ptype, kwargs):
         len(False); sys.exit(1)
     if re.search(oregex, iresults.get('ObjectType')):
         parent_title = ((kwargs.parent_key.replace('_', ' ')).title())
+        parent_title = mod_pol_description(parent_title)
         parents      = DotMap()
         for k,v in kwargs.isight[kwargs.org].policy[kwargs.parent_key].items(): parents[v] = k
         if 'an_connectivity' in kwargs.parent_key: kwargs.parent_name = parents[iresults[f'{pascalcase(kwargs.parent_key)}Policy'].Moid]
+        elif kwargs.parent_key == 'vlan': kwargs.parent_name = parents[iresults[f'EthNetworkPolicy'].Moid]
+        elif kwargs.parent_key == 'vsan': kwargs.parent_name = parents[iresults[f'FcNetworkPolicy'].Moid]
         else: kwargs.parent_name = list(parents.keys())[list(parents.values()).index(iresults.Parent.Moid)]
         if method == 'post':
             pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')

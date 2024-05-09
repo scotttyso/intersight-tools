@@ -475,10 +475,10 @@ class api(object):
                     for e in api_results.Responses:
                         kwargs.api_results = e.Body
                         validating.completed_item(self.type, kwargs)
-                elif re.search('bulk.Request', api_results.ObjectType):
+                elif re.search('bulk.(Request|RestResult)', api_results.ObjectType):
                     for e in api_results.Results:
                         kwargs.api_results = e.Body
-                        if 'bulk.Request' in api_results.ObjectType:
+                        if re.search('bulk.(Request|RestResult)', api_results.ObjectType):
                             if e.Body.get('Name'): name_key = 'Name'
                             elif e.Body.get('Identity'): name_key = 'Identity'
                             elif e.Body.get('PcId'): name_key = 'PcId'
@@ -486,7 +486,7 @@ class api(object):
                             elif e.Body.get('PortIdStart'): name_key = 'PortIdStart'
                             elif e.Body.get('VlanId'): name_key = 'VlanId'
                             elif e.Body.get('VsanId'): name_key = 'VsanId'
-                            elif e.Body.ObjectType == 'iam.EndPointUserRole': icount = 0
+                            elif e.Body.ObjectType == 'iam.EndPointUserRole': pass
                             else:
                                 pcolor.Red(json.dumps(e.Body, indent=4))
                                 pcolor.Red('Missing name_key.  isight.py line 164')
@@ -1258,6 +1258,7 @@ class imm(object):
     # Function - Add Organization Key Map to Dictionaries
     #=========================================================================
     def compare_body_result(self, api_body, result):
+        rkeys = list(result.keys())
         if api_body.get('PolicyBucket'):
             api_body['PolicyBucket'] = sorted(api_body['PolicyBucket'], key=lambda ele: ele.ObjectType)
             result['PolicyBucket']   = sorted(result['PolicyBucket'], key=lambda ele: ele.ObjectType)
@@ -1276,8 +1277,9 @@ class imm(object):
                                 if len(result[k][a]) - 1 < count: patch_return = True
                                 elif not result[k][a][count] == e: patch_return = True
                     else:
-                        if not result.get(k): patch_return = True
-                        elif not result[k].get(a): patch_return = True
+                        if not k in rkeys: patch_return = True
+                        else: kkeys = list(result[k].keys())
+                        if   not a in kkeys: patch_return = True
                         elif not result[k][a] == b: patch_return = True
             elif type(v) == list:
                 count = 0
@@ -3381,9 +3383,9 @@ class imm(object):
                     #=========================================================================
                     if kwargs.isight[kwargs.org].policy[self.type].get(i.names[x]):
                         indx = next((index for (index, d) in enumerate(vnic_results) if d['Name'] == i.names[x]), None)
-                        patch_vsan = imm(self.type).compare_body_result(api_body, vnic_results[indx])
+                        patch_vnics = imm(self.type).compare_body_result(api_body, vnic_results[indx])
                         api_body['pmoid'] = kwargs.isight[kwargs.org].policy[self.type][i.names[x]]
-                        if patch_vsan == True: kwargs.bulk_list.append(deepcopy(api_body))
+                        if patch_vnics == True: kwargs.bulk_list.append(deepcopy(api_body))
                         else:
                             pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: VNIC: `{i.names[x]}`."\
                                 f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")

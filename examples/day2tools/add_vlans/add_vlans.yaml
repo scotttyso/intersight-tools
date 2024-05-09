@@ -2,25 +2,50 @@
 add_vlans:
   organizations:
     - Common
-  ethernet_network_groups:
+  ethernet_network_group: # Existing Should have VLAN Policy Added to them
     - ESX
     - UPLINK
-  vlan_policy:
-    name: VLAN
-    vlans:
-      - name: 26-AL-Private-ESX0026
-        vlan_id: 26
-  lan_connectivity:
-    name: '{{vlan_id}}'
-    target_platform: FIAttached
-    vnics:
-      - ethernet_adapter: Windows
-        ethernet_network_control: cdp-enable
-        ethernet_network_group: '{{vlan_id}}_NIC-A'
-        ethernet_qos: default
-        mac_pool: MAC
-        name: NIC-A
-        placement:
-          order: 2
-          slot: MLOM
-          switch_id: A
+  vlan:
+    - name: VLAN
+      vlans:
+        - lan_connectivity_templates:
+            - policy_reference: 'single_vnic'
+              vnics:
+                - ethernet_adapter_policy: Windows
+                  ethernet_network_group_policies: ['{{vlan_id}}-NIC-A']
+          name: 301-ACI-DC-TEST
+          vlan_id: 301
+        - lan_connectivity_templates:
+            - policy_reference: 'single_vnic'
+              vnics:
+                - ethernet_adapter_policy: Windows
+                  ethernet_network_group_policies: ['{{vlan_id}}-NIC-A']
+          name: 1444-FW-MICHART-DMZ-TEST
+          vlan_id: 1444
+  lan_connectivity_templates:
+    - name: '{{vlan_id}}'
+      policy_reference: single_vnic
+      target_platform: FIAttached
+      vnics:
+        - ethernet_network_control_policy: cdp-enable
+          ethernet_qos_policy: default
+          mac_address_pools: [MAC]
+          names: [ NIC-A]
+          placement:
+            pci_order: [2]
+    - name: '{{vlan_id}}-CLUS'
+      policy_reference: cluster
+      target_platform: FIAttached
+      vnics:
+        - ethernet_network_control_policy: cdp-enable
+          ethernet_qos_policy: default
+          mac_address_pool: MAC
+          names: [NIC-A]
+          placement:
+            pci_order: [2]
+        - ethernet_network_control_policy: cdp-enable
+          ethernet_qos_policy: default
+          mac_address_pools: [MAC]
+          names: [NIC-A]
+          placement:
+            order: [3]
