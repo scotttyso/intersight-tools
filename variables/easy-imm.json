@@ -211,7 +211,7 @@
                         "properties": {
                             "add_vic_adapter_configuration": {
                                 "type": "array",
-                                "description": "List of 'adapter.ConfigPolicy' resources\nRequired Attributes:\n  * name\n\nOptional Attributes:",
+                                "description": "List of 'adapter.ConfigPolicy' resources\n\nRequired Attributes:\n  * name\n\nOptional Attributes:",
                                 "items": {
                                     "$ref": "#/components/schemas/adapter_configuration.add_vic_adapter_configuration"
                                 },
@@ -270,7 +270,7 @@
             },
             "adapter_configuration.add_vic_adapter_configuration.dce_interface_settings": {
                 "type": "object",
-                "description": "Settings applicable for the Data Center Ethernet (DCE) interfaces on the adapter card.\nRequired Attributes:\n  * dce_interface_fec_modes",
+                "description": "Settings applicable for the Data Center Ethernet (DCE) interfaces on the adapter card.\n\nRequired Attributes:\n  * dce_interface_fec_modes",
                 "intersight_api": "DceInterfaceSettings",
                 "ObjectType": "adapter.DceInterfaceSettings",
                 "required": [
@@ -280,7 +280,7 @@
                 "properties": {
                     "dce_interface_fec_modes": {
                         "type": "array",
-                        "description": "\nRequired Attributes:\n  * name\n\nOptional Attributes:",
+                        "description": "\n\nRequired Attributes:\n  * name\n\nOptional Attributes:",
                         "intersight_api": "FecMode",
                         "items": {
                             "type": "string",
@@ -6349,7 +6349,7 @@
                     "description": {
                         "type": "string",
                         "default": "",
-                        "description": "Carries more information about the bootloader.  Optional for Uefi.\nRequired Attributes:\n  * name\n  * path\n\nOptional Attributes:\n  * description",
+                        "description": "Carries more information about the bootloader.  Optional for Uefi.\n\nRequired Attributes:\n  * name\n  * path\n\nOptional Attributes:\n  * description",
                         "intersight_api": "Description",
                         "minLength": 1,
                         "maxLength": 128,
@@ -6598,7 +6598,7 @@
                         "description": "Definition of the list of properties defined in 'chassis.Profile', excluding properties defined in parent classes.",
                         "required": [
                             "action",
-                            "imc_access_policy",
+                            "power_policy",
                             "targets",
                             "thermal_policy"
                         ],
@@ -6616,10 +6616,17 @@
                                 ],
                                 "title": "action"
                             },
+                            "attach_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if these Chassis Profiles should be associated to the template after creating the chassis profile.",
+                                "intersight_api": "not_applicable",
+                                "title": "attach_template"
+                            },
                             "imc_access_policy": {
                                 "type": "string",
                                 "default": "default",
-                                "description": "The Name of the IMC Access Policy to Assign to the Profile(s).  This is only Applicable to FIAttached Servers.",
+                                "description": "The Name of the IMC Access Policy to Assign to the Profile(s).",
                                 "intersight_api": "$pbucket:access.Policy:Moid",
                                 "minLength": 1,
                                 "maxLength": 129,
@@ -6648,7 +6655,7 @@
                             },
                             "targets": {
                                 "type": "array",
-                                "description": "A List of Chassis' to Assign these policies/settings to.\nRequired Attributes:\n  * name\n  * serial_number\n\nOptional Attributes:\n  * description",
+                                "description": "A List of Chassis' to Assign these policies/settings to.\n\nRequired Attributes:\n  * name\n  * serial_number\n\nOptional Attributes:\n  * description",
                                 "items": {
                                     "$ref": "#/components/schemas/chassis.targets"
                                 },
@@ -6663,6 +6670,16 @@
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "imc_access_policy"
+                            },
+                            "ucs_chassis_profile_template": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Chassis Profile Template to use to Create the Profile(s).",
+                                "intersight_api": "ucs_chassis_profile_template",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ucs_chassis_profile_template"
                             }
                         }
                     }
@@ -6678,6 +6695,76 @@
                     },
                     {
                         "$ref": "#/components/schemas/abstract_serial"
+                    }
+                ]
+            },
+            "chassis_template": {
+                "description": "A profile template specifying configuration settings for a physical chassis.",
+                "intersight_type": "profile",
+                "intersight_uri": "chassis/ProfileTemplates",
+                "ObjectType": "chassis.ProfileTemplate",
+                "title": "chassis_template - Templates > UCS Chassis Profile Templates - Intersight Uri: chassis/ProfileTemplates",
+                "x-allOf-name": "chassis.ProfileTemplate",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_profile"
+                    },
+                    {
+                        "type": "object",
+                        "description": "Definition of the list of properties defined in 'chassis.ProfileTemplate', excluding properties defined in parent classes.",
+                        "required": [
+                            "create_template"
+                        ],
+                        "title": "server_profile_template",
+                        "properties": {
+                            "create_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if these Template Should be created or just used as a Policy Reference.",
+                                "intersight_api": "create_template",
+                                "title": "create_template"
+                            },
+                            "imc_access_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the IMC Access Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:access.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "imc_access_policy"
+                            },
+                            "power_policy": {
+                                "type": "string",
+                                "default": "",
+                                "description": "The Name of the Power Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:power.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "power_policy"
+                            },
+                            "snmp_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SNMP Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:snmp.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "snmp_policy"
+                            },
+                            "thermal_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Thermal Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:thermal.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "thermal_policy"
+                            }
+                        }
                     }
                 ]
             },
@@ -6830,6 +6917,13 @@
                                 ],
                                 "title": "action"
                             },
+                            "attach_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if these Domain Profiles should be associated to the template after creating the domain profile.",
+                                "intersight_api": "not_applicable",
+                                "title": "attach_template"
+                            },
                             "network_connectivity_policy": {
                                 "type": "string",
                                 "default": "default",
@@ -6914,6 +7008,16 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "switch_control_policy"
                             },
+                            "ucs_domain_profile_template": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Domain Profile Template to use to Create the Profile.",
+                                "intersight_api": "ucs_domain_profile_template",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ucs_domain_profile_template"
+                            },
                             "vlan_policies": {
                                 "type": "array",
                                 "description": "A List of One or Two VLAN Policies to Assign to the Domain Profile.  If One is used both FI's will inherit the same policy.",
@@ -6939,6 +7043,158 @@
                                     "type": "string",
                                     "default": "default",
                                     "description": "The Name of the VSAN Policy to Assign to the Domain Profile.",
+                                    "intersight_api": "$pbucket:fabric.FcNetworkPolicy:Moid",
+                                    "minLength": 1,
+                                    "maxLength": 129,
+                                    "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                    "title": "vsan_policy"
+                                },
+                                "ObjectType": "fabric.FcNetworkPolicy",
+                                "title": "vsan_policies - VSAN Policies - Intersight Uri: fabric/FcNetworkPolicies"
+                            }
+                        }
+                    }
+                ]
+            },
+            "domain_template": {
+                "description": "A profile template specifying configuration settings for a physical domain.",
+                "intersight_type": "profile",
+                "intersight_uri": "fabric/SwitchClusterProfileTemplates",
+                "ObjectType": "fabric.SwitchClusterProfileTemplate",
+                "title": "domain_template - Templates > UCS Domain Profile Templates - Intersight Uri: fabric/SwitchClusterProfileTemplates",
+                "x-allOf-name": "fabric.SwitchClusterProfileTemplate",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_profile"
+                    },
+                    {
+                        "type": "object",
+                        "description": "Definition of the list of properties defined in 'chassis.ProfileTemplate', excluding properties defined in parent classes.",
+                        "required": [
+                            "create_template",
+                            "port_policies",
+                            "switch_control_policy",
+                            "system_qos_policy",
+                            "vlan_policies"
+                        ],
+                        "title": "server_profile_template",
+                        "properties": {
+                            "create_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to determine if these Template Should be created or just used as a Policy Reference.",
+                                "intersight_api": "create_template",
+                                "title": "create_template"
+                            },
+                            "network_connectivity_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Network Connectivity Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:networkconfig.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "network_connectivity_policy"
+                            },
+                            "ntp_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the NTP Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:ntp.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ntp_policy"
+                            },
+                            "port_policies": {
+                                "type": "array",
+                                "description": "A List of Port Policies to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:fabric.PortPolicy:Moid",
+                                "items": {
+                                    "type": "string",
+                                    "default": "default",
+                                    "description": "The Name of the Port Policy to Assign to the Domain Profile Template.",
+                                    "intersight_api": "$pbucket:fabric.PortPolicy:Moid",
+                                    "minLength": 1,
+                                    "maxLength": 129,
+                                    "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                    "title": "port_policy"
+                                },
+                                "title": "port_policies - A List of one or two Port Policies."
+                            },
+                            "serial_numbers": {
+                                "type": "array",
+                                "description": "A List of two Serial Numbers for the Fabric Interconnects.",
+                                "items": {
+                                    "$ref": "#/components/schemas/abstract_serial"
+                                },
+                                "title": "Serial Numbers"
+                            },
+                            "snmp_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the SNMP Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:snmp.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "snmp_policy"
+                            },
+                            "syslog_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Syslog Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:syslog.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "syslog_policy"
+                            },
+                            "switch_control_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Switch Control Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:fabric.SwitchControlPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "switch_control_policy"
+                            },
+                            "system_qos_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Syslog Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:fabric.SystemQosPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "switch_control_policy"
+                            },
+                            "vlan_policies": {
+                                "type": "array",
+                                "description": "A List of One or Two VLAN Policies to Assign to the Domain Profile Template.  If One is used both FI's will inherit the same policy.",
+                                "intersight_api": "$pbucket:fabric.EthNetworkPolicy:Moid",
+                                "items": {
+                                    "type": "string",
+                                    "default": "default",
+                                    "description": "The Name of the VLAN Policy to Assign to the Domain Profile Template.",
+                                    "intersight_api": "$pbucket:fabric.EthNetworkPolicy:Moid",
+                                    "minLength": 1,
+                                    "maxLength": 129,
+                                    "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                    "title": "vlan_policy"
+                                },
+                                "ObjectType": "fabric.EthNetworkPolicy",
+                                "title": "vlan_policies - VLAN Policies - Intersight Uri: fabric/EthNetworkPolicies"
+                            },
+                            "vsan_policies": {
+                                "type": "array",
+                                "description": "A List of One or Two VSAN Policies to Assign to the Domain Profile Template.  If One is used both FI's will inherit the same policy.",
+                                "intersight_api": "$pbucket:fabric.FcNetworkPolicy:Moid",
+                                "items": {
+                                    "type": "string",
+                                    "default": "default",
+                                    "description": "The Name of the VSAN Policy to Assign to the Domain Profile Template.",
                                     "intersight_api": "$pbucket:fabric.FcNetworkPolicy:Moid",
                                     "minLength": 1,
                                     "maxLength": 129,
@@ -8627,7 +8883,7 @@
                             },
                             "targets": {
                                 "type": "array",
-                                "description": "List of target WWPN members that are part of the zone.\nRequired Attributes:\n  * name\n  * switch_id\n  * vsan_id\n  * wwpn",
+                                "description": "List of target WWPN members that are part of the zone.\n\nRequired Attributes:\n  * name\n  * switch_id\n  * vsan_id\n  * wwpn",
                                 "intersight_api": "ObjectType",
                                 "items": {
                                     "$ref": "#/components/schemas/fc_zone.targets"
@@ -9231,7 +9487,7 @@
                             },
                             "model_bundle_version": {
                                 "type": "array",
-                                "description": "The target bundle version and model family which the server will be upgraded to.\nRequired Attributes:\n  * firmware_version\n  * server_models",
+                                "description": "The target bundle version and model family which the server will be upgraded to.\n\nRequired Attributes:\n  * firmware_version\n  * server_models",
                                 "items": {
                                     "$ref": "#/components/schemas/firmware.model_bundle_version"
                                 },
@@ -10196,7 +10452,7 @@
             "iscsi_boot.initiator_static_ipv4_config": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "IPV4 configurations such as Netmask, Gateway and DNS for iSCSI Initiator.\nRequired Attributes:\n  * ip_address\n  * gateway\n  * netmask\n\nOptional Attributes:\n  * primary_dns\n  * secondary_dns",
+                "description": "IPV4 configurations such as Netmask, Gateway and DNS for iSCSI Initiator.\n\nRequired Attributes:\n  * ip_address\n  * gateway\n  * netmask\n\nOptional Attributes:\n  * primary_dns\n  * secondary_dns",
                 "intersight_api": "InitiatorStaticIpV4Config",
                 "ObjectType": "vnic.IscsiStaticIpv4Config",
                 "required": [
@@ -10345,7 +10601,6 @@
                         "additionalProperties": false,
                         "description": "A LAN Connectivity Policy determines the network resources and the connections between the server and the LAN on the network. This policy uses Consistent Device Naming to configure the vNIC. You can configure a usNIC or VMQ connection for the vNIC to improve network performance.",
                         "required": [
-                            "vnics"
                         ],
                         "title": "lan_connectivity - LAN Connectivity - Intersight Uri: vnic/LanConnectivityPolicies",
                         "properties": {
@@ -10412,13 +10667,23 @@
                             },
                             "vnics": {
                                 "type": "array",
-                                "description": "List of VNICs to add to the LAN Connectivity Policy.\nRequired Attributes:\n  * names\n  * placement\n\nRequired for FIAttached:\n\n  * enable_failover\n  * ethernet_adapter_policy\n  * ethernet_network_control_policy\n  * ethernet_network_group_policies\n  * ethernet_qos_policy\n\nRequired for Standalone:\n  * ethernet_network_policy\n  * ethernet_qos_policy\n\nOptional Attributes:\n  * cdn_source\n  * cdn_values\n  * iscsi_boot_policies\n  * mac_address_allocation_type\n  * mac_address_pools\n  * mac_addresses_static\n  * usnic_settings\n  * vmq_settings",
-                                "intersight_uri": "vnic.EthIfs",
+                                "description": "List of VNICs to add to the LAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * placement\n\nRequired for FIAttached:\n  * ethernet_adapter_policy\n  * ethernet_network_control_policy\n  * ethernet_network_group_policies\n  * ethernet_qos_policy\n\nRequired for Standalone:\n  * ethernet_network_policy\n  * ethernet_qos_policy\n\nOptional Attributes:\n  * enable_failover\n  * cdn_source\n  * cdn_values\n  * iscsi_boot_policies\n  * mac_address_pools\n  * mac_addresses_static\n  * sr_iov\n  * usnic\n  * vmq",
+                                "intersight_uri": "vnic/EthIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/lan_connectivity.vnics"
                                 },
                                 "ObjectType": "vnic.EthIf",
                                 "title": "vnics - Vnics - Intersight Uri: vnic/EthIfs"
+                            },
+                            "vnics_from_template": {
+                                "type": "array",
+                                "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vnic_template\n\nOptional Attributes:\n  * ethernet_adapter_policy - If Allow Override Enabled on the template\n  * cdn_value - Only if Consistency Device Naming has been configured as User at the Template Level. \n  * iscsi_boot_policy - If Allow Override Enabled on the template\n  * mac_address_pool - If Allow Override Enabled on the template\n  * sr_iov\n  * usnic\n  * vmq",
+                                "intersight_uri": "vnic/EthIfs",
+                                "items": {
+                                    "$ref": "#/components/schemas/lan_connectivity.vnics"
+                                },
+                                "ObjectType": "vnic.EthIf",
+                                "title": "vnics_from_template - Vnics with a Source Template - Intersight Uri: vnic/EthIfs"
                             }
                         }
                     }
@@ -10431,8 +10696,11 @@
                 "intersight_type": "policy",
                 "intersight_uri": "vnic/EthIfs",
                 "ObjectType": "vnic.EthIf",
-                "title": "vnics - Virtual Ethernet Interface - Intersight Uri: vnic/EthIfs",
+                "title": "vnics - Virtual Ethernet Interfaces - Intersight Uri: vnic/EthIfs",
                 "required": [
+                    "ethernet_adapter_policy",
+                    "ethernet_network_control_policy",
+                    "ethernet_qos_policy",
                     "names",
                     "placement"
                 ],
@@ -10450,7 +10718,7 @@
                     },
                     "cdn_values": {
                         "type": "array",
-                        "description": "A List of The CDN value(s) entered in case of user defined mode for each vNIC.",
+                        "description": "Only used when cdn_source is `user` (aka user defined).  A List of one or two CDN value(s), one for each vNIC.",
                         "intersight_uri": "$ref:Cdn:vnic.Cdn:Value",
                         "items": {
                             "type": "string",
@@ -10459,7 +10727,7 @@
                             "intersight_api": "$ref:vnic.Cdn:Value",
                             "minLength": 1,
                             "maxLength": 31,
-                            "pattern": "^[a-zA-Z0-9\\-\\._:]*$",
+                            "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
                             "title": "cdn_value"
                         },
                         "ObjectType": "$ref:vnic.Cdn:Value",
@@ -10531,7 +10799,7 @@
                     },
                     "iscsi_boot_policies": {
                         "type": "array",
-                        "description": "A List of iSCSI Boot Policies to Assign to the ",
+                        "description": "A List of iSCSI Boot Policies to Assign to the vNIC.",
                         "intersight_uri": "vnic/IscsiBootPolicies",
                         "items": {
                             "type": "string",
@@ -10545,17 +10813,6 @@
                         },
                         "ObjectType": "vnic.IscsiBootPolicy",
                         "title": "iscsi_boot_policies - Iscsi Boot Policies - Intersight Uri: vnic/IscsiBootPolicies"
-                    },
-                    "mac_address_allocation_type": {
-                        "type": "string",
-                        "default": "POOL",
-                        "description": "Default is `POOL`.  Type of allocation selected to assign a MAC address for the vnic.\n  * `POOL` - The user selects a pool from which the mac/wwn address will be leased for the Virtual Interface.\n  * `STATIC` - The user assigns a static mac/wwn address for the Virtual Interface.",
-                        "intersight_api": "MacAddressType",
-                        "enum": [
-                            "POOL",
-                            "STATIC"
-                        ],
-                        "title": "mac_address_allocation_type"
                     },
                     "mac_address_pools": {
                         "type": "array",
@@ -10592,7 +10849,7 @@
                     },
                     "names": {
                         "type": "array",
-                        "description": "List of two vNIC Names to Create.",
+                        "description": "List of vNIC Names to Create.  This list can be one, for a single vNIC, or two for a set of two vNICs.",
                         "intersight_api": "Name",
                         "items": {
                             "type": "string",
@@ -10610,18 +10867,21 @@
                     "placement": {
                         "$ref": "#/components/schemas/lan_connectivity.vnics.placement"
                     },
-                    "usnic_settings": {
-                        "$ref": "#/components/schemas/lan_connectivity.vnics.usnic_settings"
+                    "sr_iov": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.sr_iov"
                     },
-                    "vmq_settings": {
-                        "$ref": "#/components/schemas/lan_connectivity.vnics.vmq_settings"
+                    "usnic": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.usnic"
+                    },
+                    "vmq": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.vmq"
                     }
                 }
             },
             "lan_connectivity.vnics.placement": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Placement Settings for the virtual interface.\nRequired Attributes:\n  * pci_order\n\nOptional Attributes:\n  * pci_links\n  * slot_ids\n  * switch_ids\n  * uplink_ports",
+                "description": "Placement Settings for the virtual interface.\n\nRequired Attributes:\n  * pci_order\n\nOptional Attributes:\n  * automatic_pci_link_assignment\n  * automatic_slot_id_assignment\n  * pci_links\n  * slot_ids\n  * switch_ids\n  * uplink_ports",
                 "intersight_api": "Placement",
                 "ObjectType": "vnic.PlacementSettings",
                 "required": [
@@ -10629,6 +10889,20 @@
                 ],
                 "title": "placement - Placement Settings - object_type: vnic.PlacementSettings",
                 "properties": {
+                    "automatic_pci_link_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `pci_links` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
+                    "automatic_slot_id_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `slot_ids` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
                     "pci_links": {
                         "type": "array",
                         "description": "Default is `0`.  The PCI Link used as transport for the virtual interface. All VIC adapters have a single PCI link except VIC 1385 which has two.",
@@ -10680,12 +10954,12 @@
                     },
                     "switch_ids": {
                         "type": "array",
-                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
                         "intersight_api": "SwitchId",
                         "items": {
                             "type": "string",
                             "default": "None",
-                            "description": "The fabric port to which the vNICs will be associated.\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                            "description": "The fabric port to which the vNICs will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
                             "intersight_api": "SwitchId",
                             "enum": [
                                 "A",
@@ -10715,28 +10989,87 @@
                     }
                 }
             },
-            "lan_connectivity.vnics.usnic_settings": {
+            "lan_connectivity.vnics.sr_iov": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "User Space NIC Settings that enable low-latency and higher throughput by bypassing the kernel layer when sending/receiving packets.\nOptional Attributes:\n  * class_of_service\n  * number_of_usnics\n  * usnic_adapter_policy",
-                "intersight_api": "UsnicSettings",
-                "ObjectType": "vnic.UsnicSettings",
-                "required": [],
-                "title": "usnic_settings - User Space NIC Settings - object_type: vnic.UsnicSettings",
+                "description": "Single Root Input Output Virtualization Settings that enable one physical ethernet socket to appear as multiple NICs to the hypervisor.\n\nNote: If this is a vnic_from_template and Connection Settings (SR-IOV|usNIC|VMQ) have been configured in the template, you cannot configure with the vnic_from_template as well.\n\nRequired Attributes:\n  * enabled\n\nOptional Attributes:\n  * completion_queue_count_per_vf\n  * interrupt_count_per_vf\n  * number_of_vfs\n  * receive_queue_count_per_vf\n  * transmit_queue_count_per_vf",
+                "intersight_api": "SrIovSettings",
+                "ObjectType": "vnic.SrIovSettings",
+                "required": [
+                    "enabled"
+                ],
+                "title": "sr_iov - SR-IOV Settings - object_type: vnic.SrIovSettings",
                 "properties": {
-                    "class_of_service": {
+                    "completion_queue_count_per_vf": {
                         "type": "integer",
                         "default": 5,
-                        "description": "Default is `5`.  Class of Service to be used for traffic on the usNIC.",
-                        "intersight_api": "Cos",
+                        "description": "Default is `5`.  Completion Queue resources per Virtual Function (VF).",
+                        "intersight_api": "IntCountPerVf",
                         "minimum": 1,
-                        "maximum": 6,
-                        "title": "class_of_service"
+                        "maximum": 16,
+                        "title": "interrupt_count_per_vf"
                     },
-                    "number_of_usnics": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Default is `false`.  If enabled, sets Single Root Input Output Virtualization (SR-IOV) on this vNIC.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
+                    "interrupt_count_per_vf": {
+                        "type": "integer",
+                        "default": 8,
+                        "description": "Default is `16`.  Interrupt Count resources per Virtual Function (VF).",
+                        "intersight_api": "IntCountPerVf",
+                        "minimum": 1,
+                        "maximum": 16,
+                        "title": "interrupt_count_per_vf"
+                    },
+                    "number_of_vfs": {
+                        "type": "integer",
+                        "default": 64,
+                        "description": "Default is `64`.  Number of Virtual Functions (VF) to be created for this vNIC. Valid values are 1 to 64 when SR-IOV is enabled.",
+                        "intersight_api": "VfCount",
+                        "minimum": 1,
+                        "maximum": 64,
+                        "title": "number_of_vfs"
+                    },
+                    "receive_queue_count_per_vf": {
+                        "type": "integer",
+                        "default": 4,
+                        "description": "Default is `4`.  Receive Queue resources per Virtual Function (VF).",
+                        "intersight_api": "RxCountPerVf",
+                        "minimum": 1,
+                        "maximum": 8,
+                        "title": "receive_queue_count_per_vf"
+                    },
+                    "transmit_queue_count_per_vf": {
                         "type": "integer",
                         "default": 1,
-                        "description": "Default is `1`.  Number of usNIC interfaces to be created. Valid values are 1 to 255 when the usNIC is enabled. When the usNIC is disabled, the default value is 0.",
+                        "description": "Default is `1`.  Transmit Queue resources per Virtual Function (VF).",
+                        "intersight_api": "TxCountPerVf",
+                        "minimum": 1,
+                        "maximum": 8,
+                        "title": "transmit_queue_count_per_vf"
+                    }
+                }
+            },
+            "lan_connectivity.vnics.usnic": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "User Space NIC Settings that enable low-latency and higher throughput by bypassing the kernel layer when sending/receiving packets.\n\nOptional Attributes:\n  * class_of_service\n  * number_of_usnics\n  * usnic_adapter_policy",
+                "intersight_api": "UsnicSettings",
+                "ObjectType": "vnic.UsnicSettings",
+                "required": [
+                    "number_of_usnics",
+                    "usnic_adapter_policy"
+                ],
+                "title": "usnic_settings - User Space NIC Settings - object_type: vnic.UsnicSettings",
+                "properties": {
+                    "number_of_usnics": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Default is `0`.  Number of usNIC interfaces to be created. Valid values are 1 to 255 when the usNIC is enabled. When the usNIC is disabled, the default value is `0`.",
                         "intersight_api": "Count",
                         "minimum": 1,
                         "maximum": 225,
@@ -10745,7 +11078,7 @@
                     "usnic_adapter_policy": {
                         "type": "string",
                         "default": "default",
-                        "description": "Ethernet Adapter policy to be associated with the User Space vNICs. The Transmit Queue and Receive Queue resource value of VMMQ adapter policy should be greater than or equal to the configured number of sub vNICs.",
+                        "description": "Ethernet Adapter policy to be associated with the User Space vNICs.",
                         "intersight_api": "$ref:UsnicAdapterPolicy:fabric.EthAdapterPolicy:Moid",
                         "minLength": 1,
                         "maxLength": 129,
@@ -10754,10 +11087,10 @@
                     }
                 }
             },
-            "lan_connectivity.vnics.vmq_settings": {
+            "lan_connectivity.vnics.vmq": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Virtual Machine Queue Settings for the virtual interface that allow efficient transfer of network traffic to the guest OS.\nOptional Attributes:\n  * enable_virtual_machine_multi_queue\n  * enabled\n  * number_of_interrupts\n  * number_of_sub_vnics\n  * number_of_virtual_machine_queues\n  * vmmq_adapter_policy",
+                "description": "Virtual Machine Queue Settings for the virtual interface that allow efficient transfer of network traffic to the guest OS.\n\nOptional Attributes:\n  * enable_virtual_machine_multi_queue\n  * enabled\n  * number_of_interrupts\n  * number_of_sub_vnics\n  * number_of_virtual_machine_queues\n  * vmmq_adapter_policy",
                 "intersight_api": "VmqSettings",
                 "ObjectType": "vnic.VmqSettings",
                 "required": [],
@@ -10813,6 +11146,179 @@
                         "maxLength": 129,
                         "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "vmmq_adapter_policy"
+                    }
+                }
+            },
+            "lan_connectivity.vnics_from_template": {
+                "type": "object",
+                "description": "Virtual Ethernet Interface with a Source Template.",
+                "intersight_api": "vnics_from_template",
+                "intersight_type": "policy",
+                "intersight_uri": "vnic/EthIfs",
+                "ObjectType": "vnic.EthIf",
+                "title": "vnics_from_template - Virtual Ethernet Interfaces with a vNIC Template - Intersight Uri: vnic/EthIfs",
+                "required": [
+                    "name",
+                    "placement",
+                    "vnic_template"
+                ],
+                "properties": {
+                    "cdn_value": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Only use if the vNIC template is configured as user defined consistency device naming",
+                        "intersight_api": "$ref:vnic.Cdn:Value",
+                        "minLength": 1,
+                        "maxLength": 31,
+                        "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
+                        "title": "cdn_value"
+                    },
+                    "ethernet_adapter_policy": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "The Name of the Ethernet Adapter Policy to Assign to the vNIC.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:EthAdapterPolicy:vnic.EthAdapterPolicy:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "ethernet_adapter_policy"
+                    },
+                    "iscsi_boot_policy": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "The Name of the iSCSI Boot Policy to Assign to the vNIC.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:IscsiBootPolicy:vnic.IscsiBootPolicy:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "iscsi_boot_policy"
+                    },
+                    "mac_address_pool": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the MAC Pool.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:MacPool:macpool.Pool:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "mac_address_pool"
+                    },
+                    "mac_address_static": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "The MAC address must be in hexadecimal format xx:xx:xx:xx:xx:xx.\nTo ensure uniqueness of MACs in the LAN fabric, you are strongly encouraged to use the\nfollowing MAC prefix 00:25:B5:xx:xx:xx.",
+                        "intersight_api": "StaticMacAddress",
+                        "minLength": 17,
+                        "maxLength": 17,
+                        "pattern": "^$|^([\\da-fA-F]{2}:){5}[\\da-fA-F]{2}$",
+                        "title": "mac_address_static"
+                    },
+                    "name": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the vNIC.",
+                        "intersight_api": "Name",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "vnic_name"
+                    },
+                    "placement": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics_from_template.placement"
+                    },
+                    "sr_iov": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.sr_iov"
+                    },
+                    "usnic": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.usnic"
+                    },
+                    "vmq": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.vmq"
+                    },
+                    "vnic_template": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the vNIC Template to use to create this vNIC.",
+                        "intersight_api": "$ref:SrcTemplate:vnic.VnicTemplate:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "vnic_template"
+                    }
+                }
+            },
+            "lan_connectivity.vnics_from_template.placement": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Placement Settings for the vnic created from a Template.\n\nRequired Attributes:\n  * pci_order\n\nOptional Attributes:\n  * automatic_pci_link_assignment\n  * automatic_slot_id_assignment\n  * pci_links\n  * slot_ids\n  * switch_ids\n  * uplink_ports",
+                "intersight_api": "Placement",
+                "ObjectType": "vnic.PlacementSettings",
+                "required": [
+                    "pci_order"
+                ],
+                "title": "placement - Placement Settings - object_type: vnic.PlacementSettings",
+                "properties": {
+                    "automatic_pci_link_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `pci_link` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
+                    "automatic_slot_id_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `slot_id` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
+                    "pci_link": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "intersight_api": "PciLink",
+                        "minimum": 0,
+                        "maximum": 3,
+                        "title": "pci_link"
+                    },
+                    "pci_order": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                        "intersight_api": "Order",
+                        "minimum": 0,
+                        "maximum": 20,
+                        "title": "pci_order"
+                    },
+                    "slot_id": {
+                        "type": "string",
+                        "default": "None",
+                        "description": "PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
+                        "intersight_api": "Id",
+                        "minLength": 1,
+                        "maxLength": 4,
+                        "pattern": "^([1-9]|1[0-5]|MLOM)$",
+                        "title": "slot_id"
+                    },
+                    "switch_id": {
+                        "type": "string",
+                        "default": "None",
+                        "description": "The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "intersight_api": "SwitchId",
+                        "enum": [
+                            "A",
+                            "B"
+                        ],
+                        "title": "switch_id"
+                    },
+                    "uplink_port": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "intersight_api": "Uplink",
+                        "minimum": 0,
+                        "maximum": 3,
+                        "title": "pci_link"
                     }
                 }
             },
@@ -10874,7 +11380,7 @@
                             },
                             "ldap_groups": {
                                 "type": "array",
-                                "description": "A List of LDAP Group resources.\nRequired Attributes:\n  * group\n  * role",
+                                "description": "A List of LDAP Group resources.\n\nRequired Attributes:\n  * group\n  * role",
                                 "intersight_uri": "iam/LdapGroups",
                                 "items": {
                                     "$ref": "#/components/schemas/ldap.ldap_groups"
@@ -10884,7 +11390,7 @@
                             },
                             "ldap_servers": {
                                 "type": "array",
-                                "description": "A List of LDAP Provider Servers.\nRequired Attributes:\n  * server\n\nOptional Attributes:\n  * port",
+                                "description": "A List of LDAP Provider Servers.\n\nRequired Attributes:\n  * server\n\nOptional Attributes:\n  * port",
                                 "intersight_uri": "iam/LdapProviders",
                                 "items": {
                                     "$ref": "#/components/schemas/ldap.ldap_servers"
@@ -10964,7 +11470,7 @@
             "ldap.binding_parameters": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Base settings of LDAP required while configuring LDAP policy.\nRequired Attributes:\n  * bind_method\n\nOptional Attributes:\n  * bind_dn",
+                "description": "Base settings of LDAP required while configuring LDAP policy.\n\nRequired Attributes:\n  * bind_method\n\nOptional Attributes:\n  * bind_dn",
                 "intersight_api": "BaseProperties",
                 "ObjectType": "iam.LdapBaseProperties",
                 "required": [
@@ -11008,7 +11514,7 @@
             "ldap.ldap_from_dns": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "DNS settings used to access LDAP Providers.\nRequired Attributes:\n  * search_domain\n\nOptional Attributes:\n  * search_forest\n  * source",
+                "description": "DNS settings used to access LDAP Providers.\n\nRequired Attributes:\n  * search_domain\n\nOptional Attributes:\n  * search_forest\n  * source",
                 "intersight_api": "vnics",
                 "ObjectType": "iam.LdapDnsParameters",
                 "required": [
@@ -11276,7 +11782,7 @@
                             },
                             "users": {
                                 "type": "array",
-                                "description": "List of users to add to the local user policy.\nRequired Attributes:\n  * username\n  * password\n\nOptional Attributes:\n  * enabled\n  * role",
+                                "description": "List of users to add to the local user policy.\n\nRequired Attributes:\n  * username\n  * password\n\nOptional Attributes:\n  * enabled\n  * role",
                                 "intersight_uri": "iam/EndPointUsers",
                                 "items": {
                                     "$ref": "#/components/schemas/local_user.users"
@@ -11586,615 +12092,6 @@
                         }
                     }
                 ]
-            },
-            "name.prefix_suffix": {
-                "type": "object",
-                "additionalProperties": false,
-                "description": "A List of (Pre|Suf)fixes to add to the Policy Names.\n Options are:\n  * default\n  * chassis\n  * domain\n  * server\n  * template",
-                "ObjectType": "not_applicable",
-                "title": "name.PrefixSuffix",
-                "properties": {
-                    "adapter_configuration": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "adapter_configuration"
-                    },
-                    "bios": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "bios"
-                    },
-                    "boot_order": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "boot_order"
-                    },
-                    "certificate_management": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "certificate_management"
-                    },
-                    "chassis": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Chassis Profile Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "chassis"
-                    },
-                    "default": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Name of all policies.  An individual policy prefix/suffix will override this.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "default"
-                    },
-                    "device_connector": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "device_connector"
-                    },
-                    "domain": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Domain Profile Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "domain"
-                    },
-                    "drive_security": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "drive_security"
-                    },
-                    "ethernet_adapter": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ethernet_adapter"
-                    },
-                    "ethernet_network": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ethernet_network"
-                    },
-                    "ethernet_network_control": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ethernet_network_control"
-                    },
-                    "ethernet_network_group": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ethernet_network_group"
-                    },
-                    "ethernet_qos": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ethernet_qos"
-                    },
-                    "fc_zone": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "fc_zone"
-                    },
-                    "fibre_channel_adapter": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "fibre_channel_adapter"
-                    },
-                    "fibre_channel_network": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "fibre_channel_network"
-                    },
-                    "fibre_channel_qos": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "fibre_channel_qos"
-                    },
-                    "firmware": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "firmware"
-                    },
-                    "flow_control": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Default is `platform-default`.  BIOS Token for setting Flow Control configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  none - Value - none for configuring FlowControl token.\n   *  rts-cts - Value - rts-cts for configuring FlowControl token.",
-                        "intersight_api": "FlowControl",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "flow_control"
-                    },
-                    "imc_access": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "imc_access"
-                    },
-                    "ip": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to IP Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ip"
-                    },
-                    "ipmi_over_lan": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ipmi_over_lan"
-                    },
-                    "iqn": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to IQN Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "iqn"
-                    },
-                    "iscsi_adapter": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "iscsi_adapter"
-                    },
-                    "iscsi_boot": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "iscsi_boot"
-                    },
-                    "iscsi_static_target": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "iscsi_static_target"
-                    },
-                    "lan_connectivity": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "lan_connectivity"
-                    },
-                    "ldap": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ldap"
-                    },
-                    "link_aggregation": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "link_aggregation"
-                    },
-                    "link_control": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "link_control"
-                    },
-                    "local_user": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "local_user"
-                    },
-                    "mac": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to MAC Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9_\\. :-]+$",
-                        "title": "mac"
-                    },
-                    "multicast": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "multicast"
-                    },
-                    "network_connectivity": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "network_connectivity"
-                    },
-                    "ntp": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ntp"
-                    },
-                    "persistent_memory": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "persistent_memory"
-                    },
-                    "port": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Default is Required Attribute.  The port associated with the iSCSI target.",
-                        "intersight_api": "Port",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "port"
-                    },
-                    "power": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "power"
-                    },
-                    "resource": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to Resource Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9_\\. :-]+$",
-                        "title": "resource"
-                    },
-                    "san_connectivity": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "san_connectivity"
-                    },
-                    "sd_card": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "sd_card"
-                    },
-                    "serial_over_lan": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "serial_over_lan"
-                    },
-                    "server": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Server Profile Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "server"
-                    },
-                    "smtp": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "smtp"
-                    },
-                    "snmp": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "snmp"
-                    },
-                    "ssh": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "ssh"
-                    },
-                    "storage": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "storage"
-                    },
-                    "switch_control": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "switch_control"
-                    },
-                    "syslog": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "syslog"
-                    },
-                    "system_qos": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "system_qos"
-                    },
-                    "template": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Server Template Profile Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "template"
-                    },
-                    "thermal": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "thermal"
-                    },
-                    "uuid": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to UUID Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9_\\. :-]+$",
-                        "title": "uuid"
-                    },
-                    "virtual_kvm": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "virtual_kvm"
-                    },
-                    "virtual_media": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "virtual_media"
-                    },
-                    "vlan": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "vlan"
-                    },
-                    "vsan": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Value to add to the Policy Names.",
-                        "intersight_api": "not_applicable",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "vsan"
-                    },
-                    "wwnn": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Prefix / Suffix to add to WWNN Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "wwnn"
-                    },
-                    "wwpn": {
-                        "type": "string",
-                        "default": "",
-                        "description": "A Prefix / Suffix to add to WWPN Pool Names.",
-                        "intersight_api": "",
-                        "minLength": 0,
-                        "maxLength": 12,
-                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,11}$",
-                        "title": "wwpn"
-                    }
-                }
             },
             "network_connectivity": {
                 "description": "Enable or disable Dynamic DNS, add or update DNS settings for IPv4 and IPv6 on Cisco IMC.",
@@ -13123,7 +13020,7 @@
             "persistent_memory.goal": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "A Persistent Memory Goal that needs to be applied on the associated servers through the policy. This would result in the creation of regions and allocation of volatile memory on the server.\nRequired Attributes:\n  * memory_mode_percentage\n  * persistent_memory_type",
+                "description": "A Persistent Memory Goal that needs to be applied on the associated servers through the policy. This would result in the creation of regions and allocation of volatile memory on the server.\n\nRequired Attributes:\n  * memory_mode_percentage\n  * persistent_memory_type",
                 "ObjectType": "memory.PersistentMemoryGoal",
                 "required": [
                     "memory_mode_percentage",
@@ -13221,6 +13118,614 @@
                     }
                 }
             },
+            "policy.name.prefix_suffix": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n  * adapter_configuration\n  * bios\n  * boot_order\n  * certificate_management\n  * default\n  * device_connector\n  * drive_security\n  * ethernet_adapter\n  * ethernet_network\n  * ethernet_network_control\n  * ethernet_network_group\n  * ethernet_qos\n  * fc_zone\n  * fibre_channel_adapter\n  * fibre_channel_network\n  * fibre_channel_qos\n  * firmware\n  * flow_control\n  * imc_access\n  * ipmi_over_lan\n  * iscsi_adapter\n  * iscsi_boot\n  * iscsi_static_target\n  * lan_connectivity\n  * ldap\n  * link_aggregation\n  * link_control\n  * local_user\n  * multicast\n  * network_connectivity\n  * ntp\n  * persistent_memory\n  * port\n  * power\n  * san_connectivity\n  * sd_card\n  * serial_over_lan\n  * smtp\n  * snmp\n  * ssh\n  * storage\n  * switch_control\n  * syslog\n  * system_qos\n  * thermal\n  * vhba_template\n  * virtual_kvm\n  * virtual_media\n  * vlan\n  * vnic_template\n  * vsan",
+                "ObjectType": "not_applicable",
+                "title": "Policy Name Prefix/Suffix",
+                "properties": {
+                    "adapter_configuration": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Adapter Configuration policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "adapter_configuration"
+                    },
+                    "bios": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the BIOS policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "bios"
+                    },
+                    "boot_order": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Boot Order policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "boot_order"
+                    },
+                    "certificate_management": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Certificate Management policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "certificate_management"
+                    },
+                    "default": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A default prefix/suffix value to add to the all the policy names.  An individual policy prefix/suffix will override this.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "default"
+                    },
+                    "device_connector": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Device Connector policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "device_connector"
+                    },
+                    "drive_security": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Drive Security policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "drive_security"
+                    },
+                    "ethernet_adapter": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Ethernet Adapter policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ethernet_adapter"
+                    },
+                    "ethernet_network": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Ethernet Network policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ethernet_network"
+                    },
+                    "ethernet_network_control": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Ethernet Network Control policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ethernet_network_control"
+                    },
+                    "ethernet_network_group": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Ethernet Network Group policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ethernet_network_group"
+                    },
+                    "ethernet_qos": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Ethernet QoS policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ethernet_qos"
+                    },
+                    "fc_zone": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the FC Zone policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "fc_zone"
+                    },
+                    "fibre_channel_adapter": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Fibre-Channel Adapter policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "fibre_channel_adapter"
+                    },
+                    "fibre_channel_network": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Fibre-Channel Network policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "fibre_channel_network"
+                    },
+                    "fibre_channel_qos": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Fibre-Channel QoS policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "fibre_channel_qos"
+                    },
+                    "firmware": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Firmware policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "firmware"
+                    },
+                    "flow_control": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Flow Control policy names.",
+                        "intersight_api": "FlowControl",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "flow_control"
+                    },
+                    "imc_access": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the IMC Access policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "imc_access"
+                    },
+                    "ipmi_over_lan": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the IPMI over LAN policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ipmi_over_lan"
+                    },
+                    "iscsi_adapter": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the iSCSI Adapter policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "iscsi_adapter"
+                    },
+                    "iscsi_boot": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the iSCSI Boot policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "iscsi_boot"
+                    },
+                    "iscsi_static_target": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the iSCSI Static Target policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "iscsi_static_target"
+                    },
+                    "lan_connectivity": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the LAN Connectivity policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "lan_connectivity"
+                    },
+                    "ldap": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the LDAP policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ldap"
+                    },
+                    "link_aggregation": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Link Aggregation policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "link_aggregation"
+                    },
+                    "link_control": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Link Control policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "link_control"
+                    },
+                    "local_user": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Local User policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "local_user"
+                    },
+                    "multicast": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to Multicast the policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "multicast"
+                    },
+                    "network_connectivity": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Network Connectivity policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "network_connectivity"
+                    },
+                    "ntp": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the NTP policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ntp"
+                    },
+                    "persistent_memory": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Persistent Memory policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "persistent_memory"
+                    },
+                    "port": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Port policy names.",
+                        "intersight_api": "Port",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "port"
+                    },
+                    "power": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Power policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "power"
+                    },
+                    "san_connectivity": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the SAN Connectivity policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "san_connectivity"
+                    },
+                    "sd_card": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the SD Card policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "sd_card"
+                    },
+                    "serial_over_lan": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Serial over LAN policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "serial_over_lan"
+                    },
+                    "smtp": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the SMTP policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "smtp"
+                    },
+                    "snmp": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the SNMP policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "snmp"
+                    },
+                    "ssh": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the SSH policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ssh"
+                    },
+                    "storage": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Storage policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "storage"
+                    },
+                    "switch_control": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Switch Control policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "switch_control"
+                    },
+                    "syslog": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Syslog policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "syslog"
+                    },
+                    "system_qos": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the System QoS policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "system_qos"
+                    },
+                    "thermal": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Thermal policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "thermal"
+                    },
+                    "vhba_template": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the vHBA Template name.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "virtual_kvm"
+                    },
+                    "virtual_kvm": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Virtual KVM policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "virtual_kvm"
+                    },
+                    "virtual_media": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Virtual Media policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "virtual_media"
+                    },
+                    "vlan": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the VLAN policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "vlan"
+                    },
+                    "vnic_template": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the vNIC Template name.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "virtual_kvm"
+                    },
+                    "vsan": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the VSAN policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "vsan"
+                    }
+                }
+            },
+            "pool.name.prefix_suffix": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "A list of prefixes/suffixes to add to the pool names.  If `default` is defined that will be assigned to any pools that don't have a more specific prefix/suffix defined.\n Options are:\n  * default\n  * ip\n  * iqn\n  * mac\n  * resource\n  * uuid\n  * wwnn\n  * wwpn",
+                "ObjectType": "not_applicable",
+                "title": "Pool Name Prefix/Suffix",
+                "properties": {
+                    "default": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A default prefix/suffix value to add to the all the pool names.  An individual pool prefix/suffix will override this.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "default"
+                    },
+                    "ip": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to IP pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "ip"
+                    },
+                    "iqn": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to IQN pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "iqn"
+                    },
+                    "mac": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to MAC pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "mac"
+                    },
+                    "resource": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to Resource pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "resource"
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to UUID pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "uuid"
+                    },
+                    "wwnn": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A Prefix / Suffix to add to WWNN pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "wwnn"
+                    },
+                    "wwpn": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A Prefix / Suffix to add to WWPN pool names.",
+                        "intersight_api": "",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "wwpn"
+                    }
+                }
+            },
             "port": {
                 "description": "A policy for all the physical ports of the Fabric Interconnect.",
                 "intersight_type": "policy",
@@ -13277,7 +13782,7 @@
                             },
                             "port_channel_appliances": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\nRequired Attributes:\n  * ethernet_network_control_policy\n  * ethernet_network_group_policy\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * mode\n  * priority",
+                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * ethernet_network_control_policy\n  * ethernet_network_group_policy\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * mode\n  * priority",
                                 "intersight_uri": "fabric/AppliancePcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_appliances"
@@ -13287,7 +13792,7 @@
                             },
                             "port_channel_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * ethernet_network_group_policy\n  * flow_control_policy\n  * link_aggregation_policy\n  * link_control_policy",
+                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * ethernet_network_group_policy\n  * flow_control_policy\n  * link_aggregation_policy\n  * link_control_policy",
                                 "intersight_uri": "fabric/UplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_ethernet_uplinks"
@@ -13297,7 +13802,7 @@
                             },
                             "port_channel_fc_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Fibre-Channel Port-Channels.\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * vsan_ids",
+                                "description": "Use this Map to Configure Ports for Fibre-Channel Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * vsan_ids",
                                 "intersight_uri": "fabric/FcUplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_fc_uplinks"
@@ -13307,7 +13812,7 @@
                             },
                             "port_channel_fcoe_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * link_control_policy",
+                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * link_control_policy",
                                 "intersight_uri": "fabric/FcoeUplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_fcoe_uplinks"
@@ -13317,7 +13822,7 @@
                             },
                             "port_modes": {
                                 "type": "array",
-                                "description": "List of Ports to change the default Mode (Breakout Mode|Unified Mode).\nRequired Attributes:\n  *custom_mode\n  * port_list",
+                                "description": "List of Ports to change the default Mode (Breakout Mode|Unified Mode).\n\nRequired Attributes:\n  *custom_mode\n  * port_list",
                                 "intersight_uri": "fabric/PortModes",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_modes"
@@ -13327,7 +13832,7 @@
                             },
                             "port_role_appliances": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliances.\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * ethernet_network_control_policy\n  * ethernet_network_group_policy\n  * fec\n  * mode\n  * priority\n  * slot_id",
+                                "description": "Use this Map to Configure Ports for Appliances.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * ethernet_network_control_policy\n  * ethernet_network_group_policy\n  * fec\n  * mode\n  * priority\n  * slot_id",
                                 "intersight_uri": "fabric/ApplianceRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_appliances"
@@ -13337,7 +13842,7 @@
                             },
                             "port_role_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Uplinks.\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * ethernet_network_group_policy\n  * flow_control_policy\n  * link_control_policy\n  * fec\n  * slot_id",
+                                "description": "Use this Map to Configure Ports for Ethernet Uplinks.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * ethernet_network_group_policy\n  * flow_control_policy\n  * link_control_policy\n  * fec\n  * slot_id",
                                 "intersight_uri": "fabric/UplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_ethernet_uplinks"
@@ -13347,7 +13852,7 @@
                             },
                             "port_role_fc_storage": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for FC Storage.\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * slot_id\n  * vsan_ids",
+                                "description": "Use this Map to Configure Ports for FC Storage.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * slot_id\n  * vsan_ids",
                                 "intersight_uri": "fabric/FcStorageRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_fc_storage"
@@ -13357,7 +13862,7 @@
                             },
                             "port_role_fc_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for FC Uplinks.\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * slot_id\n  * vsan_id",
+                                "description": "Use this Map to Configure Ports for FC Uplinks.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * slot_id\n  * vsan_id",
                                 "intersight_uri": "fabric/FcUplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_fc_uplinks"
@@ -13367,7 +13872,7 @@
                             },
                             "port_role_fcoe_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for FCoE Uplinks.\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * link_control_policy\n  * fec\n  * slot_id",
+                                "description": "Use this Map to Configure Ports for FCoE Uplinks.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * link_control_policy\n  * fec\n  * slot_id",
                                 "intersight_uri": "fabric/FcoeUplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_fcoe_uplinks"
@@ -13377,7 +13882,7 @@
                             },
                             "port_role_servers": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Servers.\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * auto_negotiation\n  * breakout_port_id\n  * connected_device_type\n  * device_number\n  * fec\n  * slot_id",
+                                "description": "Use this Map to Configure Ports for Servers.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * auto_negotiation\n  * breakout_port_id\n  * connected_device_type\n  * device_number\n  * fec\n  * slot_id",
                                 "intersight_uri": "fabric/ServerRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_servers"
@@ -13441,7 +13946,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "List of interfaces to assign to the Port-Channel Policy.\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
+                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -13542,7 +14047,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "List of interfaces to assign to the Port-Channel Policy.\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
+                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -13624,7 +14129,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "List of interfaces to assign to the Port-Channel Policy.\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
+                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -14480,6 +14985,55 @@
                     }
                 ]
             },
+            "profile.name.prefix_suffix": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "A list of prefixes/suffixes to add to the Profile/Template Names.  If `default` is defined that will be assigned to any profiles/templates that don't have a more specific prefix/suffix defined.\n Options are:\n  * chassis\n  * default\n  * domain\n  * server",
+                "ObjectType": "not_applicable",
+                "title": "Profile Name Prefix/Suffix",
+                "properties": {
+                    "chassis": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Chassis Profile/Template names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "chassis"
+                    },
+                    "default": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A default prefix/suffix value to add to the all the profile/template names.  An individual profile/template prefix/suffix will override this.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "default"
+                    },
+                    "domain": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Domain Profile/Template names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "domain"
+                    },
+                    "server": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the Server Profile/Template Names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "server"
+                    }
+                }
+            },
             "resource": {
                 "description": "Pool represents a collection of resource. The resource can be any MO which has PoolResource meta enabled. The resource in the pool can be reserved or unreserved by using Lease API, reserved/unreserved resources can be used in the entities like server profiles.",
                 "intersight_type": "pool",
@@ -14608,8 +15162,7 @@
                         "additionalProperties": false,
                         "description": "SAN connectivity policy determines the network storage resources and the connections between the server and the SAN on the network. This policy enables configuration of vHBAs that the servers use to communicate with the storage network.",
                         "required": [
-                            "vhbas",
-                            "wwnn_allocation_type"
+                            "vhbas"
                         ],
                         "title": "san_connectivity",
                         "properties": {
@@ -14637,24 +15190,13 @@
                             },
                             "vhbas": {
                                 "type": "array",
-                                "description": "List of vHBAs to add to the SAN Connectivity Policy.\nRequired Attributes:\n  * names\n  * fibre_channel_adapter_policy\n  * fibre_channel_network_policies\n  * fibre_channel_qos_policy\n  * placement\n\nOptional Attributes:\n  * fc_zone_policies\n  * persistent_lun_bindings\n  * vhba_type\n  * wwpn_allocation_type\n  * wwpn_pools\n  * wwpn_static_addresses",
+                                "description": "List of vHBAs to add to the SAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * fibre_channel_adapter_policy\n  * fibre_channel_network_policies\n  * fibre_channel_qos_policy\n  * placement\n\nOptional Attributes:\n  * fc_zone_policies\n  * persistent_lun_bindings\n  * vhba_type\n  * wwpn_pools\n  * wwpn_static_addresses",
                                 "intersight_uri": "vnic/FcIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/san_connectivity.vhbas"
                                 },
                                 "ObjectType": "vnic.FcIf",
                                 "title": "vhbas - Vhbas - Intersight Uri: vnic/FcIfs"
-                            },
-                            "wwnn_allocation_type": {
-                                "type": "string",
-                                "default": "POOL",
-                                "description": "Type of allocation selected to assign a WWNN address for the server node.\n  * POOL (Default) - The user selects a pool from which the mac/wwn address will be leased for the Virtual Interface.\n  * STATIC - The user assigns a static mac/wwn address for the Virtual Interface.",
-                                "intersight_api": "WwnnAddressType",
-                                "enum": [
-                                    "POOL",
-                                    "STATIC"
-                                ],
-                                "title": "wwnn_allocation_type"
                             },
                             "wwnn_pool": {
                                 "type": "string",
@@ -14688,12 +15230,12 @@
                 "intersight_uri": "vnic/FcIfs",
                 "ObjectType": "vnic.FcIf",
                 "required": [
-                            "fibre_channel_adapter_policy",
-                            "fibre_channel_network_policies",
-                            "fibre_channel_qos_policy",
-                            "names",
-                            "placement"
-                        ],
+                    "fibre_channel_adapter_policy",
+                    "fibre_channel_network_policies",
+                    "fibre_channel_qos_policy",
+                    "names",
+                    "placement"
+                ],
                 "title": "vhbas - Virtual Fibre Channel Interface - Intersight Uri: vnic/FcIfs",
                 "properties": {
                     "fc_zone_policies": {
@@ -14779,7 +15321,7 @@
                     "vhba_type": {
                         "type": "string",
                         "default": "fc-initiator",
-                        "description": "Default is `fc-initiator`.  VHBA Type configuration for SAN Connectivity Policy. This configuration is supported only on Cisco VIC 14XX series and higher series of adapters.\n  * `fc-initiator` - The default value set for vHBA Type Configuration. Fc-initiator specifies vHBA as a consumer of storage. Enables SCSI commands to transfer data and status information between host and target storage systems.\n  * `fc-nvme-initiator` - Fc-nvme-initiator specifies vHBA as a consumer of storage. Enables NVMe-based message commands to transfer data and status information between host and target storage systems.\n  * `fc-nvme-target` - Fc-nvme-target specifies vHBA as a provider of storage volumes to initiators. Enables NVMe-based message commands to transfer data and status information between host and target storage systems. Currently tech-preview, only enabled with an asynchronous driver.\n  * `fc-target` - Fc-target specifies vHBA as a provider of storage volumes to initiators. Enables SCSI commands to transfer data and status information between host and target storage systems. fc-target is enabled only with an asynchronous driver.",
+                        "description": "Default is `fc-initiator`.  vHBA Type configuration for SAN Connectivity Policy. This configuration is supported only on Cisco VIC 14XX series and higher series of adapters.\n  * `fc-initiator` - The default value set for vHBA Type Configuration. Fc-initiator specifies vHBA as a consumer of storage. Enables SCSI commands to transfer data and status information between host and target storage systems.\n  * `fc-nvme-initiator` - Fc-nvme-initiator specifies vHBA as a consumer of storage. Enables NVMe-based message commands to transfer data and status information between host and target storage systems.\n  * `fc-nvme-target` - Fc-nvme-target specifies vHBA as a provider of storage volumes to initiators. Enables NVMe-based message commands to transfer data and status information between host and target storage systems. Currently tech-preview, only enabled with an asynchronous driver.\n  * `fc-target` - Fc-target specifies vHBA as a provider of storage volumes to initiators. Enables SCSI commands to transfer data and status information between host and target storage systems. fc-target is enabled only with an asynchronous driver.",
                         "intersight_api": "Type",
                         "enum": [
                             "fc-initiator",
@@ -14788,17 +15330,6 @@
                             "fc-target"
                         ],
                         "title": "vhba_type"
-                    },
-                    "wwpn_allocation_type": {
-                        "type": "string",
-                        "default": "POOL",
-                        "description": "Default is `POOL`.  Type of allocation selected to assign a WWPN address to the vhba.\n  * `POOL` - The user selects a pool from which the mac/wwn address will be leased for the Virtual Interface.\n  * `STATIC` - The user assigns a static mac/wwn address for the Virtual Interface.",
-                        "intersight_api": "WwpnAddressType",
-                        "enum": [
-                            "POOL",
-                            "STATIC"
-                        ],
-                        "title": "wwpn_allocation_type"
                     },
                     "wwpn_pools": {
                         "type": "array",
@@ -14823,13 +15354,13 @@
                         "intersight_api": "StaticWwpnAddress",
                         "items": {
                             "type": "string",
-                            "default": "default",
+                            "default": "20:00:00:25:B5:00:00:00",
                             "description": "The WWPN address must be in hexadecimal format xx:xx:xx:xx:xx:xx:xx:xx.\nAllowed ranges are 20:00:00:00:00:00:00:00 to 20:FF:FF:FF:FF:FF:FF:FF or from 50:00:00:00:00:00:00:00 to 5F:FF:FF:FF:FF:FF:FF:FF.\nTo ensure uniqueness of WWN's in the SAN fabric, you are strongly encouraged to use the WWN prefix - 20:00:00:25:B5:xx:xx:xx.",
                             "intersight_api": "StaticWwpnAddress",
                             "minLength": 23,
                             "maxLength": 23,
                             "pattern": "((^20|5[0-9a-fA-F]{1}):([0-9a-fA-F]{2}:){6}([0-9a-fA-F]{2})$)",
-                            "title": "wwpn_address"
+                            "title": "wwpn_static_address"
                         },
                         "title": "wwpn_static_addresses - Wwpn Static Addresses"
                     }
@@ -14838,7 +15369,7 @@
             "san_connectivity.vhbas.placement": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Placement Settings for the virtual interface.\nRequired Attributes:\n  * pci_order\n\nOptional Attributes:\n  * pci_links\n  * slot_ids\n  * switch_ids\n  * uplink_ports",
+                "description": "Placement Settings for the virtual interface.\n\nRequired Attributes:\n  * pci_order\n\nOptional Attributes:\n  * pci_links\n  * slot_ids\n  * switch_ids\n  * uplink_ports",
                 "intersight_api": "Placement",
                 "ObjectType": "vnic.PlacementSettings",
                 "required": [
@@ -14929,6 +15460,176 @@
                         },
                         "ObjectType": "Uplink",
                         "title": "uplink_ports - Uplink Port - object_type: vnic.PlacementSettings"
+                    }
+                }
+            },
+            "san_connectivity.vhbas_from_template": {
+                "type": "object",
+                "description": "Virtual Fibre Channel Interface with a Source Template.",
+                "intersight_api": "vhbas_from_template",
+                "intersight_type": "policy",
+                "intersight_uri": "vnic/FcIfs",
+                "ObjectType": "vnic.FcIf",
+                "title": "vhbas_from_template - Virtual Ethernet Interfaces with a vHBA Template - Intersight Uri: vnic/FcIfs",
+                "required": [
+                    "name",
+                    "placement",
+                    "vhba_template"
+                ],
+                "properties": {
+                    "fc_zone_policies": {
+                        "type": "array",
+                        "description": "List of FC Zone Policy Names to attach to the vHBA.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:FcZonePolicies:fabric.FcZonePolicy:Moid",
+                        "items": {
+                            "type": "string",
+                            "default": "default",
+                            "description": "The Name of the FC Zone Policy to Assign to the vHBA.",
+                            "intersight_api": "$ref:FcZonePolicies:fabric.FcZonePolicy:Moid",
+                            "minLength": 1,
+                            "maxLength": 129,
+                            "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                            "title": "fc_zone_policy"
+                        },
+                    "title": "fc_zone_policies - Fc Zone Policies - Intersight Uri: fabric/FcZonePoliy"
+                    },
+                    "fibre_channel_adapter_policy": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "The Name of the Fibre Channel Adapter Policy to Assign to the vHBA.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:FcAdapterPolicy:vnic.FcAdapterPolicy:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "fibre_channel_adapter_policy"
+                    },
+                    "fibre_channel_network_policy": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "The Name of the Fibre Channel Network Policy to Assign to the vHBA.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:FcNetworkPolicy:vnic.FcNetworkPolicy:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "fibre_channel_network_policy"
+                    },
+                    "name": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the vNIC.",
+                        "intersight_api": "Name",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "vnic_name"
+                    },
+                    "placement": {
+                        "$ref": "#/definitions/vnic.FromTemplatePlacementSettings"
+                    },
+                    "vhba_template": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the vHBA Template to use to create this vHBA.",
+                        "intersight_api": "$ref:SrcTemplate:vnic.VhbaTemplate:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "vhba_template"
+                    },
+                    "wwpn_pool": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the WWPN Pool.  Only define if the `Allow Override` flag is checked with the template.",
+                        "intersight_api": "$ref:WwpnPool:fcpool.Pool:Moid",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "wwpn_pool"
+                    },
+                    "wwpn_static_address": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The WWPN address must be in hexadecimal format xx:xx:xx:xx:xx:xx:xx:xx.\nAllowed ranges are 20:00:00:00:00:00:00:00 to 20:FF:FF:FF:FF:FF:FF:FF or from 50:00:00:00:00:00:00:00 to 5F:FF:FF:FF:FF:FF:FF:FF.\nTo ensure uniqueness of WWN's in the SAN fabric, you are strongly encouraged to use the WWN prefix - 20:00:00:25:B5:xx:xx:xx.",
+                        "intersight_api": "StaticWwpnAddress",
+                        "minLength": 23,
+                        "maxLength": 23,
+                        "pattern": "((^20|5[0-9a-fA-F]{1}):([0-9a-fA-F]{2}:){6}([0-9a-fA-F]{2})$)",
+                        "title": "wwpn_static_address"
+                    }
+                }
+            },
+            "san_connectivity.vhbas_from_template.placement": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Placement Settings for the vHBA created from a Template.\n\nRequired Attributes:\n  * pci_order\n\nOptional Attributes:\n  * automatic_pci_link_assignment\n  * automatic_slot_id_assignment\n  * pci_links\n  * slot_ids\n  * switch_ids\n  * uplink_ports",
+                "intersight_api": "Placement",
+                "ObjectType": "vnic.PlacementSettings",
+                "required": [
+                    "pci_order"
+                ],
+                "title": "placement - Placement Settings - object_type: vnic.PlacementSettings",
+                "properties": {
+                    "automatic_pci_link_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `pci_link` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
+                    "automatic_slot_id_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `slot_id` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
+                        "intersight_api": "Enabled",
+                        "title": "enabled"
+                    },
+                    "pci_link": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "intersight_api": "PciLink",
+                        "minimum": 0,
+                        "maximum": 3,
+                        "title": "pci_link"
+                    },
+                    "pci_order": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                        "intersight_api": "Order",
+                        "minimum": 0,
+                        "maximum": 20,
+                        "title": "pci_order"
+                    },
+                    "slot_id": {
+                        "type": "string",
+                        "default": "None",
+                        "description": "PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
+                        "intersight_api": "Id",
+                        "minLength": 1,
+                        "maxLength": 4,
+                        "pattern": "^([1-9]|1[0-5]|MLOM)$",
+                        "title": "slot_id"
+                    },
+                    "switch_id": {
+                        "type": "string",
+                        "default": "None",
+                        "description": "The fabric port to which the vHBAs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "intersight_api": "SwitchId",
+                        "enum": [
+                            "A",
+                            "B"
+                        ],
+                        "title": "switch_id"
+                    },
+                    "uplink_port": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "intersight_api": "Uplink",
+                        "minimum": 0,
+                        "maximum": 3,
+                        "title": "pci_link"
                     }
                 }
             },
@@ -15227,7 +15928,7 @@
                             "attach_template": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Flag to determine if these Server Profiles should be associated to the template after creating the server profile.  This is most helpful when creating server profiles with identity reservations to create them in this manner.",
+                                "description": "Flag to determine if these Server Profiles should be associated to the template after creating the server profile.",
                                 "intersight_api": "not_applicable",
                                 "title": "attach_template"
                             },
@@ -15501,7 +16202,7 @@
                             },
                             "targets": {
                                 "type": "array",
-                                "description": "A List of Servers to Assign these policies/settings to.\nRequired Attributes:\n  * name\n  * serial_number or pre_assign\n\nOptional Attributes:\n  * description\n  * static_uuid_address",
+                                "description": "A List of Servers to Assign these policies/settings to.\n\nRequired Attributes:\n  * name\n  * serial_number or pre_assign\n\nOptional Attributes:\n  * description\n  * static_uuid_address",
                                 "items": {
                                     "$ref": "#/components/schemas/server.targets"
                                 },
@@ -15520,12 +16221,22 @@
                             "ucs_server_template": {
                                 "type": "string",
                                 "default": "default",
-                                "description": "The Name of the Server Profile Template to Create the Profile(s) from.",
+                                "description": "The Name of the Server Profile Template to use to Create the Profile(s).  Please use ucs_server_profile_template.  This will be depricated in the future.",
                                 "intersight_api": "ucs_server_template",
                                 "minLength": 1,
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "ucs_server_template"
+                            },
+                            "ucs_server_profile_template": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Server Profile Template to use to Create the Profile(s).",
+                                "intersight_api": "ucs_server_profile_template",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ucs_server_profile_template"
                             },
                             "uuid_pool": {
                                 "type": "string",
@@ -15562,7 +16273,7 @@
                 ]
             },
             "server.reservations": {
-                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\nRequired Attributes:\n  * identity\n  * identity_type\n  * interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * ip_type - For IP Reservations\n  * management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * pool_name",
+                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * identity\n  * identity_type\n  * interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * ip_type - For IP Reservations\n  * management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * pool_name",
                 "ObjectType": "not_applicable",
                 "title": "reservations",
                 "x-allOf-name": "server.Reservations",
@@ -15658,7 +16369,7 @@
                             },
                             "reservations": {
                                 "type": "array",
-                                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\nRequired Attributes:\n  * identity\n  * identity_type\n  * interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * ip_type - For IP Reservations\n  * management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * pool_name",
+                                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * identity\n  * identity_type\n  * interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * ip_type - For IP Reservations\n  * management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * pool_name",
                                 "items": {
                                     "$ref": "#/components/schemas/server.reservations"
                                 },
@@ -15725,7 +16436,7 @@
                 "intersight_type": "profile",
                 "intersight_uri": "server/ProfileTemplates",
                 "ObjectType": "server.ProfileTemplate",
-                "title": "server - Templates > Server - Intersight Uri: server/ProfileTemplates",
+                "title": "server_template - Templates > UCS Server Profile Templates - Intersight Uri: server/ProfileTemplates",
                 "x-allOf-name": "server.ProfileTemplate",
                 "allOf": [
                     {
@@ -15738,7 +16449,7 @@
                             "create_template",
                             "target_platform"
                         ],
-                        "title": "server",
+                        "title": "server_profile_template",
                         "properties": {
                             "adapter_configuration_policy": {
                                 "type": "string",
@@ -16211,7 +16922,7 @@
                             },
                             "snmp_trap_destinations": {
                                 "type": "array",
-                                "description": "List of SNMP Trap Destinations to Assign to the Policy.\nRequired Attributes:\n  * destination_address\n\nSNMPv2 Requires:\n  * community_string\n\nSNMPv3 Requires:\n  * user\n\nOptional Attributes:\n  * enable\n  * port\n  * trap_type",
+                                "description": "List of SNMP Trap Destinations to Assign to the Policy.\n\nRequired Attributes:\n  * destination_address\n\nSNMPv2 Requires:\n  * community_string\n\nSNMPv3 Requires:\n  * user\n\nOptional Attributes:\n  * enable\n  * port\n  * trap_type",
                                 "intersight_api": "ObjectType",
                                 "items": {
                                     "$ref": "#/components/schemas/snmp.snmp_trap_destinations"
@@ -16221,7 +16932,7 @@
                             },
                             "snmp_users": {
                                 "type": "array",
-                                "description": "List of SNMP Users to Assign to the SNMP Policy.\nRequired Attributes:\n  * auth_password\n  * name\n  * security_level\n\nOptional Attributes:\n  * auth_type\n  * privacy_password\n  * privacy_type",
+                                "description": "List of SNMP Users to Assign to the SNMP Policy.\n\nRequired Attributes:\n  * auth_password\n  * name\n  * security_level\n\nOptional Attributes:\n  * auth_type\n  * privacy_password\n  * privacy_type",
                                 "intersight_api": "ObjectType",
                                 "items": {
                                     "$ref": "#/components/schemas/snmp.snmp_users"
@@ -16618,7 +17329,7 @@
                     },
                     "virtual_drives": {
                         "type": "array",
-                        "description": "The list of virtual drives and the disk groups that need to be created through this policy.\nRequired Attributes:\n  * name\n\nOptional Attributes:\n  * boot_drive\n  * expand_to_available\n  * size\n  * virtual_drive_policy",
+                        "description": "The list of virtual drives and the disk groups that need to be created through this policy.\n\nRequired Attributes:\n  * name\n\nOptional Attributes:\n  * boot_drive\n  * expand_to_available\n  * size\n  * virtual_drive_policy",
                         "intersight_api": "ObjectType",
                         "items": {
                             "$ref": "#/components/schemas/storage.drive_groups.virtual_drives"
@@ -16701,7 +17412,7 @@
             "storage.drive_groups.manual_drive_group": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "This drive group is created by specifying the drive slots to be used.\nRequired Attributes:\n  * drive_array_spans\n\nOptional Attributes:\n  * dedicated_hot_spares",
+                "description": "This drive group is created by specifying the drive slots to be used.\n\nRequired Attributes:\n  * drive_array_spans\n\nOptional Attributes:\n  * dedicated_hot_spares",
                 "intersight_api": "ManualDriveGroup",
                 "ObjectType": "storage.ManualDriveGroup",
                 "required": [
@@ -16721,7 +17432,7 @@
                     },
                     "drive_array_spans": {
                         "type": "array",
-                        "description": "Enter list of Disk IDs separated by comma or hypen. Sample format is 1, 3 or 4-6, 8. Non spanned RAID levels like RAID0, RAID1, RAID5 and RAID6 expect a single group of disks whereas spanned RAID levels need multiple groups of disks with each group representing a span group. Non spanned RAID levels expect one span group and spanned RAID levels accept minimum 2 span groups and up to 8.\nRequired Attributes:\n  * slots",
+                        "description": "Enter list of Disk IDs separated by comma or hypen. Sample format is 1, 3 or 4-6, 8. Non spanned RAID levels like RAID0, RAID1, RAID5 and RAID6 expect a single group of disks whereas spanned RAID levels need multiple groups of disks with each group representing a span group. Non spanned RAID levels expect one span group and spanned RAID levels accept minimum 2 span groups and up to 8.\n\nRequired Attributes:\n  * slots",
                         "intersight_api": "SpanGroups",
                         "items": {
                             "$ref": "#/components/schemas/storage.drive_groups.manual_drive_group.drive_array_spans"
@@ -16805,7 +17516,7 @@
             "storage.m2_raid_configuration": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "This models the options for creating a virtual drive on M.2 RAID controller.\nRequired Attributes:\n  * name\n  * slot",
+                "description": "This models the options for creating a virtual drive on M.2 RAID controller.\n\nRequired Attributes:\n  * name\n  * slot",
                 "intersight_api": "M2VirtualDrive",
                 "ObjectType": "storage.M2VirtualDriveConfig",
                 "required": [
@@ -17102,7 +17813,7 @@
                             },
                             "remote_logging": {
                                 "type": "array",
-                                "description": "Set of remote logging clients on the endpoint.\nRequired Attributes:\n  * hostname\n\nOptional Attributes:\n  * enable\n  * minimum_severity\n  * port\n  * protocol",
+                                "description": "Set of remote logging clients on the endpoint.\n\nRequired Attributes:\n  * hostname\n\nOptional Attributes:\n  * enable\n  * minimum_severity\n  * port\n  * protocol",
                                 "intersight_api": "ObjectType",
                                 "ObjectType": "syslog.RemoteLoggingClient",
                                 "title": "remote_logging - Remote Logging - object_type: syslog.RemoteLoggingClient",
@@ -17117,7 +17828,7 @@
             "syslog.local_logging": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Set of local logging clients on the endpoint.\nRequired Attributes:\n  * minimum_severity",
+                "description": "Set of local logging clients on the endpoint.\n\nRequired Attributes:\n  * minimum_severity",
                 "intersight_api": "LocalClients",
                 "ObjectType": "syslog.LocalFileLoggingClient",
                 "required": [
@@ -17233,7 +17944,7 @@
                         "properties": {
                             "classes": {
                                 "type": "array",
-                                "description": "System QoS Classes to Configure for the Domain.\nRequired Attributes:\n  * priority - {Best Effort|Bronze|FC|Gold|Platinum|Silver}\n  * state\n\nOptional Attributes:\n  * cos\n  * packet_drop\n  * weight",
+                                "description": "System QoS Classes to Configure for the Domain.\n\nRequired Attributes:\n  * priority - {Best Effort|Bronze|FC|Gold|Platinum|Silver}\n  * state\n\nOptional Attributes:\n  * cos\n  * packet_drop\n  * weight",
                                 "intersight_uri": "fabric/SystemQosPolicies",
                                 "items": {
                                     "$ref": "#/components/schemas/system_qos.classes"
@@ -17463,7 +18174,7 @@
             },
             "tags": {
                 "type": "array",
-                "description": "An arbitrary key and value pair that can be used to tag REST resources and organize managed objects by\nassigning meta-data tags to any object.\nRequired Attributes:\n  * key\n  * value",
+                "description": "An arbitrary key and value pair that can be used to tag REST resources and organize managed objects by\nassigning meta-data tags to any object.\n\nRequired Attributes:\n  * key\n  * value",
                 "items": {
                     "$ref": "#/components/schemas/mo_tag"
                 },
@@ -17610,6 +18321,127 @@
                     }
                 }
             },
+            "vhba_template": {
+                "description": "Virtual Fibre Channel Interface Template.",
+                "intersight_type": "policy",
+                "intersight_uri": "vnic/VhbaTemplates",
+                "ObjectType": "vnic.VhbaTemplate",
+                "target_platforms": [
+                    "server"
+                ],
+                "title": "vhba_template - vHBA Template - Intersight Uri: vnic/VhbaTemplate",
+                "x-allOf-name": "vnic.VhbaTemplate",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_policy"
+                    },
+                    {
+                        "type": "object",
+                        "description": "",
+                        "required": [
+                            "fibre_channel_qos_policy"
+                        ],
+                        "title": "vnic_template",
+                        "properties": {
+                            "allow_override": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  When enabled, the configuration of the derived instances may override the template configuration.",
+                                "intersight_api": "EnableOverride",
+                                "title": "allow_override"
+                            },
+                            "fc_zone_policies": {
+                                "type": "array",
+                                "description": "List of FC Zone Policy Names to attach to the vHBA Template.",
+                                "intersight_api": "$ref:FcZonePolicies:fabric.FcZonePolicy:Moid",
+                                "items": {
+                                    "type": "string",
+                                    "default": "default",
+                                    "description": "The Name of the FC Zone Policy to Assign to the vHBA Template.",
+                                    "intersight_api": "$ref:FcZonePolicies:fabric.FcZonePolicy:Moid",
+                                    "minLength": 1,
+                                    "maxLength": 129,
+                                    "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                    "title": "fc_zone_policy"
+                                },
+                            "title": "fc_zone_policies - Fc Zone Policies - Intersight Uri: fabric/FcZonePoliy"
+                            },
+                            "fibre_channel_adapter_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Fibre Channel Adapter Policy to Assign to the vHBA Template.",
+                                "intersight_api": "$ref:FcAdapterPolicy:vnic.FcAdapterPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "fibre_channel_adapter_policy"
+                            },
+                            "fibre_channel_network_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Fibre Channel Network Policy to Assign to the vHBA Template.",
+                                "intersight_api": "$ref:FcNetworkPolicy:vnic.FcNetworkPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "fibre_channel_network_policy"
+                            },
+                            "fibre_channel_qos_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Fibre-Channel QoS Policy to Assign to the vHBA Template.",
+                                "intersight_api": "$ref:EthQosPolicy:vnic.EthQosPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "fibre_channel_qos_policy"
+                            },
+                            "persistent_lun_bindings": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  Enables retention of LUN ID associations in memory until they are manually cleared.",
+                                "intersight_api": "PersistentBindings",
+                                "title": "persistent_lun_bindings"
+                            },
+                            "placement_switch_id": {
+                                "type": "string",
+                                "default": "A",
+                                "description": "The fabric port to which the vHBA will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                                "intersight_api": "SwitchId",
+                                "enum": [
+                                    "A",
+                                    "B",
+                                    "None"
+                                ],
+                                "title": "placement_switch_id"
+                            },
+                            "vhba_type": {
+                                "type": "string",
+                                "default": "fc-initiator",
+                                "description": "Default is `fc-initiator`.  vHBA Type configuration for SAN Connectivity Policy. This configuration is supported only on Cisco VIC 14XX series and higher series of adapters.\n  * `fc-initiator` - The default value set for vHBA Type Configuration. Fc-initiator specifies vHBA as a consumer of storage. Enables SCSI commands to transfer data and status information between host and target storage systems.\n  * `fc-nvme-initiator` - Fc-nvme-initiator specifies vHBA as a consumer of storage. Enables NVMe-based message commands to transfer data and status information between host and target storage systems.\n  * `fc-nvme-target` - Fc-nvme-target specifies vHBA as a provider of storage volumes to initiators. Enables NVMe-based message commands to transfer data and status information between host and target storage systems. Currently tech-preview, only enabled with an asynchronous driver.\n  * `fc-target` - Fc-target specifies vHBA as a provider of storage volumes to initiators. Enables SCSI commands to transfer data and status information between host and target storage systems. fc-target is enabled only with an asynchronous driver.",
+                                "intersight_api": "Type",
+                                "enum": [
+                                    "fc-initiator",
+                                    "fc-nvme-initiator",
+                                    "fc-nvme-target",
+                                    "fc-target"
+                                ],
+                                "title": "vhba_type"
+                            },
+                            "wwpn_pool": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "Name of the WWPN Pool to Assign to the vHBA Template.",
+                                "intersight_api": "$ref:WwpnPool:fcpool.Pool:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "wwpn_pool"
+                            }
+                        }
+                    }
+                ]
+            },
             "virtual_kvm": {
                 "description": "Policy to configure KVM Launch settings.",
                 "intersight_type": "policy",
@@ -17708,7 +18540,7 @@
                         "properties": {
                             "add_virtual_media": {
                                 "type": "array",
-                                "description": "Adds a new Virtual Media mapping for images.\nRequired Attributes:\n  * name\n  * file_location\n\nOptional Attributes:\n  * authentication_protocol\n  * device_type\n  * mount_options\n  * protocol\n  * password\n  * username",
+                                "description": "Adds a new Virtual Media mapping for images.\n\nRequired Attributes:\n  * name\n  * file_location\n\nOptional Attributes:\n  * authentication_protocol\n  * device_type\n  * mount_options\n  * protocol\n  * password\n  * username",
                                 "intersight_api": "ObjectType",
                                 "items": {
                                     "$ref": "#/components/schemas/virtual_media.add_virtual_media"
@@ -17868,7 +18700,7 @@
                         "properties": {
                             "vlans": {
                                 "type": "array",
-                                "description": "List of VLANs to add to the VLAN Policy.\nRequired Attributes:\n  * multicast_policy\n  * name\n  * vlan_list\n\nOptional Attributes:\n  * auto_allow_on_uplinks\n  * native_vlan\n  * name\n  * name_prefix\n  * primary_vlan_id\n  * sharing_type",
+                                "description": "List of VLANs to add to the VLAN Policy.\n\nRequired Attributes:\n  * multicast_policy\n  * name\n  * vlan_list\n\nOptional Attributes:\n  * auto_allow_on_uplinks\n  * native_vlan\n  * name\n  * name_prefix\n  * primary_vlan_id\n  * sharing_type",
                                 "intersight_uri": "fabric/Vlans",
                                 "items": {
                                     "$ref": "#/components/schemas/vlan.vlans"
@@ -17962,6 +18794,150 @@
                         "title": "vlan_list"
                     }
                 }
+            },
+            "vnic_template": {
+                "description": "Virtual Ethernet Interface Template.",
+                "intersight_type": "policy",
+                "intersight_uri": "vnic/VnicTemplates",
+                "ObjectType": "vnic.VnicTemplate",
+                "target_platforms": [
+                    "server"
+                ],
+                "title": "vnic_template - vNIC Template - Intersight Uri: vnic/VnicTemplate",
+                "x-allOf-name": "vnic.VnicTemplate",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_policy"
+                    },
+                    {
+                        "type": "object",
+                        "description": "",
+                        "required": [
+                            "ethernet_network_control_policy",
+                            "ethernet_network_group_policy",
+                            "ethernet_qos_policy"
+                        ],
+                        "title": "vnic_template",
+                        "properties": {
+                            "allow_override": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  When enabled, the configuration of the derived instances may override the template configuration.",
+                                "intersight_api": "EnableOverride",
+                                "title": "allow_override"
+                            },
+                            "cdn_source": {
+                                "type": "string",
+                                "default": "vnic",
+                                "description": "Default is `vnic`.  Source of the CDN. It can either be user specified or be the same as the vNIC name.\n  * `vnic` - Source of the CDN is the same as the vNIC name.\n  * `user` - Source of the CDN is specified by the user.",
+                                "intersight_api": "$ref:Cdn:vnic.Cdn:Source",
+                                "enum": [
+                                    "vnic",
+                                    "user"
+                                ],
+                                "title": "cdn_source"
+                            },
+                            "cdn_value": {
+                                "type": "string",
+                                "default": "",
+                                "description": "Only used when `cdn_source` is `user` (aka user defined).  ",
+                                "intersight_api": "$ref:vnic.Cdn:Value",
+                                "minLength": 1,
+                                "maxLength": 31,
+                                "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
+                                "title": "cdn_value"
+                            },
+                            "enable_failover": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  Enabling failover ensures that traffic from the vNIC automatically fails over to the secondary Fabric Interconnect, in case the specified Fabric Interconnect path goes down. Failover applies only to Cisco VICs that are connected to a Fabric Interconnect cluster.",
+                                "intersight_api": "FailoverEnabled",
+                                "title": "enable_failover"
+                            },
+                            "ethernet_adapter_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Ethernet Adapter Policy to Assign to the vNIC Template.",
+                                "intersight_api": "$ref:EthAdapterPolicy:vnic.EthAdapterPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ethernet_adapter_policy"
+                            },
+                            "ethernet_network_control_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Ethernet Network Control Policy to Assign to the vNIC Template.",
+                                "intersight_api": "$ref:FabricEthNetworkControlPolicy:fabric.EthNetworkControlPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ethernet_network_control_policy"
+                            },
+                            "ethernet_network_group_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Ethernet Network Group Policy to Assign to the vNIC Template.",
+                                "intersight_api": "$ref:FabricEthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ethernet_network_group_policy"
+                            },
+                            "ethernet_qos_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Ethernet QoS Policy to Assign to the vNIC Template.",
+                                "intersight_api": "$ref:EthQosPolicy:vnic.EthQosPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ethernet_network_group_policy"
+                            },
+                            "iscsi_boot_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the iSCSI Boot Policy to Assign to the vNIC Template.",
+                                "intersight_api": "$ref:IscsiBootPolicy:vnic.IscsiBootPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "iscsi_boot_policy"
+                            },
+                            "mac_address_pool": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "Name of the MAC Pool to assign the vNIC Template.",
+                                "intersight_api": "$ref:MacPool:macpool.Pool:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "mac_address_pool"
+                            },
+                            "placement_switch_id": {
+                                "type": "string",
+                                "default": "A",
+                                "description": "The fabric port to which the vNICs will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                                "intersight_api": "SwitchId",
+                                "enum": [
+                                    "A",
+                                    "B",
+                                    "None"
+                                ],
+                                "title": "placement_switch_id"
+                            },
+                            "sr_iov": {
+                                "$ref": "#/definitions/vnic.SrIovSettings"
+                            },
+                            "usnic": {
+                                "$ref": "#/definitions/vnic.UsnicSettings"
+                            },
+                            "vmq": {
+                                "$ref": "#/definitions/vnic.VmqSettings"
+                            }
+                        }
+                    }
+                ]
             },
             "vsan": {
                 "description": "A policy for all the Virtual SAN networks to be deployed on the Fabric Interconnect.",
@@ -18068,7 +19044,7 @@
                 }
             },
             "wwnn": {
-                "description": "Pool represents a collection of WWNN addresses that can be allocated to VHBAs of a server profile.",
+                "description": "Pool represents a collection of WWNN addresses that can be allocated to vHBAs of a server profile.",
                 "intersight_type": "pool",
                 "intersight_uri": "fcpool/Pools",
                 "ObjectType": "fcpool.Pool",
@@ -18155,7 +19131,7 @@
                 "title": "WWNN Identity Reservations"
             },
             "wwpn": {
-                "description": "Pool represents a collection of WWPN addresses that can be allocated to VHBAs of a server profile.",
+                "description": "Pool represents a collection of WWPN addresses that can be allocated to vHBAs of a server profile.",
                 "intersight_type": "pool",
                 "intersight_uri": "fcpool/Pools",
                 "ObjectType": "fcpool.Pool",
@@ -18439,7 +19415,7 @@
             "os.configuration.azurestack": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "The WWxN reservation object, used to hold reserved addresses.\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
+                "description": "The WWxN reservation object, used to hold reserved addresses.\n\nRequired Attributes:\n  * identities\n\nOptional Attributes:\n  * allocation_type",
                 "title": "Azure Stack - OS Configuration",
                 "properties": {
                     ".DisableAutoDaylightTimeSet": {

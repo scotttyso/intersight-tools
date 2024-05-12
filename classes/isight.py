@@ -2719,14 +2719,21 @@ class imm(object):
     def profile_server(self, profiles, kwargs):
         ezdata = kwargs.ezdata[self.type]
         for e in profiles:
+            ekeys = list(e.keys())
             api_body = {'ObjectType':ezdata.ObjectType}
-            if len(e.ucs_server_template) > 0:
+            if 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
                 if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
                 else: org = kwargs.org; template = e.ucs_server_template
-            if e.attach_template != True and len(e.ucs_server_template) > 0:
+            elif 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
+                if '/' in e.ucs_server_profile_template: org, template = e.ucs_server_profile_template.split('/')
+                else: org = kwargs.org; template = e.ucs_server_profile_template
+            if   e.attach_template != True and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
+                pitems = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
+            elif e.attach_template != True and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
                 pitems = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
             else: pitems = deepcopy(e)
-            pop_items = ['action', 'attach_template', 'create_template', 'domain_name', 'ignore_reservations', 'reservations', 'ucs_server_template']
+            pop_items = ['action', 'attach_template', 'create_template', 'domain_name', 'ignore_reservations', 'reservations',
+                         'ucs_server_template', 'ucs_server_profile_template']
             pkeys = list(pitems.keys())
             for p in pop_items:
                 if p in pkeys: pitems.pop(p)
@@ -2754,9 +2761,10 @@ class imm(object):
                         kwargs.name = e.name; kwargs.argument = 'domain_name'
                         validating.error_required_argument_missing(self.type, kwargs)
                     api_body['ServerPreAssignBySlot']['DomainName'] = e.domain_name
-            if e.attach_template == True and len(e.ucs_server_template) > 0:
-                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].profile.server_template[template],
-                                           'ObjectType':'server.ProfileTemplate'}
+            if   e.attach_template == True and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
+                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].profile.server_template[template], 'ObjectType':'server.ProfileTemplate'}
+            elif e.attach_template == True and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
+                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].profile.server_template[template], 'ObjectType':'server.ProfileTemplate'}
             else: api_body['SrcTemplate'] = None
             kwargs = imm(self.type).profile_api_calls(api_body, kwargs)
         #=========================================================================
@@ -2768,15 +2776,22 @@ class imm(object):
             for e in kwargs.results: kwargs.isight[kwargs.org].profile[self.type][e.Body.Name] = e.Body.Moid
         kwargs.bulk_merger_template = DotMap()
         for e in profiles:
-            if e.attach_template == True and len(e.ucs_server_template) > 0:
+            ekeys = list(e.keys())
+            template_check = False
+            if   e.attach_template == True and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
+                template_check = True
                 if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
                 else: org = kwargs.org; template = e.ucs_server_template
+            elif e.attach_template == True and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
+                template_check = True
+                if '/' in e.ucs_server_profile_template: org, template = e.ucs_server_profile_template.split('/')
+                else: org = kwargs.org; template = e.ucs_server_profile_template
+            if template_check == True:
                 if not kwargs.bulk_merger_template.get(f'{org}/{template}'):
                     tmoid = kwargs.isight[org].profile['server_template'][template]
                     kwargs.bulk_merger_template[f'{org}/{template}'] = {
                         'MergeAction': 'Merge', 'ObjectType': 'bulk.MoMerger', 'Targets':[],
-                        'Sources':[{'Moid':tmoid, 'ObjectType':'server.ProfileTemplate'}]
-                    }
+                        'Sources':[{'Moid':tmoid, 'ObjectType':'server.ProfileTemplate'}]}
                 idict = {'Moid': kwargs.isight[kwargs.org].profile[self.type][e.name], 'ObjectType':'server.Profile'}
                 kwargs.bulk_merger_template[f'{org}/{template}']['Targets'].append(idict)
 
@@ -2871,20 +2886,34 @@ class imm(object):
                         if not e.ignore_reservations == True: run_reservation = True
                     if len(e.serial_number) > 0: kwargs.serials.append(e.serial_number)
             profile_policy_list = profiles
-        if re.search('^chassis|server$', self.type):
-            for e in profiles:
-                e.pop('targets')
-                if 'server' == self.type and e.get('ucs_server_template'):
-                    if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
-                    else: org = kwargs.org; template = e.ucs_server_template
-                    ptype = 'ucs_server_template'; tname = e.ucs_server_template
-                    tdata = kwargs.imm_dict.orgs[org]['templates']['server']
-                    indx  = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
-                    if indx == None: validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
-                    elif tdata[indx].create_template == True and e.attach_template == True:
-                        if len(kwargs.isight[org].profile.server_template[template]) == 0:
-                            validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
-                    kwargs.templates[f'{org}/{template}'] = tdata[indx]
+        for e in profiles:
+            ekeys = list(e.keys())
+            if 'targets' in ekeys: e.pop('targets')
+            template_check = False
+            if   'server' == self.type and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
+                if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
+                else: org = kwargs.org; template = e.ucs_server_template
+                ptype = 'ucs_server_template'; tname = e.ucs_server_template
+            elif 'server' == self.type and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
+                if '/' in e.ucs_server_profile_template: org, template = e.ucs_server_profile_template.split('/')
+                else: org = kwargs.org; template = e.ucs_server_profile_template
+                ptype = 'ucs_server_profile_template'; tname = e.ucs_server_profile_template
+            elif 'chassis' == self.type and 'ucs_chassis_profile_template' in ekeys and len(e.ucs_chassis_profile_template) > 0:
+                if '/' in e.ucs_chassis_profile_template: org, template = e.ucs_chassis_profile_template.split('/')
+                else: org = kwargs.org; template = e.ucs_chassis_profile_template
+                ptype = 'ucs_chassis_profile_template'; tname = e.ucs_chassis_profile_template
+            elif 'domain' == self.type and 'ucs_domain_profile_template' in ekeys and len(e.ucs_domain_profile_template) > 0:
+                if '/' in e.ucs_domain_profile_template: org, template = e.ucs_domain_profile_template.split('/')
+                else: org = kwargs.org; template = e.ucs_domain_profile_template
+                ptype = 'ucs_domain_profile_template'; tname = e.ucs_domain_profile_template
+            if template_check == True:
+                tdata = kwargs.imm_dict.orgs[org]['templates'][self.type]
+                indx  = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
+                if indx == None: validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
+                elif tdata[indx].create_template == True and e.attach_template == True:
+                    if len(kwargs.isight[org].profile[f'{self.type}_template'][template]) == 0:
+                        validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
+                kwargs.templates[f'{org}/{template}'] = tdata[indx]
         #=========================================================================
         # Loop Through Reservations if True
         #=========================================================================

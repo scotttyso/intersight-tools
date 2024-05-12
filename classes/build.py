@@ -747,10 +747,10 @@ class intersight(object):
             else:
                 kwargs.org = original_org
                 pvars = dict(
-                    attach_template     = True,
-                    target_platform     = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform,
-                    targets             = [dict(name = v.name, serial_number=k) for k, v in kwargs.server_profiles.items()],
-                    ucs_server_template = profile_source)
+                    attach_template             = True,
+                    target_platform             = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform,
+                    targets                     = [dict(name = v.name, serial_number=k) for k, v in kwargs.server_profiles.items()],
+                    ucs_server_profile_template = profile_source)
                 # Add Profile Variables to imm_dict
                 kwargs.class_path = f'profiles,server'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)

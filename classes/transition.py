@@ -348,7 +348,7 @@ class intersight(object):
     # Function - Modify Server Profiles
     #=============================================================================
     def modify_server(pvars, kwargs):
-        key_list = ['boot_order_policy,boot_policy','ucs_server_template,ucs_server_profile_template']
+        key_list = ['boot_order_policy,boot_policy']
         pvars = intersight.replace_keys(key_list, pvars)
         pkeys = list(pvars.keys())
         if 'assigned_server' in pkeys: pvars.pop('assigned_server')
@@ -592,6 +592,7 @@ class intersight(object):
                     if p2 == 'boot': p2 = 'boot_order'
                     elif p2 == 'ucs_server': p2 = 'server'
                     elif p2 == 'ucs_server_template': p2 = 'server_template'
+                    elif p2 == 'ucs_server_profile_template': p2 = 'server_template'
                     for item in value:
                         pvars = deepcopy(item)
                         if pvars.get('descr'):

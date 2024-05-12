@@ -1546,11 +1546,11 @@ class imm(object):
         templates = list(numpy.unique(numpy.array(templates)))
         for template in templates:
             pvars = dict(
-                action               = 'Deploy',
-                attach_template      = True,
-                target_platform      = 'FIAttached',
-                targets              = [],
-                ucs_server_template  = str(template)
+                action                       = 'Deploy',
+                attach_template              = True,
+                target_platform              = 'FIAttached',
+                targets                      = [],
+                ucs_server_profile_template  = str(template)
             )
             if len(kwargs.domain) > 0: idict = kwargs.domain
             else: idict = kwargs.imm; pvars['target_platform'] = 'Standalone'
