@@ -24,7 +24,7 @@ class state(object):
         if self.type == 'lan_connectivity': policy = 'intersight_vnic_eth_if'
         else: policy = 'intersight_vnic_fc_if'
         for v in kwargs.names:
-            moid    = kwargs.isight[kwargs.org].policy[f'{self.type}.{kwargs.vnic}'][v]
+            moid    = kwargs.isight[kwargs.org].policies[f'{self.type}.{kwargs.vnic}'][v]
             print(moid)
             #command = f'terraform import module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"] {moid}'
             result = subprocess.run(
@@ -58,7 +58,7 @@ class state(object):
                         if 'lan' in p: kwargs.vnic = 'vnics'
                         else: kwargs.vnic = 'vhbas'
                         for d in e[kwargs.vnic]: names.extend(d.names)
-                        kwargs.pmoid  = kwargs.isight[org].policy[self.type][e.name]
+                        kwargs.pmoid  = kwargs.isight[org].policies[self.type][e.name]
                         kwargs.policy = e.name
                         kwargs        = isight.api_get(False, names, f'{self.type}.{kwargs.vnic}', kwargs)
                         kwargs.names  = names

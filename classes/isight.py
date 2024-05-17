@@ -531,6 +531,7 @@ class api(object):
                     elif 'storage.drive_groups' == self.type: api_filter = f"Name in ('{names}') and StoragePolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'switch' == self.type:               api_filter = f"Name in ('{names}') and SwitchClusterProfile.Moid eq '{kwargs.pmoid}'"
                     elif 'switch_profiles' == self.type:      api_filter = f"SwitchClusterProfile.Moid in ('{names}')"
+                    elif 'sw_profile_templates' == self.type: api_filter = f"SwitchClusterProfileTemplate.Moid in ('{names}')"
                     elif 'user_role' == self.type:            api_filter = f"EndPointUser.Moid in ('{names}') and EndPointUserPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'vlan.vlans' == self.type:           api_filter = f"VlanId in ({names}) and EthNetworkPolicy.Moid eq '{kwargs.pmoid}'"
                     elif 'vsan.vsans' == self.type:           api_filter = f"VsanId in ({names}) and FcNetworkPolicy.Moid eq '{kwargs.pmoid}'"
@@ -850,7 +851,7 @@ class api(object):
                 elif etype == 'storage_controllers':
                     for d in e.Ancestors:
                         if d.ObjectType == 'compute.Blade': ancestor = d.Moid; break
-                        elif d.ObjecType == 'compute.RackUnit': ancestor = d.Moid; break
+                        elif d.ObjectType == 'compute.RackUnit': ancestor = d.Moid; break
                     kwargs.storage_controllers[e.Moid] = DotMap(
                         ancestor = ancestor, controller_id = e.ControllerId, firmware = None, disks = None,
                         model = e.Model, moid = e.Moid, serial = e.Serial, slot = e.PciSlot, virtual_drives = None)
@@ -1028,19 +1029,16 @@ class imm(object):
     # Function - Assign Physical Device
     #=========================================================================
     def assign_physical_device(self, api_body, kwargs):
-        if self.type == 'switch':
-            if len(api_body['SerialNumber']) == 2: serial = api_body['SerialNumber'][kwargs.x_number]
-            else: serial = 'BLAH'
+        if self.type == 'profiles.switch': serial = api_body['SerialNumber'][kwargs.x_number - 1]
         else: serial = api_body['SerialNumber']
         if re.search(serial_regex, serial): serial_true = True
         else: serial_true = False
         if serial_true == True:
             if kwargs.serial_moids.get(serial):
                 serial_moid = kwargs.serial_moids[serial].moid
-                sobject     = kwargs.serial_moids[serial]['object_type']
+                sobject     = kwargs.serial_moids[serial].object_type
             else: validating.error_serial_number(api_body['Name'], serial)
-            ptype = self.type.capitalize()
-            api_body.update({f'Assigned{ptype}':{'Moid':serial_moid, 'ObjectType':sobject}})
+            api_body.update({f'Assigned{(self.type.split(".")[1]).capitalize()}':{'Moid':serial_moid, 'ObjectType':sobject}})
             api_body = dict(sorted(api_body.items()))
         api_body.pop('SerialNumber')
         return api_body
@@ -1096,8 +1094,8 @@ class imm(object):
     def build_api_body(self, api_body, idata, item, kwargs):
         np, ns = ezfunctions.name_prefix_suffix(self.type, kwargs)
         for k, v in item.items():
-            #print(json.dumps(idata, indent=4))
-            #print(k, v)
+            # print(json.dumps(idata, indent=4))
+            # print(k, v)
             if re.search('boolean|string|integer', idata[k].type):
                 if '$ref:' in idata[k].intersight_api:
                     x = idata[k].intersight_api.split(':')
@@ -1126,7 +1124,7 @@ class imm(object):
                     for e in v:
                         if type(e) == str: api_body[idata[k]['items'].intersight_api].append(e)
                         else:
-                            idict = {'ObjectType':idata[k]['items'].ObjectType}
+                            idict = {'ObjectType':idata[k]['items'].object_type}
                             for a, b in idata[k]['items'].properties.items():
                                 if re.search('boolean|string|integer', b.type):
                                     if a in e and '$ref:' in b.intersight_api:
@@ -1258,10 +1256,12 @@ class imm(object):
     # Function - Add Organization Key Map to Dictionaries
     #=========================================================================
     def compare_body_result(self, api_body, result):
-        rkeys = list(result.keys())
+        none_type = type(None)
+        pindex    = False
+        rkeys     = list(result.keys())
         if api_body.get('PolicyBucket'):
-            api_body['PolicyBucket'] = sorted(api_body['PolicyBucket'], key=lambda ele: ele.ObjectType)
-            result['PolicyBucket']   = sorted(result['PolicyBucket'], key=lambda ele: ele.ObjectType)
+            api_body['PolicyBucket'] = sorted(api_body['PolicyBucket'], key=lambda ele: ele['ObjectType'])
+            result['PolicyBucket']   = sorted(result['PolicyBucket'], key=lambda ele: ele['ObjectType'])
         patch_return = False
         for k, v in api_body.items():
             if type(v) == dict:
@@ -1271,16 +1271,39 @@ class imm(object):
                         for e in b:
                             if type(e) == dict:
                                 for c,d in e.items():
-                                    if len(result[k][a]) - 1 < count: patch_return = True
-                                    elif not result[k][a][count][c] == d: patch_return = True
+                                    if len(result[k][a]) - 1 < count:
+                                        if pindex == True: pcolor.Yellow('Index 11')
+                                        patch_return = True
+                                    elif not result[k][a][count][c] == d:
+                                        if pindex == True: pcolor.Yellow('Index 12')
+                                        patch_return = True
                             else:
-                                if len(result[k][a]) - 1 < count: patch_return = True
-                                elif not result[k][a][count] == e: patch_return = True
+                                if len(result[k][a]) - 1 < count:
+                                    if pindex == True: pcolor.Yellow('Index 13')
+                                    patch_return = True
+                                elif not result[k][a][count] == e:
+                                    if pindex == True: pcolor.Yellow('Index 14')
+                                    patch_return = True
                     else:
-                        if not k in rkeys: patch_return = True
-                        else: kkeys = list(result[k].keys())
-                        if   not a in kkeys: patch_return = True
-                        elif not result[k][a] == b: patch_return = True
+                        if not k in rkeys:
+                            if pindex == True: pcolor.Yellow('Index 15')
+                            patch_return = True
+                        elif type(result[k]) == none_type:
+                            if pindex == True: pcolor.Yellow('Index 16')
+                            patch_return = True
+                        else: 
+                            kkeys = list(result[k].keys())
+                            if   not a in kkeys:
+                                if pindex == True: pcolor.Yellow('Index 17')
+                                patch_return = True
+                            elif not result[k][a] == b:
+                                if pindex == True: pcolor.Yellow('Index 18')
+                                patch_return = True
+            elif k == 'Tags':
+                for e in v:
+                    if not e in result[k]:
+                        if pindex == True: pcolor.Yellow('Index 19')
+                        patch_return = True
             elif type(v) == list:
                 count = 0
                 for e in v:
@@ -1288,30 +1311,48 @@ class imm(object):
                         for a,b in e.items():
                             if type(b) == dict:
                                 for c,d in b.items():
-                                    if len(result[k]) - 1 < count: patch_return = True
-                                    elif not result[k][count][a][c] == d: patch_return = True
+                                    if len(result[k]) - 1 < count:
+                                        if pindex == True: pcolor.Yellow('Index 20')
+                                        patch_return = True
+                                    elif not result[k][count][a][c] == d:
+                                        if pindex == True: pcolor.Yellow('Index 21')
+                                        patch_return = True
                             elif type(b) == list:
                                 scount = 0
                                 for s in b:
                                     if type(s) == dict:
                                         for g,h in s.items():
-                                            if len(result[k]) - 1 < count: patch_return = True
-                                            elif not result[k][count][a][scount][g] == h: patch_return = True
+                                            if len(result[k]) - 1 < count:
+                                                if pindex == True: pcolor.Yellow('Index 22')
+                                                patch_return = True
+                                            elif not result[k][count][a][scount][g] == h:
+                                                if pindex == True: pcolor.Yellow('Index 23')
+                                                patch_return = True
                                     scount += 1
                             else:
                                 if 'Password' in a: count = count
-                                elif len(result[k]) - 1 < count: patch_return = True
-                                elif not result[k][count][a] == b: patch_return = True
+                                elif len(result[k]) - 1 < count:
+                                    if pindex == True: pcolor.Yellow('Index 24')
+                                    patch_return = True
+                                elif not result[k][count][a] == b:
+                                    if pindex == True: pcolor.Yellow('Index 25')
+                                    patch_return = True
                     elif type(e) == list:
                         pcolor.Red(e)
                         pcolor.Red('compare_body_result; not accounted for')
                         sys.exit(1)
                     else:
-                        if len(result[k]) - 1 < count: patch_return = True
-                        elif not result[k][count] == e: patch_return = True
+                        if len(result[k]) - 1 < count:
+                            if pindex == True: pcolor.Yellow('Index 26')
+                            patch_return = True
+                        elif not result[k][count] == e:
+                            if pindex == True: pcolor.Yellow('Index 27')
+                            patch_return = True
                     count += 1
             else:
-                if not result[k] == v: patch_return = True
+                if not result[k] == v:
+                    if pindex == True: pcolor.Yellow('Index 28')
+                    patch_return = True
         return patch_return
 
     #=========================================================================
@@ -1325,40 +1366,27 @@ class imm(object):
         orgs = kwargs.orgs
         ezfunctions.create_yaml(orgs, kwargs)
         #=========================================================================
-        # Pools
+        # Build Lists from ezdata
         #=========================================================================
-        pool_list = []
+        kwargs.policies_list  = []
+        kwargs.pools_list     = []
+        kwargs.profiles_list  = ['domain', 'chassis', 'server']
+        kwargs.templates_list = kwargs.profiles_list
         for k, v in kwargs.ezdata.items():
-            if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
-        for ptype in pool_list:
+            if v.intersight_type == 'policies' and not '.' in k: kwargs.policies_list.append(k)
+            elif v.intersight_type == 'pools' and not '.' in k: kwargs.pools_list.append(k)
+        #=========================================================================
+        # Pools/Policies/Profiles/Templates
+        #=========================================================================
+        for e in ['pools', 'policies', 'templates', 'profiles']:
             for org in orgs:
                 kwargs.org = org
-                if kwargs.imm_dict.orgs[org].get('pools'):
-                    if ptype in kwargs.imm_dict.orgs[org]['pools']:  kwargs = eval(f"imm(ptype).pools(kwargs)")
-        #=========================================================================
-        # Policies
-        #=========================================================================
-        policy_list = []
-        for k, v in kwargs.ezdata.items():
-            if v.intersight_type == 'policy' and not '.' in k: policy_list.append(k)
-        for ptype in policy_list:
-            for org in orgs:
-                kwargs.org = org
-                if kwargs.imm_dict.orgs[org].get('policies'):
-                    if ptype in kwargs.imm_dict.orgs[org]['policies']:  kwargs = eval(f"imm(ptype).policies(kwargs)")
-        #=========================================================================
-        # Profiles
-        #=========================================================================
-        for org in orgs:
-            kwargs.org = org
-            if kwargs.imm_dict.orgs[org].get('templates'):
-                if kwargs.imm_dict.orgs[org]['templates'].get('server'): kwargs = eval(f"imm('server_template').profiles(kwargs)")
-        for org in orgs:
-            kwargs.org = org
-            if kwargs.imm_dict.orgs[org].get('profiles'):
-                profile_list = ['domain', 'chassis', 'server']
-                for i in profile_list:
-                    if kwargs.imm_dict.orgs[org]['profiles'].get(i): kwargs = eval(f"imm(i).profiles(kwargs)")
+                pkeys = list(kwargs.imm_dict.orgs[org][e].keys())
+                for ptype in kwargs[f'{e}_list']:
+                    if ptype in pkeys:
+                        if   e == 'templates': kwargs = eval(f"imm(f'templates.{ptype}').profiles(kwargs)")
+                        elif e == 'profiles':  kwargs = eval(f"imm(f'profiles.{ptype}').profiles(kwargs)")
+                        else: kwargs = eval(f"imm(ptype).{e}(kwargs)")
         #=========================================================================
         # return kwargs
         #=========================================================================
@@ -1381,7 +1409,7 @@ class imm(object):
                 kwargs.parent_key  = self.type.split('.')[0]
                 kwargs.parent_name = f'{np}{i.name}{ns}'
                 kwargs.parent_type = 'storage'
-                kwargs.parent_moid = kwargs.isight[kwargs.org].policy['storage'][kwargs.parent_name]
+                kwargs.parent_moid = kwargs.isight[kwargs.org].policies['storage'][kwargs.parent_name]
                 kwargs.pmoid       = kwargs.parent_moid
                 kwargs = api_get(True, names, self.type, kwargs)
                 dg_results = kwargs.results
@@ -1389,7 +1417,7 @@ class imm(object):
                 # Create API Body for Storage Drive Groups
                 #=========================================================================
                 for e in i.drive_groups:
-                    api_body = {'ObjectType':ezdata.ObjectType}
+                    api_body = {'ObjectType':ezdata.object_type}
                     api_body.update({'StoragePolicy':{'Moid':kwargs.parent_moid,'ObjectType':'storage.StoragePolicy'}})
                     api_body = imm(self.type).build_api_body(api_body, ezdata.properties, e, kwargs)
                     api_body.pop('Organization'); api_body.pop('Tags')
@@ -1405,11 +1433,11 @@ class imm(object):
                     #=========================================================================
                     # Create or Patch the VLANs via the Intersight API
                     #=========================================================================
-                    if not kwargs.isight[kwargs.org].policy[self.type].get(api_body['Name']): kwargs.bulk_list.append(deepcopy(api_body))
+                    if not kwargs.isight[kwargs.org].policies[self.type].get(api_body['Name']): kwargs.bulk_list.append(deepcopy(api_body))
                     else:
                         indx = next((index for (index, d) in enumerate(dg_results) if d['Name'] == api_body['Name']), None)
                         patch_policy = imm(self.type).compare_body_result(api_body, dg_results[indx])
-                        api_body['pmoid'] = kwargs.isight[kwargs.org].policy[self.type][api_body['Name']]
+                        api_body['pmoid'] = kwargs.isight[kwargs.org].policies[self.type][api_body['Name']]
                         if patch_policy == True: kwargs.bulk_list.append(deepcopy(api_body))
                         else:
                             pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {kwargs.parent_type}: `{kwargs.parent_name}`, DriveGroup: `{api_body['Name']}`."\
@@ -1565,10 +1593,10 @@ class imm(object):
                     if not e.identity in kwargs.reservations[k]:
                         if '/' in e.pool_name: org, pname = e.pool_name.split('/')
                         else: org = kwargs.org; pname = e.pool_name
-                        if len(kwargs.isight[org].pool[k][pname]) == 0: validating.error_pool_doesnt_exist(org, k, pname, e.profile)
+                        if len(kwargs.isight[org].pools[k][pname]) == 0: validating.error_pool_doesnt_exist(org, k, pname, e.profile)
                         if re.search('wwnn|wwpn', k): otype = 'fcpool.Pool'
                         else: otype = f'{k}pool.Pool'
-                        api_body = {'Identity':e.identity, 'Pool':{'Moid':kwargs.isight[org].pool[k][pname],'ObjectType':otype}}
+                        api_body = {'Identity':e.identity, 'Pool':{'Moid':kwargs.isight[org].pools[k][pname],'ObjectType':otype}}
                         api_body = imm(self.type).org_map(api_body, kwargs.org_moids[org].moid)
                         if 'ip' == k:
                             if '.' in e.identity: api_body.update({'IpType':'IPv4'})
@@ -1628,7 +1656,7 @@ class imm(object):
                 if '/' in api_body[i]['Moid']: org, pool = api_body[i]['Moid'].split('/')
                 else: org = kwargs.org; pool = api_body[i]['Moid']
                 pool = f"{np}{pool}{ns}"
-                if not kwargs.isight[org].pool['ip'].get(pool):
+                if not kwargs.isight[org].pools['ip'].get(pool):
                     if '/' in api_body[i]['Moid']: new_pool = f'{org}/{pool}'
                     else: new_pool = pool
                     validating.error_policy_doesnt_exist(i, new_pool, self.type, 'policy', api_body['Name'])
@@ -1636,7 +1664,7 @@ class imm(object):
                 indx = next((index for (index, d) in enumerate(kwargs.results) if d.Name == pool and d.Organization.Moid == org_moid), None)
                 if len(kwargs.results[indx].IpV4Config.Gateway) > 0: api_body['AddressType']['EnableIpV4'] = True
                 if len(kwargs.results[indx].IpV6Config.Gateway) > 0: api_body['AddressType']['EnableIpV6'] = True
-                api_body[i]['Moid'] = kwargs.isight[org].pool['ip'][pool]
+                api_body[i]['Moid'] = kwargs.isight[org].pools['ip'][pool]
         return api_body
 
     #=========================================================================
@@ -1661,10 +1689,10 @@ class imm(object):
             names = []
             if '/' in api_body['IscsiAdapterPolicy']['Moid']: org, policy = api_body['IscsiAdapterPolicy']['Moid'].split('/')
             else: org = kwargs.org; policy = api_body['IscsiAdapterPolicy']['Moid']
-            if not kwargs.isight[org].policy['iscsi_adapter'].get(policy): kwargs = api_get(False, [item.iscsi_adapter_policy], 'iscsi_adapter', kwargs)
-            if not kwargs.isight[org].policy['iscsi_adapter'].get(policy):
+            if not kwargs.isight[org].policies['iscsi_adapter'].get(policy): kwargs = api_get(False, [item.iscsi_adapter_policy], 'iscsi_adapter', kwargs)
+            if not kwargs.isight[org].policies['iscsi_adapter'].get(policy):
                 validating.error_policy_doesnt_exist('iscsi_adapter', api_body['IscsiAdapterPolicy']['Moid'], self.type, 'policy', api_body['Name'])
-            api_body['IscsiAdapterPolicy']['Moid'] = kwargs.isight[org].policy['iscsi_adapter'][policy]
+            api_body['IscsiAdapterPolicy']['Moid'] = kwargs.isight[org].policies['iscsi_adapter'][policy]
 
         if api_body.get('InitiatorStaticIpV4Config'):
             api_body['InitiatorStaticIpV4Address'] = api_body['InitiatorStaticIpV4Config']['IpAddress']
@@ -1684,22 +1712,22 @@ class imm(object):
             ip_pool= api_body['InitiatorIpPool']['Moid']
             if '/' in api_body['InitiatorIpPool']['Moid']: org, pool = api_body['InitiatorIpPool']['Moid'].split('/')
             else: org = kwargs.org; pool = api_body['InitiatorIpPool']['Moid']
-            if not kwargs.isight[org].pool['ip'].get(pool): kwargs = api_get(False, [ip_pool], 'ip', kwargs)
-            api_body['InitiatorIpPool']['Moid'] = kwargs.isight[org].pool['ip'][pool]
+            if not kwargs.isight[org].pools['ip'].get(pool): kwargs = api_get(False, [ip_pool], 'ip', kwargs)
+            api_body['InitiatorIpPool']['Moid'] = kwargs.isight[org].pools['ip'][pool]
         names = []; plist = ['PrimaryTargetPolicy', 'SecondaryTargetPolicy']
         for p in plist:
             if api_body.get(p):
                 if '/' in api_body[p]['Moid']: org, policy = api_body[p]['Moid'].split('/')
                 else: org = kwargs.org; policy = api_body[p]['Moid']
-                if not kwargs.isight[org].policy['iscsi_static_target'].get(policy): names.append(api_body[p]['Moid'])
+                if not kwargs.isight[org].policies['iscsi_static_target'].get(policy): names.append(api_body[p]['Moid'])
         if len(kwargs.names) > 0: kwargs = api_get(False, names, 'iscsi_static_target', kwargs)
         for p in plist:
             if api_body.get(p):
                 if '/' in api_body[p]['Moid']: org, policy = api_body[p]['Moid'].split('/')
                 else: org = kwargs.org; policy = api_body[p]['Moid']
-                if not kwargs.isight[org].policy['iscsi_static_target'].get(policy):
+                if not kwargs.isight[org].policies['iscsi_static_target'].get(policy):
                     validating.error_policy_doesnt_exist(p, api_body[p]['Moid'], self.type, 'policy', api_body['Name'])
-                api_body[p]['Moid'] = kwargs.isight[org].policy['iscsi_static_target'][policy]
+                api_body[p]['Moid'] = kwargs.isight[org].policies['iscsi_static_target'][policy]
         return api_body
 
     #=========================================================================
@@ -1723,12 +1751,12 @@ class imm(object):
             if i.get('ldap_groups'):
                 kwargs.parent_name = f'{np}{i.name}{ns}'
                 for e in i.ldap_groups: role_names.append(e.role)
-                kwargs.pmoid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+                kwargs.pmoid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
                 names  = [e.name for e in i.ldap_groups]
                 kwargs = api_get(True, names, self.type, kwargs)
                 kwargs.cp[kwargs.pmoid].group_moids  = kwargs.pmoids
                 kwargs.cp[kwargs.pmoid].group_results= kwargs.results
-                kwargs.pmoid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+                kwargs.pmoid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
             if i.get('ldap_servers'):
                 names  = [e.server for e in i.ldap_servers]
                 kwargs = api_get(True, names, 'ldap.ldap_servers', kwargs)
@@ -1747,12 +1775,12 @@ class imm(object):
             kwargs.parent_key  = self.type.split('.')[0]
             kwargs.parent_name = f'{np}{i.name}{ns}'
             kwargs.parent_type = 'LDAP Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
             for e in i.ldap_groups:
                 #=========================================================================
                 # Create API Body for User Role
                 #=========================================================================
-                api_body = {'LdapPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'iam.LdapPolicy'},'ObjectType':ezdata.ObjectType}
+                api_body = {'LdapPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'iam.LdapPolicy'},'ObjectType':ezdata.object_type}
                 api_body = imm(self.type).build_api_body(api_body, ezdata, e, kwargs)
                 api_body['EndPointRole']['Moid'] = kwargs.role_moids[e.role].moid
                 #=========================================================================
@@ -1771,7 +1799,7 @@ class imm(object):
                 #=========================================================================
                 # Create API Body for User Role
                 #=========================================================================
-                api_body = {'LdapPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'iam.LdapPolicy'},'ObjectType':kwargs.ezdata['ldap.ldap_servers'].ObjectType}
+                api_body = {'LdapPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'iam.LdapPolicy'},'ObjectType':kwargs.ezdata['ldap.ldap_servers'].object_type}
                 api_body = imm('ldap.ldap_servers').build_api_body(api_body, ezdata, e, kwargs)
                 #=========================================================================
                 # Create or Patch the Policy via the Intersight API
@@ -1806,8 +1834,8 @@ class imm(object):
             api_body['IqnAllocationType'] = 'Pool'
             if '/' in item.iqn_pool: org, pool = item.iqn_pool.split('/')
             else: org = kwargs.org; pool = item.iqn_pool
-            if not kwargs.isight[org].pool['iqn'].get(pool): kwargs = api_get(False, [item.iqn_pool], 'iqn', kwargs)
-            api_body['IqnPool']['Moid'] = kwargs.isight[org].pool['iqn'][pool]
+            if not kwargs.isight[org].pools['iqn'].get(pool): kwargs = api_get(False, [item.iqn_pool], 'iqn', kwargs)
+            api_body['IqnPool']['Moid'] = kwargs.isight[org].pools['iqn'][pool]
         return api_body
 
     #=========================================================================
@@ -2055,10 +2083,10 @@ class imm(object):
             if not api_body.get('Descr'):
                 policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
                 api_body['Description'] = f'{api_body["Name"]} {policy_title} Policy.'
-            if api_body['Name'] in kwargs.isight[kwargs.org].policy[self.type]:
+            if api_body['Name'] in kwargs.isight[kwargs.org].policies[self.type]:
                 indx = next((index for (index, d) in enumerate(kwargs.policy_results) if d['Name'] == api_body['Name']), None)
                 patch_policy = imm(self.type).compare_body_result(api_body, kwargs.policy_results[indx])
-                api_body['pmoid']  = kwargs.isight[kwargs.org].policy[self.type][api_body['Name']]
+                api_body['pmoid']  = kwargs.isight[kwargs.org].policies[self.type][api_body['Name']]
                 if patch_policy == True:
                     kwargs.bulk_list.append(deepcopy(api_body))
                     kwargs.pmoids[api_body['Name']].moid = api_body['pmoid']
@@ -2076,14 +2104,14 @@ class imm(object):
                     #=========================================================================
                     # Construct api_body Payload
                     #=========================================================================
-                    api_body = {'Name':f'{np}{names[x]}{ns}','ObjectType':kwargs.ezdata[self.type].ObjectType}
+                    api_body = {'Name':f'{np}{names[x]}{ns}','ObjectType':kwargs.ezdata[self.type].object_type}
                     api_body = imm(self.type).build_api_body(api_body, idata, item, kwargs)
                     kwargs = policies_to_api(api_body, kwargs)
             else:
                 #=========================================================================
                 # Construct api_body Payload
                 #=========================================================================
-                api_body = {'ObjectType':kwargs.ezdata[self.type].ObjectType}
+                api_body = {'ObjectType':kwargs.ezdata[self.type].object_type}
                 api_body = imm(self.type).build_api_body(api_body, idata, item, kwargs)
                 kwargs = policies_to_api(api_body, kwargs)
         #=========================================================================
@@ -2092,7 +2120,7 @@ class imm(object):
         if len(kwargs.bulk_list) > 0:
             kwargs.uri    = kwargs.ezdata[self.type].intersight_uri
             kwargs        = imm(self.type).bulk_request(kwargs)
-            for e in kwargs.results: kwargs.isight[kwargs.org].policy[self.type][e.Body.Name] = e.Body.Moid
+            for e in kwargs.results: kwargs.isight[kwargs.org].policies[self.type][e.Body.Name] = e.Body.Moid
         #=========================================================================
         # Loop Thru Sub-Items
         #=========================================================================
@@ -2140,7 +2168,7 @@ class imm(object):
             #=========================================================================
             # Construct api_body Payload
             #=========================================================================
-            api_body = {'ObjectType':kwargs.ezdata[self.type].ObjectType}
+            api_body = {'ObjectType':kwargs.ezdata[self.type].object_type}
             api_body = imm(self.type).build_api_body(api_body, idata, item, kwargs)
             akeys = list(api_body.keys())
             if not 'AssignmentOrder' in akeys: api_body['AssignmentOrder'] = 'sequential'
@@ -2169,10 +2197,10 @@ class imm(object):
             #=========================================================================
             # If Modified Patch the Pool via the Intersight API
             #=========================================================================
-            if api_body['Name'] in kwargs.isight[kwargs.org].pool[self.type]:
+            if api_body['Name'] in kwargs.isight[kwargs.org].pools[self.type]:
                 indx = next((index for (index, d) in enumerate(kwargs.pool_results) if d['Name'] == api_body['Name']), None)
                 patch_pool = imm(self.type).compare_body_result(api_body, kwargs.pool_results[indx])
-                api_body['pmoid'] = kwargs.isight[kwargs.org].pool[self.type][api_body['Name']]
+                api_body['pmoid'] = kwargs.isight[kwargs.org].pools[self.type][api_body['Name']]
                 if patch_pool == True: kwargs.bulk_list.append(deepcopy(api_body))
                 else: pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {ptitle} Pool: `{api_body['Name']}`.  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
             else: kwargs.bulk_list.append(deepcopy(api_body))
@@ -2182,7 +2210,7 @@ class imm(object):
         if len(kwargs.bulk_list) > 0:
             kwargs.uri    = kwargs.ezdata[self.type].intersight_uri
             kwargs        = imm(self.type).bulk_request(kwargs)
-            for e in kwargs.results: kwargs.isight[kwargs.org].pool[self.type][e.Body.Name] = e.Body.Moid
+            for e in kwargs.results: kwargs.isight[kwargs.org].pools[self.type][e.Body.Name] = e.Body.Moid
         #=========================================================================
         # Send End Notification and return kwargs
         #=========================================================================
@@ -2213,7 +2241,7 @@ class imm(object):
                     port_modes  = kwargs.pmoids
                     port_results= deepcopy(kwargs.results)
                     for e in item[p[1]]:
-                        api_body = {'CustomMode':e.custom_mode,'ObjectType':ezdata.ObjectType,
+                        api_body = {'CustomMode':e.custom_mode,'ObjectType':ezdata.object_type,
                                           'PortIdStart':e.port_list[0],'PortIdEnd':e.port_list[1],
                                           ezdata.parent_policy:{'Moid':kwargs.parent_moid,'ObjectType':ezdata.parent_object}}
                         if e.get('slot_id'): api_body.update({'SlotId':e.slot_id})
@@ -2224,7 +2252,7 @@ class imm(object):
                         kwargs.parent_key  = self.type.split('.')[0]
                         kwargs.parent_name = i
                         kwargs.parent_type = 'Port Policy'
-                        kwargs.parent_moid = kwargs.isight[kwargs.org].policy['port'][i]
+                        kwargs.parent_moid = kwargs.isight[kwargs.org].policies['port'][i]
                         if port_modes.get(kwargs.parent_moid):
                             if port_modes[kwargs.parent_moid].get(str(e.port_list[0])):
                                 kwargs.method= 'patch'
@@ -2311,9 +2339,9 @@ class imm(object):
                     policy = f"{np}{policy}{ns}"
                     if '/' in kwargs.api_body[p]['Moid']: new_policy = f'{org}/{policy}'
                     else: new_policy = policy
-                    if not kwargs.isight[org].policy[ptype].get(policy):
+                    if not kwargs.isight[org].policies[ptype].get(policy):
                         validating.error_policy_doesnt_exist(ptype, new_policy, f'port.{port_type}', 'policy', i.names[x])
-                    kwargs.api_body[p]['Moid'] = kwargs.isight[org].policy[ptype][policy]
+                    kwargs.api_body[p]['Moid'] = kwargs.isight[org].policies[ptype][policy]
                     if 'Group' in p: kwargs.api_body[p] = [kwargs.api_body[p]]
             return kwargs
         
@@ -2323,7 +2351,7 @@ class imm(object):
         def port_type_call(port_type, item, x, kwargs):
             ezdata = kwargs.ezdata[f'port.{port_type}']
             for i in item[port_type]:
-                api_body = {'ObjectType':ezdata.ObjectType, 'PortPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'fabric.PortPolicy'}}
+                api_body = {'ObjectType':ezdata.object_type, 'PortPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'fabric.PortPolicy'}}
                 kwargs.api_body = imm(f'port.{port_type}').build_api_body(api_body, ezdata.properties, i, kwargs)
                 if i.get('pc_ids'):
                     if len(kwargs.api_body['PcId']) == 2: kwargs.api_body['PcId'] = i.pc_ids[x]
@@ -2357,9 +2385,9 @@ class imm(object):
             policy = f"{np}{policy}{ns}"
             if '/' in original_policy: new_policy = f'{org}/{policy}'
             else: new_policy = policy
-            if not kwargs.isign[org].policy.get('ptype'): kwargs.isight[org].policy[ptype] = DotMap()
+            if not kwargs.isight[org].policies.get('ptype'): kwargs.isight[org].policies[ptype] = DotMap()
             if not kwargs.cp.get(ptype): kwargs.cp[ptype] = DotMap(names = [])
-            if not kwargs.isight[org].policy[ptype].get(policy): kwargs.cp[ptype].names.append(new_policy)
+            if not kwargs.isight[org].policies[ptype].get(policy): kwargs.cp[ptype].names.append(new_policy)
             return kwargs
         #=========================================================================
         # Build Child Policy Map
@@ -2397,7 +2425,7 @@ class imm(object):
                         kwargs.parent_key  = self.type.split('.')[0]
                         kwargs.parent_name = item.names[x]
                         kwargs.parent_type = 'Port Policy'
-                        kwargs.parent_moid = kwargs.isight[kwargs.org].policy['port'][item.names[x]]
+                        kwargs.parent_moid = kwargs.isight[kwargs.org].policies['port'][item.names[x]]
                         kwargs = get_ports(e, item, x, kwargs)
                         port_type_call(e, item, x, kwargs)
                         if len(kwargs.plist[e]) > 0:
@@ -2408,438 +2436,18 @@ class imm(object):
         return kwargs
 
     #=========================================================================
-    # Function - Profile Creation Function
-    #=========================================================================
-    def profile_api_calls(self, api_body, kwargs):
-        if kwargs.isight[kwargs.org].profile[self.type].get(api_body['Name']):
-            indx = next((index for (index, d) in enumerate(kwargs.profile_results) if d['Name'] == api_body['Name']), None)
-            patch_profile = imm(self.type).compare_body_result(api_body, kwargs.profile_results[indx])
-            api_body['pmoid'] = kwargs.isight[kwargs.org].profile[self.type][api_body['Name']]
-            if patch_profile == True:
-                if 'SrcTemplate' in api_body:
-                    if api_body['SrcTemplate'] != None and kwargs.profile_results[indx].SrcTemplate != None:
-                        if api_body['SrcTemplate']['Moid'] != kwargs.profile_results[indx].SrcTemplate.Moid:
-                            kwargs.api_body = {'SrcTemplate':None}
-                            kwargs.method   = 'patch'
-                            kwargs.pmoid    = kwargs.isight[kwargs.org].profile[self.type][api_body['Name']]
-                            kwargs.uri      = 'server/Profiles'
-                            kwargs          = api('server').calls(kwargs)
-                kwargs.bulk_list.append(deepcopy(api_body))
-            else:
-                if 'server_template' in self.type: ntitle = 'Server Profile Template'
-                else: ntitle = f'{self.type.title()} Profile'
-                pcolor.Cyan(f"      * Skipping Org: {kwargs.org} > {ntitle}: `{api_body['Name']}`.  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-        else: kwargs.bulk_list.append(deepcopy(api_body))
-        return kwargs
-
-    #=========================================================================
-    # Function - Build Chassis Profiles
-    #=========================================================================
-    def profile_chassis(self, profiles, kwargs):
-        ezdata = kwargs.ezdata[self.type]
-        for item in profiles:
-            api_body = {'ObjectType':ezdata.ObjectType}
-            pitems = deepcopy(item)
-            if pitems.get('action'): pitems.pop('action')
-            api_body = imm(self.type).build_api_body(api_body, kwargs.idata, pitems, kwargs)
-            api_body = imm(self.type).profile_policy_bucket(api_body, kwargs)
-            if api_body.get('SerialNumber'): api_body = imm.assign_physical_device(self, api_body, kwargs)
-            kwargs = imm(self.type).profile_api_calls(api_body, kwargs)
-        #=========================================================================
-        # POST Bulk Request if Post List > 0
-        #=========================================================================
-        if len(kwargs.bulk_list) > 0:
-            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-            kwargs     = imm(self.type).bulk_request(kwargs)
-        return kwargs
-
-    #=========================================================================
-    # Function - Deploy Profile if Action is Deploy
-    #=========================================================================
-    def profile_chassis_server_deploy(self, profiles, kwargs):
-        cregex = re.compile('Analyzing|Assigned|Failed|Inconsistent|Validating')
-        pending_changes = False
-        kwargs.profile_update = DotMap()
-        for e in profiles:
-            if e.get('action') and e.get('serial_number'):
-                if e.action == 'Deploy' and re.search(serial_regex, e.serial_number):
-                    kwargs.profile_update[e.name] = e
-                    kwargs.profile_update[e.name].pending_changes = 'Empty'
-        if len(kwargs.profile_update) > 0:
-            kwargs = api_get(False, list(kwargs.profile_update.keys()), self.type, kwargs)
-            profile_results = kwargs.results
-            for e in list(kwargs.profile_update.keys()):
-                indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
-                changes  = profile_results[indx].ConfigChanges.Changes
-                cstate   = profile_results[indx].ConfigContext.ConfigState
-                csummary = profile_results[indx].ConfigContext.ConfigStateSummary
-                isummary = profile_results[indx].ConfigChangeContext.InitialConfigContext.ConfigStateSummary
-                if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary) or re.search(cregex, isummary):
-                    pending_changes = True
-                    kwargs.profile_update[e].pending_changes = 'Deploy'
-                elif len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
-                    pending_changes = True
-                    kwargs.profile_update[e].pending_changes = 'Activate'
-            if pending_changes == True:
-                pcolor.LightPurple(f'\n{"-"*108}\n')
-                deploy_pending = False
-                for e in list(kwargs.profile_updates.keys()):
-                    if kwargs.profile_update[e].pending_changes == 'Deploy': deploy_pending = True
-                if deploy_pending == True:
-                    if 'server' == self.type:  pcolor.LightPurple('    * Pending Changes.  Sleeping for 120 Seconds'); time.sleep(120)
-                    else:  pcolor.LightPurple('    * Pending Changes.  Sleeping for 60 Seconds'); time.sleep(60)
-                for e in list(kwargs.profile_update.keys()):
-                    if kwargs.profile_update[e].pending_changes == 'Deploy':
-                        pcolor.Green(f'    - Beginning Profile Deployment for `{e}`.')
-                        kwargs.api_body= {'Action':'Deploy'}
-                        kwargs.method = 'patch'
-                        kwargs.pmoid  = kwargs.isight[kwargs.org].profile[self.type][e]
-                        kwargs = api(self.type).calls(kwargs)
-                    else: pcolor.LightPurple(f'    - Skipping Org: {kwargs.org}; Profile Deployment for `{e}`.  No Pending Changes.')
-                if deploy_pending == True:
-                    if 'server' == self.type:  pcolor.LightPurple('    * Deploying Changes.  Sleeping for 600 Seconds'); time.sleep(600)
-                    else:  pcolor.LightPurple('    * Deploying Changes.  Sleeping for 60 Seconds'); time.sleep(60)
-                for e in list(kwargs.profile_update.keys()):
-                    if kwargs.profile_update[e].pending_changes == 'Deploy':
-                        deploy_complete= False
-                        while deploy_complete == False:
-                            kwargs.method = 'get_by_moid'
-                            kwargs.pmoid  = kwargs.isight[kwargs.org].profile[self.type][e]
-                            kwargs = api(self.type).calls(kwargs)
-                            if kwargs.results.ConfigContext.ControlAction == 'No-op':
-                                deploy_complete = True
-                                if re.search('^(chassis)$', self.type): pcolor.Green(f'    - Completed Profile Deployment for `{e}`.')
-                            else: 
-                                if 'server' == self.type: pcolor.Cyan(f'      * Deploy Still Occuring on `{e}`.  Waiting 120 seconds.'); time.sleep(120)
-                                else: pcolor.Cyan(f'      * Deploy Still Occuring on `{e}`.  Waiting 60 seconds.'); time.sleep(60)
-                if 'server' == self.type:
-                    pcolor.LightPurple(f'\n{"-"*108}\n')
-                    names = []
-                    for e in list(kwargs.profile_update.keys()):
-                        if not kwargs.profile_update[e].pending_changes == 'Empty': names.append(e)
-                    if len(names) > 0:
-                        kwargs = api_get(False, names, self.type, kwargs)
-                        profile_results = kwargs.results
-                    pending_activations = False
-                    for e in list(kwargs.profile_update.keys()):
-                        if not kwargs.profile_update[e].pending_changes == 'Empty':
-                            indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
-                            if len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
-                                pcolor.Green(f'    - Beginning Profile Activation for `{e}`.')
-                                kwargs.api_body= {'ScheduledActions':[{'Action':'Activate', 'ProceedOnReboot':True}]}
-                                kwargs.method = 'patch'
-                                kwargs.pmoid  = kwargs.isight[kwargs.org].profile[self.type][e]
-                                kwargs = api(self.type).calls(kwargs)
-                                pending_activations = True
-                            else:
-                                pcolor.LightPurple(f'    - Skipping Org: {kwargs.org}; Profile Activation for `{e}`.  No Pending Changes.')
-                                kwargs.profile_update[e].pending_changes = 'Empty'
-                    if pending_activations == True:
-                        pcolor.LightPurple(f'\n{"-"*108}\n')
-                        pcolor.LightPurple('    * Pending Activitions.  Sleeping for 300 Seconds'); time.sleep(300)
-                    activate_names = []
-                    for e in list(kwargs.profile_update.keys()):
-                        if not kwargs.profile_update[e].pending_changes == 'Empty':
-                            activate_names.append(kwargs.isight[kwargs.org].profile[self.type][e])
-                    if len(activate_names) > 0:
-                        dt    = datetime.today().strftime('%Y-%m-%d')
-                        names = "', '".join(activate_names).strip("', '")
-                        str1  = f"CreateTime gt {dt}T00:00:00.000Z and CreateTime lt {dt}T23:59:59.999Z and AssociatedObject.Moid in ('{names}')"
-                        str2  = f" and WorkflowCtx.WorkflowType eq 'Activate'"
-                        kwargs.api_filter = str1 + str2
-                        kwargs.method     = 'get'
-                        kwargs.uri        = 'workflow/WorkflowInfos'
-                        kwargs            = api('workflows').calls(kwargs)
-                        activate_results  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
-                    loop_count = 0
-                    def failed_message(e):
-                        pcolor.Yellow(f'\n{"-"*75}\n')
-                        pcolor.Red(f'  - Failed to Activate Profile `{e}`.  Please validate in Intersight the reason for the failure.')
-                        pcolor.Yellow(f'\n{"-"*75}\n')
-                    def success_message(e):
-                        pcolor.Green(f'    - Completed Profile Activiation for `{e}`.')
-                    for e in list(kwargs.profile_update.keys()):
-                        retry_count = 60
-                        if not kwargs.profile_update[e].pending_changes == 'Empty':
-                            prmoid = kwargs.isight[kwargs.org].profile[self.type][e]
-                            indx   = next((index for (index, d) in enumerate(activate_results) if d['AssociatedObject']['Moid'] == prmoid), None)
-                            deploy_complete = False
-                            while deploy_complete == False:
-                                if retry_count > 60: failed_message(e); deploy_complete == True
-                                if loop_count > 0:
-                                    kwargs.method = 'get_by_moid'
-                                    kwargs.pmoid  = activate_results[indx].Moid
-                                    kwargs        = api(self.type).calls(kwargs)
-                                    active_result = kwargs.results
-                                else: active_result = activate_results[indx]
-                                if active_result.WorkflowStatus == 'Completed': success_message(e); deploy_complete   = True
-                                elif re.search('Failed|Terminated|Canceled', active_result.WorkflowStatus):
-                                    failed_message(e); deploy_complete == True
-                                else:  
-                                    progress = active_result.Progress; status = active_result.WorkflowStatus
-                                    pcolor.Cyan(f'{" "*6}* Profile Activation Still In Progress for `{e}`.  Status: `{status}` Progress: `{progress}`, Sleeping for 120 seconds.')
-                                    time.sleep(120)
-                                loop_count += 1
-                        else: success_message(e)
-                pcolor.LightPurple(f'\n{"-"*108}\n')
-        return kwargs
-
-    #=========================================================================
-    # Function - Build Domain Profiles
-    #=========================================================================
-    def profile_domain(self, profiles, kwargs):
-        ezdata = kwargs.ezdata[self.type]
-        for item in profiles:
-            pdata = {'name':item.name}; plist = ['description', 'tags']
-            for e in plist:
-                if item.get(e): pdata.update({e:item[e]})
-            api_body = {'ObjectType':ezdata.ObjectType}
-            api_body = imm(self.type).build_api_body(api_body, kwargs.idata, pdata, kwargs)
-            kwargs  = imm(self.type).profile_api_calls(api_body, kwargs)
-            if len(kwargs.bulk_list) > 0:
-                if not kwargs.plist.get('domain'): kwargs.plist.domain = []
-                kwargs.plist.domain.extend(kwargs.bulk_list)
-                kwargs.bulk_list = []
-            #=========================================================================
-            # Build api_body for Switch Profiles
-            #=========================================================================
-            cluster_moid = kwargs.isight[kwargs.org].profile[self.type][item.name]
-            for x in range(0,2):
-                sw_name = f"{item.name}-{chr(ord('@')+x+1)}"; otype = 'SwitchClusterProfile'
-                if kwargs.switch_moids.get(item.name):
-                    kwargs.isight[kwargs.org].profile['switch'][sw_name] = kwargs.switch_moids[item.name][sw_name].moid
-                pdata = dict(deepcopy(item), **{'name':sw_name})
-                api_body = {'Name':sw_name, 'ObjectType':'fabric.SwitchProfile', otype:{'Moid':cluster_moid,'ObjectType':f'fabric.{otype}'}}
-                api_body = imm(self.type).build_api_body(api_body, kwargs.idata, pdata, kwargs)
-                kwargs.x_number = x
-                api_body = imm.profile_policy_bucket(self, api_body, kwargs)
-                if api_body.get('SerialNumber'): api_body = imm.assign_physical_device(self, api_body, kwargs)
-                pop_list = ['Action', 'Description', 'Organization', 'Tags']
-                for e in pop_list:
-                    if api_body.get(e): api_body.pop(e)
-                temp_results = kwargs.profile_results
-                kwargs.profile_results = kwargs.switch_results[item.name]
-                kwargs  = imm(self.type).profile_api_calls(api_body, kwargs)
-                kwargs.profile_results = temp_results
-                if len(kwargs.bulk_list) > 0:
-                    if not kwargs.plist.get('switch'): kwargs.plist.switch = []
-                    kwargs.plist.switch.extend(kwargs.bulk_list)
-                    kwargs.bulk_list = []
-        #=========================================================================
-        # POST Bulk Request if Post List > 0
-        #=========================================================================
-        for e in list(kwargs.plist.keys()):
-            if len(kwargs.plist[e]) > 0:
-                if 'domain' == e: kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-                else: kwargs.uri = kwargs.ezdata[self.type].intersight_uri_switch
-                kwargs.bulk_list = kwargs.plist[e]
-                kwargs = imm(self.type).bulk_request(kwargs)
-        return kwargs
-
-    #=========================================================================
-    # Function - Deploy Domain Profile if Action is Deploy
-    #=========================================================================
-    def profile_domain_deploy(self, profiles, kwargs):
-        pending_changes = False
-        for item in profiles:
-            if item.get('action') and item.get('serial_numbers'):
-                serial_check = True
-                for e in item.serial_numbers:
-                    if not re.search(serial_regex, e): serial_check = False
-                if item.action == 'Deploy' and serial_check == True:
-                    kwargs.method = 'get'
-                    kwargs.names  = [kwargs.isight[kwargs.org].profile[self.type][item.name]]
-                    kwargs.uri    = kwargs.ezdata['domain'].intersight_uri_switch
-                    kwargs        = api('switch_profile').calls(kwargs)
-                    kwargs.cluster_update[item.name].names = []
-                    kwargs.cluster_update[item.name].pending_changes = False
-                    for r in kwargs.results:
-                        if len(r.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", r.ConfigContext.ConfigState):
-                            pending_changes = True
-                            kwargs.cluster_update[item.name].pending_changes = True
-                            kwargs.cluster_update[item.name].names.append(r.Name)
-        if pending_changes == True:
-            pcolor.LightPurple(f'\n{"-"*108}\n')
-            pcolor.Cyan('      * Sleeping for 120 Seconds'); time.sleep(120)
-        for item in profiles:
-            if kwargs.cluster_update[item.name].pending_changes == True:
-                for pname in kwargs.cluster_update[item.name].names:
-                    pcolor.Green(f'    - Beginning Profile Deployment for {pname}')
-                    kwargs.api_body= {'Action':'Deploy'}
-                    kwargs.method = 'patch'
-                    kwargs.pmoid  = kwargs.isight[kwargs.org].profile['switch'][pname]
-                    kwargs = api('switch_profiles').calls(kwargs)
-        if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n'); time.sleep(60)
-        for item in profiles:
-            if kwargs.cluster_update[item.name].pending_changes == True:
-                for pname in kwargs.cluster_update[item.name].names:
-                    kwargs.method= 'get_by_moid'
-                    kwargs.pmoid = kwargs.isight[kwargs.org].profile['switch'][pname]
-                    deploy_complete = False
-                    while deploy_complete == False:
-                        kwargs = api('switch_profiles').calls(kwargs)
-                        if kwargs.results.ConfigContext.ControlAction == 'No-op':
-                            pcolor.Green(f'    - Completed Profile Deployment for {pname}')
-                            deploy_complete = True
-                        else:  pcolor.Cyan(f'      * Deploy Still Occuring on {pname}.  Waiting 120 seconds.'); time.sleep(120)
-        if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n')
-        return kwargs
-
-    #=========================================================================
-    # Function - Assign Moid to Policy in Bucket
-    #=========================================================================
-    def profile_policy_bucket(self, api_body, kwargs):
-        for x in range(len(api_body['PolicyBucket'])):
-            ptype = ((api_body['PolicyBucket'][x]['policy']).replace('_policy', '')).replace('_policies', '')
-            api_body['PolicyBucket'][x].pop('policy')
-            if self.type == 'switch':
-                if re.search('-A', api_body['Name']): f = 0
-                else: f = 1
-            if type(api_body['PolicyBucket'][x]['Moid']) == list:
-                if len(api_body['PolicyBucket'][x]['Moid']) == 2: opolicy = api_body['PolicyBucket'][x]['Moid'][f]
-                else: opolicy = api_body['PolicyBucket'][x]['Moid'][0]
-            else: opolicy = api_body['PolicyBucket'][x]['Moid']
-            if '/' in opolicy: org, policy = opolicy.split('/')
-            else: org = kwargs.org; policy = opolicy
-            if not kwargs.isight[org].policy[ptype].get(policy):
-                validating.error_policy_doesnt_exist(ptype, opolicy, self.type, 'profile', api_body['Name'])
-            api_body['PolicyBucket'][x]['Moid'] = kwargs.isight[org].policy[ptype][policy]
-        if api_body.get('UuidPool'):
-            api_body['UuidAddressType'] = 'POOL'
-            if '/' in api_body['UuidPool']['Moid']: org, pool = api_body['UuidPool']['Moid'].split('/')
-            else: org = kwargs.org; pool = api_body['UuidPool']['Moid']
-            if not kwargs.isight[org].pool['uuid'].get(pool):
-                validating.error_policy_doesnt_exist('uuid', api_body['UuidPool']['Moid'], self.type, 'profile', api_body['Name'])
-            api_body['UuidPool']['Moid'] = kwargs.isight[org].pool['uuid'][pool]
-        return api_body
-
-    #=========================================================================
-    # Function - Build Server Profiles
-    #=========================================================================
-    def profile_server(self, profiles, kwargs):
-        ezdata = kwargs.ezdata[self.type]
-        for e in profiles:
-            ekeys = list(e.keys())
-            api_body = {'ObjectType':ezdata.ObjectType}
-            if 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
-                if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
-                else: org = kwargs.org; template = e.ucs_server_template
-            elif 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
-                if '/' in e.ucs_server_profile_template: org, template = e.ucs_server_profile_template.split('/')
-                else: org = kwargs.org; template = e.ucs_server_profile_template
-            if   e.attach_template != True and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
-                pitems = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
-            elif e.attach_template != True and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
-                pitems = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
-            else: pitems = deepcopy(e)
-            pop_items = ['action', 'attach_template', 'create_template', 'domain_name', 'ignore_reservations', 'reservations',
-                         'ucs_server_template', 'ucs_server_profile_template']
-            pkeys = list(pitems.keys())
-            for p in pop_items:
-                if p in pkeys: pitems.pop(p)
-            plist = []
-            for k, v in kwargs.idata.items():
-                if '_policy' in k: plist.append(k)
-                if '_pool' in k: plist.append(k)
-            for p in plist:
-                if pitems.get(p):
-                    if org != kwargs.org:
-                        if not '/' in pitems[p]: pitems[p] = f'{org}/{pitems[p]}'
-            api_body = {'ObjectType':ezdata.ObjectType}
-            api_body = imm(self.type).build_api_body(api_body, kwargs.idata, pitems, kwargs)
-            if not api_body.get('TargetPlatform'): api_body['TargetPlatform'] = 'FIAttached'
-            if api_body.get('PolicyBucket'): api_body = imm.profile_policy_bucket(api_body, kwargs)
-            if 'reservations' in pkeys:
-                kwargs = imm.profile_server_reservations(self, e, api_body, kwargs)
-            if api_body.get('SerialNumber'): api_body = imm.assign_physical_device(self, api_body, kwargs)
-            if api_body.get('ServerPreAssignBySlot'):
-                if api_body['ServerPreAssignBySlot'].get('SerialNumber'):
-                    api_body['ServerPreAssignBySerial'] = api_body['ServerPreAssignBySlot']['SerialNumber']
-                    api_body.pop('ServerPreAssignBySlot')
-                else:
-                    if not e.get('domain_name'):
-                        kwargs.name = e.name; kwargs.argument = 'domain_name'
-                        validating.error_required_argument_missing(self.type, kwargs)
-                    api_body['ServerPreAssignBySlot']['DomainName'] = e.domain_name
-            if   e.attach_template == True and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
-                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].profile.server_template[template], 'ObjectType':'server.ProfileTemplate'}
-            elif e.attach_template == True and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
-                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].profile.server_template[template], 'ObjectType':'server.ProfileTemplate'}
-            else: api_body['SrcTemplate'] = None
-            kwargs = imm(self.type).profile_api_calls(api_body, kwargs)
-        #=========================================================================
-        # POST bulk/Requests if Bulk List > 0
-        #=========================================================================
-        if len(kwargs.bulk_list) > 0:
-            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-            kwargs     = imm(self.type).bulk_request(kwargs)
-            for e in kwargs.results: kwargs.isight[kwargs.org].profile[self.type][e.Body.Name] = e.Body.Moid
-        kwargs.bulk_merger_template = DotMap()
-        for e in profiles:
-            ekeys = list(e.keys())
-            template_check = False
-            if   e.attach_template == True and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
-                template_check = True
-                if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
-                else: org = kwargs.org; template = e.ucs_server_template
-            elif e.attach_template == True and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
-                template_check = True
-                if '/' in e.ucs_server_profile_template: org, template = e.ucs_server_profile_template.split('/')
-                else: org = kwargs.org; template = e.ucs_server_profile_template
-            if template_check == True:
-                if not kwargs.bulk_merger_template.get(f'{org}/{template}'):
-                    tmoid = kwargs.isight[org].profile['server_template'][template]
-                    kwargs.bulk_merger_template[f'{org}/{template}'] = {
-                        'MergeAction': 'Merge', 'ObjectType': 'bulk.MoMerger', 'Targets':[],
-                        'Sources':[{'Moid':tmoid, 'ObjectType':'server.ProfileTemplate'}]}
-                idict = {'Moid': kwargs.isight[kwargs.org].profile[self.type][e.name], 'ObjectType':'server.Profile'}
-                kwargs.bulk_merger_template[f'{org}/{template}']['Targets'].append(idict)
-
-        #=========================================================================
-        # POST bulk/MoMergers if List > 0
-        #=========================================================================
-        if len(kwargs.bulk_merger_template) > 0:
-            for e in kwargs.bulk_merger_template.keys():
-                kwargs.api_body= kwargs.bulk_merger_template[e]
-                kwargs.method = 'post'
-                kwargs.uri    = 'bulk/MoMergers'
-                kwargs = api('bulk').calls(kwargs)
-        return kwargs
-
-    #=========================================================================
-    # Function - Build Server Profile Reservations
-    #=========================================================================
-    def profile_server_reservations(self, e, api_body, kwargs):
-        api_body['ReservationReferences'] = []
-        for i in e.reservations:
-            if i.identity in kwargs.ireservations[i.identity_type]:
-                if 'ww' in i.identity_type: rdict = {'ObjectType':'fcpool.ReservationReference'}
-                else: rdict = {'ObjectType':f'{i.identity_type}pool.ReservationReference'}
-                rdict.update({'ReservationMoid':kwargs.ireservations[i.identity_type][i.identity].moid})
-                if re.search('ip|mac|wwnn|wwpn', i.identity_type):
-                    if 'ip' in i.identity_type and re.search('band', i.management_type):
-                        rdict.update({'ConsumerType':f'{(i.management_type.lower()).title()}{(i.ip_type.lower()).title()}-Access'})
-                    elif 'ip' in i.identity_type: rdict.update({'ConsumerType':'ISCSI'})
-                    elif 'mac' in i.identity_type: rdict.update({'ConsumerType':'Vnic'})
-                    elif 'wwpn' in i.identity_type: rdict.update({'ConsumerType':f'Vhba'})
-                    elif 'wwnn' in i.identity_type: rdict.update({'ConsumerType':f'WWNN'})
-                    if len(i.management_type) == 0 and i.identity_type != 'wwnn': rdict.update({'ConsumerName':i.interface})
-                api_body['ReservationReferences'].append(rdict)
-        if len(api_body['ReservationReferences']) == 0: api_body.pop('ReservationReferences')
-        return kwargs
-
-    #=========================================================================
     # Function - Build Server Profile Templates
     #=========================================================================
-    def profile_template(self, profiles, kwargs):
+    def profile_templates_chassis_server(self, profiles, kwargs):
         ezdata = kwargs.ezdata[self.type]
+        kwargs.bulk_list = []
         for item in profiles:
-            api_body = {'ObjectType':ezdata.ObjectType}
+            api_body = {'ObjectType':ezdata.object_type}
             api_body = imm(self.type).build_api_body(api_body, kwargs.idata, item, kwargs)
             if not api_body.get('TargetPlatform'): api_body['TargetPlatform'] = 'FIAttached'
-            api_body = imm(self.type).profile_policy_bucket(api_body, kwargs)
+            api_body = imm(self.type).profiles_policy_bucket(api_body, kwargs)
             api_body.pop('create_template')
-            kwargs = imm(self.type).profile_api_calls(api_body, kwargs)
+            kwargs = imm(self.type).profiles_api_calls(api_body, kwargs)
         #=========================================================================
         # POST Bulk Request if Post List > 0
         #=========================================================================
@@ -2852,73 +2460,101 @@ class imm(object):
     # Function - Profiles Function
     #=========================================================================
     def profiles(self, kwargs):
-        #=========================================================================
+        #=====================================================================
         # Send Begin Notification and Load Variables
-        #=========================================================================
-        ptitle= ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
-        validating.begin_section(ptitle, 'profiles')
+        #=====================================================================
+        profile_type, dtype = self.type.split('.')
+        if 'template' in self.type: ptitle = ezfunctions.mod_pol_description((f'{dtype} Profile').title())
+        else: ptitle = ezfunctions.mod_pol_description(dtype.title())
+        validating.begin_section(ptitle, profile_type)
+        kkeys = list(kwargs.keys())
+        if not 'object_type_map' in kkeys:
+            for k, v in kwargs.ezdata.items():
+                if v.intersight_type == 'policies' and not '.' in k:
+                    kwargs.object_type_map[v.object_type] = DotMap(ezkey = k, intersight_uri = v.intersight_uri)
+                elif v.intersight_type == 'pools' and not '.' in k:
+                    kwargs.object_type_map[v.object_type] = DotMap(ezkey = k, intersight_uri = v.intersight_uri)
         names  = []; kwargs.cp = DotMap(); kwargs.serials = []
         ezdata = kwargs.ezdata[self.type]
-        idata  = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
-        if re.search('chassis|server', self.type):
+        idata  = DotMap(dict(pair for d in ezdata.allOf for pair in d.properties.items()))
+        if re.search('profiles.(chassis|server)', self.type):
             targets = DotMap(dict(pair for d in idata.targets['items'].allOf for pair in d.properties.items()))
             idata.pop('targets')
             idata = DotMap(dict(idata.toDict(), **targets.toDict()))
-        #=========================================================================
+        #=====================================================================
         # Compile List of Profile Names
-        #=========================================================================
+        #=====================================================================
         profiles            = []
         profile_policy_list = []
         run_reservation     = False
-        if 'template' in self.type:
-            for e in kwargs.imm_dict.orgs[kwargs.org]['templates']['server']:
+        if 'templates' in self.type:
+            for e in kwargs.imm_dict.orgs[kwargs.org].templates[dtype]:
                 if e.create_template == True: profiles.append(e)
                 profile_policy_list.append(e)
-        elif 'domain' in self.type:
-            profiles = kwargs.imm_dict.orgs[kwargs.org].profiles[self.type]
+        elif 'profiles.domain' in self.type:
+            profiles = kwargs.imm_dict.orgs[kwargs.org].profiles[dtype]
             profile_policy_list = profiles
             for e in profiles: kwargs.serials.extend(e.serial_numbers)
         else:
-            for v in kwargs.imm_dict.orgs[kwargs.org].profiles[self.type]:
+            for v in kwargs.imm_dict.orgs[kwargs.org].profiles[dtype]:
                 for e in v.targets:
                     profiles.append(DotMap(dict(e, **v)))
                     if 'reservations' in e:
                         if not e.ignore_reservations == True: run_reservation = True
                     if len(e.serial_number) > 0: kwargs.serials.append(e.serial_number)
             profile_policy_list = profiles
+        #=====================================================================
+        # Function - Get Template Names
+        #=====================================================================
+        def get_template(ekeys, kwargs):
+            args         = DotMap(org = kwargs.org, tname = '', template = '')
+            template_key = 'ucs_server_template'
+            if   'profiles.' in self.type and template_key in ekeys: template_key = template_key
+            elif 'profiles.' in self.type and f'ucs_{dtype}_profile_template' in ekeys: template_key = f'ucs_{dtype}_profile_template'
+            if   'profiles.' in self.type and template_key in ekeys and len(e[template_key]) > 0:
+                if '/' in e[template_key]: args.org, args.template = e[template_key].split('/')
+                else: args.org = kwargs.org; args.template = e[template_key]
+                args.tname = e[template_key]
+            return args
+        #=====================================================================
+        # Determine if the templates are not locally defined and append data
+        #=====================================================================
+        templates = []
         for e in profiles:
-            ekeys = list(e.keys())
-            if 'targets' in ekeys: e.pop('targets')
-            template_check = False
-            if   'server' == self.type and 'ucs_server_template' in ekeys and len(e.ucs_server_template) > 0:
-                if '/' in e.ucs_server_template: org, template = e.ucs_server_template.split('/')
-                else: org = kwargs.org; template = e.ucs_server_template
-                ptype = 'ucs_server_template'; tname = e.ucs_server_template
-            elif 'server' == self.type and 'ucs_server_profile_template' in ekeys and len(e.ucs_server_profile_template) > 0:
-                if '/' in e.ucs_server_profile_template: org, template = e.ucs_server_profile_template.split('/')
-                else: org = kwargs.org; template = e.ucs_server_profile_template
-                ptype = 'ucs_server_profile_template'; tname = e.ucs_server_profile_template
-            elif 'chassis' == self.type and 'ucs_chassis_profile_template' in ekeys and len(e.ucs_chassis_profile_template) > 0:
-                if '/' in e.ucs_chassis_profile_template: org, template = e.ucs_chassis_profile_template.split('/')
-                else: org = kwargs.org; template = e.ucs_chassis_profile_template
-                ptype = 'ucs_chassis_profile_template'; tname = e.ucs_chassis_profile_template
-            elif 'domain' == self.type and 'ucs_domain_profile_template' in ekeys and len(e.ucs_domain_profile_template) > 0:
-                if '/' in e.ucs_domain_profile_template: org, template = e.ucs_domain_profile_template.split('/')
-                else: org = kwargs.org; template = e.ucs_domain_profile_template
-                ptype = 'ucs_domain_profile_template'; tname = e.ucs_domain_profile_template
-            if template_check == True:
-                tdata = kwargs.imm_dict.orgs[org]['templates'][self.type]
-                indx  = next((index for (index, d) in enumerate(tdata) if d['name'] == template), None)
-                if indx == None: validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
-                elif tdata[indx].create_template == True and e.attach_template == True:
-                    if len(kwargs.isight[org].profile[f'{self.type}_template'][template]) == 0:
-                        validating.error_policy_doesnt_exist(ptype, tname, e.name, self.type, 'Profile')
-                kwargs.templates[f'{org}/{template}'] = tdata[indx]
+            if 'profiles.' in self.type:
+                ekeys = list(e.keys())
+                args  = get_template(ekeys, kwargs)
+                if len(args.tname) > 0:
+                     tkeys = list(kwargs.isight[args.org].templates[dtype].keys())
+                     if not args.tname in tkeys: templates.append(args.tname)
+        if len(templates) > 0:
+            kwargs.policy_lookup = DotMap()
+            if re.search('chassis|server', self.type):
+                kwargs = imm(self.type).profiles_chassis_server_lookup_templates(templates, kwargs)
+            elif 'profiles.domain' == self.type:
+                kwargs = imm(self.type).profiles_domain_lookup_templates(templates, kwargs)
+        #=====================================================================
+        # Loop Through Profiles for Templates
+        #=====================================================================
+        if 'profiles.' in self.type:
+            for e in profiles:
+                ekeys = list(e.keys())
+                if 'targets' in ekeys: e.pop('targets')
+                args = get_template(ekeys, kwargs)
+                if len(args.tname) > 0:
+                    tkeys = list(kwargs.isight[args.org].templates[dtype].keys())
+                    if not args.template in tkeys:
+                        validating.error_policy_doesnt_exist('templates', args.tname, e.name, dtype, 'Profile')
+                    kwargs.templates[args.tname]
+                    tdata = kwargs.imm_dict.orgs[args.org].templates[dtype]
+                    indx  = next((index for (index, d) in enumerate(tdata) if d['name'] == args.template), None)
+                    if indx != None:
+                        kwargs.templates[f'{args.org}/{args.template}'] = tdata[indx]
         #=========================================================================
         # Loop Through Reservations if True
         #=========================================================================
-        if self.type == 'server' and run_reservation == True:
-            kwargs = imm.identity_reservations(self, profiles, kwargs)
+            if self.type == 'profiles.server' and run_reservation == True:
+                kwargs = imm.identity_reservations(self, profiles, kwargs)
         kwargs.bulk_list = []
         #=========================================================================
         # Get Moids for Profiles/Templates
@@ -2931,14 +2567,24 @@ class imm(object):
         # Get Moids for Switch Profiles
         #=========================================================================
         if 'domain' in self.type:
-            kwargs.uri = ezdata.intersight_uri_switch
-            for c in names:
-                kwargs.names  = []
-                if kwargs.isight[kwargs.org].profile[self.type].get(c):
-                    kwargs.names = [kwargs.isight[kwargs.org].profile[self.type][c]]
-                    kwargs       = api('switch_profiles').calls(kwargs)
-                    kwargs.switch_moids[c]   = kwargs.pmoids
-                    kwargs.switch_results[c] = kwargs.results
+            kwargs.uri = ezdata.switch_intersight_uri
+            swkeys     = list(kwargs.isight[kwargs.org][profile_type][dtype].keys())
+            sw_names  = []
+            for sw in names:
+                if sw in swkeys: sw_names.append(kwargs.isight[kwargs.org][profile_type][dtype][sw])
+            if len(sw_names) > 0:
+                if 'profiles' in self.type: sw_key = 'switch_profiles'
+                else: sw_key = 'sw_profile_templates'
+                kwargs.names = sw_names
+                kwargs       = api(sw_key).calls(kwargs)
+                for e in kwargs.results:
+                    for sw in names:
+                        swm = list(kwargs.switch_moids.keys())
+                        if e.Parent.Moid == kwargs.isight[kwargs.org][profile_type][dtype][sw]:
+                            kwargs.isight[kwargs.org][profile_type]['switch'][e.Name] = e.Moid
+                            if not sw in swm: kwargs.switch_moids[sw] = []; kwargs.switch_results[sw] = []
+                            kwargs.switch_moids[sw].append(kwargs.pmoids[e.Name])
+                            kwargs.switch_results[sw].append(e)
         #=========================================================================
         # Compile List of Policy Names
         #=========================================================================
@@ -2952,8 +2598,8 @@ class imm(object):
                         original_policy = policy
                         if '/' in policy: org, policy = policy.split('/')
                         else: org = kwargs.org; policy = policy
-                        if 'pool' in k: p = 'pool'
-                        else: p = 'policy'
+                        if 'pool' in k: p = 'pools'
+                        else: p = 'policies'
                         np, ns = ezfunctions.name_prefix_suffix(ptype, kwargs)
                         policy = f"{np}{policy}{ns}"
                         if '/' in original_policy: new_policy = f'{org}/{policy}'
@@ -2981,26 +2627,607 @@ class imm(object):
             kwargs                = api('serial_number').calls(kwargs)
             kwargs.serial_moids   = kwargs.pmoids
             kwargs.serial_results = kwargs.results
-        kwargs.uri = ezdata.intersight_uri
         #=========================================================================
         # Create the Profiles with the Functions
         #=========================================================================
         kwargs.idata = idata
-        if 'server' == self.type:
-            kwargs = imm.profile_server(self, profiles, kwargs)
-            kwargs = imm.profile_chassis_server_deploy(self, profiles, kwargs)
-        elif 'chassis' == self.type:
-            kwargs = imm.profile_chassis(self, profiles, kwargs)
-            kwargs = imm.profile_chassis_server_deploy(self, profiles, kwargs)
-        elif 'server_template' == self.type:
-            kwargs = imm.profile_template(self, profiles, kwargs)
-        elif 'domain' == self.type:
-            kwargs = imm.profile_domain(self, profiles, kwargs)
-            kwargs = imm.profile_domain_deploy(self, profiles, kwargs)
+        kwargs.uri   = ezdata.intersight_uri
+        if re.search('^profiles.(chassis|server)$', self.type):
+            kwargs = imm.profiles_chassis_server(self, profiles, kwargs)
+            kwargs = imm.profiles_chassis_server_deploy(self, profiles, kwargs)
+        elif re.search('^templates.(chassis|server)$', self.type):
+            kwargs = imm.profile_templates_chassis_server(self, profiles, kwargs)
+        elif 'profiles.domain' == self.type:
+            kwargs = imm.profiles_domain(self, profiles, kwargs)
+            kwargs = imm.profiles_domain_deploy(self, profiles, kwargs)
+        elif 'templates.domain' == self.type:
+            kwargs = imm.profiles_domain(self, profiles, kwargs)
         #========================================================
         # End Function and return kwargs
         #========================================================
-        validating.end_section(ptitle, 'profiles')
+        validating.end_section(ptitle, profile_type)
+        return kwargs
+
+    #=========================================================================
+    # Function - Profile Creation Function
+    #=========================================================================
+    def profiles_api_calls(self, api_body, kwargs):
+        profile_type, dtype = self.type.split('.')
+        ikeys = list(kwargs.isight[kwargs.org][profile_type][dtype].keys())
+        if 'template' in self.type: ptitle = ezfunctions.mod_pol_description((f'{dtype} Profile {profile_type}').title())
+        else: ptitle = ezfunctions.mod_pol_description(f'{dtype} {profile_type}'.title())
+        if api_body['Name'] in ikeys:
+            indx = next((index for (index, d) in enumerate(kwargs.profile_results) if d['Name'] == api_body['Name']), None)
+            patch_profile = imm(self.type).compare_body_result(api_body, kwargs.profile_results[indx])
+            api_body['pmoid'] = kwargs.isight[kwargs.org][profile_type][dtype][api_body['Name']]
+            if patch_profile == True:
+                if 'SrcTemplate' in api_body:
+                    if api_body['SrcTemplate'] != None and kwargs.profile_results[indx].SrcTemplate != None:
+                        if api_body['SrcTemplate']['Moid'] != kwargs.profile_results[indx].SrcTemplate.Moid:
+                            kwargs.api_body = {'SrcTemplate':None}
+                            kwargs.method   = 'patch'
+                            kwargs.pmoid    = kwargs.isight[kwargs.org][profile_type][dtype][api_body['Name']]
+                            kwargs.uri      = kwargs.ezdata[self.type].intersight_uri
+                            kwargs          = api(self.type).calls(kwargs)
+                kwargs.bulk_list.append(deepcopy(api_body))
+            else:
+                pcolor.Cyan(
+                    f"{' '*6}* Skipping Org: {kwargs.org} > {ptitle}: `{api_body['Name']}`.  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
+        else: kwargs.bulk_list.append(deepcopy(api_body))
+        return kwargs
+
+    #=========================================================================
+    # Function - Merge Template with Chassis/Domain/Server Profile
+    #=========================================================================
+    def profiles_bulk_merge_template(self, profiles, kwargs):
+        dtype  = self.type.split('.')[1]
+        if re.search('chassis|server', self.type): otype = f'{dtype}.Profile'
+        elif 'switch' in self.type: otype = 'fabric.SwitchProfile'
+        else: otype = 'fabric.SwitchClusterProfile'
+        kwargs.bulk_merger_template = DotMap()
+        for e in profiles:
+            ekeys = list(e.keys())
+            template_key = 'ucs_server_template'
+            if template_key in ekeys: template_key = template_key
+            elif f'ucs_{dtype}_profile_template' in ekeys: template_key = f'ucs_{dtype}_profile_template'
+            template_check = False
+            if e.attach_template == True and template_key in ekeys and len(e[template_key]) > 0:
+                if '/' in e[template_key]: org, template = e[template_key].split('/')
+                else: org = kwargs.org; template = e[template_key]
+                if len(template) > 0: template_check = True
+            if template_check == True:
+                if 'switch' in self.type:
+                    for x in range(1,3):
+                        sw_template = f"{template}-{chr(ord('@')+x)}"
+                        if not kwargs.bulk_merger_template.get(f'{org}/{sw_template}'):
+                            tmoid = kwargs.isight[org].templates[dtype][sw_template]
+                            kwargs.bulk_merger_template[f'{org}/{sw_template}'] = {
+                                'MergeAction': 'Merge', 'ObjectType': 'bulk.MoMerger', 'Targets':[],
+                                'Sources':[{'Moid':tmoid, 'ObjectType':f'{otype}Template'}]}
+                        idict = {'Moid': kwargs.isight[kwargs.org].profiles[dtype][f'{e.name}-{chr(ord('@')+x)}'], 'ObjectType':otype}
+                        kwargs.bulk_merger_template[f'{org}/{template}']['Targets'].append(idict)
+                else:
+                    if not kwargs.bulk_merger_template.get(f'{org}/{template}'):
+                        tmoid = kwargs.isight[org].templates[dtype][template]
+                        kwargs.bulk_merger_template[f'{org}/{template}'] = {
+                            'MergeAction': 'Merge', 'ObjectType': 'bulk.MoMerger', 'Targets':[],
+                            'Sources':[{'Moid':tmoid, 'ObjectType':f'{otype}Template'}]}
+                    idict = {'Moid': kwargs.isight[kwargs.org].profiles[dtype][e.name], 'ObjectType':otype}
+                    kwargs.bulk_merger_template[f'{org}/{template}']['Targets'].append(idict)
+        #=========================================================================
+        # POST bulk/MoMergers if Map > 0 and return kwargs
+        #=========================================================================
+        if len(kwargs.bulk_merger_template) > 0:
+            for e in kwargs.bulk_merger_template.keys():
+                kwargs.api_body = kwargs.bulk_merger_template[e]
+                kwargs.method   = 'post'
+                kwargs.uri      = 'bulk/MoMergers'
+                kwargs          = api('bulk').calls(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function - Build Chassis/Server Profiles
+    #=========================================================================
+    def profiles_chassis_server(self, profiles, kwargs):
+        dtype  = self.type.split('.')[1]
+        ezdata = kwargs.ezdata[self.type]
+        for e in profiles:
+            ekeys    = list(e.keys())
+            api_body = {'ObjectType':ezdata.object_type}
+            template_key = 'ucs_server_template'
+            if template_key in ekeys: template_key = template_key
+            elif f'ucs_{dtype}_profile_template' in ekeys: template_key = f'ucs_{dtype}_profile_template'
+            attach_template = False
+            if template_key in ekeys and len(e[template_key]) > 0:
+                attach_template = True
+                if '/' in e[template_key]: org, template = e[template_key].split('/')
+                else: org = kwargs.org; template = e[template_key]
+            if e.attach_template != True and template_key in ekeys and len(e[template_key]) > 0:
+                pitems = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
+            else: pitems = deepcopy(e)
+            pop_items = ['action', 'attach_template', 'create_template', 'domain_name', 'ignore_reservations', 'reservations',
+                         'ucs_chassis_profile_template', 'ucs_server_template', 'ucs_server_profile_template']
+            pkeys = list(pitems.keys())
+            for p in pop_items:
+                if p in pkeys: pitems.pop(p)
+            plist = []
+            for k in list(kwargs.idata.keys()):
+                if re.search('_policy|_pool$', k): plist.append(k)
+            pitem_keys = list(pitems.keys())
+            for p in plist:
+                if p in pitem_keys:
+                    if not '/' in pitems[p]: pitems[p] = f'{kwargs.org}/{pitems[p]}'
+            api_body = {'ObjectType':ezdata.object_type}
+            api_body = imm(self.type).build_api_body(api_body, kwargs.idata, pitems, kwargs)
+            if not api_body.get('TargetPlatform'): api_body['TargetPlatform'] = 'FIAttached'
+            if api_body.get('PolicyBucket') or api_body.get('UuidPool'): api_body = imm(self.type).profiles_policy_bucket(api_body, kwargs)
+            if 'reservations' in pkeys: kwargs = imm.profiles_server_reservations(self, e, api_body, kwargs)
+            if api_body.get('SerialNumber'): api_body = imm(self.type).assign_physical_device(api_body, kwargs)
+            if api_body.get('ServerPreAssignBySlot'):
+                if api_body['ServerPreAssignBySlot'].get('SerialNumber'):
+                    api_body['ServerPreAssignBySerial'] = api_body['ServerPreAssignBySlot']['SerialNumber']
+                    api_body.pop('ServerPreAssignBySlot')
+                else:
+                    if not e.get('domain_name'):
+                        kwargs.name = e.name; kwargs.argument = 'domain_name'
+                        validating.error_required_argument_missing(self.type, kwargs)
+                    api_body['ServerPreAssignBySlot']['DomainName'] = e.domain_name
+            if attach_template == True and len(template) > 0:
+                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].templates[dtype][template], 'ObjectType':f'{ezdata.object_type}Template'}
+            else: api_body['SrcTemplate'] = None
+            kwargs = imm(self.type).profiles_api_calls(api_body, kwargs)
+        #=========================================================================
+        # POST bulk/Requests if Bulk List > 0
+        #=========================================================================
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+            kwargs     = imm(self.type).bulk_request(kwargs)
+            for e in kwargs.results: kwargs.isight[kwargs.org].profiles[self.type][e.Body.Name] = e.Body.Moid
+        kwargs = imm(self.type).profiles_bulk_merge_template(profiles, kwargs)
+        #=========================================================================
+        # PATCH Profiles if has attach_template True and has a description
+        #=========================================================================
+        kwargs.bulk_list = []
+        for e in profiles:
+            ekeys = list(e.keys())
+            template_key = 'ucs_server_template'
+            if template_key in ekeys: template_key = template_key
+            elif f'ucs_{dtype}_profile_template' in ekeys: template_key = f'ucs_{dtype}_profile_template'
+            if 'description' in ekeys and template_key in ekeys and len(e[template_key]) > 0:
+                api_body = dict(Description = e.description, Name = e.name, ObjectType = ezdata.object_type)
+                api_body['pmoid'] = kwargs.isight[kwargs.org].profiles[dtype][api_body['Name']]
+                kwargs.bulk_list.append(api_body)
+        if len(kwargs.bulk_list) > 0:
+            pcolor.Cyan('')
+            pcolor.Cyan(f'{" "*3}Updating {dtype.capitalize()} Profile descriptions.')
+            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+            kwargs     = imm(self.type).bulk_request(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function - Deploy Profile if Action is Deploy
+    #=========================================================================
+    def profiles_chassis_server_deploy(self, profiles, kwargs):
+        cregex = re.compile('Analyzing|Assigned|Failed|Inconsistent|Validating')
+        pending_changes = False
+        kwargs.profile_update = DotMap()
+        kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+        for e in profiles:
+            ekeys = list(e.keys())
+            if 'action' in ekeys and 'serial_number' in ekeys and re.search(serial_regex, e.serial_number):
+                kwargs.profile_update[e.name] = e
+                kwargs.profile_update[e.name].pending_changes = 'Empty'
+        if len(kwargs.profile_update) > 0:
+            kwargs = api_get(False, list(kwargs.profile_update.keys()), self.type, kwargs)
+            profile_results = kwargs.results
+            for e in list(kwargs.profile_update.keys()):
+                indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
+                changes  = profile_results[indx].ConfigChanges.Changes
+                cstate   = profile_results[indx].ConfigContext.ConfigState
+                csummary = profile_results[indx].ConfigContext.ConfigStateSummary
+                isummary = profile_results[indx].ConfigChangeContext.InitialConfigContext.ConfigStateSummary
+                if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary) or re.search(cregex, isummary):
+                    pending_changes = True
+                    kwargs.profile_update[e].pending_changes = 'Deploy'
+                elif len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
+                    pending_changes = True
+                    kwargs.profile_update[e].pending_changes = 'Activate'
+            if pending_changes == True:
+                pcolor.LightPurple(f'\n{"-"*108}\n')
+                deploy_pending = False
+                for e in list(kwargs.profile_updates.keys()):
+                    if kwargs.profile_update[e].pending_changes == 'Deploy': deploy_pending = True
+                if deploy_pending == True:
+                    if 'server' == self.type:  pcolor.LightPurple(f'{" "*4}* Pending Changes.  Sleeping for 120 Seconds'); time.sleep(120)
+                    else:  pcolor.LightPurple('    * Pending Changes.  Sleeping for 60 Seconds'); time.sleep(60)
+                for e in list(kwargs.profile_update.keys()):
+                    if kwargs.profile_update[e].pending_changes == 'Deploy':
+                        pcolor.Green(f'{" "*4}- Beginning Profile Deployment for `{e}`.')
+                        kwargs.api_body= {'Action':'Deploy'}
+                        kwargs.method = 'patch'
+                        kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[self.type][e]
+                        kwargs = api(self.type).calls(kwargs)
+                    else: pcolor.LightPurple(f'{" "*4}- Skipping Org: {kwargs.org}; Profile Deployment for `{e}`.  No Pending Changes.')
+                if deploy_pending == True:
+                    if 'profiles.server' == self.type:  pcolor.LightPurple(f'{" "*4}* Deploying Changes.  Sleeping for 600 Seconds'); time.sleep(600)
+                    else:  pcolor.LightPurple(f'{" "*4}* Deploying Changes.  Sleeping for 60 Seconds'); time.sleep(60)
+                for e in list(kwargs.profile_update.keys()):
+                    if kwargs.profile_update[e].pending_changes == 'Deploy':
+                        deploy_complete= False
+                        while deploy_complete == False:
+                            kwargs.method = 'get_by_moid'
+                            kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[self.type][e]
+                            kwargs = api(self.type).calls(kwargs)
+                            if kwargs.results.ConfigContext.ControlAction == 'No-op':
+                                deploy_complete = True
+                                if 'chassis' in self.type: pcolor.Green(f'{" "*4}- Completed Profile Deployment for `{e}`.')
+                            else: 
+                                if 'server' in self.type: pcolor.Cyan(f'{" "*6}* Deploy Still Occuring on `{e}`.  Waiting 120 seconds.'); time.sleep(120)
+                                else: pcolor.Cyan(f'{" "*6}* Deploy Still Occuring on `{e}`.  Waiting 60 seconds.'); time.sleep(60)
+                if 'profiles.server' == self.type:
+                    kwargs = imm(self.type).profiles_server_activate(kwargs)
+                pcolor.LightPurple(f'\n{"-"*108}\n')
+        return kwargs
+
+    #=========================================================================
+    # Function - Policy Content for Template not locally defined
+    #=========================================================================
+    def profiles_chassis_server_lookup_templates(self, templates, kwargs):
+        dtype = self.type.split('.')[1]
+        kwargs = api_get(False, templates, f'templates.{dtype}', kwargs)
+        templates_results = kwargs.results
+        for e in templates_results:
+            rkeys = list(e.keys())
+            for p in e.PolicyBucket:
+                if not kwargs.lookup.get(kwargs.object_type_map[p.ObjectType].ezkey): kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey] = []
+                kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey].append(p.Moid)
+            if 'UuidPool' in rkeys:
+                if not kwargs.lookup.get('uuid'): kwargs.lookup.uuid = []
+                kwargs.lookup.uuid.append(e.UuidPool.Moid)
+        for k in list(kwargs.lookup.keys()):
+            kwargs.method = 'get'
+            kwargs.names  = list(numpy.unique(numpy.array(kwargs.lookup[k])))
+            kwargs.uri    = kwargs.ezdata[k].intersight_uri
+            kwargs        = api('moid_filter').calls(kwargs)
+            for e in kwargs.results:
+                ptype = kwargs.ezdata[k].intersight_type
+                kwargs.isight[kwargs.org_names[e.Organization.Moid]][ptype][k][e.Name] = e.Moid
+                kwargs.policy_moids[e.Moid] = f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}'
+        for e in templates_results:
+            rkeys = list(e.keys())
+            tdict = DotMap()
+            for p in e.Policy_Bucket:
+                tdict[f'{kwargs.object_type_map[p.ObjectType].ezkey}_policy'] = kwargs.policy_moids[p.Moid]
+            if 'UuidPool' in rkeys: tdict.uuid = kwargs.policy_moids[e.UuidPool.Moid]
+            kwargs.templates[f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}'] = tdict
+        #=====================================================================
+        # Return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Build Domain Profiles/Templates
+    #=========================================================================
+    def profiles_domain(self, profiles, kwargs):
+        profile_type, dtype  = self.type.split('.')
+        ezdata       = kwargs.ezdata[self.type]
+        template_key = 'ucs_domain_profile_template'
+        for e in profiles:
+            ddict = {}; ekeys = list(e.keys())
+            for d in ['description', 'name', 'tags']:
+                if d in ekeys: ddict[d] = e[d]
+            attach_template = False
+            api_body = {'ObjectType':ezdata.object_type}
+            api_body = imm(self.type).build_api_body(api_body, kwargs.idata, ddict, kwargs)
+            kwargs   = imm(self.type).profiles_api_calls(api_body, kwargs)
+            if template_key in ekeys and len(e[template_key]) > 0:
+                attach_template = True
+                if '/' in e[template_key]: org, template = e[template_key].split('/')
+                else: org = kwargs.org; template = e[template_key]
+            if attach_template == True and len(template) > 0:
+                api_body['SrcTemplate'] = {'Moid':kwargs.isight[org].templates[dtype][template], 'ObjectType':f'{ezdata.object_type}Template'}
+            else: api_body['SrcTemplate'] = None
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = ezdata.intersight_uri
+            kwargs     = imm(self.type).bulk_request(kwargs)
+        if 'profiles.' in self.type:  kwargs = imm(self.type).profiles_bulk_merge_template(profiles, kwargs)
+        #=========================================================================
+        # PATCH Profiles if has attach_template True and has a description
+        #=========================================================================
+        if 'profiles.' in self.type:
+            kwargs.bulk_list = []
+            for e in profiles:
+                ekeys = list(e.keys())
+                if 'description' in ekeys and template_key in ekeys and len(e[template_key]) > 0:
+                    api_body = dict(Description = e.description, Name = e.name, ObjectType = ezdata.object_type)
+                    api_body['pmoid'] = kwargs.isight[kwargs.org].profiles[dtype][api_body['Name']]
+                    kwargs.bulk_list.append(api_body)
+            if len(kwargs.bulk_list) > 0:
+                pcolor.Cyan('')
+                pcolor.Cyan(f'{" "*3}Updating {dtype.capitalize()} Profile descriptions.')
+                kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+                kwargs     = imm(self.type).bulk_request(kwargs)
+        #=====================================================================
+        # Build api_body for Switch Profiles
+        #=====================================================================
+        kwargs.bulk_list = []
+        cl_otype = ezdata.object_type.split('.')[1]
+        sw_otype = ezdata.switch_object_type
+        for e in profiles:
+            attach_template = False
+            cluster_moid    = kwargs.isight[kwargs.org][profile_type][dtype][e.name]; ekeys = list(e.keys())
+            kwargs.profile_results = kwargs.switch_results[e.name]
+            if template_key in ekeys and len(e[template_key]) > 0:
+                attach_template = True
+                if '/' in e[template_key]: org, template = e[template_key].split('/')
+                else: org = kwargs.org; template = e[template_key].split('/')
+            for x in range(1,3):
+                sw_name         = f"{e.name}-{chr(ord('@')+x)}"
+                if 'profiles.' in self.type and e.attach_template != True and template_key in ekeys and len(e[template_key]) > 0:
+                    sw_dict = dict(kwargs.templates[f'{org}/{template}'], **deepcopy(e))
+                else: sw_dict = deepcopy(e)
+                pkeys = list(sw_dict.keys())
+                for p in ['action', 'attach_template', 'create_template', 'ucs_domain_profile_template']:
+                    if p in pkeys: sw_dict.pop(p)
+                plist = []
+                for k in list(kwargs.idata.keys()):
+                    if re.search('_policies|_policy$', k): plist.append(k)
+                sw_dict_keys = list(sw_dict.keys())
+                for p in plist:
+                    if p in sw_dict_keys:
+                        if re.search('_policy', p):
+                            if not '/' in sw_dict[p]: sw_dict[p] = f'{kwargs.org}/{sw_dict[p]}'
+                        else:
+                            for y in range(0,len(sw_dict[p])):
+                                if not '/' in sw_dict[p][y]: sw_dict[p][y] = f'{kwargs.org}/{sw_dict[p][y]}'
+                sw_dict.name = sw_name
+                api_body = {'ObjectType':sw_otype, cl_otype:{'Moid':cluster_moid,'ObjectType':f'fabric.{cl_otype}'}}
+                api_body = imm(f'{profile_type}.switch').build_api_body(api_body, kwargs.idata, sw_dict, kwargs)
+                api_body = imm(f'{profile_type}.switch').profiles_policy_bucket(api_body, kwargs)
+                kwargs.x_number = deepcopy(x)
+                if api_body.get('SerialNumber'): api_body = imm('profiles.switch').assign_physical_device(api_body, kwargs)
+                for p in ['Description', 'Organization', 'Tags']:
+                    if api_body.get(p): api_body.pop(p)
+                if attach_template == True and len(template) > 0:
+                    sw_template = f"{template}-{chr(ord('@')+x)}"
+                    api_body['SrcTemplate'] = {
+                        'Moid':kwargs.isight[org].templates['switch'][sw_template], 'ObjectType':f'{ezdata.switch_object_type}Template'}
+                elif 'profiles' in self.type: api_body['SrcTemplate'] = None
+                kwargs  = imm(f'{profile_type}.switch').profiles_api_calls(api_body, kwargs)
+        #=====================================================================
+        # POST Bulk Request if Post List > 0
+        #=====================================================================
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = ezdata.switch_intersight_uri
+            kwargs = imm(self.type).bulk_request(kwargs)
+        if 'profiles.' in self.type:  kwargs = imm(f'{profile_type}.switch').profiles_bulk_merge_template(profiles, kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function - Deploy Domain Profile if Action is Deploy
+    #=========================================================================
+    def profiles_domain_deploy(self, profiles, kwargs):
+        dtype = self.type.split('.')[1]
+        pending_changes = False
+        kwargs.names    = []
+        for e in profiles:
+            kwargs.cluster_update[e.name].names = []
+            kwargs.cluster_update[e.name].pending_changes = False
+            if e.get('action') and e.get('serial_numbers'):
+                serial_check = True
+                for d in e.serial_numbers:
+                    if not re.search(serial_regex, d): serial_check = False
+                if e.action == 'Deploy' and serial_check == True:
+                    kwargs.names.append(kwargs.isight[kwargs.org].profiles[dtype][e.name])
+        clusters = DotMap()
+        for k,v in kwargs.isight[kwargs.org].profiles[dtype].items(): clusters[v] = k
+        if len(kwargs.names) > 0:
+            kwargs.method = 'get'
+            kwargs.uri    = kwargs.ezdata[self.type].switch_intersight_uri
+            kwargs        = api('moid_filter').calls(kwargs)
+            for e in kwargs.results:
+                if len(e.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", e.ConfigContext.ConfigState):
+                    pending_changes = True
+                    kwargs.cluster_update[clusters[e.Parent.Moid]].pending_changes = True
+                    kwargs.cluster_update[clusters[e.Parent.Moid]].names.append(e.Name)
+        if pending_changes == True:
+            pcolor.LightPurple(f'\n{"-"*108}\n')
+            pcolor.Cyan(f'{" "*6}* Sleeping for 120 Seconds'); time.sleep(120)
+            pcolor.Green(f'{" "*4}- Beginning Profile Deployment for Switch Profiles')
+        kwargs.bulk_list = []
+        for k in list(kwargs.cluster_update.keys()):
+            if kwargs.cluster_update[k].pending_changes == True:
+                for e in kwargs.cluster_update[k].names:
+                    kwargs.bulk_list.append({'Action':'Deploy', 'pmoid':kwargs.isight[kwargs.org].profiles['switch'][e]})
+        if len(kwargs.bulk_list) > 0: kwargs = imm('profiles.switch').bulk_request(kwargs)
+        if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n'); time.sleep(60)
+        for k in list(kwargs.cluster_update.keys()):
+            if kwargs.cluster_update[k].pending_changes == True:
+                for e in kwargs.cluster_update[k].names:
+                    kwargs.method= 'get_by_moid'
+                    kwargs.pmoid = kwargs.isight[kwargs.org].profiles['switch'][e]
+                    deploy_complete = False
+                    while deploy_complete == False:
+                        kwargs = api('switch_profiles').calls(kwargs)
+                        if kwargs.results.ConfigContext.ControlAction == 'No-op':
+                            pcolor.Green(f'{" "*4}- Completed Profile Deployment for {e}')
+                            deploy_complete = True
+                        else:  pcolor.Cyan(f'{" "*6}* Deploy Still Occuring on {e}.  Waiting 120 seconds.'); time.sleep(120)
+        if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n')
+        return kwargs
+
+    #=========================================================================
+    # Function - Policy Content for Template not locally defined
+    #=========================================================================
+    def profiles_domain_lookup_templates(self, templates, kwargs):
+        dtype  = self.type.split('.')[1]
+        kwargs = api_get(False, templates, f'templates.{dtype}', kwargs)
+        sw     = DotMap()
+        for e in kwargs.results:
+            count = 1
+            for d in e.SwitchProfiles:
+                sw[d.Moid] = DotMap(fabric = chr(ord('@'+count)), name = e.Name); count += 1
+        kwargs.names = list(sw.keys())
+        kwargs.uri   = kwargs.ezdata[self.type].switch_intersight_uri
+        kwargs = api('moids_filter').calls(kwargs)
+        sw_results = kwargs.results
+        for e in sw_results:
+            for p in e.PolicyBucket:
+                if not kwargs.lookup.get(kwargs.object_type_map[p.ObjectType].ezkey): kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey] = []
+                kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey].append(p.Moid)
+        for k in list(kwargs.lookup.keys()):
+            kwargs.method = 'get'
+            kwargs.names  = list(numpy.unique(numpy.array(kwargs.lookup[k])))
+            kwargs.uri    = kwargs.ezdata[k].intersight_uri
+            kwargs        = api('moid_filter').calls(kwargs)
+            for e in kwargs.results:
+                ptype = kwargs.ezdata[k].intersight_type
+                kwargs.isight[kwargs.org_names[e.Organization.Moid]][ptype][k][e.Name] = e.Moid
+                kwargs.policy_moids[e.Moid] = f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}'
+        stemplates = DotMap()
+        for e in sw_results:
+            tdict = DotMap()
+            for p in e.Policy_Bucket:
+                tdict[f'{kwargs.object_type_map[p.ObjectType].ezkey}'] = kwargs.policy_moids[p.Moid]
+            stemplates[f'{kwargs.org_names[e.Organization.Moid]}/{sw[e.Moid].name}'][sw[e.Moid].fabric] = tdict
+        single_regex = 'ntp|network_control|snmp|switch_control|syslog|system_qos'
+        dual_regex   = 'port|vlan|vsan'
+        for k in list(stemplates.keys()):
+            tdict = DotMap()
+            for d in list(stemplates[k]['A'].keys()):
+                if re.search(single_regex, d): tdict[f'{d}_policy'] = stemplates[k]['A'][d]
+                elif re.search(dual_regex, d):
+                    tdict[f'{d}_policies'] = [stemplates[k]['A'][d], stemplates[k]['B'][d]]
+            kwargs.templates[k] = tdict
+        #=====================================================================
+        # Return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Assign Moid to Policy in Bucket
+    #=========================================================================
+    def profiles_policy_bucket(self, api_body, kwargs):
+        if api_body.get('PolicyBucket'):
+            for x in range(len(api_body['PolicyBucket'])):
+                ptype = ((api_body['PolicyBucket'][x]['policy']).replace('_policy', '')).replace('_policies', '')
+                api_body['PolicyBucket'][x].pop('policy')
+                if 'switch' in self.type:
+                    if re.search('-A', api_body['Name']): f = 0
+                    else: f = 1
+                if type(api_body['PolicyBucket'][x]['Moid']) == list:
+                    if len(api_body['PolicyBucket'][x]['Moid']) == 2: opolicy = api_body['PolicyBucket'][x]['Moid'][f]
+                    else: opolicy = api_body['PolicyBucket'][x]['Moid'][0]
+                else: opolicy = api_body['PolicyBucket'][x]['Moid']
+                if '/' in opolicy: org, policy = opolicy.split('/')
+                else: org = kwargs.org; policy = opolicy
+                if not kwargs.isight[org].policies[ptype].get(policy):
+                    validating.error_policy_doesnt_exist(ptype, opolicy, self.type, 'profile', api_body['Name'])
+                api_body['PolicyBucket'][x]['Moid'] = kwargs.isight[org].policies[ptype][policy]
+        if api_body.get('UuidPool'):
+            api_body['UuidAddressType'] = 'POOL'
+            if '/' in api_body['UuidPool']['Moid']: org, pool = api_body['UuidPool']['Moid'].split('/')
+            else: org = kwargs.org; pool = api_body['UuidPool']['Moid']
+            if not kwargs.isight[org].pools['uuid'].get(pool):
+                validating.error_policy_doesnt_exist('uuid', api_body['UuidPool']['Moid'], self.type, 'profile', api_body['Name'])
+            api_body['UuidPool']['Moid'] = kwargs.isight[org].pools['uuid'][pool]
+        return api_body
+
+    #=========================================================================
+    # Function - Deploy Profile if Action is Deploy
+    #=========================================================================
+    def profiles_server_activate(self, kwargs):
+        pcolor.LightPurple(f'\n{"-"*108}\n')
+        names = []
+        for e in list(kwargs.profile_update.keys()):
+            if not kwargs.profile_update[e].pending_changes == 'Empty': names.append(e)
+        if len(names) > 0:
+            kwargs = api_get(False, names, self.type, kwargs)
+            profile_results = kwargs.results
+        pending_activations = False
+        for e in list(kwargs.profile_update.keys()):
+            if not kwargs.profile_update[e].pending_changes == 'Empty':
+                indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
+                if len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
+                    pcolor.Green(f'{" "*4}- Beginning Profile Activation for `{e}`.')
+                    kwargs.api_body= {'ScheduledActions':[{'Action':'Activate', 'ProceedOnReboot':True}]}
+                    kwargs.method = 'patch'
+                    kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[self.type][e]
+                    kwargs = api(self.type).calls(kwargs)
+                    pending_activations = True
+                else:
+                    pcolor.LightPurple(f'{" "*4}- Skipping Org: {kwargs.org}; Profile Activation for `{e}`.  No Pending Changes.')
+                    kwargs.profile_update[e].pending_changes = 'Empty'
+        if pending_activations == True:
+            pcolor.LightPurple(f'\n{"-"*108}\n')
+            pcolor.LightPurple('    * Pending Activitions.  Sleeping for 300 Seconds'); time.sleep(300)
+        activate_names = []
+        for e in list(kwargs.profile_update.keys()):
+            if not kwargs.profile_update[e].pending_changes == 'Empty':
+                activate_names.append(kwargs.isight[kwargs.org].profiles[self.type][e])
+        if len(activate_names) > 0:
+            dt    = datetime.today().strftime('%Y-%m-%d')
+            names = "', '".join(activate_names).strip("', '")
+            str1  = f"CreateTime gt {dt}T00:00:00.000Z and CreateTime lt {dt}T23:59:59.999Z and AssociatedObject.Moid in ('{names}')"
+            str2  = f" and WorkflowCtx.WorkflowType eq 'Activate'"
+            kwargs.api_filter = str1 + str2
+            kwargs.method     = 'get'
+            kwargs.uri        = 'workflow/WorkflowInfos'
+            kwargs            = api('workflows').calls(kwargs)
+            activate_results  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+        loop_count = 0
+        def activation_message(e, progress, status):
+            pcolor.Cyan(f'{" "*6}* Still In Progress for `{e}`.  Status: `{status}` Progress Percentage: `{progress}`, Sleeping for 120 seconds.')
+        def failed_message(e):
+            pcolor.Yellow(f'\n{"-"*75}\n')
+            pcolor.Red(f'  - Failed to Activate Profile `{e}`.  Please validate in Intersight the reason for the failure.')
+            pcolor.Yellow(f'\n{"-"*75}\n')
+        def success_message(e):
+            pcolor.Green(f'{" "*4}- Completed Profile Activiation for `{e}`.')
+        for e in list(kwargs.profile_update.keys()):
+            retry_count = 60
+            if not kwargs.profile_update[e].pending_changes == 'Empty':
+                prmoid = kwargs.isight[kwargs.org].profiles[self.type][e]
+                indx   = next((index for (index, d) in enumerate(activate_results) if d['AssociatedObject']['Moid'] == prmoid), None)
+                deploy_complete = False
+                while deploy_complete == False:
+                    if retry_count > 60: failed_message(e); deploy_complete == True
+                    if loop_count > 0:
+                        kwargs.method = 'get_by_moid'
+                        kwargs.pmoid  = activate_results[indx].Moid
+                        kwargs        = api(self.type).calls(kwargs)
+                        active_result = kwargs.results
+                    else: active_result = activate_results[indx]
+                    if active_result.WorkflowStatus == 'Completed': success_message(e); deploy_complete   = True
+                    elif re.search('Failed|Terminated|Canceled', active_result.WorkflowStatus):
+                        failed_message(e); deploy_complete == True
+                    else:  
+                        progress = active_result.Progress; status = active_result.WorkflowStatus
+                        activation_message(e, progress, status); time.sleep(120)
+                    loop_count += 1
+            else: success_message(e)
+        return kwargs
+
+    #=========================================================================
+    # Function - Build Server Profile Reservations
+    #=========================================================================
+    def profiles_server_reservations(self, e, api_body, kwargs):
+        api_body['ReservationReferences'] = []
+        for i in e.reservations:
+            if i.identity in kwargs.ireservations[i.identity_type]:
+                if 'ww' in i.identity_type: rdict = {'ObjectType':'fcpool.ReservationReference'}
+                else: rdict = {'ObjectType':f'{i.identity_type}pool.ReservationReference'}
+                rdict.update({'ReservationMoid':kwargs.ireservations[i.identity_type][i.identity].moid})
+                if re.search('ip|mac|wwnn|wwpn', i.identity_type):
+                    if 'ip' in i.identity_type and re.search('band', i.management_type):
+                        rdict.update({'ConsumerType':f'{(i.management_type.lower()).title()}{(i.ip_type.lower()).title()}-Access'})
+                    elif 'ip' in i.identity_type: rdict.update({'ConsumerType':'ISCSI'})
+                    elif 'mac' in i.identity_type: rdict.update({'ConsumerType':'Vnic'})
+                    elif 'wwpn' in i.identity_type: rdict.update({'ConsumerType':f'Vhba'})
+                    elif 'wwnn' in i.identity_type: rdict.update({'ConsumerType':f'WWNN'})
+                    if len(i.management_type) == 0 and i.identity_type != 'wwnn': rdict.update({'ConsumerName':i.interface})
+                api_body['ReservationReferences'].append(rdict)
+        if len(api_body['ReservationReferences']) == 0: api_body.pop('ReservationReferences')
         return kwargs
 
     #=========================================================================
@@ -3012,8 +3239,8 @@ class imm(object):
             api_body['WwnnAddressType'] = 'POOL'
             if '/' in item.wwnn_pool: org, pool = item.wwnn_pool.split('/')
             else: org = kwargs.org; pool = item.wwnn_pool
-            if not kwargs.isight[org].pool['wwnn'].get(pool): kwargs = api_get(False, [item.wwnn_pool], 'wwnn', kwargs)
-            api_body['WwnnPool']['Moid'] = kwargs.isight[org].pool['wwnn'][pool]
+            if not kwargs.isight[org].pools['wwnn'].get(pool): kwargs = api_get(False, [item.wwnn_pool], 'wwnn', kwargs)
+            api_body['WwnnPool']['Moid'] = kwargs.isight[org].pools['wwnn'][pool]
         return api_body
 
     #=========================================================================
@@ -3129,7 +3356,7 @@ class imm(object):
             if i.get('users'):
                 if len(names) > 0:
                     kwargs.names = [v.moid for k, v in kwargs.user_moids.items()]
-                    kwargs.pmoid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][i.name]
+                    kwargs.pmoid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][i.name]
                     kwargs.uri   = 'iam/EndPointUserRoles'
                     kwargs       = api('user_role').calls(kwargs)
                     kwargs.cp[kwargs.pmoid].moids  = kwargs.pmoids
@@ -3140,7 +3367,7 @@ class imm(object):
         #=========================================================================
         for e in names:
             if not kwargs.user_moids.get(e):
-                api_body = {'Name':e.username,'ObjectType':ezdata.ObjectType}
+                api_body = {'Name':e.username,'ObjectType':ezdata.object_type}
                 api_body = imm(self.type).org_map(api_body, kwargs.org_moids[kwargs.org].moid)
                 kwargs.bulk_list.append(deepcopy(api_body))
             else: pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; User: `{e}`.  Intersight Matches Configuration.  Moid: {kwargs.user_moids[e].moid}")
@@ -3157,7 +3384,7 @@ class imm(object):
             kwargs.parent_key  = self.type.split('.')[0]
             kwargs.parent_name = f'{np}{i.name}{ns}'
             kwargs.parent_type = 'Local User Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
             if i.get('users'):
                 for e in i.users:
                     kwargs.sensitive_var = f"local_user_password_{e.password}"
@@ -3212,7 +3439,7 @@ class imm(object):
         #=========================================================================
         def configure_vlans(e, kwargs):
             ezdata = kwargs.ezdata[self.type]
-            api_body = {'EthNetworkPolicy':{'Moid':kwargs.parent_moid, 'ObjectType':'fabric.EthNetworkPolicy'}, 'ObjectType':ezdata.ObjectType}
+            api_body = {'EthNetworkPolicy':{'Moid':kwargs.parent_moid, 'ObjectType':'fabric.EthNetworkPolicy'}, 'ObjectType':ezdata.object_type}
             api_body = imm(self.type).build_api_body(api_body, ezdata.properties, e, kwargs)
             api_keys = list(api_body.keys())
             for i in ['Organization', 'Tags', 'name_prefix']:
@@ -3222,9 +3449,9 @@ class imm(object):
             else: org = kwargs.org; policy = e.multicast_policy
             np, ns = ezfunctions.name_prefix_suffix('multicast', kwargs)
             policy = f"{np}{policy}{ns}"
-            if not kwargs.isight[org].policy['multicast'].get(policy):
+            if not kwargs.isight[org].policies['multicast'].get(policy):
                 validating.error_policy_doesnt_exist('multicast_policy', e.multicast_policy, self.type, 'Vlans', e.vlan_list)
-            api_body['MulticastPolicy']['Moid'] = kwargs.isight[org].policy['multicast'][policy]
+            api_body['MulticastPolicy']['Moid'] = kwargs.isight[org].policies['multicast'][policy]
             if not api_body.get('IsNative'): api_body['IsNative'] = False
             vkeys = list(e.keys())
             if not 'name_prefix' in vkeys: name_prefix = True
@@ -3237,12 +3464,12 @@ class imm(object):
                 #=========================================================================
                 # Create or Patch the VLANs via the Intersight API
                 #=========================================================================
-                if not kwargs.isight[kwargs.org].policy[self.type].get(str(x)): kwargs.bulk_list.append(deepcopy(api_body))
+                if not kwargs.isight[kwargs.org].policies[self.type].get(str(x)): kwargs.bulk_list.append(deepcopy(api_body))
                 else:
                     indx = next((index for (index, d) in enumerate(kwargs.vlans_results) if d['VlanId'] == x), None)
                     if not indx == None:
                         patch_vlan = imm(self.type).compare_body_result(api_body, kwargs.vlans_results[indx])
-                        api_body['pmoid'] = kwargs.isight[kwargs.org].policy[self.type][str(x)]
+                        api_body['pmoid'] = kwargs.isight[kwargs.org].policies[self.type][str(x)]
                         if patch_vlan == True: kwargs.bulk_list.append(deepcopy(api_body))
                         else:
                             pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; VLAN Policy: `{kwargs.parent_name}`, VLAN: `{x}`."\
@@ -3261,7 +3488,7 @@ class imm(object):
                     else: org = kwargs.org; policy = e.multicast_policy
                     np, ns = ezfunctions.name_prefix_suffix('multicast', kwargs)
                     policy = f"{np}{policy}{ns}"
-                    if not kwargs.isight[org].policy['multicast'].get(policy):
+                    if not kwargs.isight[org].policies['multicast'].get(policy):
                         if '/' in e.multicast_policy: policy = f'{org}/{policy}'
                         mcast_names.append(policy)
         mcast_names= list(numpy.unique(numpy.array(mcast_names)))
@@ -3277,7 +3504,7 @@ class imm(object):
             kwargs.parent_key  = self.type.split('.')[0]
             kwargs.parent_name = f'{np}{i.name}{ns}'
             kwargs.parent_type = 'VLAN Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
             kwargs.pmoid       = kwargs.parent_moid
             kwargs.vlan_policy = f'{np}{i.name}{ns}'
             if i.get('vlans'):
@@ -3303,7 +3530,7 @@ class imm(object):
         ezdata = kwargs.ezdata[self.type]
         kwargs.cp = DotMap(); kwargs.bulk_list = []
         x = self.type.split('.')
-        vpolicy = (kwargs.ezdata[x[0]].ObjectType).split('.')[1]
+        vpolicy = (kwargs.ezdata[x[0]].object_type).split('.')[1]
         kwargs.parent_key  = self.type.split('.')[0]
         kwargs.parent_type = (snakecase(vpolicy).replace('_', ' ')).title()
         vtype = x[1]
@@ -3317,8 +3544,8 @@ class imm(object):
                             original_policy = policy
                             if '/' in policy: org, policy = policy.split('/')
                             else: org = kwargs.org; policy = policy
-                            if 'pool' in k: p = 'pool'
-                            else: p = 'policy'
+                            if 'pool' in k: p = 'pools'
+                            else: p = 'policies'
                             np, ns = ezfunctions.name_prefix_suffix(ptype, kwargs)
                             policy = f"{np}{policy}{ns}"
                             if '/' in original_policy: new_policy = f'{org}/{policy}'
@@ -3338,7 +3565,7 @@ class imm(object):
         for item in kwargs.policies:
             np, ns = ezfunctions.name_prefix_suffix('lan_connectivity', kwargs)
             kwargs.parent_name= f'{np}{item.name}{ns}'
-            kwargs.parent_moid= kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+            kwargs.parent_moid= kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
             kwargs.pmoid      = kwargs.parent_moid
             names   = []
             for i in item[vtype]: names.extend(i.names)
@@ -3346,7 +3573,7 @@ class imm(object):
             vnic_results= kwargs.results
             for i in item[vtype]:
                 for x in range(len(i.names)):
-                    api_body = {vpolicy:{'Moid':kwargs.parent_moid,'ObjectType':f'vnic.{vpolicy}'}, 'ObjectType':ezdata.ObjectType}
+                    api_body = {vpolicy:{'Moid':kwargs.parent_moid,'ObjectType':f'vnic.{vpolicy}'}, 'ObjectType':ezdata.object_type}
                     api_body = imm(self.type).build_api_body(api_body, ezdata.properties, i, kwargs)
                     api_body.update({'Name':i.names[x]})
                     api_body.pop('Organization'); api_body.pop('Tags')
@@ -3361,8 +3588,8 @@ class imm(object):
                             else: pname = v
                             if '/' in pname: org, policy = pname.split('/')
                             else: org = kwargs.org; policy = pname
-                            if 'pool' in k: p = 'pool'
-                            else: p = 'policy'
+                            if 'pool' in k: p = 'pools'
+                            else: p = 'policies'
                             np, ns = ezfunctions.name_prefix_suffix(ptype, kwargs)
                             policy = f"{np}{policy}{ns}"
                             if not kwargs.isight[org][p][ptype].get(policy):
@@ -3380,11 +3607,11 @@ class imm(object):
                             else: org = kwargs.org; policy = pname
                             np, ns = ezfunctions.name_prefix_suffix(ptype, kwargs)
                             policy = f"{np}{policy}{ns}"
-                            if not kwargs.isight[org].policy[ptype].get(policy):
+                            if not kwargs.isight[org].policies[ptype].get(policy):
                                 if '/' in pname: err_policy = f'{org}/{policy}'
                                 else: err_policy = policy
                                 validating.error_policy_doesnt_exist(ptype, err_policy, self.type, 'policy', i.names[x])
-                            kwargs.zbody['Moid'] = kwargs.isight[org].policy[ptype][policy]
+                            kwargs.zbody['Moid'] = kwargs.isight[org].policies[ptype][policy]
                             return kwargs.zbody
                         if i.get('fc_zone_policies'):
                             kwargs.zbody= deepcopy(api_body['FcZonePolicies'])
@@ -3410,10 +3637,10 @@ class imm(object):
                     #=========================================================================
                     # Create or Patch the VLANs via the Intersight API
                     #=========================================================================
-                    if kwargs.isight[kwargs.org].policy[self.type].get(i.names[x]):
+                    if kwargs.isight[kwargs.org].policies[self.type].get(i.names[x]):
                         indx = next((index for (index, d) in enumerate(vnic_results) if d['Name'] == i.names[x]), None)
                         patch_vnics = imm(self.type).compare_body_result(api_body, vnic_results[indx])
-                        api_body['pmoid'] = kwargs.isight[kwargs.org].policy[self.type][i.names[x]]
+                        api_body['pmoid'] = kwargs.isight[kwargs.org].policies[self.type][i.names[x]]
                         if patch_vnics == True: kwargs.bulk_list.append(deepcopy(api_body))
                         else:
                             pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: VNIC: `{i.names[x]}`."\
@@ -3436,7 +3663,7 @@ class imm(object):
         #=========================================================================
         def configure_vsans(e, kwargs):
             ezdata = kwargs.ezdata[self.type]
-            api_body = {'FcNetworkPolicy':{'Moid':kwargs.parent_moid, 'ObjectType':'fabric.FcNetworkPolicy'}, 'ObjectType':ezdata.ObjectType}
+            api_body = {'FcNetworkPolicy':{'Moid':kwargs.parent_moid, 'ObjectType':'fabric.FcNetworkPolicy'}, 'ObjectType':ezdata.object_type}
             api_body = imm(self.type).build_api_body(api_body, ezdata.properties, e, kwargs)
             api_body.pop('Organization'); api_body.pop('Tags')
             if not api_body.get('VsanScope'): api_body['VsanScope'] = 'Uplink'
@@ -3444,11 +3671,11 @@ class imm(object):
             #=========================================================================
             # Create or Patch the VLANs via the Intersight API
             #=========================================================================
-            if not kwargs.isight[kwargs.org].policy[self.type].get(str(api_body['VsanId'])): kwargs.bulk_list.append(deepcopy(api_body))
+            if not kwargs.isight[kwargs.org].policies[self.type].get(str(api_body['VsanId'])): kwargs.bulk_list.append(deepcopy(api_body))
             else:
                 indx = next((index for (index, d) in enumerate(kwargs.vsans_results) if d['VsanId'] == api_body['VsanId']), None)
                 patch_vsan = imm(self.type).compare_body_result(api_body, kwargs.vsans_results[indx])
-                api_body['pmoid']  = kwargs.isight[kwargs.org].policy[self.type][str(api_body['VsanId'])]
+                api_body['pmoid']  = kwargs.isight[kwargs.org].policies[self.type][str(api_body['VsanId'])]
                 if patch_vsan == True: kwargs.bulk_list.append(deepcopy(api_body))
                 else:
                     pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; VSAN Policy: `{kwargs.parent_name}`, VSAN: `{api_body['VsanId']}`."\
@@ -3464,7 +3691,7 @@ class imm(object):
             kwargs.parent_key  = self.type.split('.')[0]
             kwargs.parent_name = f'{np}{i.name}{ns}'
             kwargs.parent_type = 'VSAN Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policy[self.type.split('.')[0]][kwargs.parent_name]
+            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
             kwargs.pmoid       = kwargs.parent_moid
             if i.get('vsans'):
                 for e in i.vsans: vnames.append(e.vsan_id)
@@ -3596,7 +3823,10 @@ def api_get(empty, names, otype, kwargs):
         else:
             if kwargs.ezdata[otype].get('intersight_type'):
                 for k, v in kwargs.pmoids.items():
-                    kwargs.isight[org][kwargs.ezdata[otype].intersight_type][otype][k] = v.moid
+                    if re.search('(profiles|templates)\\.', otype):
+                        ntype = (otype.replace('profiles.', '')).replace('templates.', '')
+                    else: ntype = otype
+                    kwargs.isight[org][kwargs.ezdata[otype].intersight_type][ntype][k] = v.moid
             if len(kwargs.results) > 0:
                 results.extend(kwargs.results)
                 pmoids = DotMap(dict(pmoids.toDict(), **kwargs.pmoids.toDict()))

@@ -23,48 +23,33 @@ It uses argparse to take in the following CLI arguments:
 #=============================================================================
 def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import os, sys
-script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
+script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
     from classes import build, ezfunctions, isight, pcolor, questions, tf, terraform, transition, validating
     from copy import deepcopy
     from dotmap import DotMap
-    from json_ref_dict import materialize, RefDict
-    from pathlib import Path
-    import argparse, json, os, logging, platform, re, requests, urllib3, yaml
+    import argparse, json, os, re, requests, urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
-#=================================================================
+#=============================================================================
 # Function: Parse Arguments
-#=================================================================
+#=============================================================================
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
-    Parser.add_argument(
-        '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
-        help='The Intersight API key id for HTTP signature scheme.')
-    Parser.add_argument( '-ccp', '--cco-password',   help = 'Cisco Connection Online Password to Authorize Firmware Downloads.' )
-    Parser.add_argument( '-ccu', '--cco-user',   help = 'Cisco Connection Online Username to Authorize Firmware Downloads.' )
-    Parser.add_argument(
-        '-d', '--dir', default = 'Intersight',
-        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
-    Parser.add_argument(
-        '-dl', '--debug-level', default = 0,
-        help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
-            '1. Shows the api request response status code '\
-            '5. Show URL String + Lower Options '\
-            '6. Adds Results + Lower Options '\
-            '7. Adds json payload + Lower Options '\
-            'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
-    Parser.add_argument(
+    kwargs = DotMap()
+    parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
+    parser = ezfunctions.base_arguments(parser)
+    parser = ezfunctions.base_arguments_ezimm_sensitive_variables(parser)
+    parser.add_argument(
         '-dm', '--deployment-method', default ='',
         help = 'Deployment Method values are: \
             1.  Python \
             2.  Terraform')
-    Parser.add_argument(
+    parser.add_argument(
         '-dt', '--deployment-type', default ='',
         help = 'Deployment Type values are: \
             1.  Convert \
@@ -75,29 +60,12 @@ def cli_arguments():
             6.  Server \
             7.  StateUpdate \
             8.  Exit')
-    Parser.add_argument(
-        '-f', '--intersight-fqdn', default ='intersight.com',
-        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
-    Parser.add_argument(
-        '-i', '--ignore-tls', action = 'store_false',
-        help = 'Ignore TLS server-side certificate verification.  Default is False.')
-    Parser.add_argument(
-        '-j', '--json-file', default = None,
-        help = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
-    Parser.add_argument(
-        '-k', '--intersight-secret-key', default = '~/Downloads/SecretKey.txt',
-        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    Parser.add_argument(
-        '-l', '--load-config', action = 'store_true',
-        help = 'Skip Wizard and Just Load Configuration Files.')
-    Parser.add_argument( '-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.' )
-    kwargs = DotMap()
-    kwargs.args = Parser.parse_args()
+    kwargs.args = parser.parse_args()
     return kwargs
 
-#=================================================================
+#=============================================================================
 # Function: Create Terraform Workspaces
-#=================================================================
+#=============================================================================
 def create_terraform_workspaces(orgs, kwargs):
     jsonData = kwargs.jsonData
     opSystem = kwargs.opSystem
@@ -139,17 +107,17 @@ def create_terraform_workspaces(orgs, kwargs):
             polVars.tfc_host = 'app.terraform.io'
         #polVars = {}
         polVars.terraform_cloud_token = tf.terraform_cloud().terraform_token()
-        #==============================================
+        #=====================================================================
         # Obtain Terraform Cloud Organization
-        #==============================================
+        #=====================================================================
         if os.environ.get('tfc_organization') is None:
             polVars.tfc_organization = tf.terraform_cloud().tfc_organization(polVars, kwargs)
             os.environ.tfc_organization = polVars.tfc_organization
         else: polVars.tfc_organization = os.environ.get('tfc_organization')
         tfcb_config.append({'tfc_organization':polVars.tfc_organization})
-        #==============================================
+        #=====================================================================
         # Obtain Version Control Provider
-        #==============================================
+        #=====================================================================
         if os.environ.get('tfc_vcs_provider') is None:
             tfc_vcs_provider,polVars.tfc_oath_token = tf.terraform_cloud().tfc_vcs_providers(polVars, kwargs)
             polVars.tfc_vcs_provider = tfc_vcs_provider
@@ -158,9 +126,9 @@ def create_terraform_workspaces(orgs, kwargs):
         else:
             polVars.tfc_vcs_provider = os.environ.get('tfc_vcs_provider')
             polVars.tfc_oath_token = os.environ.tfc_oath_token
-        #==============================================
+        #=====================================================================
         # Obtain Version Control Base Repo
-        #==============================================
+        #=====================================================================
         if os.environ.get('vcsBaseRepo') is None:
             polVars.vcsBaseRepo = tf.terraform_cloud().tfc_vcs_repository(polVars, kwargs)
             os.environ.vcsBaseRepo = polVars.vcsBaseRepo
@@ -172,9 +140,9 @@ def create_terraform_workspaces(orgs, kwargs):
         polVars.queueAllRuns = False
         polVars.speculativeEnabled = True
         polVars.triggerPrefixes = []
-        #==============================================
+        #=====================================================================
         # Obtain Terraform Versions from GitHub
-        #==============================================
+        #=====================================================================
         terraform_versions = []
         # Get the Latest Release Tag for Terraform
         url = f'https://github.com/hashicorp/terraform/tags'
@@ -183,9 +151,9 @@ def create_terraform_workspaces(orgs, kwargs):
             toString = line.decode("utf-8")
             if re.search(r'/releases/tag/v(\d+\.\d+\.\d+)\"', toString):
                 terraform_versions.append(re.search('/releases/tag/v(\d+\.\d+\.\d+)', toString).group(1))
-        #==============================================
+        #=====================================================================
         # Removing Deprecated Versions from the List
-        #==============================================
+        #=====================================================================
         deprecatedVersions = ['1.1.0", "1.1.1']
         for depver in deprecatedVersions:
             for Version in terraform_versions:
@@ -193,9 +161,9 @@ def create_terraform_workspaces(orgs, kwargs):
                     terraform_versions.remove(depver)
         terraform_versions = list(set(terraform_versions))
         terraform_versions.sort(reverse=True)
-        #==============================================
+        #=====================================================================
         # Assign the Terraform Version
-        #==============================================
+        #=====================================================================
         kwargs.jdata = DotMap()
         kwargs.jdata.default     = terraform_versions[0]
         kwargs.jdata.description = "Terraform Version for Workspaces:"
@@ -203,9 +171,9 @@ def create_terraform_workspaces(orgs, kwargs):
         kwargs.jdata.enum        = terraform_versions
         kwargs.jdata.varType     = 'Terraform Version'
         polVars.terraformVersion = ezfunctions.variablesFromAPI(kwargs)
-        #==============================================
+        #=====================================================================
         # Begin Creating Workspaces
-        #==============================================
+        #=====================================================================
         for org in orgs:
             kwargs.org = org
             kwargs.jdata = DotMap()
@@ -323,13 +291,13 @@ def create_terraform_workspaces(orgs, kwargs):
     # Return kwargs
     return kwargs
      
-#=================================================================
+#=============================================================================
 # Function: Intersight Transition Tool Configuration Conversion
-#=================================================================
+#=============================================================================
 def imm_transition(kwargs):
-    #==============================================
+    #=========================================================================
     # Obtain JSON File
-    #==============================================
+    #=========================================================================
     json_check = False
     json_file  = kwargs.args.json_file
     if json_file == None: json_file = 'none'
@@ -342,9 +310,9 @@ def imm_transition(kwargs):
         else: json_check = True
     kwargs.json_data = DotMap(json.load(open(json_file, 'r')))
     device_type = kwargs.json_data.easyucs.metadata[0].device_type
-    #==============================================
+    #=========================================================================
     # Validate the device_type in json file
-    #==============================================
+    #=========================================================================
     if not device_type == 'intersight':
         pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!\n  The File `{json_file}` device_type is `{device_type}`.')
         pcolor.Red(f'  This file is either the UCSM Configuration converted from XML to JSON or invalid.'\
@@ -355,25 +323,25 @@ def imm_transition(kwargs):
                    f'  Exiting Wizard...  (ezimm.py Line 402)')
         pcolor.Red(f'\n{"-"*108}\n')
         len(False); sys.exit(1)
-    #==============================================
+    #=========================================================================
     # Run through the IMM Transition Wizard
-    #==============================================
+    #=========================================================================
     kwargs = transition.intersight('transition').policy_loop(kwargs)
-    #==============================================
+    #=========================================================================
     # Create YAML Files and return kwargs
-    #==============================================
+    #=========================================================================
     kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
     orgs = kwargs.orgs
     ezfunctions.create_yaml(orgs, kwargs)
     return kwargs
 
-#=================================================================
+#=============================================================================
 # Function: Main Menu
-#=================================================================
+#=============================================================================
 def menu(kwargs):
-    #=================================================================
+    #=========================================================================
     # Prompt User for Deployment Type and Loading Configurations
-    #=================================================================
+    #=========================================================================
     pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Wizard!\n\n{"-"*108}\n')
     kwargs = questions.main_menu.deployment_type(kwargs)
     if   kwargs.deployment_type == 'Exit': return kwargs
@@ -382,9 +350,9 @@ def menu(kwargs):
     if   kwargs.deployment_type == 'StateUpdate': kwargs = terraform.state('state_update').state_import(kwargs); return kwargs
     elif kwargs.deployment_type == 'Deploy': kwargs = isight.imm.deploy(kwargs); return kwargs
     kwargs.main_menu_list = []
-    #=================================================================
+    #=========================================================================
     # Prompt User with Questions
-    #=================================================================
+    #=========================================================================
     kwargs = questions.orgs.organization(kwargs)
     if not kwargs.get('profile_option') and kwargs.deployment_type == 'OSInstall':
         kwargs.jdata          = kwargs.ezwizard.setup.properties.profile_option
@@ -403,110 +371,58 @@ def menu(kwargs):
                 kwargs = build.intersight('setup').setup(kwargs)
     return kwargs
 
-
-#=================================================================
+#=============================================================================
 # Function: Wizard
-#=================================================================
+#=============================================================================
 def process_wizard(kwargs):
-    #==============================================
+    #=========================================================================
     # Process List from Main Menu
-    #==============================================
+    #=========================================================================
     profile_list = ['chassis', 'domain', 'server', 'server_template']
     if kwargs.deployment_type == 'OSInstall':
         kwargs = build.intersight(kwargs.target_platform).operating_system_installation(kwargs)
         return kwargs
     elif kwargs.build_type == 'Interactive':
         for p in kwargs.main_menu_list:
-            #==============================================
+            #=================================================================
             # Intersight Pools/Policies/Profiles
-            #==============================================
+            #=================================================================
             if p in kwargs.pool_list or p in kwargs.policy_list or p in profile_list:
                 kwargs = build.intersight(p).ezimm(kwargs)
     elif kwargs.build_type == 'Machine' and kwargs.deployment_type == 'Domain':
         if kwargs.discovery == True:
             kwargs = build.intersight('domain').domain_setup(kwargs)
         kwargs = build.intersight('quick_start').quick_start_domain(kwargs)
-    #==============================================
+    #=========================================================================
     # Create YAML Files
-    #==============================================
+    #=========================================================================
     kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
     orgs = kwargs.orgs
     ezfunctions.create_yaml(orgs, kwargs)
     if len(kwargs.imm_dict.orgs.keys()) > 0: kwargs = isight.api('organization').organizations(kwargs)
     if kwargs.deployment_method == 'Terraform':
-        #==============================================
+        #=====================================================================
         # Create Terraform Config and Workspaces
-        #==============================================
+        #=====================================================================
         ezfunctions.merge_easy_imm_repository(kwargs)
         kwargs = ezfunctions.terraform_provider_config(kwargs)
         kwargs = create_terraform_workspaces(orgs, kwargs)
     elif re.search('Individual|Server', kwargs.deployment_type): kwargs = isight.imm.deploy(kwargs)
     return kwargs
 
-#=================================================================
+#=============================================================================
 # Function: Main Script
-#=================================================================
+#=============================================================================
 def main():
-    #==============================================
-    # Configure logger and Build kwargs
-    #==============================================
-    script_name = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
-    dest_dir = f"{Path.home()}{os.sep}Logs"
-    dest_file = script_name + '.log'
-    if not os.path.exists(dest_dir): os.mkdir(dest_dir)
-    if not os.path.exists(os.path.join(dest_dir, dest_file)): 
-        create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
-    FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
-    logging.basicConfig( filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
-    logger = logging.getLogger('openapi')
+    #=========================================================================
+    # Configure Base Module Setup
+    #=========================================================================
     kwargs = cli_arguments()
-    if os.getenv('intersight_fqdn'): kwargs.args.intersight_fqdn = os.getenv('intersight_fqdn')
-    if os.getenv('intersight_secret_key'): kwargs.args.intersight_secret_key = os.getenv('intersight_secret_key')
-    #==============================================
-    # Determine the Script Path
-    #==============================================
-    kwargs.script_path= script_path
-    args_dict = vars(kwargs.args)
-    for k,v in args_dict.items():
-        if type(v) == str:
-            if v: os.environ[k] = v
-    if kwargs.args.intersight_secret_key:
-        if '~' in kwargs.args.intersight_secret_key:
-            kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
-    kwargs.args.dir  = os.path.abspath(kwargs.args.dir)
-    kwargs.home      = Path.home()
-    kwargs.logger    = logger
-    kwargs.op_system = platform.system()
-    #================================================
-    # Import Stored Parameters and Add to kwargs
-    #================================================
-    ezdata = materialize(RefDict(f'{script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
-    kwargs.ez_tags  = {'Key':'ezimm','Value':ezdata['info']['version']}
-    kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
-    kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
-    #==============================================
-    # Get Intersight Configuration
-    # - apikey
-    # - endpoint
-    # - keyfile
-    #==============================================
-    kwargs = ezfunctions.intersight_config(kwargs)
-    kwargs.args.url = 'https://%s' % (kwargs.args.intersight_fqdn)
-    #==============================================
-    # Check Folder Structure for Illegal Characters
-    #==============================================
-    for folder in kwargs.args.dir.split(os.sep):
-        if folder == '': pass
-        elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
-            pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!')
-            pcolor.Red(f'  The Directory structure can only contain the following characters:')
-            pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
-            pcolor.Red(f'  It can be a short path or a fully qualified path.  "{folder}" does not qualify.')
-            pcolor.Red(f'  Exiting...\n\n{"-"*108}\n')
-            len(False); sys.exit(1)
-    #==============================================
+    kwargs = ezfunctions.base_script_settings(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
+    #=========================================================================
     # Prompt User for Main Menu
-    #==============================================
+    #=========================================================================
     kwargs = menu(kwargs)
     if re.search('Domain|Individual|OSInstall|Server', kwargs.deployment_type): kwargs = process_wizard(kwargs)
     pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*108}\n')

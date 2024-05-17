@@ -43,15 +43,15 @@ class intersight(object):
         policy_name    = policy.split('/')[1]
         parent_policy  = self.type.split('.')[0]
         source_org     = policy.split('/')[0]
-        parent_object  = kwargs.ezdata[parent_policy].ObjectType
+        parent_object  = kwargs.ezdata[parent_policy].object_type
         
-        kwargs.parent  = kwargs.ezdata[parent_policy].ObjectType.split('.')[1]
+        kwargs.parent  = kwargs.ezdata[parent_policy].object_type.split('.')[1]
         key_list            = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
         associated_policies = []
         kwargs.bulk_list    = []
         kwargs.method       = 'get'
         kwargs.names        = [kwargs.policies[parent_policy][kwargs.original_index].Moid]
-        kwargs.parent_moid  = kwargs.isight[destination_org].policy[parent_policy][policy_name]
+        kwargs.parent_moid  = kwargs.isight[destination_org].policies[parent_policy][policy_name]
         kwargs.uri          = kwargs.ezdata[self.type].intersight_uri
         kwargs              = isight.api('parent_moids').calls(kwargs)
         policy_results      = kwargs.results
@@ -76,7 +76,7 @@ class intersight(object):
             for k in list(api_body.keys()):
                 if not k in key_list: api_body.pop(k)
             api_body.Name         = policy_name
-            api_body.ObjectType   = kwargs.ezdata[self.type].ObjectType
+            api_body.ObjectType   = kwargs.ezdata[self.type].object_type
             api_body.Organization = {'Moid':kwargs.org_moids[destination_org].moid, 'ObjectType':'organization.Organization'}
             kwargs.bulk_list.append(api_body)
             #=============================================================================
@@ -126,7 +126,7 @@ class intersight(object):
             for k in list(api_body.keys()):
                 if not k in key_list: api_body.pop(k)
             api_body.Name         = policy_name
-            api_body.ObjectType   = kwargs.ezdata[self.type].ObjectType
+            api_body.ObjectType   = kwargs.ezdata[self.type].object_type
             api_body.Organization = {'Moid':kwargs.org_moids[destination_org].moid, 'ObjectType':'organization.Organization'}
             kwargs.bulk_list = []
             kwargs.bulk_list.append(api_body)
@@ -160,11 +160,11 @@ class intersight(object):
                 kwargs.method = 'get_by_moid'
                 for e in i.PolicyBucket:
                     pkeys        = list(kwargs.policies.keys())
-                    key_id       = [k for k, v in kwargs.ezdata.items() if v.ObjectType == e.ObjectType][0]
+                    key_id       = [k for k, v in kwargs.ezdata.items() if v.object_type == e.ObjectType][0]
                     kwargs.pmoid = e.Moid
                     kwargs.uri   = kwargs.ezdata[key_id].intersight_uri
                     kwargs       = isight.api(key_id).calls(kwargs)
-                    kwargs.isight[kwargs.org_names[kwargs.results.Organization.Moid]].policy[key_id][kwargs.results.Name] = kwargs.results.Moid
+                    kwargs.isight[kwargs.org_names[kwargs.results.Organization.Moid]].policies[key_id][kwargs.results.Name] = kwargs.results.Moid
                     if not key_id in pkeys: kwargs.policies[key_id].append(kwargs.results)
                     if re.search('port|vlan|vsan', key_id):
                         pvars[f'{key_id}_policies'].append(f'{kwargs.org_names[kwargs.results.Organization.Moid]}/{kwargs.results.Name}')
@@ -349,7 +349,7 @@ class intersight(object):
         ptype = kwargs.ezdata[self.type].intersight_type
 
         kwargs.configure_more = True
-        if kwargs.imm_dict[kwargs.org][ptype].get(self.type):
+        if kwargs.imm_dict.orgs[kwargs.org][ptype].get(self.type):
             kwargs = questions.prompt_user.existing_object(ptype, self.type, kwargs)
         if kwargs.configure_more == True:
             ilist = []
@@ -765,7 +765,7 @@ class intersight(object):
             kwargs.uri     = kwargs.ezdata[profile_type].intersight_uri
             kwargs         = isight.api(profile_type).calls(kwargs)
             source_results = kwargs.results
-            for e in kwargs.results: kwargs.isight[kwargs.org].profile['server_template'][e.Name] = e.Moid
+            for e in kwargs.results: kwargs.isight[kwargs.org].profiles['server_template'][e.Name] = e.Moid
             # Create Template pvars
             indx  = next((index for (index, d) in enumerate(source_results) if d['Name'] == profile_source.split('/')[1]), None)
             kwargs.org = original_org
@@ -804,7 +804,7 @@ class intersight(object):
         if item.PolicyBucket:
             kwargs.method = 'get_by_moid'
             for e in item.PolicyBucket:
-                key_id       = [k for k, v in kwargs.ezdata.items() if v.ObjectType == e.ObjectType][0]
+                key_id       = [k for k, v in kwargs.ezdata.items() if v.object_type == e.ObjectType][0]
                 kwargs.pmoid = e.Moid
                 kwargs.uri   = kwargs.ezdata[key_id].intersight_uri
                 kwargs       = isight.api(key_id).calls(kwargs)

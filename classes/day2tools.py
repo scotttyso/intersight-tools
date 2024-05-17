@@ -299,9 +299,8 @@ class tools(object):
                 api_body = kwargs[e][d]
                 for key in list(api_body.keys()):
                     if not key in key_list: api_body.pop(key)
-                api_body.ObjectType = kwargs.ezdata[e].ObjectType
-                api_body.Organization.Moid = kwargs.org_moids[destination_org].moid
-                api_body.Organization.ObjectType = 'organization.Organization'
+                api_body.ObjectType   = kwargs.ezdata[e].object_type
+                api_body.Organization = dict(Moid = kwargs.org_moids[destination_org].moid, ObjectType = 'organization.Organization')
                 kwargs.bulk_list.append(api_body.toDict())
             #=================================================================
             # POST Bulk Request if Post List > 0
@@ -663,7 +662,7 @@ class tools(object):
         if re.search('chassis|server', self.type):
             for e in kwargs.profile_names:
                 indx = next((index for (index, d) in enumerate(kwargs.profile_results) if d['Name'] == e), None)
-                kwargs.isight[kwargs.org].profile[self.type][e] = kwargs.profile_results[indx].Moid
+                kwargs.isight[kwargs.org].profiles[self.type][e] = kwargs.profile_results[indx].Moid
                 if self.type == 'server': sname = 'AssignedServer'
                 if self.type == 'chassis': sname = 'AssignedChassis'
                 sindx = next((index for (index, d) in enumerate(phys_devices) if d['Moid'] == kwargs.profile_results[indx][sname].Moid), None)
@@ -672,11 +671,11 @@ class tools(object):
         else:
             for dp in kwargs.domain_names:
                 indx = next((index for (index, d) in enumerate(kwargs.domain_results) if d['Name'] == dp), None)
-                kwargs.isight[kwargs.org].profile[self.type][dp] = kwargs.domain_results[indx].Moid
+                kwargs.isight[kwargs.org].profiles[self.type][dp] = kwargs.domain_results[indx].Moid
                 switch_profiles = [e for e in kwargs.profile_results if e.SwitchClusterProfile.Moid == kwargs.domain_results[indx].Moid]
                 serials         = []
                 for e in switch_profiles:
-                    kwargs.isight[kwargs.org].profile['switch'][e.Name] = e.Moid
+                    kwargs.isight[kwargs.org].profiles['switch'][e.Name] = e.Moid
                     sname = 'AssignedSwitch'
                     sindx = next((index for (index, d) in enumerate(phys_devices) if d['Moid'] == e[sname].Moid), None)
                     serials.append(phys_devices[sindx])

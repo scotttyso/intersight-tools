@@ -10,11 +10,12 @@ try:
     from datetime import datetime, timedelta
     from dotmap import DotMap
     from git import cmd, Repo
+    from json_ref_dict import materialize, RefDict
     from openpyxl import load_workbook
     from OpenSSL import crypto
     from pathlib import Path
     from stringcase import snakecase
-    import base64, crypt, ipaddress, itertools, jinja2, json, os, pexpect, pkg_resources, pytz, re, requests
+    import base64, crypt, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform, pytz, re, requests
     import shutil, subprocess, stdiomask, string, textwrap, validators, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -26,12 +27,137 @@ except ImportError as e:
 #=============================================================================
 log_level = 2
 #=============================================================================
-# Exception Classes
+# Exception Classes and YAML dumper
 #=============================================================================
 class insufficient_args(Exception): pass
 class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(yaml_dumper, self).increase_indent(flow, False)
+
+#=============================================================================
+# Function - Arguments used by the majority of the modules
+#=============================================================================
+def base_arguments(parser):
+    parser.add_argument(
+        '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
+        help='The Intersight API key id for HTTP signature scheme.')
+    parser.add_argument(
+        '-d', '--dir', default = 'Intersight',
+        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
+    parser.add_argument(
+        '-dl', '--debug-level', default = 0,
+        help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
+            '1. Shows the api request response status code '\
+            '5. Show URL String + Lower Options '\
+            '6. Adds Results + Lower Options '\
+            '7. Adds json payload + Lower Options '\
+            'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
+    parser.add_argument(
+        '-f', '--intersight-fqdn', default ='intersight.com',
+        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
+    parser.add_argument(
+        '-i', '--ignore-tls', action = 'store_false',
+        help = 'Ignore TLS server-side certificate verification.  Default is False.')
+    parser.add_argument(
+        '-j', '--json-file', default = None,
+        help = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
+    parser.add_argument(
+        '-k', '--intersight-secret-key', default = os.getenv('intersight_secret_key'),
+        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
+    parser.add_argument(
+        '-l', '--load-config', action = 'store_true',
+        help = 'Skip Wizard and Just Load Configuration Files.')
+    parser.add_argument('-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.' )
+    parser.add_argument('-y', '--yaml-file', default = None,  help = 'The input YAML File.')
+    return parser
+
+#=============================================================================
+# Function - Arguments used by EZIMM For Sensitive Variables
+#=============================================================================
+def base_arguments_ezimm_sensitive_variables(parser):
+    parser.add_argument('-ccp', '--cco-password',            help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
+    parser.add_argument('-ccu', '--cco-user',                help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
+    parser.add_argument('-ilp', '--local-user-password-1',   help='Intersight Managed Mode Local User Password 1.' )
+    parser.add_argument('-ilp2','--local-user-password-2',   help='Intersight Managed Mode Local User Password 2.' )
+    parser.add_argument('-imm', '--imm-transition-password', help='IMM Transition Tool Password.' )
+    parser.add_argument('-isa', '--snmp-auth-password-1',    help='Intersight Managed Mode SNMP Auth Password.' )
+    parser.add_argument('-isp', '--snmp-privacy-password-1', help='Intersight Managed Mode SNMP Privilege Password.' )
+    parser.add_argument('-np',  '--netapp-password',         help='NetApp Login Password.' )
+    parser.add_argument('-nsa', '--netapp-snmp-auth',        help='NetApp SNMP Auth Password.' )
+    parser.add_argument('-nsp', '--netapp-snmp-priv',        help='NetApp SNMP Privilege Password.' )
+    parser.add_argument('-nxp', '--nexus-password',          help='Nexus Login Password.' )
+    parser.add_argument('-p', '--pure-storage-password',     help='Pure Storage Login Password.' )
+    parser.add_argument('-psa', '--pure-storage-snmp-auth',  help='Pure Storage SNMP Auth Password.' )
+    parser.add_argument('-psp', '--pure-storage-snmp-priv',  help='Pure Storage SNMP Privilege Password.' )
+    parser.add_argument('-pxp', '--proxy-password',          help='Proxy Password.' )
+    parser.add_argument('-vep', '--vmware-esxi-password',    help='VMware ESXi Root Login Password.' )
+    parser.add_argument('-vvp', '--vmware-vcenter-password', help='VMware vCenter Admin Login Password.' )
+    parser.add_argument('-wap', '--windows-admin-password',  help='Windows Administrator Login Password.' )
+    parser.add_argument('-wdp', '--windows-domain-password', help='Windows Domain Registration Login Password.' )
+    return parser
+#=============================================================================
+# Function - Basic Setup for the Majority of the modules
+#=============================================================================
+def base_script_settings(kwargs):
+    #=========================================================================
+    # Configure logger and Build kwargs
+    #=========================================================================
+    script_name = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
+    dest_dir    = f"{Path.home()}{os.sep}Logs"
+    dest_file   = script_name + '.log'
+    if not os.path.exists(dest_dir): os.mkdir(dest_dir)
+    if not os.path.exists(os.path.join(dest_dir, dest_file)): 
+        create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
+    FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
+    logging.basicConfig( filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
+    logger = logging.getLogger('openapi')
+    #=========================================================================
+    # Determine the Script Path
+    #=========================================================================
+    args_dict = vars(kwargs.args)
+    for k,v in args_dict.items():
+        if type(v) == str and v != None: os.environ[k] = v
+    kwargs.script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    kwargs.args.dir      = os.path.abspath(kwargs.args.dir)
+    kwargs.home          = Path.home()
+    kwargs.logger        = logger
+    kwargs.op_system     = platform.system()
+    kwargs.imm_dict.orgs = DotMap()
+    #=========================================================================
+    # Import Stored Parameters and Add to kwargs
+    #=========================================================================
+    ezdata = materialize(RefDict(f'{kwargs.script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
+    kwargs.ez_tags  = {'Key':script_name,'Value':ezdata['info']['version']}
+    kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
+    kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
+    #=========================================================================
+    # Get Intersight Configuration
+    # - apikey
+    # - endpoint
+    # - keyfile
+    #=========================================================================
+    if not os.getenv('intersight_secret_key'):
+        kwargs.args.intersight_secret_key = os.getenv('intersight_secret_key')
+    if kwargs.args.intersight_secret_key:
+        if '~' in kwargs.args.intersight_secret_key: kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
+    if os.getenv('intersight_fqdn'): kwargs.args.intersight_fqdn = os.getenv('intersight_fqdn')
+    if 'api/v1/iam/Users' in kwargs.args.intersight_fqdn: kwargs.args.intersight_fqdn = ((kwargs.args.intersight_fqdn).replace('https://', '')).split('/')[0]
+    elif os.getenv('intersight_fqdn'): kwargs.args.intersight_fqdn = os.getenv('intersight_fqdn')
+    kwargs          = intersight_config(kwargs)
+    kwargs.args.url = 'https://%s' % (kwargs.args.intersight_fqdn)
+    #=========================================================================
+    # Check Folder Structure for Illegal Characters
+    #=========================================================================
+    for folder in kwargs.args.dir.split(os.sep):
+        if folder == '': pass
+        elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
+            pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!')
+            pcolor.Red(f'  The Directory structure can only contain the following characters:')
+            pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
+            pcolor.Red(f'  It can be a short path or a fully qualified path.  "{folder}" does not qualify.')
+            pcolor.Red(f'  Exiting...\n\n{"-"*108}\n')
+            len(False); sys.exit(1)
+    return kwargs
 
 #=============================================================================
 # pexpect - Login Function
@@ -43,9 +169,9 @@ def child_login(kwargs):
     kwargs.password = password
     log_dir = os.path.join(str(Path.home()), 'Logs')
     if not os.path.isdir(log_dir): os.mkdir(log_dir)
-    #=============================================================================
+    #=========================================================================
     # Launch Local Shell
-    #=============================================================================
+    #=========================================================================
     if kwargs.op_system == 'Windows':
         from pexpect import popen_spawn
         child = popen_spawn.PopenSpawn('cmd', encoding='utf-8', timeout=1)
@@ -53,9 +179,9 @@ def child_login(kwargs):
         system_shell = os.environ['SHELL']
         child = pexpect.spawn(system_shell, encoding='utf-8')
     child.logfile_read = sys.stdout
-    #=============================================================================
+    #=========================================================================
     # Test Connectivity with Ping and then Login
-    #=============================================================================
+    #=========================================================================
     if kwargs.op_system == 'Windows':
         child.sendline(f'ping -n 2 {kwargs.hostname}')
         child.expect(f'ping -n 2 {kwargs.hostname}')
@@ -586,9 +712,9 @@ def intersight_config(kwargs):
         kwargs.sensitive_var = 'intersight_api_key_id'
         kwargs = sensitive_var_value(kwargs)
         kwargs.args.intersight_api_key_id = kwargs.var_value
-    #==============================================
+    #=========================================================================
     # Prompt User for Intersight SecretKey File
-    #==============================================
+    #=========================================================================
     secret_path = kwargs.args.intersight_secret_key
     if not re.search('BEGIN RSA PRIVATE KEY.*END RSA PRIVATE KEY', secret_path):
         secret_loop = False
@@ -623,9 +749,9 @@ def intersight_config(kwargs):
                     description= 'Intersight Secret Key File Location.',
                     default    = f'{kwargs.home}{os.sep}Downloads{os.sep}SecretKey.txt')
                 secret_path = variable_prompt(kwargs)
-    #==============================================
+    #=========================================================================
     # Prompt User for Intersight FQDN
-    #==============================================
+    #=========================================================================
     valid = False
     while valid == False:
         varValue = kwargs.args.intersight_fqdn
@@ -690,9 +816,9 @@ def local_users_function(kwargs):
     kwargs.local_users = []
     valid_config = False
     while valid_config == False:
-        #==============================================
+        #=========================================================================
         # Loop Through Local User Atttributes
-        #==============================================
+        #=========================================================================
         attributes    = DotMap()
         attribute_list= list(kwargs.ezdata['local_user.users'].properties.keys())
         attribute_list.remove('password')
@@ -706,9 +832,9 @@ def local_users_function(kwargs):
         kwargs = sensitive_var_value(kwargs)
         attributes.password = loop_count
         attributes = DotMap(dict(sorted(attributes.toDict().items())))
-        #==============================================
+        #=========================================================================
         # Show User Configuration
-        #==============================================
+        #=========================================================================
         pcolor.Green(f'\n{"-"*108}\n')
         pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
         pcolor.Green(f'\n{"-"*108}\n')
@@ -881,9 +1007,9 @@ def policies_parse(ptype, policy_type, kwargs):
 # Function - Validate input for each method
 #=============================================================================
 def process_kwargs(kwargs):
-    #=============================================================================
+    #=========================================================================
     # Validate User Input
-    #=============================================================================
+    #=========================================================================
     json_data = kwargs['validateData']
     validate_args(kwargs)
     error_count = 0; error_list = []
@@ -895,9 +1021,9 @@ def process_kwargs(kwargs):
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following REQUIRED Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-    #=============================================================================
+    #=========================================================================
     # Load all optional args values from kwargs
-    #=============================================================================
+    #=========================================================================
     error_count = 0; error_list = []
     for item in optional_args:
         if item not in kwargs['var_dict'].keys(): error_count =+ 1; error_list += [item]
@@ -905,9 +1031,9 @@ def process_kwargs(kwargs):
         error_ = '\n\n***Begin ERROR***\n\n'\
             ' - The Following Optional Key(s) Were Not Found in kwargs: "%s"\n\n****End ERROR****\n' % (error_list)
         raise insufficient_args(error_)
-    #=============================================================================
+    #=========================================================================
     # Load all required args values from kwargs
-    #=============================================================================
+    #=========================================================================
     error_count = 0; error_list = []
     for item in kwargs['var_dict']:
         if item in required_args.keys():
@@ -1013,9 +1139,9 @@ def sensitive_var_value(kwargs):
                     password2 = stdiomask.getpass(prompt=f"Re-Enter the value for {kwargs.sensitive_var}: ")
                     if password1 == password2: secure_value = password1; valid_pass = True
                     else: pcolor.Red('!!! ERROR !!! Sensitive Values did not match.  Please re-enter...')
-            #==============================================
+            #=========================================================================
             # Validate Sensitive Passwords
-            #==============================================
+            #=========================================================================
             #cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
             if re.search('(certificate|private_key)', sensitive_var):
                 try:
@@ -1066,24 +1192,24 @@ def sensitive_var_value(kwargs):
             elif 'vmedia' in sensitive_var:
                 kwargs.jdata = kwargs.ezdata.sensitive_variables.properties.vmedia_password
                 valid = validate_sensitive(secure_value, kwargs)
-        #==============================================
+        #=========================================================================
         # Add Policy Variables to imm_dict
-        #==============================================
+        #=========================================================================
         if kwargs.get('org'):
             org = kwargs.org
             if not kwargs.imm_dict.orgs.get(org):
                 kwargs.imm_dict.orgs[org] = DotMap()
                 if not kwargs.imm_dict.orgs[org].get('sensitive_vars'): kwargs.imm_dict.orgs[org].sensitive_vars = []
                 kwargs.imm_dict.orgs[org].sensitive_vars.append(sensitive_var)
-        #==============================================
+        #=========================================================================
         # Add the Variable to the Environment
-        #==============================================
+        #=========================================================================
         os.environ[sensitive_var] = '%s' % (secure_value)
         kwargs.var_value = secure_value
     else:
-        #==============================================
+        #=========================================================================
         # Add the Variable to the Environment
-        #==============================================
+        #=========================================================================
         if not kwargs.get('multi_line_input'): kwargs.var_value = os.environ.get(sensitive_var)
         else: kwargs.var_value = (os.environ.get(sensitive_var)).replace('\n', '\\n')
     return kwargs
@@ -1096,9 +1222,9 @@ def snmp_trap_servers(kwargs):
     kwargs.snmp_traps = []
     valid_config = False
     while valid_config == False:
-        #==============================================
+        #=========================================================================
         # Loop Through SNMP Trap Server Atttributes
-        #==============================================
+        #=========================================================================
         attributes= DotMap()
         attribute_list = list(kwargs.ezdata['snmp.snmp_trap_destinations'].properties.keys())
         if len(kwargs.snmp_users) > 0:
@@ -1121,9 +1247,9 @@ def snmp_trap_servers(kwargs):
             kwargs = sensitive_var_value(kwargs)
             attributes.community_string = loop_count
         attributes = DotMap(dict(sorted(attributes.toDict().items())))
-        #==============================================
+        #=========================================================================
         # Show User Configuration
-        #==============================================
+        #=========================================================================
         pcolor.Green(f'\n{"-"*108}\n')
         pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
         pcolor.Green(f'\n{"-"*108}\n')
@@ -1147,9 +1273,9 @@ def snmp_users(kwargs):
     kwargs.snmp_users = []
     valid_users = False
     while valid_users == False:
-        #==============================================
+        #=========================================================================
         # Loop Through SNMP User Atttributes
-        #==============================================
+        #=========================================================================
         attributes    = DotMap()
         attribute_list= list(kwargs.ezdata['snmp.snmp_users'].properties.keys())
         for e in ['auth_password', 'privacy_password', 'privacy_type']: attribute_list.remove(e)
@@ -1168,9 +1294,9 @@ def snmp_users(kwargs):
             kwargs = sensitive_var_value(kwargs)
             attributes.privacy_password = loop_count
         attributes = DotMap(dict(sorted(attributes.toDict().items())))
-        #==============================================
+        #=========================================================================
         # Show User Configuration
-        #==============================================
+        #=========================================================================
         pcolor.Green(f'\n{"-"*108}\n')
         pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
         pcolor.Green(f'\n{"-"*108}\n')
@@ -1210,18 +1336,18 @@ def syslog_servers(kwargs):
     valid_config = False
     while valid_config == False:
         if loop_count < 2:
-            #==============================================
+            #=========================================================================
             # Loop Through SNMP Trap Server Atttributes
-            #==============================================
+            #=========================================================================
             attributes= DotMap()
             attribute_list = list(kwargs.ezdata['syslog.remote_logging'].properties.keys())
             for e in attribute_list:
                 kwargs.jdata = kwargs.ezdata['syslog.remote_logging'].properties[e]
                 kwargs.jdata.multi_select = False
                 attributes[e] = variable_prompt(kwargs)
-            #==============================================
+            #=========================================================================
             # Show User Configuration
-            #==============================================
+            #=========================================================================
             pcolor.Green(f'\n{"-"*108}\n')
             pcolor.Green(textwrap.indent(yaml.dump(attributes, Dumper=yaml_dumper, default_flow_style=False), " "*3, predicate=None))
             pcolor.Green(f'\n{"-"*108}\n')
@@ -1556,17 +1682,17 @@ def validate_strong_password(secure_value, kwargs):
 # Function - Prompt for Answer to Question from List
 #=============================================================================
 def variable_from_list(kwargs):
-    #==============================================
+    #=========================================================================
     # Set Function Variables
-    #==============================================
+    #=========================================================================
     default     = kwargs.jdata.default
     description = kwargs.jdata.description
     optional    = False
     title       = kwargs.jdata.title
     if not kwargs.jdata.get('multi_select'): kwargs.jdata.multi_select = False
-    #==============================================
+    #=========================================================================
     # Sort the Variables
-    #==============================================
+    #=========================================================================
     if kwargs.jdata.get('sort') == False: vars = kwargs.jdata.enum
     else: vars = sorted(kwargs.jdata.enum, key=str.casefold)
     valid = False
@@ -1626,29 +1752,29 @@ def variable_from_list(kwargs):
 # Function - Prompt User for Answer to Question
 #=============================================================================
 def variable_prompt(kwargs):
-    #==============================================
+    #=========================================================================
     # Improper Value Notifications
-    #==============================================
+    #=========================================================================
     def invalid_boolean(title, answer):
         pcolor.Red(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!! Please enter `Y` or `N`.\n{"-"*108}\n')
     def invalid_integer(title, answer):
         pcolor.Red(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!  Valid range is `{minimum}-{maximum}`.\n{"-"*108}\n')
     def invalid_string(title, answer):
         pcolor.Red(f'\n{"-"*108}\n   `{title}` value of `{answer}` is Invalid!!!\n{"-"*108}\n')
-    #==============================================
+    #=========================================================================
     # Set Function Variables
-    #==============================================
+    #=========================================================================
     default     = kwargs.jdata.default
     description = kwargs.jdata.description
     optional    = False
     title       = kwargs.jdata.title
-    #==============================================
+    #=========================================================================
     # Print `description` if not enum
-    #==============================================
+    #=========================================================================
     if not kwargs.jdata.get('enum'): pcolor.LightPurple(f'\n{"-"*108}\n'); pcolor.LightGray(f'{description}\n')
-    #==============================================
+    #=========================================================================
     # Prompt User for Answer
-    #==============================================
+    #=========================================================================
     valid = False
     while valid == False:
         if kwargs.jdata.get('enum'):  answer, valid = variable_from_list(kwargs)
@@ -1829,28 +1955,28 @@ def windows_timezones(kwargs):
 def write_to_repo_folder(pol_vars, kwargs):
     baseRepo   = kwargs.args.dir
     dest_file  = kwargs.dest_file
-    #=============================================================================
+    #=========================================================================
     # Setup jinja2 Environment
-    #=============================================================================
+    #=========================================================================
     template_path = pkg_resources.resource_filename(f'policies', 'templates/')
     templateLoader = jinja2.FileSystemLoader(searchpath=(template_path + 'provider/'))
     templateEnv = jinja2.Environment(loader=templateLoader)
-    #=============================================================================
+    #=========================================================================
     # Define the Template Source
-    #=============================================================================
+    #=========================================================================
     template = templateEnv.get_template(kwargs.template_file)
-    #=============================================================================
+    #=========================================================================
     # Make sure the Destination Path and Folder Exist
-    #=============================================================================
+    #=========================================================================
     if not os.path.isdir(os.path.join(baseRepo)): dest_path = f'{os.path.join(baseRepo)}'; os.makedirs(dest_path)
     dest_dir = os.path.join(baseRepo)
     if not os.path.exists(os.path.join(dest_dir, dest_file)):
         create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
     tf_file = os.path.join(dest_dir, dest_file)
     wr_file = open(tf_file, 'w')
-    #=============================================================================
+    #=========================================================================
     # Render Payload and Write to File
-    #=============================================================================
+    #=========================================================================
     pol_vars = json.loads(json.dumps(pol_vars))
     pol_vars = {'keys':pol_vars}
     payload = template.render(pol_vars)

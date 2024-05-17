@@ -2038,7 +2038,7 @@ class wizard(object):
         #==================================
         policy_list = []
         for k, v in kwargs.ezdata.items():
-            if v.intersight_type == 'policy' and 'domain' in v.target_platforms: policy_list.append(k)
+            if v.intersight_type == 'policies' and 'domain' in v.target_platforms: policy_list.append(k)
         for k, v in kwargs.imm.domain.items():
             dom_policy_list = deepcopy(policy_list)
             if not kwargs.imm.domain[k].get('vsans'): dom_policy_list.pop('vsan')
@@ -2065,7 +2065,7 @@ class wizard(object):
             # Configure IMM Pools
             #==================================
             for k, v in kwargs.ezdata.items():
-                if v.intersight_type == 'pool' and not '.' in k: pool_list.append(k)
+                if v.intersight_type == 'pools' and not '.' in k: pool_list.append(k)
             pool_list.remove('resource')
             for k, v in kwargs.imm.domain.items():
                 kwargs.domain = v; kwargs.domain.name = k
@@ -2075,7 +2075,7 @@ class wizard(object):
         #==================================
         if kwargs.args.deployment_type == 'azurestack':
             for k, v in kwargs.ezdata.items():
-                if v.intersight_type == 'policy' and 'Standalone' in v.target_platforms and not '.' in k:
+                if v.intersight_type == 'policies' and 'Standalone' in v.target_platforms and not '.' in k:
                     policy_list.append(k)
             pop_list = kwargs.ezdata.converged_pop_list.properties.azurestack.enum
             for i in pop_list:
@@ -2084,8 +2084,8 @@ class wizard(object):
             for i in policy_list: kwargs = eval(f'imm(i).{i}(kwargs)')
         else:
             for k, v in kwargs.ezdata.items():
-                if v.intersight_type == 'policy' and ('chassis' in v.target_platforms or 'FIAttached' in v.target_platforms
-                                                      ) and not '.' in k:  policy_list.append(k)
+                if v.intersight_type == 'policies' and (
+                    'chassis' in v.target_platforms or 'FIAttached' in v.target_platforms) and not '.' in k:  policy_list.append(k)
             policy_list.remove('iscsi_static_target')
             policy_list.insert((policy_list.index('iscsi_boot')), 'iscsi_static_target')
             pop_list = kwargs.ezdata.converged_pop_list.properties.domain.enum

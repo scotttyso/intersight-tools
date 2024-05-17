@@ -4,10 +4,10 @@ import os, sys
 script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
-    from classes import ezfunctions, pcolor
+    from classes import ezfunctions, isight, pcolor
     from dotmap import DotMap
     from pathlib import Path
-    import argparse, jinja2, json, os, logging, platform, requests, urllib3, uuid
+    import argparse, jinja2, json, os, requests, urllib3, uuid
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -18,101 +18,28 @@ except ImportError as e:
 # Function: Parse Arguments
 #=================================================================
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description='Intersight Converged Infrastructure Deployment Module')
-    Parser.add_argument(
-        '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
-        help='The Intersight API key id for HTTP signature scheme.')
-    Parser.add_argument(
-        '-d', '--dir', default = 'Intersight',
-        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
-    Parser.add_argument(
-        '-dl', '--debug-level', default =0,
-        help ='The Amount of Debug output to Show: '\
-            '1. Shows the api request response status code '\
-            '5. Show URL String + Lower Options '\
-            '6. Adds Results + Lower Options '\
-            '7. Adds json payload + Lower Options '\
-            'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
-    Parser.add_argument(
-        '-f', '--intersight-fqdn', default='intersight.com',
-        help='The Intersight hostname for the API endpoint. The default is intersight.com.')
-    Parser.add_argument(
-        '-i', '--ignore-tls', action='store_false',
-        help='Ignore TLS server-side certificate verification.  Default is False.')
-    Parser.add_argument( '-ilp', '--local-user-password-1',   help='Intersight Managed Mode Local User Password 1.' )
-    Parser.add_argument( '-ilp2','--local-user-password-2',   help='Intersight Managed Mode Local User Password 2.' )
-    Parser.add_argument( '-imm', '--imm-transition-password', help='IMM Transition Tool Password.' )
-    Parser.add_argument( '-isa', '--snmp-auth-password-1',    help='Intersight Managed Mode SNMP Auth Password.' )
-    Parser.add_argument( '-isp', '--snmp-privacy-password-1', help='Intersight Managed Mode SNMP Privilege Password.' )
-    Parser.add_argument(
-        '-k', '--intersight-secret-key', default='~/Downloads/SecretKey.txt',
-        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    Parser.add_argument( '-np',  '--netapp-password',  help='NetApp Login Password.' )
-    Parser.add_argument( '-nsa', '--netapp-snmp-auth', help='NetApp SNMP Auth Password.' )
-    Parser.add_argument( '-nsp', '--netapp-snmp-priv', help='NetApp SNMP Privilege Password.' )
-    Parser.add_argument( '-nxp', '--nexus-password',   help='Nexus Login Password.' )
-    Parser.add_argument( '-p', '--pure-storage-password',   help='Pure Storage Login Password.' )
-    Parser.add_argument( '-psa', '--pure-storage-snmp-auth', help='Pure Storage SNMP Auth Password.' )
-    Parser.add_argument( '-psp', '--pure-storage-snmp-priv', help='Pure Storage SNMP Privilege Password.' )
-    Parser.add_argument( '-pxp', '--proxy-password',   help='Proxy Password.' )
-    Parser.add_argument(
-        '-s', '--deployment-step', default ='initial', required=True,
-        help ='The steps in the proceedure to run. Options Are: '\
-            '1. initial '
-            '2. servers '\
-            '3. luns '\
-            '4. operating_system '\
-            '5. os_configuration ')
-    Parser.add_argument(
-        '-t', '--deployment-type', default ='imm_domain', required=True,
-        help ='Infrastructure Deployment Type. Options Are: '\
-            '1. azurestack '
-            '2. flashstack '\
-            '3. flexpod '\
-            '3. imm_domain '\
-            '4. imm_standalone ')
-    Parser.add_argument( '-v', '--api-key-v3', action='store_true', help='Flag for API Key Version 3.' )
-    Parser.add_argument( '-vep', '--vmware-esxi-password',          help='VMware ESXi Root Login Password.' )
-    Parser.add_argument( '-vvp', '--vmware-vcenter-password',       help='VMware vCenter Admin Login Password.' )
-    Parser.add_argument( '-wap', '--windows-admin-password',        help='Windows Administrator Login Password.' )
-    Parser.add_argument( '-wdp', '--windows-domain-password',       help='Windows Domain Registration Login Password.' )
-    Parser.add_argument( '-y', '--yaml-file',                       help = 'The input YAML File.' )
     kwargs = DotMap()
-    kwargs.args = Parser.parse_args()
+    parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
+    parser = ezfunctions.base_arguments(parser)
+    parser = ezfunctions.base_arguments_ezimm_sensitive_variables(parser)
+    kwargs.args = parser.parse_args()
     return kwargs
 
-
+#=============================================================================
+# Function: Main Script
+#=============================================================================
 def main():
-    #==============================================
-    # Configure logger and Build kwargs
-    #==============================================
-    script_name = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
-    dest_dir = f"{Path.home()}{os.sep}Logs"
-    dest_file = script_name + '.log'
-    if not os.path.exists(dest_dir): os.mkdir(dest_dir)
-    if not os.path.exists(os.path.join(dest_dir, dest_file)): 
-        create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
-    FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
-    logging.basicConfig( filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
-    logger = logging.getLogger('openapi')
+    #=========================================================================
+    # Configure Base Module Setup
+    #=========================================================================
     kwargs = cli_arguments()
+    kwargs = ezfunctions.base_script_settings(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
     #==============================================
     # Determine the Script Path
     #==============================================
-    kwargs.script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
-    kwargs.args.dir   = os.path.join(Path.home(), kwargs.args.yaml_file.split('/')[0])
-    args_dict = vars(kwargs.args)
-    for k,v in args_dict.items():
-        if type(v) == str:
-            if v: os.environ[k] = v
-    if kwargs.args.intersight_secret_key:
-        if '~' in kwargs.args.intersight_secret_key:
-            kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
-    kwargs.deployment_type= kwargs.args.deployment_type
-    kwargs.home           = Path.home()
-    kwargs.logger         = logger
-    kwargs.op_system      = platform.system()
-    kwargs.imm_dict.orgs  = DotMap()
+    kwargs.args.dir        = os.path.join(Path.home(), kwargs.args.yaml_file.split('/')[0])
+    kwargs.deployment_type = kwargs.args.deployment_type
     #=====================================================
     # Test Repo URL for NetAppNasPlugin
     #=====================================================

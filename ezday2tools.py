@@ -36,50 +36,24 @@ sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
     from classes import day2tools, ezfunctions, isight, pcolor
     from dotmap import DotMap
-    from json_ref_dict import materialize, RefDict
-    from pathlib import Path
-    import argparse, codecs, json, logging, os, platform, re, yaml
+    import argparse, codecs, json, os, re
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 
-#=================================================================
+#=============================================================================
 # Parse Arguments
-#=================================================================
+#=============================================================================
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description = 'Intersight Converged Infrastructure Deployment Module')
-    Parser.add_argument(
-        '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
-        help='The Intersight API key id for HTTP signature scheme.')
-    Parser.add_argument(
-        '-d', '--dir', default = 'Intersight',
-        help = 'The Directory to use for the Creation of the Terraform Files.')
-    Parser.add_argument(
-        '-dl', '--debug-level', default = 0,
-        help    = 'The Amount of Debug output to Show:'\
-            '1. Shows the api request response status code'
-            '5. Show URL String + Lower Options'\
-            '6. Adds Results + Lower Options'\
-            '7. Adds json payload + Lower Options'\
-            'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
-    Parser.add_argument(
-        '-f', '--intersight-fqdn', default = 'intersight.com',
-        help = 'The Intersight hostname for the API endpoint. The default is intersight.com.')
-    Parser.add_argument(
+    kwargs = DotMap()
+    parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
+    parser = ezfunctions.base_arguments(parser)
+    parser.add_argument(
         '-fi', '--full-identities', action = 'store_true',
         help = 'Used in conjunction with server_identities to pull more indepth Identity inventory.')
-    Parser.add_argument(
-        '-i', '--ignore-tls', action = 'store_false',
-        help = 'Ignore TLS server-side certificate verification.  Default is False.')
-    Parser.add_argument(
-        '-j', '--json-file', default = None,
-        help = 'Input JSON File for HCL Inventory.')
-    Parser.add_argument(
-        '-k', '--intersight-secret-key', default = os.getenv('intersight_secret_key'),
-        help = 'Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    Parser.add_argument(
+    parser.add_argument(
         '-p', '--process', default = 'EMPTY',
         help = 'Which Process to run with the Script.  Options are:  '\
             '1. add_policies '\
@@ -88,64 +62,21 @@ def cli_arguments():
             '4. clone_policies '\
             '5. hcl_inventory '\
             '6. server_inventory.')
-    Parser.add_argument(
-        '-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.')
-    Parser.add_argument(
+    parser.add_argument(
         '-wb', '--workbook', default = 'Settings.xlsx', help = 'The source Workbook.')
-    Parser.add_argument(
-        '-y', '--yaml-file', default = None,  help = 'The input YAML File.')
-    kwargs = DotMap()
-    kwargs.args = Parser.parse_args()
+    kwargs.args = parser.parse_args()
     return kwargs
 
+#=============================================================================
+# Function: Main Script
+#=============================================================================
 def main():
-    #==============================================
-    # Configure logger
-    #==============================================
-    script_name = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
-    dest_dir = f"{Path.home()}{os.sep}Logs"
-    dest_file = script_name + '.log'
-    if not os.path.exists(dest_dir): os.mkdir(dest_dir)
-    if not os.path.exists(os.path.join(dest_dir, dest_file)): os.system(f'type nul >> {os.path.join(dest_dir, dest_file)}')
-    FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
-    logging.basicConfig(
-        filename=f"{dest_dir}{os.sep}{script_name}.log",
-        filemode='a', format=FORMAT, level=logging.DEBUG)
-    logger = logging.getLogger('openapi')
-    #==============================================
-    # Build kwargs
-    #==============================================
+    #=========================================================================
+    # Configure Base Module Setup
+    #=========================================================================
     kwargs = cli_arguments()
-    #==============================================
-    # Determine the Script Path
-    #==============================================
-    kwargs.script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-    script_path        = kwargs.script_path
-    args_dict          = vars(kwargs.args)
-    for k,v in args_dict.items():
-        if type(v) == str: os.environ[k] = v
-    if kwargs.args.intersight_secret_key:
-        if '~' in kwargs.args.intersight_secret_key:
-            kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
-    kwargs.home          = Path.home()
-    kwargs.logger        = logger
-    kwargs.op_system     = platform.system()
-    kwargs.imm_dict.orgs = DotMap()
-    #================================================
-    # Import Stored Parameters
-    #================================================
-    ezdata          = DotMap(materialize(RefDict(f'{script_path}{os.sep}variables{os.sep}easy-imm.json')))
-    kwargs.ez_tags  = {'Key':'ezday2tools','Value':ezdata.info.version}
-    kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
-    kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
-    #==============================================
-    # Get Intersight Configuration
-    # - intersight_api_key_id
-    # - intersight_fqdn
-    # - intersight_secret_key
-    #==============================================
-    kwargs         = ezfunctions.intersight_config(kwargs)
-    kwargs.args.url= 'https://%s' % (kwargs.args.intersight_fqdn)
+    kwargs = ezfunctions.base_script_settings(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
     #==============================================
     # Build Deployment Library
     #==============================================

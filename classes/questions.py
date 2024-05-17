@@ -202,7 +202,6 @@ class orgs(object):
     # Function: Prompt User for Intersight Organization
     #=========================================================================
     def organization(kwargs):
-        kwargs = isight.api('organization').all_organizations(kwargs)
         org_list = sorted(list(kwargs.org_moids.keys()), key=str.casefold)
         if not kwargs.deployment_type == 'OSInstall': org_list.append('Create New')
         kwargs.jdata       = deepcopy(kwargs.ezdata.organization.allOf[1].properties.name)
@@ -855,7 +854,7 @@ class policies(object):
         kwargs.uri    = deepcopy(kwargs.ezdata[self.type].intersight_uri)
         kwargs        = isight.api('multi_org').calls(kwargs)
         policy_keys   = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
-        for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].policy[self.type][e.Name] = e.Moid
+        for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].policies[self.type][e.Name] = e.Moid
         org_keys = list(kwargs.org_moids.keys())
         for org in org_keys:
             pkeys = list(kwargs.imm_dict.orgs[org].policies.keys())
@@ -1890,7 +1889,7 @@ class policies(object):
         if indx == None:
             names             = [f'{org_name}/{vlan_policy}']
             kwargs            = isight.api_get(False, names, 'vlan', kwargs)
-            kwargs.api_filter = f"EthNetworkPolicy.Moid eq '{kwargs.isight[org_name].policy.vlan[vlan_policy]}'"
+            kwargs.api_filter = f"EthNetworkPolicy.Moid eq '{kwargs.isight[org_name].policies.vlan[vlan_policy]}'"
             kwargs.uri        = deepcopy(kwargs.ezdata['vlan.vlans'].intersight_uri)
             kwargs            = isight.api('vlan.vlans').calls(kwargs)
             for e in kwargs.results: vlans.append(e.VlanId)
@@ -1990,7 +1989,7 @@ class policies(object):
             parent_moids = DotMap()
             for e in names:
                 if not '/' in e: e = f'{kwargs.org}/{e}'
-                parent_moids[kwargs.isight[e.split('/')[0]].policy.vsan[e.split('/')[1]]] = e
+                parent_moids[kwargs.isight[e.split('/')[0]].policies.vsan[e.split('/')[1]]] = e
             vsan_list     = []
             vsan_policies = [args[f'fabric_{e.lower()}'].name for e in ['A', 'B'] if args[f'fabric_{e.lower()}'].name != 'Create New']
             kwargs.method = 'get'
@@ -2219,7 +2218,7 @@ class pools(object):
         kwargs.uri    = deepcopy(kwargs.ezdata[self.type].intersight_uri)
         kwargs        = isight.api('multi_org').calls(kwargs)
         pool_keys     = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
-        for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].pool[self.type][e.Name] = e.Moid
+        for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].pools[self.type][e.Name] = e.Moid
         org_keys = list(kwargs.org_moids.keys())
         for org in org_keys:
             pkeys = list(kwargs.imm_dict.orgs[org].pools.keys())

@@ -9,116 +9,51 @@ import os, sys
 script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
-    from classes import claim_device, ezfunctions, pcolor
+    from classes import claim_device, ezfunctions, isight, pcolor
     from dotmap import DotMap
-    from json_ref_dict import materialize, RefDict
     from pathlib import Path
-    import argparse, logging, os, re, traceback, yaml
+    import argparse, os, traceback, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
 
-#=================================================================
+#=============================================================================
 # Parse Arguments
-#=================================================================
+#=============================================================================
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description='Intersight Converged Infrastructure Deployment Module')
-    Parser.add_argument(
-        '-a', '--intersight-api-key-id', default=os.getenv('intersight_api_key_id'),
-        help='The Intersight API key id for HTTP signature scheme.')
-    Parser.add_argument(
-        '-dl', '--debug-level', default =0,
-        help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
-            '1. Shows the api request response status code '\
-            '5. Show URL String + Lower Options '\
-            '6. Adds Results + Lower Options '\
-            '7. Adds json payload + Lower Options '\
-            'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
-    Parser.add_argument(
-        '-f', '--intersight-fqdn', default='intersight.com',
-        help='The Intersight hostname for the API endpoint. The default is intersight.com.')
-    Parser.add_argument(
-        '-i', '--ignore-tls', action='store_false',
-        help='Ignore TLS server-side certificate verification.  Default is False.')
-    Parser.add_argument( '-ilp', '--local-user-password-1',   help='Password used to login to the device for claiming.' )
-    Parser.add_argument(
-        '-k', '--intersight-secret-key', default='~/Downloads/SecretKey.txt',
-        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    Parser.add_argument( '-pxp', '--proxy-password',   help='Proxy password when using proxy and authentication is required.' )
-    Parser.add_argument(
-        '-y', '--yaml-file',
-        help = 'The input YAML File.  See Example YAML File at {script_directory}/examples/intersight/device_claim.yaml',
-        required= True)
     kwargs = DotMap()
-    kwargs.args = Parser.parse_args()
+    parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
+    parser = ezfunctions.base_arguments(parser)
+    parser.add_argument( '-ilp', '--local-user-password-1',   help='Password used to login to the device for claiming.' )
+    parser.add_argument( '-pxp', '--proxy-password',   help='Proxy password when using proxy and authentication is required.' )
+    kwargs.args = parser.parse_args()
     return kwargs
 
-#=================================================================
-# The Main Module
-#=================================================================
+#=============================================================================
+# Function: Main Script
+#=============================================================================
 def main():
-    return_code = 0
-    #==============================================
-    # Configure logger and Build kwargs
-    #==============================================
-    script_name = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
-    dest_dir = f"{Path.home()}{os.sep}Logs"
-    dest_file = script_name + '.log'
-    if not os.path.exists(dest_dir): os.mkdir(dest_dir)
-    if not os.path.exists(os.path.join(dest_dir, dest_file)): 
-        create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
-    FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
-    logging.basicConfig( filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
-    logger = logging.getLogger('openapi')
+    #=========================================================================
+    # Configure Base Module Setup
+    #=========================================================================
     kwargs = cli_arguments()
-
-    #==============================================
-    # Determine the Script Path
-    #==============================================
-    kwargs.script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    kwargs = ezfunctions.base_script_settings(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
+    #=========================================================================
+    # EZCLAIM Setup
+    #=========================================================================
+    return_code = 0
     kwargs.args.dir    = os.path.join(Path.home(), kwargs.args.yaml_file.split('/')[0])
-    args_dict          = vars(kwargs.args)
-    for k,v in args_dict.items():
-        if type(v) == str:
-            if v: os.environ[k] = v
-    if kwargs.args.intersight_secret_key:
-        if '~' in kwargs.args.intersight_secret_key:
-            kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
     kwargs.deployment_type ='claim_devices'
-    kwargs.home            = Path.home()
-    kwargs.logger          = logger
-
-    #================================================
-    # Import Stored Parameters
-    #================================================
-    ezdata         = materialize(RefDict(f'{script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
-    kwargs.ez_tags = {'Key':'ezci','Value':ezdata['info']['version']}
-    kwargs.ezdata  = DotMap(ezdata['components']['schemas'])
-    #==============================================
-    # Add Sensitive Variables to Environment
-    #==============================================
-    arg_dict = vars(kwargs.args)
-    for e in list(arg_dict.keys()):
-        if re.search('cco|password|intersight', e):
-            if not arg_dict[e] == None: os.environ[e] = arg_dict[e]
-    #==============================================
+    #=========================================================================
     # Send Notification Message
-    #==============================================
+    #=========================================================================
     pcolor.LightGray(f'\n{"-"*91}\n')
     pcolor.LightGray(f'  * Begin Device Claims.')
     pcolor.LightGray(f'\n{"-"*91}\n')
     yfile = open(os.path.join(kwargs.args.yaml_file), 'r')
     kwargs.yaml = DotMap(yaml.safe_load(yfile))
-    #==============================================
-    # Get Intersight Configuration
-    # - intersight_api_key_id
-    # - intersight_fqdn
-    # - intersight_secret_key
-    #==============================================
-    kwargs         = ezfunctions.intersight_config(kwargs)
-    kwargs.args.url= 'https://%s' % (kwargs.args.intersight_fqdn)
-
     try:
         kwargs.sensitive_var  = 'local_user_password_1'
         kwargs                = ezfunctions.sensitive_var_value(kwargs)
@@ -133,9 +68,9 @@ def main():
         if kwargs.return_code:
             sys.exit(kwargs.return_code)
         else: sys.exit(return_code)
-    #==============================================
+    #=========================================================================
     # Send Notification Message and Exit
-    #==============================================
+    #=========================================================================
     pcolor.LightGray(f'\n{"-"*91}\n')
     pcolor.LightGray(f'  * Completed Device Claims.')
     pcolor.LightGray(f'\n{"-"*91}\n')

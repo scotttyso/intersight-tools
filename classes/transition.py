@@ -89,9 +89,8 @@ class intersight(object):
     # Function - Modify Ethernet Network Group Policies
     #=============================================================================
     def modify_ethernet_network_group(pvars):
-        vlans      = sorted(pvars.allowed_vlans.split(','))
-        vlans      = [int(e) for e in vlans]
-        vlan_list  = ezfunctions.vlan_list_format(vlans)
+        vlans     = ezfunctions.vlan_list_full(pvars.allowed_vlans)
+        vlan_list = ezfunctions.vlan_list_format(vlans)
         if type(vlan_list) == int: vlan_list = str(vlan_list)
         pvars.allowed_vlans = vlan_list
         # Return pvars
@@ -188,8 +187,7 @@ class intersight(object):
                 idict = deepcopy(e)
                 idict = intersight.replace_key_list(key_list, idict)
                 vkeys = list(idict.keys())
-                if 'mac_address_allocation_type' in vkeys:
-                    idict.mac_address_allocation_type = (idict.mac_address_allocation_type).upper()
+                if 'mac_address_allocation_type' in vkeys: idict.pop('mac_address_allocation_type')
                 pvars.vnics.append(idict)
         pvars = DotMap(sorted(pvars.items()))
         # Return pvars
@@ -298,7 +296,7 @@ class intersight(object):
     def modify_san_connectivity(pvars):
         pkeys = list(pvars.keys())
         if 'target_platform' in pkeys: pvars.target_platform = pvars.target_platform.replace('-', '')
-        if 'wwnn_allocation_type' in pkeys: pvars.wwnn_allocation_type = pvars.wwnn_allocation_type.upper()
+        if 'wwnn_allocation_type' in pkeys: pvars.pop('wwnn_allocation_type')
         if 'vhbas' in pkeys:
             key_list = [
                 'fibre_channel_network_policies,fibre_channel_network_policy',
@@ -315,8 +313,7 @@ class intersight(object):
                 idict = deepcopy(e)
                 idict = intersight.replace_key_list(key_list, idict)
                 vkeys = list(idict.keys())
-                if 'wwpn_allocation_type' in vkeys:
-                    idict.wwpn_allocation_type = idict.wwpn_allocation_type.upper()
+                if 'wwpn_allocation_type' in vkeys: idict.pop('wwpn_allocation_type')
                 pvars.vhbas.append(idict)
         pvars = DotMap(sorted(pvars.items()))
         # Return pvars
