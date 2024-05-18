@@ -59,11 +59,13 @@ def completed_item(ptype, kwargs):
         else: name = iresults['Name']
     elif iresults.get('ScheduledActions'): name = f"Activating Profile {pmoid}"
     elif iresults.get('Targets'):          name = iresults['Targets'][0]['Name']
-    elif 'update_tags' in ptype:    name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
+    elif 'update_tags' in ptype:           name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
     elif iresults.get('Identity'):         name = f"Reservation: `{iresults.Identity}`"
     elif iresults.get('Name'):             name = iresults['Name']
     elif iresults.get('EndPointRole'):
-        name = list(kwargs.user_moids.keys())[list(kwargs.user_moids.values()).index({'moid':iresults.EndPointUser.Moid})]
+        users = DotMap()
+        for k,v in kwargs.user_moids.items(): users[v.moid] = k
+        name = list(users.values())[list(users.keys()).index(iresults.EndPointUser.Moid)]
     if name == None:
         print(json.dumps(iresults, indent=4))
         print(kwargs.ptype)
@@ -79,22 +81,22 @@ def completed_item(ptype, kwargs):
         if 'an_connectivity' in kwargs.parent_key: kwargs.parent_name = parents[iresults[f'{pascalcase(kwargs.parent_key)}Policy'].Moid]
         elif kwargs.parent_key == 'vlan': kwargs.parent_name = parents[iresults[f'EthNetworkPolicy'].Moid]
         elif kwargs.parent_key == 'vsan': kwargs.parent_name = parents[iresults[f'FcNetworkPolicy'].Moid]
-        else: kwargs.parent_name = list(parents.keys())[list(parents.values()).index(iresults.Parent.Moid)]
+        else: kwargs.parent_name = list(parents.values())[list(parents.keys()).index(iresults.Parent.Moid)]
         if method == 'post':
-            pcolor.Green(f'      * Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
         else:
-            pcolor.LightPurple(f'      * Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
-        if method == 'post': pcolor.Green(f'      * Completed {method.upper()} for {ptype} {name}.')
+        if method == 'post': pcolor.Green(f'{" "*6}* Completed {method.upper()} for {ptype} {name}.')
         else: pcolor.LightPurple(f'      * Completed {method.upper()} for {ptype} {name}.')
-    elif 'Reservation' in name: pcolor.Green(f'    - Completed POST for {name} - Moid: {pmoid}')
+    elif 'Reservation' in name: pcolor.Green(f'{" "*6}- Completed POST for {name} - Moid: {pmoid}')
     elif 'bulk/MoMergers' == kwargs.uri:
-        if method == 'post': pcolor.Green(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'{" "*6}- Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'{" "*4}- Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
     else:
-        if method == 'post': pcolor.Green(f'    - Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'    - Completed {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'{" "*6}- Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'{" "*6}- Completed {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
 
 def deploy_notification(profile, profile_type):
     pcolor.LightGray(f'\n{"-"*108}\n')

@@ -75,25 +75,25 @@ def base_arguments(parser):
 # Function - Arguments used by EZIMM For Sensitive Variables
 #=============================================================================
 def base_arguments_ezimm_sensitive_variables(parser):
-    parser.add_argument('-ccp', '--cco-password',            help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
-    parser.add_argument('-ccu', '--cco-user',                help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
-    parser.add_argument('-ilp', '--local-user-password-1',   help='Intersight Managed Mode Local User Password 1.' )
-    parser.add_argument('-ilp2','--local-user-password-2',   help='Intersight Managed Mode Local User Password 2.' )
-    parser.add_argument('-imm', '--imm-transition-password', help='IMM Transition Tool Password.' )
-    parser.add_argument('-isa', '--snmp-auth-password-1',    help='Intersight Managed Mode SNMP Auth Password.' )
-    parser.add_argument('-isp', '--snmp-privacy-password-1', help='Intersight Managed Mode SNMP Privilege Password.' )
-    parser.add_argument('-np',  '--netapp-password',         help='NetApp Login Password.' )
-    parser.add_argument('-nsa', '--netapp-snmp-auth',        help='NetApp SNMP Auth Password.' )
-    parser.add_argument('-nsp', '--netapp-snmp-priv',        help='NetApp SNMP Privilege Password.' )
-    parser.add_argument('-nxp', '--nexus-password',          help='Nexus Login Password.' )
-    parser.add_argument('-p', '--pure-storage-password',     help='Pure Storage Login Password.' )
-    parser.add_argument('-psa', '--pure-storage-snmp-auth',  help='Pure Storage SNMP Auth Password.' )
-    parser.add_argument('-psp', '--pure-storage-snmp-priv',  help='Pure Storage SNMP Privilege Password.' )
-    parser.add_argument('-pxp', '--proxy-password',          help='Proxy Password.' )
-    parser.add_argument('-vep', '--vmware-esxi-password',    help='VMware ESXi Root Login Password.' )
-    parser.add_argument('-vvp', '--vmware-vcenter-password', help='VMware vCenter Admin Login Password.' )
-    parser.add_argument('-wap', '--windows-admin-password',  help='Windows Administrator Login Password.' )
-    parser.add_argument('-wdp', '--windows-domain-password', help='Windows Domain Registration Login Password.' )
+    parser.add_argument('-ccp',  '--cco-password',            help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
+    parser.add_argument('-ccu',  '--cco-user',                help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
+    parser.add_argument('-ilp',  '--local-user-password-1',   help='Intersight Managed Mode Local User Password 1.' )
+    parser.add_argument('-ilp2', '--local-user-password-2',   help='Intersight Managed Mode Local User Password 2.' )
+    parser.add_argument('-imm',  '--imm-transition-password', help='IMM Transition Tool Password.' )
+    parser.add_argument('-isa',  '--snmp-auth-password-1',    help='Intersight Managed Mode SNMP Auth Password.' )
+    parser.add_argument('-isp',  '--snmp-privacy-password-1', help='Intersight Managed Mode SNMP Privilege Password.' )
+    parser.add_argument('-np',   '--netapp-password',         help='NetApp Login Password.' )
+    parser.add_argument('-nsa',  '--netapp-snmp-auth',        help='NetApp SNMP Auth Password.' )
+    parser.add_argument('-nsp',  '--netapp-snmp-priv',        help='NetApp SNMP Privilege Password.' )
+    parser.add_argument('-nxp',  '--nexus-password',          help='Nexus Login Password.' )
+    parser.add_argument('-p',    '--pure-storage-password',   help='Pure Storage Login Password.' )
+    parser.add_argument('-psa',  '--pure-storage-snmp-auth',  help='Pure Storage SNMP Auth Password.' )
+    parser.add_argument('-psp',  '--pure-storage-snmp-priv',  help='Pure Storage SNMP Privilege Password.' )
+    parser.add_argument('-pxp',  '--proxy-password',          help='Proxy Password.' )
+    parser.add_argument('-vep',  '--vmware-esxi-password',    help='VMware ESXi Root Login Password.' )
+    parser.add_argument('-vvp',  '--vmware-vcenter-password', help='VMware vCenter Admin Login Password.' )
+    parser.add_argument('-wap',  '--windows-admin-password',  help='Windows Administrator Login Password.' )
+    parser.add_argument('-wdp',  '--windows-domain-password', help='Windows Domain Registration Login Password.' )
     return parser
 #=============================================================================
 # Function - Basic Setup for the Majority of the modules
@@ -259,7 +259,7 @@ def count_keys(ws, func):
 def create_yaml(orgs, kwargs):
     ezdata  = kwargs.ezdata.ezimm_class.properties
     classes = kwargs.ezdata.ezimm_class.properties.classes.enum
-    def write_file(dest_dir, dest_file, idict, title1):
+    def write_file(dest_dir, dest_file, idict, title):
         if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
         if not os.path.exists(os.path.join(dest_dir, dest_file)):
             create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'
@@ -267,12 +267,12 @@ def create_yaml(orgs, kwargs):
         wr_file = open(os.path.join(dest_dir, dest_file), 'w')
         wr_file.write('---\n')
         wr_file = open(os.path.join(dest_dir, dest_file), 'a')
-        dash_length = '='*(len(title1) + 20)
+        dash_length = '='*(len(title) + 20)
         wr_file.write(f'#{dash_length}\n')
-        wr_file.write(f'#   {title1} - Variables\n')
+        wr_file.write(f'#   {title} - Variables\n')
         wr_file.write(f'#{dash_length}\n')
         if 'name_pfx_sfx' in dest_file: wr_file.write('# If a prefix/suffix policy is undefined default will be used\n')
-        wr_file.write(yaml.dump(idict, Dumper=yaml_dumper, default_flow_style=False))
+        wr_file.write(yaml.dump(idict, Dumper = yaml_dumper, default_flow_style=False))
         wr_file.close()
     for item in classes:
         dest_dir = os.path.join(kwargs.args.dir, ezdata[item].directory)
@@ -292,11 +292,9 @@ def create_yaml(orgs, kwargs):
                             elif not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
                         if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
-                    title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
-                    if i == 'pool_types': dest_file = 'pools.ezi.yaml'
-                    elif i == 'domain_profile': dest_file = 'domain.ezi.yaml'
-                    else: dest_file = f"{i}.ezi.yaml"
-                    write_file(dest_dir, dest_file, idict, title1)
+                    title     = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
+                    dest_file = f"{ezdata[i].title}.ezi.yaml"
+                    write_file(dest_dir, dest_file, idict, title)
         else:
             for i in ezdata[item].enum:
                 idict = {}
@@ -318,9 +316,22 @@ def create_yaml(orgs, kwargs):
                                 if not i == x or len(kwargs.imm_dict.orgs[org][item][i]) == 0: idict[org][item].pop(x)
                             if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
-                    if i == item: title1 = mod_pol_description(str.title(item.replace('_', ' ')))
-                    else: title1 = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((i).replace('_', ' '))}")
-                    write_file(dest_dir, f"{i}.yaml", idict, title1)
+                    if i == item:
+                        title   = mod_pol_description(str.title(item.replace('_', ' ')))
+                    else: title = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((i).replace('_', ' '))}")
+
+                    write_file(dest_dir, f"{i}.yaml", idict, title)
+
+#=============================================================================
+# Function - Cleanup Empty Parameters in Dictionary
+#=============================================================================
+def dictionary_cleanup(dictionary):
+    none_type = type(None)
+    for k in list(dictionary.keys()):
+        if type(dictionary[k]) == none_type: dictionary.pop(k)
+        elif type(dictionary[k]) == str  and dictionary[k] == '':     dictionary.pop(k)
+        elif type(dictionary[k]) == list and len(dictionary[k]) == 0: dictionary.pop(k)
+    return dictionary
 
 #=============================================================================
 # Function - Prompt User with question

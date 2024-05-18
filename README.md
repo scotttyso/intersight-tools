@@ -7,6 +7,10 @@ Converged - HyperConverged - Traditional Domains and Standalone
 
 This code is provided as is.  No warranty, support, or guarantee is provided with this.  But in typical github fashion there is the opportunity to collaborate and share Bug's/Feedback/PR Requests.
 
+## Updates
+
+* 2024-05-18: Changing version numbering to match the `Intersight API` release version that was tested.  This is going back from `4.X` to `1.X` to perform this match.  This is so it is easier for a user to identify which `Intersight API` release the `intersight-tools` release was tested against.
+
 ## ezci.py
 
 ### General Use Cases

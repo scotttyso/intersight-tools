@@ -7652,23 +7652,23 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 19,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 8,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
                         "TxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
@@ -7677,23 +7677,23 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 19,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 16,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 16384
                         },
                         "TxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 16384
                         }
                     },
@@ -7702,18 +7702,18 @@
                         "RssSettings": false,
                         "CompletionQueueSettings":{
                             "Count": 2,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 4,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         }
                     },
@@ -7722,27 +7722,27 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 2,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 1024,
                             "ResourceGroups": 8,
                             "Version": 2
                         },
                         "RxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         }
                     },
@@ -7751,32 +7751,32 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 11,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 1024,
                             "ResourceGroups": 8,
                             "Version": 2
                         },
                         "RxQueueSettings":{
                             "Count": 8,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
                         "TxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
@@ -7785,7 +7785,7 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 576,
-                            "object_type": "vnic.CompletionQueueSettings",
+                            "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 4
                         },
                         "InterruptSettings":{
@@ -7793,16 +7793,16 @@
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 512,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
                         "TxQueueSettings":{
                             "Count": 64,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
@@ -7811,32 +7811,32 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 576,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 65536,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 256,
                             "ResourceGroups": 2,
                             "Version": 2
                         },
                         "RxQueueSettings":{
                             "Count": 512,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
                         "TxQueueSettings":{
                             "Count": 64,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
@@ -7847,7 +7847,7 @@
                             "ClassOfService": 0,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 2048,
                             "ResourceGroups": 32,
                             "Version": 1
@@ -7860,7 +7860,7 @@
                             "ClassOfService": 0,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 2048,
                             "ResourceGroups": 32,
                             "Version": 1
@@ -7871,14 +7871,14 @@
                         "RssSettings": false,
                         "CompletionQueueSettings":{
                             "Count": 2,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 4,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         }
                     },
                     "SRIOV-HPN":{
@@ -7888,7 +7888,7 @@
                             "CoalescingType": "MIN",
                             "Count": 32,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         }
                     },
                     "usNIC":{
@@ -7896,16 +7896,16 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 12,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 6,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
                         "TxQueueSettings":{
                             "Count": 6,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         },
                         "UplinkFailbackTimeout": 0
@@ -7915,7 +7915,7 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 2000,
-                            "object_type": "vnic.CompletionQueueSettings",
+                            "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 4
                         },
                         "InterruptScaling": true,
@@ -7924,16 +7924,16 @@
                             "CoalescingType": "MIN",
                             "Count": 1024,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 1000,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
                         "TxQueueSettings":{
                             "Count": 1000,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         },
                         "UplinkFailbackTimeout": 0
@@ -7943,18 +7943,18 @@
                         "RssSettings":false,
                         "CompletionQueueSettings":{
                             "Count":2,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime":125,
                             "CoalescingType": "MIN",
                             "Count":4,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count":4,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize":512
                         }
                     },
@@ -7963,23 +7963,23 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 11,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RxQueueSettings":{
                             "Count": 8,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
                         "TxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
@@ -7988,32 +7988,32 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 11,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 1024,
                             "ResourceGroups": 8,
                             "Version": 2
                         },
                         "RxQueueSettings":{
                             "Count": 8,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
                         "TxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
@@ -8022,32 +8022,32 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 2,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 1024,
                             "ResourceGroups": 8,
                             "Version": 2
                         },
                         "RxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
                         "TxQueueSettings":{
                             "Count": 1,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
@@ -8056,18 +8056,18 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 8,
-                            "object_type": "vnic.CompletionQueueSettings"
+                            "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 12,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "TxQueueSettings":{
                             "Count": 4,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
@@ -8076,7 +8076,7 @@
                         "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 11,
-                            "object_type": "vnic.CompletionQueueSettings",
+                            "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 256
                         },
                         "InterruptSettings":{
@@ -8084,31 +8084,31 @@
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 256,
                             "ResourceGroups": 2,
                             "Version": 2
                         },
                         "RxQueueSettings":{
                             "Count": 8,
-                            "object_type": "vnic.EthRxQueueSettings",
+                            "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
                         "TxQueueSettings":{
                             "Count": 3,
-                            "object_type": "vnic.EthTxQueueSettings",
+                            "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 1024
                         },
                         "VxlanSettings": {
-                          "ClassId": "vnic.VxlanSettings",
-                          "Enabled": true,
-                          "object_type": "vnic.VxlanSettings"
+                            "ClassId": "vnic.VxlanSettings",
+                            "Enabled": true,
+                            "ObjectType": "vnic.VxlanSettings"
                         }
                     },
                     "Win-HPN":{
@@ -8119,12 +8119,12 @@
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "VxlanSettings": {
-                          "ClassId": "vnic.VxlanSettings",
-                          "Enabled": true,
-                          "object_type": "vnic.VxlanSettings"
+                            "ClassId": "vnic.VxlanSettings",
+                            "Enabled": true,
+                            "ObjectType": "vnic.VxlanSettings"
                         }
                     },
                     "Win-HPN-SMBd":{
@@ -8135,13 +8135,13 @@
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
-                            "object_type": "vnic.EthInterruptSettings"
+                            "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RoceSettings":{
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
-                            "object_type": "vnic.RoceSettings",
+                            "ObjectType": "vnic.RoceSettings",
                             "QueuePairs": 256,
                             "ResourceGroups": 2,
                             "Version": 2
@@ -8149,7 +8149,7 @@
                         "VxlanSettings": {
                           "ClassId": "vnic.VxlanSettings",
                           "Enabled": true,
-                          "object_type": "vnic.VxlanSettings"
+                          "ObjectType": "vnic.VxlanSettings"
                         }
                     },
                     "Windows":{
@@ -8502,15 +8502,6 @@
                             "wizard"
                         ]
                     },
-                    "chassis": {
-                        "type": "string",
-                        "default": "",
-                        "description": "List of objects in the chassis.ezi.yaml file.",
-                        "title": "chassis",
-                        "enum": [
-                            "chassis"
-                        ]
-                    },
                     "compute": {
                         "type": "string",
                         "default": "",
@@ -8526,19 +8517,10 @@
                             "virtual_media"
                         ]
                     },
-                    "domain_profile": {
-                        "type": "string",
-                        "default": "",
-                        "description": "List of objects in the domain.ezi.yaml file.",
-                        "title": "domain",
-                        "enum": [
-                            "domain"
-                        ]
-                    },
                     "domain": {
                         "type": "string",
                         "default": "",
-                        "description": "List of objects in the domain.ezi.yaml file.",
+                        "description": "List of objects in the policies/domain.ezi.yaml file.",
                         "directory": "policies",
                         "title": "domain",
                         "enum": [
@@ -8628,7 +8610,7 @@
                         "type": "string",
                         "default": "",
                         "description": "List of objects in the name_pfx_sfx.ezi.yaml file.",
-                        "title": "name prefix/suffix",
+                        "title": "name_pfx_sfx",
                         "enum": [
                             "name_prefix",
                             "name_suffix"
@@ -8659,6 +8641,7 @@
                             "lan_connectivity",
                             "management",
                             "name_pfx_sfx",
+                            "policies.templates",
                             "port",
                             "san_connectivity",
                             "storage",
@@ -8666,7 +8649,29 @@
                             "vsan"
                         ]
                     },
-                    "pool_types": {
+                    "policis.templates": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the policies/templates.ezi.yaml file.",
+                        "directory": "policies",
+                        "title": "templates",
+                        "enum": [
+                            "vhba_template",
+                            "vnic_template"
+                        ]
+                    },
+                    "pools": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the pools folder.",
+                        "directory": "pools",
+                        "title": "pools",
+                        "enum": [
+                            "name_pfx_sfx",
+                            "pools.pools"
+                        ]
+                    },
+                    "pools.pools": {
                         "type": "string",
                         "default": "",
                         "description": "List of objects in the pools.ezi.yaml file.",
@@ -8679,17 +8684,6 @@
                             "uuid",
                             "wwnn",
                             "wwpn"
-                        ]
-                    },
-                    "pools": {
-                        "type": "string",
-                        "default": "",
-                        "description": "List of objects in the pools folder.",
-                        "directory": "pools",
-                        "title": "pools",
-                        "enum": [
-                            "name_pfx_sfx",
-                            "pool_types"
                         ]
                     },
                     "port": {
@@ -8708,9 +8702,39 @@
                         "directory": "profiles",
                         "title": "profiles",
                         "enum": [
-                            "chassis",
-                            "domain_profile",
                             "name_pfx_sfx",
+                            "profiles.chassis",
+                            "profiles.domain",
+                            "profiles.server"
+                        ]
+                    },
+                    "profiles.chassis": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the profiles/chassis.ezi.yaml file.",
+                        "directory": "profiles",
+                        "title": "chassis",
+                        "enum": [
+                            "chassis"
+                        ]
+                    },
+                    "profiles.domain": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the profiles/domain.ezi.yaml file.",
+                        "directory": "profiles",
+                        "title": "domain",
+                        "enum": [
+                            "domain"
+                        ]
+                    },
+                    "profiles.server": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the profiles/server.ezi.yaml file.",
+                        "directory": "profiles",
+                        "title": "server",
+                        "enum": [
                             "server"
                         ]
                     },
@@ -8721,15 +8745,6 @@
                         "title": "san_connectivity",
                         "enum": [
                             "san_connectivity"
-                        ]
-                    },
-                    "server": {
-                        "type": "string",
-                        "default": "",
-                        "description": "List of objects in the server.ezi.yaml file.",
-                        "title": "server",
-                        "enum": [
-                            "server"
                         ]
                     },
                     "storage": {
@@ -8749,6 +8764,39 @@
                         "description": "List of objects in the templates.ezi.yaml file.",
                         "directory": "templates",
                         "title": "templates",
+                        "enum": [
+                            "name_pfx_sfx",
+                            "templates.chassis",
+                            "templates.domain",
+                            "templates.server"
+                        ]
+                    },
+                    "templates.chassis": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the templates/chassis.ezi.yaml file.",
+                        "directory": "templates",
+                        "title": "chassis",
+                        "enum": [
+                            "chassis"
+                        ]
+                    },
+                    "templates.domain": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the templates/domain.ezi.yaml file.",
+                        "directory": "templates",
+                        "title": "domain",
+                        "enum": [
+                            "domain"
+                        ]
+                    },
+                    "templates.server": {
+                        "type": "string",
+                        "default": "",
+                        "description": "List of objects in the templates/server.ezi.yaml file.",
+                        "directory": "templates",
+                        "title": "server",
                         "enum": [
                             "server"
                         ]
@@ -9190,7 +9238,7 @@
                         "Description": "Recommended adapter settings for FC NVMe Initiator.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         }
                     },
@@ -9198,7 +9246,7 @@
                         "Description": "Recommended adapter settings for FC NVMe Target.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         }
                     },
@@ -9206,7 +9254,7 @@
                         "Description": "Recommended adapter settings for SCSI Initiator.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 10000
                         }
                     },
@@ -9214,7 +9262,7 @@
                         "Description": "Recommended adapter settings for Linux.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         }
                     },
@@ -9222,11 +9270,11 @@
                         "Description": "Recommended adapter settings for Solaris.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         },
                         "FlogiSettings":{
-                            "object_type": "vnic.FlogiSettings",
+                            "ObjectType": "vnic.FlogiSettings",
                             "Retries": 8,
                             "Timeout": 20000
                         }
@@ -9235,7 +9283,7 @@
                         "Description": "Recommended adapter settings for Target.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         }
                     },
@@ -9243,7 +9291,7 @@
                         "Description": "Recommended adapter settings for VMware.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 10000
                         }
                     },
@@ -9251,11 +9299,11 @@
                         "Description": "Recommended adapter settings for Windows Boot.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 5000
                         },
                         "PlogiSettings":{
-                            "object_type": "vnic.PlogiSettings",
+                            "ObjectType": "vnic.PlogiSettings",
                             "Retries": 8,
                             "Timeout": 4000
                         }
@@ -9264,7 +9312,7 @@
                         "Description": "Recommended adapter settings for Windows.",
                         "ErrorRecoverySettings":{
                             "IoRetryCount": 30,
-                            "object_type": "vnic.FcErrorRecoverySettings",
+                            "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         }
                     }
@@ -17968,7 +18016,7 @@
                         "Cos": 255,
                         "Mtu": 9216,
                         "Name": "Best Effort",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 10
                     },
@@ -17977,7 +18025,7 @@
                         "Cos": 1,
                         "Mtu": 9216,
                         "Name": "Bronze",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 0
                     },
@@ -17986,7 +18034,7 @@
                         "Cos": 4,
                         "Mtu": 9216,
                         "Name": "Gold",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 0
                     },
@@ -17995,7 +18043,7 @@
                         "Cos": 3,
                         "Mtu": 2240,
                         "Name": "FC",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": false,
                         "Weight": 10
                     },
@@ -18004,7 +18052,7 @@
                         "Cos": 5,
                         "Mtu": 9216,
                         "Name": "Platinum",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": false,
                         "Weight": 0
                     },
@@ -18013,7 +18061,7 @@
                         "Cos": 2,
                         "Mtu": 9216,
                         "Name": "Silver",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 0
                     }
@@ -18033,7 +18081,7 @@
                         "Cos": 255,
                         "Mtu": 9216,
                         "Name": "Best Effort",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 5
                     },
@@ -18042,7 +18090,7 @@
                         "Cos": 1,
                         "Mtu": 9216,
                         "Name": "Bronze",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 7
                     },
@@ -18051,7 +18099,7 @@
                         "Cos": 4,
                         "Mtu": 9216,
                         "Name": "Gold",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 9
                     },
@@ -18060,7 +18108,7 @@
                         "Cos": 3,
                         "Mtu": 2240,
                         "Name": "FC",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": false,
                         "Weight": 10
                     },
@@ -18069,7 +18117,7 @@
                         "Cos": 5,
                         "Mtu": 9216,
                         "Name": "Platinum",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 10
                     },
@@ -18078,7 +18126,7 @@
                         "Cos": 2,
                         "Mtu": 9216,
                         "Name": "Silver",
-                        "object_type": "fabric.QosClass",
+                        "ObjectType": "fabric.QosClass",
                         "PacketDrop": true,
                         "Weight": 8
                     }
@@ -18130,7 +18178,7 @@
                             },
                             "power_policy": {
                                 "type": "string",
-                                "default": "",
+                                "default": "default",
                                 "description": "The Name of the Power Policy to Assign to the Profile(s).",
                                 "intersight_api": "$pbucket:power.Policy:Moid",
                                 "minLength": 1,
@@ -18792,7 +18840,7 @@
                         "required": [
                             "fibre_channel_qos_policy"
                         ],
-                        "title": "vnic_template",
+                        "title": "vhba_template",
                         "properties": {
                             "allow_override": {
                                 "type": "boolean",
@@ -18841,7 +18889,7 @@
                                 "type": "string",
                                 "default": "default",
                                 "description": "The Name of the Fibre-Channel QoS Policy to Assign to the vHBA Template.",
-                                "intersight_api": "$ref:EthQosPolicy:vnic.EthQosPolicy:Moid",
+                                "intersight_api": "$ref:FcQosPolicy:vnic.FcQosPolicy:Moid",
                                 "minLength": 1,
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",

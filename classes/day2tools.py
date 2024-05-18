@@ -438,49 +438,74 @@ class tools(object):
     # Function - Intersight Inventory
     #=========================================================================
     def inventory(self, kwargs):
-        kwargs.firmware = DotMap(json.load(open(f'{kwargs.script_path}/QA/firmware.json', 'r')))
-        kwargs.domains  = DotMap(json.load(open(f'{kwargs.script_path}/QA/domains.json', 'r')))
-        kwargs.chassis  = DotMap(json.load(open(f'{kwargs.script_path}/QA/chassis.json', 'r')))
-        kwargs.servers  = DotMap(json.load(open(f'{kwargs.script_path}/QA/servers.json', 'r')))
+        kwargs.org = 'default'
+        # kwargs.firmware = DotMap(json.load(open(f'{kwargs.script_path}/QA/firmware.json', 'r')))
+        # kwargs.domains  = DotMap(json.load(open(f'{kwargs.script_path}/QA/domains.json', 'r')))
+        # kwargs.chassis  = DotMap(json.load(open(f'{kwargs.script_path}/QA/chassis.json', 'r')))
+        # kwargs.servers  = DotMap(json.load(open(f'{kwargs.script_path}/QA/servers.json', 'r')))
         #=====================================================================
         # Running Firmware
         #=====================================================================
         kwargs.api_filter = 'ignore'
-        kwargs.org        = 'default'
-        # kwargs = isight.api('firmware').running_firmware(kwargs)
-        # #=====================================================================
-        # # Domain Inventory
-        # #=====================================================================
-        # kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
-        # kwargs = isight.api('domains').domain_device_registrations(kwargs)
-        # kwargs.api_filter = f"SwitchType eq 'FabricInterconnect'"
-        # kwargs = isight.api('domains').domain_network_elements(kwargs)
-        # for e in ['switch_profiles', 'cluster_profiles']:
-        #     kwargs.api_filter = 'ignore'
-        #     kwargs = eval(f"isight.api('domains').domain_{e}(kwargs)")
-        # #=====================================================================
-        # # Chassis Inventory
-        # #=====================================================================
-        # for e in ['equipment', 'io_cards', 'profiles']:
-        #     kwargs.api_filter = 'ignore'
-        #     kwargs = eval(f"isight.api('chassis').chassis_{e}(kwargs)")
+        kwargs = isight.api('firmware').running_firmware(kwargs)
+        # with open('firmware.json', 'w') as json_file:
+        #     json.dump(kwargs.firmware, json_file, indent=4)
+        #=====================================================================
+        # Domain Inventory
+        #=====================================================================
+        kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
+        kwargs = isight.api('domains').domain_device_registrations(kwargs)
+        kwargs.api_filter = f"SwitchType eq 'FabricInterconnect'"
+        kwargs = isight.api('domains').domain_network_elements(kwargs)
+        for e in ['switch_profiles', 'cluster_profiles']:
+            kwargs.api_filter = 'ignore'
+            kwargs = eval(f"isight.api('domains').domain_{e}(kwargs)")
+        # with open('domains.json', 'w') as json_file:
+        #     json.dump(kwargs.domains, json_file, indent=4)
+        #=====================================================================
+        # Chassis Inventory
+        #=====================================================================
+        for e in ['equipment', 'io_cards', 'profiles']:
+            kwargs.api_filter = 'ignore'
+            kwargs = eval(f"isight.api('chassis').chassis_{e}(kwargs)")
+        # with open('chassis.json', 'w') as json_file:
+        #     json.dump(kwargs.chassis, json_file, indent=4)
         #=====================================================================
         # Server Inventory
         #=====================================================================
-        # for e in ['physical_summaries', 'children_equipment', 'profiles', 'virtual_drives']:
-        #     kwargs.api_filter = 'ignore'
-        #     kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
-        # print(json.dumps(kwargs.servers, indent=4))
-        # exit()
+        for e in ['compute', 'children_equipment', 'profiles', 'virtual_drives']:
+            kwargs.api_filter = 'ignore'
+            kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
+        # with open('servers.json', 'w') as json_file:
+        #     json.dump(kwargs.servers, json_file, indent=4)
         #=====================================================================
         # Contract Inventory
         #=====================================================================
         kwargs.api_filter = 'ignore'
-        kwargs = isight.api('contracts').domain_network_elements(kwargs)
+        kwargs = isight.api('contracts').inventory_contracts(kwargs)
+        #=====================================================================
+        # Add Server/PCI Node Data to Chassis Dictionary
+        #=====================================================================
+        for k,v in kwargs.servers.items():
+            vkeys = list(v.keys())
+            if 'pci_node' in vkeys and v.pci_node != None:
+                pdict = DotMap(contract = v.contract, model = v.pci_node.model, serial = v.pci_node.serial)
+                kwargs.chassis[v.chassis].slot[str(v.pci_node.slot)] = pdict
+            if 'chassis' in vkeys:
+                sdict = DotMap(contract = v.contract, model = v.model, serial = v.serial)
+                kwargs.chassis[v.chassis].slot[str(v.slot)] = sdict
+                if re.search('410|480', v.model): kwargs.chassis[v.chassis].slot[str(v.slot+1)] = sdict
+        #=====================================================================
+        # Sort the Dictionaries
+        #=====================================================================
         kwargs.chassis = DotMap(sorted(kwargs.chassis.items(), key=lambda ele: ele[1].name))
         kwargs.domains = DotMap(sorted(kwargs.domains.items(), key=lambda ele: ele[1].name))
         kwargs.servers = DotMap(sorted(kwargs.servers.items(), key=lambda ele: ele[1].name))
-        if len(kwargs.servers) > 0: kwargs = tools('workbook').inventory_workbook(kwargs)
+        inventory      = DotMap(chassis = kwargs.chassis, domains = kwargs.domains, servers = kwargs.servers)
+        with open('inventory.json', 'w') as json_file:
+            json.dump(inventory, json_file, indent=4)
+
+        #if len(kwargs.servers) > 0: kwargs = tools('workbook').inventory_workbook(kwargs)
         return kwargs
 
     #=========================================================================
