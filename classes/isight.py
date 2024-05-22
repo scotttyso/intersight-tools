@@ -574,11 +574,11 @@ class api(object):
                 else: kwargs.api_args = api_args + '?$count=True'
                 kwargs = api_calls(kwargs)
                 print(kwargs.results.Count)
-                #if   re.search('expand.+PhysicalDisks', api_args) and kwargs.results.Count > 30: rcount = 1001
-                #elif re.search('expand.+Processors', api_args) and kwargs.results.Count > 250: rcount = 1001
-                #elif re.search('expand.+Units', api_args) and kwargs.results.Count > 30: rcount = 1001
-                #elif re.searcH('expand', api_args)
-                #else: rcount = kwargs.results.Count
+                if   re.search('expand.+PhysicalDisks', api_args) and kwargs.results.Count > 30: rcount = 1001
+                elif re.search('expand.+Processors', api_args) and kwargs.results.Count > 250: rcount = 1001
+                elif re.search('expand.+Units', api_args) and kwargs.results.Count > 30: rcount = 1001
+                elif re.searcH('expand+Adapters', api_args) and kwargs.results.Count > 500: rcount = 1001
+                else: rcount = kwargs.results.Count
                 rcount = kwargs.results.Count
                 if rcount <= 100:
                     kwargs.api_args = api_args
@@ -591,6 +591,7 @@ class api(object):
                     if re.search('expand.+PhysicalDisks', api_args): get_count = kwargs.results.Count; top_count = kwargs.results.Count // 24
                     elif re.search('expand.+Processors', api_args):  get_count = kwargs.results.Count; top_count = kwargs.results.Count // 4
                     elif re.search('expand.+Units', api_args):       get_count = kwargs.results.Count; top_count = kwargs.results.Count // 32
+                    elif re.searcH('expand+Adapters', api_args):     get_count = kwargs.results.Count; top_count = kwargs.results.Count // 3
                     else: get_count = rcount; top_count = 1000
                     moid_dict    = {}
                     offset_count = 0
