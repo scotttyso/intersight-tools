@@ -543,6 +543,9 @@ class api(object):
                 elif  kwargs.api_filter == '': api_args = ''
                 elif  kwargs.api_filter == 'ignore': api_args = ''
                 else: api_args = f'?$filter={kwargs.api_filter}'
+                if 'expand' in kwargs_keys:
+                    if api_args == '': api_args = f'?$expand={kwargs.expand}'
+                    else: api_args = api_args + f'&$expand={kwargs.expand}'
                 if 'order_by' in kwargs_keys:
                     if api_args == '': api_args = f'?$orderby={kwargs.order_by}'
                     else: api_args = api_args + f'&$orderby={kwargs.order_by}'
@@ -570,13 +573,13 @@ class api(object):
                 if '?' in api_args: kwargs.api_args = api_args + '&$count=True'
                 else: kwargs.api_args = api_args + '?$count=True'
                 kwargs = api_calls(kwargs)
-                if 'expand' in kwargs_keys:
-                    if api_args == '': api_args = f'?$expand={kwargs.expand}'
-                    else: api_args = api_args + f'&$expand={kwargs.expand}'
-                if   re.search('expand.+PhysicalDisks', api_args) and kwargs.results.Count > 30: rcount = 1001
-                elif re.search('expand.+Processors', api_args) and kwargs.results.Count > 250: rcount = 1001
-                elif re.search('expand.+Units', api_args) and kwargs.results.Count > 30: rcount = 1001
-                else: rcount = kwargs.results.Count
+                print(kwargs.results.Count)
+                #if   re.search('expand.+PhysicalDisks', api_args) and kwargs.results.Count > 30: rcount = 1001
+                #elif re.search('expand.+Processors', api_args) and kwargs.results.Count > 250: rcount = 1001
+                #elif re.search('expand.+Units', api_args) and kwargs.results.Count > 30: rcount = 1001
+                #elif re.searcH('expand', api_args)
+                #else: rcount = kwargs.results.Count
+                rcount = kwargs.results.Count
                 if rcount <= 100:
                     kwargs.api_args = api_args
                     kwargs = api_calls(kwargs)
@@ -1407,6 +1410,16 @@ class imm(object):
         return kwargs
 
     #=========================================================================
+    # Function - Check if Org in Pool/Policy Name
+    #=========================================================================
+    def check_for_org_in_pname(self, pname, kwargs):
+        np, ns = ezfunctions.name_prefix_suffix(self.type, kwargs)
+        if '/' in policy: org, pname  = pname.split('/')
+        else: org = kwargs.org; pname = pname
+        policy = np + policy + ns
+        return org, pname
+
+    #=========================================================================
     # Function - Add Organization Key Map to Dictionaries
     #=========================================================================
     def compare_body_result(self, api_body, result):
@@ -1810,26 +1823,19 @@ class imm(object):
         # Attach Pools to the API Body
         #=====================================================================
         names = []; ptype = ['InbandIpPool', 'OutOfBandIpPool']
-        np, ns = ezfunctions.name_prefix_suffix('ip', kwargs)
         for i in ptype:
             if api_body.get(i):
-                if '/' in api_body[i]['Moid']: org, pool = api_body[i]['Moid'].split('/')
-                else: org = kwargs.org; pool = api_body[i]['Moid']
-                pool = f"{np}{pool}{ns}"
-                if '/' in api_body[i]['Moid']: new_pool = f'{org}/{pool}'
-                else: new_pool = pool
-                names.append(new_pool)
+                org, pool = imm('ip').check_for_org_in_pname(api_body[i]['Moid'], kwargs)
+                names.append(f'{org}/{pool}')
                 api_body['ConfigurationType'][f'Configure{i.split("Ip")[0]}'] = True
         if len(names) > 0: kwargs = api_get(False, names, 'ip', kwargs)
         for i in ptype:
             if api_body.get(i):
-                if '/' in api_body[i]['Moid']: org, pool = api_body[i]['Moid'].split('/')
-                else: org = kwargs.org; pool = api_body[i]['Moid']
-                pool = f"{np}{pool}{ns}"
+                org, pool = imm('ip').check_for_org_in_pname(api_body[i]['Moid'], kwargs)
                 if not kwargs.isight[org].pools['ip'].get(pool):
-                    if '/' in api_body[i]['Moid']: new_pool = f'{org}/{pool}'
-                    else: new_pool = pool
-                    validating.error_policy_doesnt_exist(i, new_pool, self.type, 'policy', api_body['Name'])
+                    if '/' in api_body[i]['Moid']: pool_name = f'{org}/{pool}'
+                    else: pool_name = pool
+                    validating.error_policy_doesnt_exist(i, pool_name, self.type, 'policy', api_body['Name'])
                 org_moid = kwargs.org_moids[org].moid
                 indx = next((index for (index, d) in enumerate(kwargs.results) if d.Name == pool and d.Organization.Moid == org_moid), None)
                 if len(kwargs.results[indx].IpV4Config.Gateway) > 0: api_body['AddressType']['EnableIpV4'] = True
@@ -1857,8 +1863,7 @@ class imm(object):
         item = item
         if api_body.get('IscsiAdapterPolicy'):
             names = []
-            if '/' in api_body['IscsiAdapterPolicy']['Moid']: org, policy = api_body['IscsiAdapterPolicy']['Moid'].split('/')
-            else: org = kwargs.org; policy = api_body['IscsiAdapterPolicy']['Moid']
+            org, policy = imm('iscsi_adapter').check_for_org_in_pname(api_body['IscsiAdapterPolicy']['Moid'], kwargs)
             if not kwargs.isight[org].policies['iscsi_adapter'].get(policy): kwargs = api_get(False, [item.iscsi_adapter_policy], 'iscsi_adapter', kwargs)
             if not kwargs.isight[org].policies['iscsi_adapter'].get(policy):
                 validating.error_policy_doesnt_exist('iscsi_adapter', api_body['IscsiAdapterPolicy']['Moid'], self.type, 'policy', api_body['Name'])
