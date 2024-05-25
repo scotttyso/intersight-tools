@@ -25,7 +25,8 @@ def mod_pol_description(pol_description):
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
     pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
-    return pdescr.replace('Vlan', 'VLAN')
+    pdescr = ((pdescr.replace('Vnics', 'vNICs')).replace('Vhbas', 'vHBAs')).replace('Vlan', 'VLAN')
+    return pdescr
 
 # Errors & Notifications
 def begin_loop(ptype1, ptype2):
@@ -115,14 +116,18 @@ def end_loop(ptype1, ptype2):
 def end_section(ptype1, ptype2):
     pcolor.LightPurple(f"\n   Completed {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.")
 
-def error_policy_doesnt_exist(policy_type, policy_name, profile, profile_type, ptype):
-    if 'uuid' in policy_type: dtype = 'Pool'
+def error_policy_doesnt_exist(parent_type, parent_name, ptype, pname):
+    if re.search('chassis|domain|server|switch', parent_type):
+        p2, p1 = parent_type.split('.'); parent_ptype = p1.capitalize(); parent_stype = (p2.capitalize())[:-1]
+    else: parent_ptype = mod_pol_description(' '.join(parent_type.split('.'))); parent_stype = 'Policy'
+    if re.search('ip|iqn|mac|resource|uuid|wwnn|wwpn', ptype): dtype = 'Pool'
+    elif 'template' in ptype: dtype = 'Template'
     else: dtype = 'Policy'
     pcolor.LightGray(f'\n{"-"*108}\n')
-    pcolor.Yellow(f'   !!! ERROR !!! The Following {dtype} was attached to {profile_type.capitalize()} {ptype} {profile.capitalize()}')
-    pcolor.Yellow(f'   But it has not been created.')
-    pcolor.Yellow(f'   {dtype} Type: {policy_type}')
-    pcolor.Yellow(f'   {dtype} Name: {policy_name}')
+    pcolor.Yellow(f'   !!! ERROR !!!')
+    pcolor.Yellow(f'   The Following {dtype} was attached to {parent_ptype} {parent_stype} `{parent_name}`, but it has not been created.')
+    pcolor.Yellow(f'   {dtype} Type: {ptype}')
+    pcolor.Yellow(f'   {dtype} Name: {pname}')
     pcolor.LightGray(f'\n{"-"*108}\n')
     len(False); sys.exit(1)
 

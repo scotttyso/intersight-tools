@@ -944,15 +944,16 @@ def mod_pol_description(pol_description):
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
     pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
-    return pdescr.replace('Vlan', 'VLAN')
+    pdescr = ((pdescr.replace('Vnics', 'vNICs')).replace('Vhbas', 'vHBAs')).replace('Vlan', 'VLAN')
+    return pdescr
 
 #=============================================================================
 # Function - Change Policy Description to Sentence
 #=============================================================================
 def name_prefix_suffix(policy, kwargs):
     if   re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', policy): ptype = 'pools'
-    elif re.search('^(chassis|domain|server)_template$', policy): ptype = 'templates'
-    elif re.search('^chassis|domain|server$', policy): ptype = 'profiles'
+    elif re.search('^profiles.(chassis|domain|server)$', policy): ptype = 'profiles'
+    elif re.search('^templates.(chassis|domain|server)$', policy): ptype = 'templates'
     else: ptype = 'policies'
     args  = DotMap(name_prefix = '', name_suffix = '')
     pkeys = list(kwargs.imm_dict.orgs[kwargs.org][ptype].keys())

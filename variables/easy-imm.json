@@ -11791,7 +11791,6 @@
                         "additionalProperties": false,
                         "description": "Enables creation of local users on endpoints.",
                         "required": [
-                            "users"
                         ],
                         "title": "local_user - Local User - Intersight Uri: iam/EndPointUserPolicies",
                         "properties": {
