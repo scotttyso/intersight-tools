@@ -99,8 +99,8 @@
             ],
             "management_mode": "UCSM",
             "model": "UCSB-5108-AC2",
-            "moid": "None",
-            "name": "Unassigned",
+            "moid": "N/A",
+            "name": "sys/chassis-1",
             "organization": "default",
             "power_supplies": [
                 {
@@ -999,8 +999,8 @@
             ],
             "management_mode": "UCSM",
             "model": "UCS-FI-6454",
-            "moid": "None",
-            "name": "Unassigned",
+            "moid": "N/A",
+            "name": "r142a",
             "power_supplies": [
                 {
                     "FDO26340NYK": [

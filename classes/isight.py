@@ -490,6 +490,9 @@ class api(object):
             power_supplies = sorted(power_supplies, key=lambda ele: ele.dn)
             kwargs.chassis[e.Moid].fan_modules    = fan_modules
             kwargs.chassis[e.Moid].power_supplies = power_supplies
+            if kwargs.domains[e.RegisteredDevice.Moid].type == 'UCSFI':
+                kwargs.chassis[e.Moid].moid = 'N/A'
+                kwargs.chassis[e.Moid].name = e.Dn
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -615,6 +618,9 @@ class api(object):
                 hardware_moids = ["", ""], management_mode = '', model = '', moid = 'None', name = 'Unassigned',
                 power_supplies = [DotMap(),DotMap()], registration = e.Moid,
                 organization = 'default', serial = e.Serial, type = e.PlatformType)
+            if e.PlatformType == 'UCSFI':
+                kwargs.domains[e.Moid].moid = 'N/A'
+                kwargs.domains[e.Moid].name = e.DeviceHostname[0]
         #=====================================================================
         # return kwargs
         #=====================================================================

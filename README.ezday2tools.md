@@ -505,6 +505,45 @@ python ezday2tools.py -p inventory
 
 See example output in `examples/day2tools/inventory`.
 
+### Example Output
+
+```
+tyscott@TYSCOTT-DESKTOP:~$ ezday2tools.py -p inventory
+
+------------------------------------------------------------------------------------------------------------
+
+   Begin Function: inventory.
+
+------------------------------------------------------------------------------------------------------------
+
+     * Querying `firmware/RunningFirmwares` for Inventory.
+     * Querying `asset/DeviceRegistrations` for Inventory.
+     * Querying `network/Elements` for Inventory.
+     * Querying `fabric/SwitchProfiles` for Inventory.
+     * Querying `fabric/SwitchClusterProfiles` for Inventory.
+     * Querying `equipment/Chasses` for Inventory.
+     * Querying `equipment/ExpanderModules` for Inventory.
+     * Querying `equipment/IoCards` for Inventory.
+     * Querying `chassis/Profiles` for Inventory.
+     * Querying `compute/Blades` for Inventory.
+     * Querying `compute/RackUnits` for Inventory.
+     * Querying `compute/Boards` for Inventory.
+     * Querying `pci/Nodes` for Inventory.
+     * Querying `memory/Arrays` for Inventory.
+     * Querying `storage/Controllers` for Inventory.
+     * Querying `server/Profiles` for Inventory.
+     * Querying `storage/VirtualDrives` for Inventory.
+     * Querying `asset/DeviceContractInformations` for Inventory.
+
+------------------------------------------------------------------------------------------------------------
+
+   End Function: inventory.
+
+------------------------------------------------------------------------------------------------------------
+
+tyscott@TYSCOTT-DESKTOP:~$
+```
+
 ## EZDAY2TOOLS - `server_identities`: Use Cases
 
   - Collect UCS Server Identities and export to Spreadsheet.
