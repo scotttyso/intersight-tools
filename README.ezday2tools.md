@@ -8,7 +8,7 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
    * [add_vlans](#add-vlans): Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.
    * [audit_logs](#audit-logs): Function to Get List of Users that have logged into the Account and performed actions/changes.
    * [clone_policies](#clone-policies): Function to clone policies from one Organization to another.
-   * [hcl_status](#hcl-inventory): Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
+   * [hcl_status](#hcl-status): Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
    * [inventory](#inventory): Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
    * [server_identities](#server-identities): Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.,
 
