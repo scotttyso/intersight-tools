@@ -12,6 +12,28 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
    * [inventory](#inventory): Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
    * [server_identities](#server-identities): Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.,
 
+### Running the EZDAY2TOOLS
+
+It is recommend to add the following secure variables to your environment before running the script.
+
+#### Linux
+
+```bash
+## Bash Intersight Variables
+export intersight_api_key_id="<your_intersight_api_key>"
+export intersight_secret_key="~/Downloads/SecretKey.txt"
+```
+
+#### Windows
+
+```powershell
+## Powershell Intersight Variables
+$env:intersight_api_key_id="<your_intersight_api_key>"
+$env:intersight_secret_key="$HOME\Downloads\SecretKey.txt"
+```
+
+### [Back to Top](#ezday2tools-synopsis)
+
 ## Add Policies
 
 ### EZDAY2TOOLS - `add_policies`: Use Case

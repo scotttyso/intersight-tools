@@ -33,10 +33,13 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 ## day2tools.py
 
 ### General Use Cases
-* Attach New Policies to Profiles.  Supports Multi-Org structures.
-* Add VLANs to VLAN Policies and Ethernet Network Group Policies.
-* Export an Excel Spreadsheet with Server Identities.
-* Export an Excel Spreadsheet with VMware/Intersight HCL Status.
+   * `add_policies`: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
+   * `add_vlans`: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.
+   * `audit_logs`: Function to Get List of Users that have logged into the Account and performed actions/changes.
+   * `clone_policies`: Function to clone policies from one Organization to another.
+   * `hcl_status`: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
+   * `inventory`: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
+   * `server_identities`: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.,
 
 [README - *ezday2tools*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezday2tools.md)
 
