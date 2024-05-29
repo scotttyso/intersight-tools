@@ -606,3 +606,5 @@ python ezday2tools.py -p server_identities -fi
 Note: `-fi` pulls adds more details; without, primarily focused of function is WWNN/WWPN identities for server profiles.
 
 See example output in `examples/day2tools/server_identities`.
+
+### [Back to Top](#ezday2tools-synopsis)
