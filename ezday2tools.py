@@ -17,10 +17,11 @@ The Script uses argparse to take in the following CLI arguments:
     -p  or --process:               Which Process to run with the Script.  Options are:  
                                       1. add_policies
                                       2. add_vlans
-                                      3. clone_policies
-                                      4. hcl_inventory
-                                      5. hcl_status
-                                      6. server_inventory
+                                      3. audit_logs
+                                      4. clone_policies
+                                      5. hcl_inventory
+                                      6. inventory
+                                      7. server_identities
     -v or --api-key-v3:             Flag for API Key Version 3.
     -wb or --workbook:              The Source Workbook for hcl_inventory
     -y or --yaml-file:              The input YAML File.
@@ -58,10 +59,11 @@ def cli_arguments():
         help = 'Which Process to run with the Script.  Options are:  '\
             '1. add_policies '\
             '2. add_vlan '\
-            '3. chassis_inventory '\
+            '3. audit_logs '\
             '4. clone_policies '\
             '5. hcl_inventory '\
-            '6. server_inventory.')
+            '6. inventory '\
+            '7. server_identities.')
     parser.add_argument(
         '-wb', '--workbook', default = 'Settings.xlsx', help = 'The source Workbook.')
     kwargs.args = parser.parse_args()
@@ -80,17 +82,18 @@ def main():
     #==============================================
     # Build Deployment Library
     #==============================================
-    if not re.search('^add_policies|add_vlans|clone_policies|hcl_status|inventory|server_identities$', kwargs.args.process):
+    if not re.search('^add_policies|add_vlans|audit_logs|clone_policies|hcl_status|inventory|server_identities$', kwargs.args.process):
         kwargs.jdata = DotMap(
             default = 'server_identities',
             description = f'Select the Process to run:\n'\
                 '  * add_policies: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.\n'\
                 '  * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.\n'\
+                '  * audit_logs: Function to Get List of Users that have logged into the Account and performed actions/changes.\n'\
                 '  * clone_policies: Function to clone policies from one Organization to another.\n'\
                 '  * hcl_status: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.\n'\
                 '  * inventory: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.\n'\
                 '  * server_identities: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.\n',
-            enum = ['add_policies', 'add_vlans', 'clone_policies', 'hcl_inventory', 'inventory', 'server_identities'],
+            enum = ['add_policies', 'add_vlans', 'audit_logs', 'clone_policies', 'hcl_inventory', 'inventory', 'server_identities'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)
     kwargs = isight.api('organization').all_organizations(kwargs)

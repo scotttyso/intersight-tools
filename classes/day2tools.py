@@ -10,7 +10,7 @@ try:
     from dotmap          import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
     from stringcase      import pascalcase, snakecase
-    import json, numpy, pytz, openpyxl, re, shutil, urllib3, yaml
+    import dateutil.relativedelta, json, numpy, pytz, openpyxl, os, re, shutil, urllib3, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -236,6 +236,41 @@ class tools(object):
     #=========================================================================
     # Function - Clone Policies
     #=========================================================================
+    def audit_logs(self, kwargs):
+        #=====================================================================
+        # Prompt User for Source and Destination Organization
+        #=====================================================================
+        kwargs.jdata = DotMap(default = 1, minimum = 1, maximum = 6, title = 'Audit Record Months', type='integer',
+                              description = 'Enter the Number of Months, between 1 and 6, to obtain Audit Records for.')
+        months = ezfunctions.variable_prompt(kwargs)
+        today      = datetime.now()
+        last_month = today + dateutil.relativedelta.relativedelta(months=-int(months))
+        kwargs.api_filter = f"CreateTime gt {last_month.strftime('%Y-%m-%d')}T00:00:00.000Z and CreateTime lt {today.strftime('%Y-%m-%d')}T23:59:00.000Z"
+        kwargs.org        = 'default'
+        kwargs.method     = 'get'
+        kwargs.uri        = 'aaa/AuditRecords'
+        kwargs = isight.api('audit_records').calls(kwargs)
+        audit_dict = DotMap(); ucount = DotMap(); users = []
+        for e in kwargs.results:
+            day = e.CreateTime.split('T')[0]
+            if not audit_dict.get(day): audit_dict[day]
+            if not audit_dict[day].get(e.Email): audit_dict[day][e.Email].count = 1
+            else: audit_dict[day][e.Email].count += 1
+        with open('audit_log.json', 'w') as json_file:
+            json.dump(audit_dict, json_file, indent=4)
+        for k,v in audit_dict.items(): users.extend(list(v.keys()))
+        unique_users = list(filter(None, sorted(list(numpy.unique(numpy.array(users))))))
+        for e in unique_users: ucount[e].occurances = users.count(e)
+        pcolor.Cyan(f'\n{"-"*108}\n')
+        pcolor.Yellow(json.dumps(ucount, indent=4))
+        pcolor.Cyan(f'\n{"-"*54}\n')
+        pcolor.Cyan(f'  Saved Full Audit Data to `{os.getcwd()}/audit_log.json`')
+        pcolor.Cyan(f'\n{"-"*108}')
+        
+
+    #=========================================================================
+    # Function - Clone Policies
+    #=========================================================================
     def clone_policies(self, kwargs):
         #=====================================================================
         # Prompt User for Source and Destination Organization
@@ -386,7 +421,7 @@ class tools(object):
         hcl_results       = kwargs.results
         names             = "', '".join(kwargs.names).strip("', '")
         kwargs.api_filter = f"AssociatedServer.Moid in ('{names}')"
-        kwargs.uri        = kwargs.ezdata.server.intersight_uri
+        kwargs.uri        = kwargs.ezdata['profiles.server'].intersight_uri
         kwargs            = isight.api('hcl_status').calls(kwargs)
         profile_results   = kwargs.results
         for k,v in pdict.items():
@@ -448,8 +483,8 @@ class tools(object):
         #=====================================================================
         kwargs.api_filter = 'ignore'
         kwargs = isight.api('firmware').running_firmware(kwargs)
-        # with open('firmware.json', 'w') as json_file:
-        #     json.dump(kwargs.firmware, json_file, indent=4)
+        with open('firmware.json', 'w') as json_file:
+            json.dump(kwargs.firmware, json_file, indent=4)
         #=====================================================================
         # Domain Inventory
         #=====================================================================
@@ -498,9 +533,9 @@ class tools(object):
         #=====================================================================
         # Sort the Dictionaries
         #=====================================================================
-        kwargs.chassis = DotMap(sorted(kwargs.chassis.items(), key=lambda ele: ele[1].name))
-        kwargs.domains = DotMap(sorted(kwargs.domains.items(), key=lambda ele: ele[1].name))
-        kwargs.servers = DotMap(sorted(kwargs.servers.items(), key=lambda ele: ele[1].name))
+        kwargs.chassis = DotMap(sorted(kwargs.chassis.items(), key=lambda ele: ele[1].chassis_name))
+        kwargs.domains = DotMap(sorted(kwargs.domains.items(), key=lambda ele: ele[1].device_hostname))
+        kwargs.servers = DotMap(sorted(kwargs.servers.items(), key=lambda ele: ele[1].server_name))
         inventory      = DotMap(chassis = kwargs.chassis, domains = kwargs.domains, servers = kwargs.servers)
         with open('inventory.json', 'w') as json_file:
             json.dump(inventory, json_file, indent=4)
@@ -1038,6 +1073,9 @@ class tools(object):
             # Save the Workbook
             #=================================================================
             wb.save(filename=workbook)
+            pcolor.LightPurple(f'\n{"-"*108}\n')
+            pcolor.Yellow(f'  Saved Server Inventory to `{os.getcwd()}/{workbook}`')
+            pcolor.LightPurple(f'\n{"-"*108}')
 
     #=========================================================================
     # Function - Build Named Style Sheets for Workbook

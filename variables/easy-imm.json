@@ -7,7 +7,7 @@
       },
       "info": {
         "description": "Cisco Easy IMM Data Model JSON Schema.  See: https://github.com/terraform-cisco-modules/easy-imm",
-        "version": "v1.0.11-16342",
+        "version": "v4.2.11-16342",
         "title": "Cisco Intersight Managed Mode Schema",
         "license": {
           "name": "MIT",
@@ -18255,7 +18255,7 @@
                         "Mtu": 9216,
                         "Name": "Platinum",
                         "ObjectType": "fabric.QosClass",
-                        "PacketDrop": true,
+                        "PacketDrop": false,
                         "Weight": 10
                     },
                     {
@@ -21813,11 +21813,11 @@
                     },
                     "profile_source": {
                         "type": "string",
-                        "default": "server_template",
-                        "description": "Profile Source.\n  * server: Profiles will be cloned from a server profile and not attached to a server template.\n  * server_template: Profiles will be attached to a server profile template.",
+                        "default": "templates.server",
+                        "description": "Profile Source.\n  * profiles.server: Profiles will be cloned from a server profile and not attached to a server template.\n  * templates.server: Profiles will be attached to a server profile template.",
                         "enum": [
-                            "server",
-                            "server_template"
+                            "profiles.server",
+                            "templates.server"
                         ],
                         "title": "Profile Source"
                     }

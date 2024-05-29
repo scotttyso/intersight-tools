@@ -133,30 +133,9 @@ class main_menu(object):
         return kwargs
 
     #=========================================================================
-    # Function: Prompt User to Load Previous Configurations
-    #=========================================================================
-    def previous_configuration(kwargs):
-        dir_check = False; load_config = False
-        if os.path.exists(kwargs.args.dir):
-            for e in os.listdir(kwargs.args.dir):
-                if re.search('^policies|pools|profiles|templates|wizard$', e): dir_check = True
-            if dir_check == True and kwargs.args.load_config == False:
-                kwargs.jdata = DotMap(
-                    default     = True,
-                    description = f'Import Configuration found in `{kwargs.args.dir}`',
-                    title       = 'Load Existing Configuration(s)',
-                    type        = 'boolean')
-                load_config = ezfunctions.variable_prompt(kwargs)
-                kwargs.args.load_config = True
-            elif kwargs.args.load_config == True: load_config = True
-            if load_config == True and kwargs.args.load_config == True:
-                kwargs = DotMap(ezfunctions.load_previous_configurations(kwargs))
-        return kwargs
-
-    #=========================================================================
     # Function: Prompt User for Operating System Vendor
     #=========================================================================
-    def setup_operating_systems(kwargs):
+    def operating_systems(kwargs):
         kwargs            = isight.software_repository('os_vendors').os_vendor_and_version(kwargs)
         kwargs.jdata      = deepcopy(kwargs.ezwizard.setup.properties.operating_system_vendor)
         kwargs.jdata.enum = sorted(list(kwargs.os_vendors.keys()))
@@ -178,12 +157,24 @@ class main_menu(object):
         return kwargs
 
     #=========================================================================
-    # Function: Prompt User for Target Platform
+    # Function: Prompt User to Load Previous Configurations
     #=========================================================================
-    def setup_target_platform(kwargs):
-        kwargs.jdata           = deepcopy(kwargs.ezwizard.setup.properties.target_platform)
-        kwargs.target_platform = ezfunctions.variable_prompt(kwargs)
-        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform = kwargs.target_platform
+    def previous_configuration(kwargs):
+        dir_check = False; load_config = False
+        if os.path.exists(kwargs.args.dir):
+            for e in os.listdir(kwargs.args.dir):
+                if re.search('^policies|pools|profiles|templates|wizard$', e): dir_check = True
+            if dir_check == True and kwargs.args.load_config == False:
+                kwargs.jdata = DotMap(
+                    default     = True,
+                    description = f'Import Configuration found in `{kwargs.args.dir}`',
+                    title       = 'Load Existing Configuration(s)',
+                    type        = 'boolean')
+                load_config = ezfunctions.variable_prompt(kwargs)
+                kwargs.args.load_config = True
+            elif kwargs.args.load_config == True: load_config = True
+            if load_config == True and kwargs.args.load_config == True:
+                kwargs = DotMap(ezfunctions.load_previous_configurations(kwargs))
         return kwargs
 
     #=========================================================================
@@ -192,7 +183,16 @@ class main_menu(object):
     def target_platform(kwargs):
         kwargs.jdata           = deepcopy(kwargs.ezwizard.setup.properties.target_platform)
         kwargs.target_platform = ezfunctions.variable_prompt(kwargs)
+        kwargs.imm_dict.orgs[kwargs.org].wizard.setup.target_platform = kwargs.target_platform
         return kwargs
+
+    # #=========================================================================
+    # # Function: Prompt User for Target Platform
+    # #=========================================================================
+    # def target_platform(kwargs):
+    #     kwargs.jdata           = deepcopy(kwargs.ezwizard.setup.properties.target_platform)
+    #     kwargs.target_platform = ezfunctions.variable_prompt(kwargs)
+    #     return kwargs
 
 #=============================================================================
 # EZIMM - Organizations
@@ -212,6 +212,8 @@ class orgs(object):
             kwargs.jdata.description   = 'Select an Existing Organization or `Create New`, for the organization to apply these changes within.'
         else: kwargs.jdata.description = 'Select an Existing Organization to apply these changes within.'
         kwargs.org = ezfunctions.variable_prompt(kwargs)
+        wkeys = list(kwargs.imm_dict.orgs.keys())
+        if not kwargs.org in wkeys: kwargs.imm_dict.orgs[kwargs.org].wizard.setup = DotMap()
         if kwargs.org == 'Create New':
             for e in ['description', 'name']:
                 kwargs.jdata = deepcopy(kwargs.ezdata.organization.allOf[1].properties[e])
@@ -813,6 +815,9 @@ class policies(object):
         elif kwargs.profile_type == 'domain':   name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.name
         elif kwargs.profile_type == 'server':   name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.server.name
         elif kwargs.profile_type == 'template': name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.template.name
+        if name == kwargs.type_dotmap:
+            if kwargs.profile_type == 'template': name = 'Template'
+            else: name = f'{kwargs.profile_type} profile'.title()
         kwargs.jdata = DotMap(
             description = f'Do you want to add a(n) `{policy_title}` to `{name}`:',
             default = True, title = f'{policy_title} Policy', type = 'boolean')
@@ -1828,6 +1833,7 @@ class policies(object):
         #=====================================================================
         # Function: VLAN Policy Loop
         #=====================================================================
+        kwargs.reserved_vlan = 3915
         kwargs.policy_name = policies(self.type).policy_select(kwargs)
         if kwargs.policy_name == 'Create New':
             policies(self.type).announcement(kwargs)
@@ -1906,7 +1912,6 @@ class policies(object):
         #=====================================================================
         # Function: VLAN Policy VLANs Loop
         #=====================================================================
-        kwargs.reserved_vlan = 3915
         vlan_count = 0
         vlans_loop = True
         while vlans_loop == True:
@@ -2355,10 +2360,15 @@ class prompt_user(object):
     # Function: Prompt User to Accept Configuration
     #=========================================================================
     def to_accept(self, item, idict, kwargs):
-        if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', self.type): ptype = 'Pool'
-        else: ptype = 'Policy'
-        ptitle = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
-        pcolor.Green(f'\n{"-"*108}\n\n  {ptitle} {ptype}:\n')
+        print(self.type)
+        if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', self.type): ptitle = f'{self.type} pool'
+        elif re.search(r'(profiles|templates)\.(chasssis|domain|server|switch)', self.type):
+            p2, p1 = self.type.split('.')
+            ptitle = f'{p1} {p2[:-1]}'
+        elif re.search(r'FIAttached|Standalone', self.type): ptitle = 'server profile'
+        else: ptitle = f'{self.type} policy'
+        ptitle = ezfunctions.mod_pol_description((ptitle.replace('_', ' ')).title())
+        pcolor.Green(f'\n{"-"*108}\n\n  {ptitle}\n')
         yfile = open('yaml.txt', 'w')
         yfile.write(yaml.dump(idict.toDict(), Dumper=yaml_dumper, default_flow_style=False))
         yfile.close()

@@ -330,9 +330,7 @@ def imm_transition(kwargs):
     #=========================================================================
     # Create YAML Files and return kwargs
     #=========================================================================
-    kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
-    orgs = kwargs.orgs
-    ezfunctions.create_yaml(orgs, kwargs)
+    build.intersight.create_yaml_files(kwargs)
     return kwargs
 
 #=============================================================================
@@ -365,16 +363,16 @@ def menu(kwargs):
     orgs = list(kwargs.imm_dict.orgs.keys())
     if kwargs.org in orgs:
         for org in orgs:
-            if kwargs.imm_dict.orgs[org].get('wizard') and kwargs.imm_dict.orgs[org].wizard.get('setup'):
-                kwargs.org = org
-                for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
-                kwargs = build.intersight('setup').setup(kwargs)
+            kwargs.org = org
+            for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
+            kwargs = build.intersight('setup').setup(kwargs)
     return kwargs
 
 #=============================================================================
 # Function: Wizard
 #=============================================================================
 def process_wizard(kwargs):
+    wiz_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.keys())
     #=========================================================================
     # Process List from Main Menu
     #=========================================================================
@@ -396,9 +394,7 @@ def process_wizard(kwargs):
     #=========================================================================
     # Create YAML Files
     #=========================================================================
-    kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
-    orgs = kwargs.orgs
-    ezfunctions.create_yaml(orgs, kwargs)
+    build.intersight.create_yaml_files(kwargs)
     if len(kwargs.imm_dict.orgs.keys()) > 0: kwargs = isight.api('organization').organizations(kwargs)
     if kwargs.deployment_method == 'Terraform':
         #=====================================================================
@@ -406,7 +402,7 @@ def process_wizard(kwargs):
         #=====================================================================
         ezfunctions.merge_easy_imm_repository(kwargs)
         kwargs = ezfunctions.terraform_provider_config(kwargs)
-        kwargs = create_terraform_workspaces(orgs, kwargs)
+        kwargs = create_terraform_workspaces(kwargs.orgs, kwargs)
     elif re.search('Individual|Server', kwargs.deployment_type): kwargs = isight.imm.deploy(kwargs)
     return kwargs
 

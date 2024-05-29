@@ -194,154 +194,6 @@ class api(object):
         return api_dict
 
     #=========================================================================
-    # Function - Build Server Identies for Zoning host/igroups
-    #=========================================================================
-    def build_server_identities(self, kwargs):
-        #=====================================================
-        # Attach Server Profile Moid to Dict
-        #=====================================================
-        kwargs.server_profiles = DotMap(); boot_moids = []; hardware_moids = []; profile_moids = []
-        for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
-            kwargs.server_profiles[e.name] = DotMap(e)
-            kwargs.server_profiles[e.name].hardware_moid = e.moid
-            hardware_moids.append(e.moid)
-        pcolor.Cyan(f'\n   - Pulling Server Identity Inventory for the following Server Profiles(s):')
-        for k,v in kwargs.server_profiles.items(): pcolor.Cyan(f'     * Serial: {e.serial} Name: {k}')
-        #=====================================================
-        # Get Server Profile Elements
-        #=====================================================
-        kwargs.method   = 'get'
-        kwargs.names    = list(kwargs.server_profiles.keys())
-        kwargs.uri      = 'server/Profiles'
-        kwargs          = api('server').calls(kwargs)
-        profile_pmoids  = kwargs.pmoids
-        profile_results = kwargs.results
-        for k, v in profile_pmoids.items():
-            kwargs.server_profiles[k].boot_order = DotMap(boot_mode = '', method = '', moid = '', name = '')
-            kwargs.server_profiles[k].moid       = v.moid
-            profile_moids.append(v.moid)
-            indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == k), None)
-            index = next((index for (index, d) in enumerate(profile_results[indx].PolicyBucket) if d['ObjectType'] == 'boot.PrecisionPolicy'), None)
-            if not index == None:
-                boot_moids.append(profile_results[indx].PolicyBucket[index].Moid)
-                kwargs.server_profiles[k].boot_order.moid = profile_results[indx].PolicyBucket[index].Moid
-        #=====================================================
-        # Assign Boot Order Policies
-        #=====================================================
-        kwargs.method = 'get'
-        kwargs.names  = list(numpy.unique(numpy.array(boot_moids)))
-        kwargs.uri    = kwargs.ezdata.boot_order.intersight_uri
-        kwargs        = api('moid_filter').calls(kwargs)
-        boot_names    = kwargs.pmoids
-        boot_moids    = DotMap()
-        for k, v in boot_names.items(): boot_moids[v.moid] = DotMap(dict(name = k, **v.toDict()))
-        for k in list(kwargs.server_profiles.keys()):
-            v = kwargs.server_profiles[k]
-            if len(v.boot_order.moid) > 0:
-                kwargs.server_profiles[k].boot_order.boot_mode = boot_moids[v.boot_order.moid].boot_mode
-                kwargs.server_profiles[k].boot_order.enable_secure_boot = boot_moids[v.boot_order.moid].enable_secure_boot
-                org = boot_moids[v.boot_order.moid].organization
-                if not org == kwargs.org:
-                    kwargs.server_profiles[k].boot_order.name = f'{org}/{boot_moids[v.boot_order.moid].name}'
-                else: kwargs.server_profiles[k].boot_order.name = boot_moids[v.boot_order.moid].name
-        #=====================================================
-        # Get vNICs & vHBAs Identifiers
-        #=====================================================
-        kwargs.method = 'get'
-        kwargs.names  = profile_moids
-        kwargs.uri    = 'vnic/EthIfs'
-        kwargs        = api('profile_moid').calls(kwargs)
-        vnic_results  = kwargs.results
-        kwargs.uri    = 'vnic/FcIfs'
-        kwargs        = api('profile_moid').calls(kwargs)
-        vhba_results  = kwargs.results
-        #=====================================================
-        # Attach vNIC(s)/Identities to server_profile Dict
-        #=====================================================
-        if len(vnic_results) > 0:
-            kwargs.names = list(numpy.unique(numpy.array([e.Moid for i in vnic_results for e in i.FabricEthNetworkGroupPolicy])))
-            kwargs.uri   = kwargs.ezdata.ethernet_network_group.intersight_uri
-            kwargs       = api('moid_filter').calls(kwargs)
-            eth_results  = kwargs.results
-            for k in list(kwargs.server_profiles.keys()):
-                mac_list = []
-                for e in vnic_results:
-                    if e.Profile.Moid == kwargs.server_profiles[k].moid:
-                        indx = next((index for (index, d) in enumerate(eth_results) if d['Moid'] == e.FabricEthNetworkGroupPolicy[0].Moid), None)
-                        mac_list.append(DotMap(allowed    = eth_results[indx].VlanSettings.AllowedVlans,
-                                               native     = eth_results[indx].VlanSettings.NativeVlan,
-                                               vlan_group = DotMap(moid = eth_results[indx].Moid, name = eth_results[indx].Name),
-                                               mac = e.MacAddress, name = e.Name, order = e.Order, switch = e.Placement.SwitchId))
-                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda ele: ele.order)
-        else:
-            kwargs.names      = hardware_moids
-            kwargs.uri        = 'adapter/HostEthInterfaces'
-            kwargs            = api('ancestors').calls(kwargs)
-            adapter_results   = kwargs.results
-            nic_regex         = re.compile('network-adapter-([0-9]+)/eth-([0-9]+)')
-            for k in list(kwargs.server_profiles.keys()):
-                adapter_list = []
-                for e in adapter_results:
-                    attach = False
-                    for i in e.Ancestors:
-                        if i.Moid == v.hardware_moid: attach = True
-                    if attach == True: adapter_list.append(e)
-                adapter_list = sorted(adapter_list, key=lambda ele: ele.MacAddress)
-                #nic_names    = [f'mgmt-{(chr(ord('@')+x+1)).lower()}' for x in range(0,len(adapter_list))]
-                #mac_list     = [DotMap(mac = adapter_list[x].MacAddress, name = nic_names[x], order  = x) for x in range(0,len(adapter_list))]
-                mac_list = []
-                for x in range(0,len(adapter_list)):
-                    pmatch = nic_regex.search(adapter_list[x].Dn)
-                    mac_list.append(DotMap(mac = adapter_list[x].MacAddress, name = f'SlotId {pmatch.group(1)} Port {pmatch.group(2)}'))
-                kwargs.server_profiles[k].macs = sorted(mac_list, key=lambda ele: ele.order)
-        #=====================================================
-        # Attach vHBA(s)/Identities to server_profile Dict
-        #=====================================================
-        if len(vhba_results) > 0:
-            for k in list(kwargs.server_profiles.keys()):
-                wwpn_list = []
-                for e in vhba_results:
-                    if e.Profile.Moid == kwargs.server_profiles[k].moid:
-                        wwpn_list.append(DotMap(name = e.Name,order = e.Order, wwpn = e.Wwpn,
-                                               switch = e.Placement.SwitchId))
-                kwargs.server_profiles[k].wwpns = sorted(wwpn_list, key=lambda ele: ele.order)
-        #=====================================================
-        # Get IQN for Host and Add to Profile Map
-        #=====================================================
-        kwargs.names  = profile_moids
-        kwargs.method = 'get'
-        kwargs.uri    = 'iqnpool/Pools'
-        kwargs        = api('iqn_pool_leases').calls(kwargs)
-        if len(kwargs.results) > 0:
-            for k in list(kwargs.server_profiles.keys()):
-                for e in kwargs.results:
-                    if e.AssignedToEntity.Moid == kwargs.server_profiles[k].moid: kwargs.server_profiles[k].iqn = e.IqnId
-        kwargs.server_profile = DotMap(kwargs.server_profiles)
-        #=====================================================
-        # Update Wizard Setup Server Profile List
-        #=====================================================
-        for k in list(kwargs.server_profiles.keys()):
-            serial = kwargs.server_profiles[k].serial
-            pvars  = kwargs.server_profiles[k].toDict()
-            indx   = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles) if d['serial'] == serial), None)
-            if indx == None:
-                # Add Policy Variables to imm_dict
-                kwargs.class_path = f'wizard,server_profiles'
-                kwargs = ezfunctions.ez_append(pvars, kwargs)
-            else: kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[indx] = deepcopy(pvars)
-        #=====================================================================
-        # Create YAML Files
-        #=====================================================================
-        orgs   = list(kwargs.org_moids.keys())
-        kwargs = ezfunctions.remove_duplicates(orgs, ['wizard'], kwargs)
-        ezfunctions.create_yaml(orgs, kwargs)
-        pcolor.Cyan(f'  - Completed Server Identity Inventory.\n')
-        #=====================================================
-        # Return kwargs and kwargs
-        #=====================================================
-        return kwargs
-
-    #=========================================================================
     # Function - Perform API Calls to Intersight
     #=========================================================================
     def calls(self, kwargs):
@@ -526,6 +378,7 @@ class api(object):
                     elif 'profile_moid' == self.type:         api_filter = f"Profile.Moid in ('{names}')"
                     elif re.search(regex1, self.type):        api_filter = f"Moid in ('{names}')"
                     elif re.search(regex2, self.type):        api_filter = f"{kwargs.pkey} in ('{names}')"
+                    elif 'registered_device' in self.type:    api_filter = f"RegisteredDevice.Moid in ('{names}')"
                     elif 'reservations' in self.type:         api_filter = f"Identity in ('{names}')"
                     elif 'serial_number' == self.type:        api_filter = f"Serial in ('{names}')"
                     elif 'storage.drive_groups' == self.type: api_filter = f"Name in ('{names}') and StoragePolicy.Moid eq '{kwargs.pmoid}'"
@@ -573,6 +426,7 @@ class api(object):
                 if '?' in api_args: kwargs.api_args = api_args + '&$count=True'
                 else: kwargs.api_args = api_args + '?$count=True'
                 kwargs = api_calls(kwargs)
+                if   re.search('expand.+HostEthIfs', api_args) and kwargs.results.Count > 100: rcount = 1001
                 if   re.search('expand.+PhysicalDisks', api_args) and kwargs.results.Count > 30: rcount = 1001
                 elif re.search('expand.+Processors', api_args) and kwargs.results.Count > 250: rcount = 1001
                 elif re.search('expand.+Units', api_args) and kwargs.results.Count > 30: rcount = 1001
@@ -586,10 +440,11 @@ class api(object):
                     else: kwargs.api_args = api_args + '?$top=1000'
                     kwargs = api_calls(kwargs)
                 elif rcount > 1000:
-                    if re.search('expand.+PhysicalDisks', api_args): get_count = kwargs.results.Count; top_count = kwargs.results.Count // 24
-                    elif re.search('expand.+Processors', api_args):  get_count = kwargs.results.Count; top_count = kwargs.results.Count // 4
-                    elif re.search('expand.+Units', api_args):       get_count = kwargs.results.Count; top_count = kwargs.results.Count // 32
-                    elif re.search('expand.+Adapters', api_args):    get_count = kwargs.results.Count; top_count = kwargs.results.Count // 4
+                    if   re.search('expand.+HostEthIfs', api_args):    get_count = kwargs.results.Count; top_count = kwargs.results.Count // 10
+                    elif re.search('expand.+PhysicalDisks', api_args): get_count = kwargs.results.Count; top_count = kwargs.results.Count // 24
+                    elif re.search('expand.+Processors', api_args):    get_count = kwargs.results.Count; top_count = kwargs.results.Count // 4
+                    elif re.search('expand.+Units', api_args):         get_count = kwargs.results.Count; top_count = kwargs.results.Count // 32
+                    elif re.search('expand.+Adapters', api_args):      get_count = kwargs.results.Count; top_count = kwargs.results.Count // 4
                     else: get_count = rcount; top_count = 1000
                     moid_dict    = {}
                     offset_count = 0
@@ -623,13 +478,13 @@ class api(object):
         kwargs.order_by = 'Dn'
         kwargs.uri      = 'equipment/Chasses'
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs          = api('chassis').calls(kwargs)
+        kwargs          = api('registered_device').calls(kwargs)
         for e in kwargs.results:
             kwargs.chassis[e.Moid] = DotMap(
-                chassis_id = e.ChassisId, contract = None, domain = e.RegisteredDevice.Moid, dn = e.Dn,
+                chassis_id = e.ChassisId, chassis_name = e.Name, contract = None, domain = e.RegisteredDevice.Moid, dn = e.Dn,
                 expander_modules = [DotMap(), DotMap()], fan_modules = [], hardware_moid = e.Moid, io_modules = [DotMap(), DotMap()],
-                management_mode = e.ManagementMode, model = e.Model, name = e.Name, organization = 'default', power_supplies = [],
-                profile = 'Unassigned', profile_moid = 'None', serial = e.Serial, slot = DotMap({str(x):'Open' for x in range(1,9)}))
+                management_mode = e.ManagementMode, model = e.Model, moid = 'None', name = 'Unassigned', organization = 'default',
+                power_supplies = [], serial = e.Serial, slot = DotMap({str(x):'Open' for x in range(1,9)}))
             fan_modules, power_supplies = api.inventory_fans_psus(element=e)
             fan_modules    = sorted(fan_modules, key=lambda ele: ele.dn)
             power_supplies = sorted(power_supplies, key=lambda ele: ele.dn)
@@ -720,9 +575,9 @@ class api(object):
         kwargs        = api('chassis').calls(kwargs)
         for e in kwargs.results:
             if not e.AssignedChassis == None:
+                kwargs.chassis[e.AssignedChassis.Moid].moid         = e.Moid
+                kwargs.chassis[e.AssignedChassis.Moid].name         = e.Name
                 kwargs.chassis[e.AssignedChassis.Moid].organization = kwargs.org_names[e.Organization.Moid]
-                kwargs.chassis[e.AssignedChassis.Moid].profile      = e.Name
-                kwargs.chassis[e.AssignedChassis.Moid].profile_moid = e.Moid
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -738,8 +593,8 @@ class api(object):
         kwargs        = api('cluster_profile').calls(kwargs)
         for e in kwargs.results:
             if kwargs.switch_profile[e.Moid].assigned == True:
-                kwargs.domains[kwargs.switch_profile[e.Moid].registration].profile      = e.Name
-                kwargs.domains[kwargs.switch_profile[e.Moid].registration].profile_moid = e.Moid
+                kwargs.domains[kwargs.switch_profile[e.Moid].registration].moid         = e.Moid
+                kwargs.domains[kwargs.switch_profile[e.Moid].registration].name         = e.Name
                 kwargs.domains[kwargs.switch_profile[e.Moid].registration].organization = kwargs.org_names[e.Organization.Moid]
         #=====================================================================
         # return kwargs
@@ -753,13 +608,13 @@ class api(object):
         kwargs.method = 'get'
         kwargs.uri    = 'asset/DeviceRegistrations'
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('device_registration').calls(kwargs)
+        kwargs        = api('moid_filter').calls(kwargs)
         for e in kwargs.results:
             kwargs.domains[e.Moid] = DotMap(
-                contracts = DotMap(), fan_modules = [DotMap(),DotMap()], firmware = DotMap(), hardware_moids = ["", ""],
-                management_mode = '', model = '', name = e.DeviceHostname[0], organization = 'default',
-                power_supplies = [DotMap(),DotMap()], profile = 'Unassigned', profile_moid = 'None', registration = e.Moid,
-                serial = e.Serial, type = e.PlatformType)
+                contracts = DotMap(), device_hostname = e.DeviceHostname[0], fan_modules = [DotMap(),DotMap()], firmware = DotMap(),
+                hardware_moids = ["", ""], management_mode = '', model = '', moid = 'None', name = 'Unassigned',
+                power_supplies = [DotMap(),DotMap()], registration = e.Moid,
+                organization = 'default', serial = e.Serial, type = e.PlatformType)
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -774,7 +629,7 @@ class api(object):
         kwargs.order_by = 'SwitchId'
         kwargs.uri      = 'network/Elements'
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs          = api('serial_number').calls(kwargs)
+        kwargs          = api('registered_device').calls(kwargs)
         for e in kwargs.results:
             dev_reg = e.RegisteredDevice.Moid
             indx    = kwargs.domains[dev_reg].serial.index(e.Serial)
@@ -802,8 +657,9 @@ class api(object):
         kwargs          = api('switch_profiles').calls(kwargs)
         kwargs.switch_profile = DotMap()
         for e in kwargs.results:
-            switch_keys = list(kwargs.switch_profile.keys())
-            if not '' in switch_keys: kwargs.switch_profile[e.SwitchClusterProfile.Moid] = DotMap(assigned = False, )
+            switch_keys = list(kwargs.switch_profile[e.SwitchClusterProfile.Moid].keys())
+            if not 'assigned' in switch_keys:
+                kwargs.switch_profile[e.SwitchClusterProfile.Moid] = DotMap(assigned = False)
             if e.AssignedSwitch != None:
                 kwargs.switch_profile[e.SwitchClusterProfile.Moid].assigned     = True
                 kwargs.switch_profile[e.SwitchClusterProfile.Moid].registration = kwargs.network_elements[e.AssignedSwitch.Moid]
@@ -945,7 +801,7 @@ class api(object):
                 elif d.ObjectType == 'compute.RackUnit': ancestor = d.Moid; break
             ddict = DotMap(backup_battery_unit = None, controller_id = e.ControllerId, firmware = None, disks = None,
                            model = e.Model, moid = e.Moid, serial = e.Serial, slot = e.PciSlot, virtual_drives = None)
-            if len(e.RunningFirmware) > 0: ddict.firmware = [kwargs.firmware[d.Moid].version for d in e.RunningFirmware]
+            if len(e.RunningFirmware) > 0: ddict.firmware = [d.Version for d in e.RunningFirmware]
             if not e.BackupBatteryUnit == None:
                 b = e.BackupBatteryUnit; ddict.backup_battery_unit = DotMap(
                     capacity_in_joules = b.DesignCapacityInJoules, capacity_percentage = b.CapacitanceInPercent, charging_state = b.ChargingState,
@@ -996,12 +852,11 @@ class api(object):
             kwargs.servers[e.Moid] = DotMap(
                 adapters = DotMap(), chassis = None, contract = None, domain = None, dn = e.Dn, fan_modules = [],
                 graphics_cards = DotMap({str(x):'N/A' for x in range(1,9)}), hardware_moid = e.Moid,
-                kvm_ip_addresses = [d.Address for d in e.KvmIpAddresses], memory_avialable = e.AvailableMemory,
-                memory_installed = e.TotalMemory, memory_inventory = None, model = e.Model, name = e.Name,
-                object_type = e.ObjectType, pci_node = None, platform_type = e.PlatformType, power_supplies = [],
-                power_state = e.OperPowerState, processors = DotMap({str(x):'N/A' for x in range(1,3)}),
-                profile = e.ServiceProfile, server_id = e.ServerId, serial = e.Serial, slot = e.SlotId,
-                storage_controllers = None, tpm = None, user_label = e.UserLabel)
+                kvm_ip_addresses = [d.Address for d in e.KvmIpAddresses], memory_avialable = e.AvailableMemory, memory_installed = e.TotalMemory,
+                memory_inventory = None, model = e.Model, moid = 'None', name = 'Unassigned', object_type = e.ObjectType, pci_node = None,
+                power_supplies = [], power_state = e.OperPowerState, processors = DotMap({str(x):'N/A' for x in range(1,3)}),
+                platform_type = e.PlatformType, profile = e.ServiceProfile, server_id = e.ServerId, serial = e.Serial, server_name = e.Name,
+                slot = e.SlotId, storage_controllers = None, tpm = None, user_label = e.UserLabel)
             if len(e.ServiceProfile) > 0: kwargs.servers[e.Moid].profile = e.ServiceProfile
             else:
                 kwargs.servers[e.Moid].profile = 'Unassigned'
@@ -1009,13 +864,8 @@ class api(object):
             # Function - Build Server Dictionary
             #=====================================================================
             for d in e.Adapters:
-                if d.PciSlot == 'SlotID:0-MLOM' or 'MLOM' in d.Model:  pci_slot = 'MLOM'
-                elif not 'MEZZ' in d.PciSlot and 'SlotID' in d.PciSlot:
-                    pci_slot = re.search('SlotID:(\\d)', d.PciSlot).group(1)
-                elif re.search("\\d", str(d.PciSlot)): pci_slot = int(d.PciSlot)
-                elif re.search("L", str(d.PciSlot)): pci_slot = 'LOM'
-                else: pci_slot = e.AdapterId
-                ddict = DotMap()
+                pci_slot = ezfunctions.pci_slot(d)
+                ddict    = DotMap()
                 for a in ['AdapterId', 'Model', 'OperState', 'PciSlot', 'Serial']: key = snakecase(a); ddict[key] = d[a]
                 ddict = ezfunctions.dictionary_cleanup(ddict)
                 kwargs.servers[e.Moid].adapters[pci_slot] = ddict
@@ -1042,7 +892,7 @@ class api(object):
         kwargs.method = 'get'
         kwargs.uri    = 'compute/Blades'
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('server').calls(kwargs)
+        kwargs        = api('moid_filter').calls(kwargs)
         for e in kwargs.results:
             kwargs = server_dictionary(e, kwargs)
             for d in ['fan_modules', 'power_supplies', 'server_id']: kwargs.servers[e.Moid].pop(d)
@@ -1056,7 +906,7 @@ class api(object):
         kwargs.method = 'get'
         kwargs.uri    = 'compute/RackUnits'
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('server').calls(kwargs)
+        kwargs        = api('moid_filter').calls(kwargs)
         dkeys         = list(kwargs.domains.keys())
         for e in kwargs.results:
             kwargs = server_dictionary(e, kwargs)
@@ -1074,6 +924,111 @@ class api(object):
         return kwargs
 
     #=========================================================================
+    # Function - Build Server Identies for Zoning host/igroups
+    #=========================================================================
+    def server_identities(self, kwargs):
+        #=====================================================================
+        # Attach Server Profile Moid to Dict
+        #=====================================================================
+        kwargs.server_profiles = DotMap(); boot_moids = []; hardware_moids = []; profile_moids = []
+        for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles:
+            kwargs.server_profiles[e.hardware_moid] = e
+            hardware_moids.append(e.hardware_moid)
+        pcolor.Cyan(f'\n   - Pulling Server Identity Inventory for the following Server Profiles(s):')
+        for k,v in kwargs.server_profiles.items(): pcolor.Cyan(f'     * Serial: {e.serial} Name: {e.name}')
+        #=====================================================================
+        # Get Server Profile Elements
+        #=====================================================================
+        kwargs.method = 'get'
+        kwargs.names  = [v.moid for k,v in kwargs.server_profiles.items()]
+        kwargs.uri    = kwargs.ezdata['profiles.server'].intersight_uri
+        kwargs        = api('moid_filter').calls(kwargs)
+        for e in kwargs.results:
+            k = e.AssignedServer.Moid
+            kwargs.server_profiles[k].boot_order = DotMap(boot_mode = '', method = '', moid = '', name = '', wwpn_targets = [])
+            indx = next((index for (index, d) in enumerate(e.PolicyBucket) if d['ObjectType'] == 'boot.PrecisionPolicy'), None)
+            if not indx == None:
+                boot_moid = e.PolicyBucket[indx].Moid; boot_moids.append(boot_moid)
+                kwargs.server_profiles[k].boot_order.moid = boot_moid
+        #=====================================================================
+        # Assign Boot Order Policies
+        #=====================================================================
+        kwargs.method = 'get'
+        kwargs.names  = list(numpy.unique(numpy.array(boot_moids)))
+        kwargs.uri    = kwargs.ezdata.boot_order.intersight_uri
+        kwargs        = api('moid_filter').calls(kwargs)
+        boot_moids    = DotMap()
+        for e in kwargs.results: boot_moids[e.Moid] = e
+        for k in list(kwargs.server_profiles.keys()):
+            v = kwargs.server_profiles[k]
+            if len(v.boot_order.moid) > 0:
+                kwargs.server_profiles[k].boot_order.boot_mode = boot_moids[v.boot_order.moid].ConfiguredBootMode
+                kwargs.server_profiles[k].boot_order.enable_secure_boot = boot_moids[v.boot_order.moid].EnforceUefiSecureBoot
+                org = kwargs.org_names[boot_moids[v.boot_order.moid].Organization.Moid]
+                kwargs.server_profiles[k].boot_order.name = f'{org}/{boot_moids[v.boot_order.moid].Name}'
+                for e in boot_moids[e.Moid].BootDevices:
+                    if e.ObjectType == 'san.Boot': kwargs.server_profiles[k].boot_order.wwpn_targets.append(DotMap(lun=e.Lun,slot=e.Slot,wwpn=e.Wwpn))
+        #=====================================================================
+        # Get iSCSI | vHBA | vNIC Identifiers
+        #=====================================================================
+        kwargs.expand = 'HostEthIfs,HostFcIfs,HostIscsiIfs'
+        kwargs.method = 'get'
+        kwargs.names  = hardware_moids
+        kwargs.uri    = 'adapter/Units'
+        kwargs        = api('ancestors').calls(kwargs)
+        for e in kwargs.results:
+            pci_slot = ezfunctions.pci_slot(e)
+            for d in e.Ancestors:
+                if re.search('compute.(Blade|RackUnit)', d.ObjectType): hw_moid = d.Moid; break
+            def dict_update(a, ddict):
+                key = snakecase(a)
+                if 'InterfaceId' in a: key = 'host_interface_id'
+                ddict[key] = d[a]
+                return ddict
+            for d in e.HostEthIfs:
+                ddict = DotMap()
+                for a in ['Dn', 'HostEthInterfaceId', 'InterfaceType', 'MacAddress', 'Name', 'OperState', 'StandbyVifId', 'VifId']: ddict = dict_update(a, ddict)
+                ddict = ezfunctions.dictionary_cleanup(ddict)
+                kwargs.server_profiles[hw_moid].adapters[pci_slot].eth_ifs[ddict.name] = ddict
+            for d in e.HostFcIfs:
+                ddict = DotMap()
+                for a in ['Dn', 'HostFcInterfaceId', 'Name', 'OperState', 'VifId', 'Wwnn', 'Wwpn']: ddict = dict_update(a, ddict)
+                ddict = ezfunctions.dictionary_cleanup(ddict)
+                kwargs.server_profiles[hw_moid].adapters[pci_slot].fc_ifs[ddict.name] = ddict
+            for d in e.HostIscsiIfs:
+                ddict = DotMap()
+                for a in ['Dn', 'HostIscsiInterfaceId', 'InterfaceType', 'MacAddress', 'Name', 'OperState']: ddict = dict_update(a, ddict)
+                ddict = ezfunctions.dictionary_cleanup(ddict)
+                kwargs.server_profiles[hw_moid].adapters[pci_slot].iscsi_ifs[ddict.name] = ddict
+        #=====================================================================
+        # Get IQN for Host and Add to Profile Map
+        #=====================================================================
+        kwargs.names  = profile_moids
+        kwargs.method = 'get'
+        kwargs.uri    = 'iqnpool/Pools'
+        kwargs        = api('iqn_pool_leases').calls(kwargs)
+        if len(kwargs.results) > 0:
+            for k in list(kwargs.server_profiles.keys()):
+                for e in kwargs.results:
+                    if e.AssignedToEntity.Moid == kwargs.server_profiles[k].moid: kwargs.server_profiles[k].iqn = e.IqnId
+        kwargs.server_profile = DotMap(kwargs.server_profiles)
+        #=====================================================================
+        # Update Wizard Setup Server Profile List
+        #=====================================================================
+        for k in list(kwargs.server_profiles.keys()):
+            serial = kwargs.server_profiles[k].serial
+            pvars  = dict(sorted(kwargs.server_profiles[k].items()))
+            indx   = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles) if d['serial'] == serial), None)
+            if indx == None:
+                kwargs.class_path = f'wizard,server_profiles'
+                kwargs = ezfunctions.ez_append(pvars, kwargs)
+            else: kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[indx] = deepcopy(pvars)
+        #=====================================================================
+        # Return kwargs and kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
     # Function - Server Inventory - Server Profiles
     #=========================================================================
     def server_profiles(self, kwargs):
@@ -1084,9 +1039,9 @@ class api(object):
         kwargs = api('server_profile').calls(kwargs)
         for e in kwargs.results:
             if e.AssociatedServer != None and e.AssignedServer.Moid in server_keys:
-                kwargs.servers[e.AssignedServer.Moid].moid         = e.Moid
                 kwargs.servers[e.AssignedServer.Moid].organization = kwargs.org_names[e.Organization.Moid]
-                kwargs.servers[e.AssignedServer.Moid].profile      = e.Name
+                kwargs.servers[e.AssignedServer.Moid].name = e.Name
+                kwargs.servers[e.AssignedServer.Moid].moid = e.Moid
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -2037,9 +1992,9 @@ class imm(object):
     # Function - Build Policies - BIOS
     #=========================================================================
     def os_install(self, kwargs):
-        #=====================================================
+        #=====================================================================
         # Load Variables and Send Begin Notification
-        #=====================================================
+        #=====================================================================
         validating.begin_section(self.type, 'Install')
         kwargs.org_moid       = kwargs.org_moids[kwargs.org].moid
         os_install_fail_count = 0
@@ -2055,7 +2010,6 @@ class imm(object):
         boot_names      = []
         install_flag    = False
         os_cfg_moids    = []
-        san_flag        = False
         for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
             v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
             kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].tags = compute_moids[v.serial].tags
@@ -2067,7 +2021,10 @@ class imm(object):
                     kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_installed = True
                 else: install_flag = True
             if kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_volume.lower() == 'm2':
-                if not kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].storage_controllers.get('UCS-M2-HWRAID'):
+                match = False
+                for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].storage_controllers.items():
+                    if v.model == 'UCS-M2-HWRAID': match = True
+                if match == False:
                     pcolor.Red(f'\n{"-"*108}\n')
                     pcolor.Red(f'  !!! ERROR !!!\n  Could not determine the Controller Slot for:')
                     pcolor.Red(f'  * Profile: {kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name}')
@@ -2075,14 +2032,6 @@ class imm(object):
                     pcolor.Red(f'  Exiting... (intersight-tools/classes/isight.py Line 1448)')
                     pcolor.Red(f'\n{"-"*108}\n')
                     len(False); sys.exit(1)
-            elif kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_volume.lower() == 'san': san_flag = True
-        if install_flag == True and san_flag == True:
-            #==========================================
-            # Get Boot Order Policies
-            #==========================================
-            names  = list(numpy.unique(numpy.array(boot_names)))
-            kwargs = api_get(empty=False, names=names, otype='boot_order', kwargs=kwargs)
-            for e in kwargs.results: kwargs.boot_order[e.Moid] = e
         if install_flag == True:
             #==========================================
             # Get OS Configuration Files
@@ -2099,18 +2048,20 @@ class imm(object):
         for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
             v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
             if v.os_installed == False:
-                indx = next((index for (index, d) in enumerate(v.macs) if d['mac'] == v.install_interface), None)
-                vnic = v.macs[indx]
+                for a,b in v.adapters.items():
+                    vnic = [DotMap(name = c, mac = d.mac_address) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface][0]
                 if v.boot_volume.lower() == 'san':
-                    boot_devices = [e for e in kwargs.boot_order[v.boot_order.moid] if e.ObjectType == 'boot.San']
-                    if count % 2 == 0: kwargs.wwpn_index = 0; kwargs.san_target = boot_devices[0]
-                    else: kwargs.wwpn_index = 1; kwargs.san_target = boot_devices[1]
+                    if count % 2 == 0: kwargs.wwpn_index = 0; kwargs.san_target = v.boot_order.wwpn_targets[0]
+                    else:
+                        if len(v.boot_order.wwpn_targets) > 1: kwargs.wwpn_index = 1; kwargs.san_target = v.boot_order.wwpn_targets[1]
+                        else: kwargs.wwpn_index = 0; kwargs.san_target = v.boot_order.wwpn_targets[0]
+                    kwargs.fc_ifs = [b for a,b in v.adapters[kwargs.san_target.slot].fc_ifs.items()]
                     starget = kwargs.san_target
                     pcolor.Green(f'\n{"-"*52}\n')
                     pcolor.Green(f'\n{" "*2}- boot_mode: SAN\n{" "*5}boot_target:')
                     pcolor.Green(f'{" "*4}initiator: {v.wwpns[kwargs.wwpn_index].wwpn}\n{" "*7}lun: {starget.Lun}\n{" "*7}target: {starget.Wwpn}')
                     pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
-                    pcolor.Green(f'{" "*4}vnic:\n{" "*7}mac: {vnic.mac}\n{" "*7}name: {vnic.name}\n')
+                    pcolor.Green(f'{" "*4}vnic:\n{" "*7}name: {vnic.name}\n{" "*7}mac: {vnic.mac}\n')
                 elif v.boot_volume.lower() == 'm2':
                     pcolor.Green(f'\n{"-"*52}\n')
                     pcolor.Green(f'{" "*2}- boot_mode: M2')
@@ -2159,7 +2110,7 @@ class imm(object):
                         progress= kwargs.results.Progress
                         status  = kwargs.results.WorkflowStatus
                         pcolor.Cyan(f'{" "*6}* Operating System Installation for `{v.name}` still In Progress.'\
-                                    f'  Status is `{status}` Progress is `{progress}`, Sleeping for 120 seconds.')
+                                    f'  Status is: `{status}`, Progress is: {progress} Percent, Sleeping for 120 seconds.')
                         time.sleep(120)
                 #=================================================
                 # Add os_installed Tag to Physical Server
@@ -2187,9 +2138,9 @@ class imm(object):
                 os_install_fail_count += 1
                 pcolor.Red(f'      * Something went wrong with the OS Install Request for {v.name}. Please Validate the Server.')
             else: pcolor.Cyan(f'      * Skipping Operating System Install for {v.name}.')
-        #=====================================================
+        #=====================================================================
         # Send End Notification and return kwargs
-        #=====================================================
+        #=====================================================================
         validating.end_section(self.type, 'Install')
         if os_install_fail_count > 0:
             pcolor.Yellow(kwargs.names)

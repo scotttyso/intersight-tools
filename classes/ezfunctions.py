@@ -123,6 +123,8 @@ def base_script_settings(kwargs):
     kwargs.logger        = logger
     kwargs.op_system     = platform.system()
     kwargs.imm_dict.orgs = DotMap()
+    kwargs.type_dotmap   = type(DotMap())
+    kwargs.type_none     = type(None)
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
@@ -516,13 +518,14 @@ def find_vars(ws, func, rows, count):
 def installation_body(v, kwargs):
     if 'shared' in kwargs.os_cfg_moids[v.os_configuration].Owners:
         answers = DotMap(); encrypted = False
+        answer_keys = list(v.answers.keys())
         for e in kwargs.os_cfg_moids[v.os_configuration].Placeholders:
             if re.search('\.answers\.', e.Type.Name): name = e.Type.Name[9:]
             elif '.internal' in e.Type.Name: continue
             elif 'FQDN' in e.Type.Name: continue
-            else: name = e.Type.name[1:]
+            else: name = e.Type.Name[1:]
             x = name.split('.')
-            if v.answers.get(x[0]):
+            if x[0] in answer_keys:
                 if type(v.answers[x[0]]) == str and 'sensitive_' in v.answers[x[0]]:
                     password = os.environ[v.answers[x[0]].replace('sensitive_', '')]
                     if v.os_vendor == 'Microsoft':
@@ -534,12 +537,13 @@ def installation_body(v, kwargs):
                 elif x[0] == 'NameServer': answers['Nameserver'] = v.answers[x[0]]
                 elif x[0] == 'AlternateNameServer': answers['AlternateNameServers'] = [v.answers['AlternateNameServer']]
                 else: answers[x[0]] = v.answers[x[0]]
-        if answers.get('IpV4Config') or answers.get('IpV6Config'):
+        if answers.get('IpV4Config') or answers.get('IpV6Config') or answers.IpConfigType == 'DHCP':
             vx = answers.IpVersion
             answers.pop('IpVersion')
-            answers.IpConfiguration = DotMap({f'Ip{vx}Config': answers[f'Ip{vx}Config'].toDict(),
-                                              'ObjectType': f'os.Ip{vx.lower()}Configuration'}).toDict()
-            answers.pop(f'Ip{vx}Config')
+            if answers.IpConfigType == 'DHCP': ip_config = {'ObjectType': f'os.Ip{vx.lower()}Configuration'}
+            else: ip_config = DotMap({f'Ip{vx}Config': answers[f'Ip{vx}Config'].toDict(), 'ObjectType': f'os.Ip{vx.lower()}Configuration'}).toDict()
+            answers.IpConfiguration = ip_config
+            if f'Ip{vx}Config' in answer_keys: answers.pop(f'Ip{vx}Config')
         api_body = {
             'Answers': dict(sorted(dict(answers, **{'IsRootPasswordCrypted': False, 'Source': 'Template'}).items())),
             'AdditionalParameters': None,
@@ -558,20 +562,28 @@ def installation_body(v, kwargs):
         api_body['OperatingSystemParameters']['Edition'] = v.answers.EditionString
         api_body['Answers'].pop('EditionString')
     else: api_body.pop('OperatingSystemParameters')
-    if api_body['Answers'].get('SecureBoot'): api_body['Answers'].pop('SecureBoot'); api_body.update({'OverrideSecureBoot': True})
+    if api_body['Answers'].get('SecureBoot'):
+        api_body['Answers'].pop('SecureBoot')
+        if v.boot_order.enable_secure_boot == True: api_body.update({'OverrideSecureBoot': True})
+    if api_body['Answers'].get('BootMode'): api_body['Answers'].pop('BootMode')
     if encrypted == True: api_body['Answers']['IsRootPasswordCrypted'] = True
-    if v.boot_volume.lower() == 'san':
+    if v.boot_volume.lower() == 'm2':
+        for k,v in v.storage_controllers.items():
+            vkeys = list(v.keys())
+            if 'virtual_drives' in vkeys and v.slot == 'MSTOR-RAID':
+                drive = [DotMap(id = a, name = b.name) for a,b in v.virtual_drives.items() if int(b.size) > 128000][0]
+                break
         api_body['InstallTarget'] = {
-            'InitiatorWwpn': v.wwpns[kwargs.wwpn_index].wwpn,
-            'LunId': kwargs.san_target.Lun,
-            'ObjectType': 'os.FibreChannelTarget',
-            'TargetWwpn': kwargs.san_target.Wwpn}
-    elif v.boot_volume.lower() == 'm2':
-        api_body['InstallTarget'] = {
-            "Id": '0',
-            "Name": "MStorBootVd",
+            "Id": str(drive.id),
+            "Name": drive.name,
             "ObjectType": "os.VirtualDrive",
             "StorageControllerSlotId": "MSTOR-RAID"}
+    elif v.boot_volume.lower() == 'san':
+        api_body['InstallTarget'] = {
+            'InitiatorWwpn': kwargs.fc_ifs[kwargs.wwpn_index].wwpn,
+            'LunId': kwargs.san_target.lun,
+            'ObjectType': 'os.FibreChannelTarget',
+            'TargetWwpn': kwargs.san_target.wwpn}
     return api_body
 
 #=============================================================================
@@ -941,6 +953,7 @@ def message_starting_over(policy_type):
 #=============================================================================
 def mod_pol_description(pol_description):
     pdescr = str.title(pol_description.replace('_', ' '))
+    pdescr = pdescr.replace('Fiattached', 'FIAttached')
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
     pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
@@ -1001,6 +1014,18 @@ def os_configuration_file(kwargs):
         "ObjectType": "os.ConfigurationFile",
         "Tags": [kwargs.ez_tags.toDict()]}
     return api_body
+
+#=============================================================================
+# Function - Determine Adapter PCI Slot
+#=============================================================================
+def pci_slot(element):
+    if element.PciSlot == 'SlotID:0-MLOM' or 'MLOM' in element.Model:  pci_slot = 'MLOM'
+    elif not 'MEZZ' in element.PciSlot and 'SlotID' in element.PciSlot:
+        pci_slot = re.search('SlotID:(\\d)', element.PciSlot).group(1)
+    elif re.search("\\d", str(element.PciSlot)): pci_slot = int(element.PciSlot)
+    elif re.search("L", str(element.PciSlot)): pci_slot = 'LOM'
+    else: pci_slot = e.AdapterId
+    return pci_slot
 
 #=============================================================================
 # Function - Get Policies from Dictionary

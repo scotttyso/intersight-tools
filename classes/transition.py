@@ -355,7 +355,7 @@ class intersight(object):
         for e in ['action', 'attach_template', 'target_platform', 'targets']:
             if not e in pkeys:
                 if e == 'targets': pvars[e] = []
-                else: pvars[e] = kwargs.ezdata.server.allOf[0].properties[e].default
+                else: pvars[e] = kwargs.ezdata['profiles.server'].allOf[0].properties[e].default
         pkeys = list(pvars.keys())
         if 'target_platform' in pkeys: pvars.target_platform = pvars.target_platform.replace('-', '')
         tdict = DotMap()

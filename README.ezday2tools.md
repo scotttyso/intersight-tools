@@ -4,11 +4,13 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
 
 ### Capabilities
 
-   * `add_policies`: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
-   * `add_vlans`: Add a new VLAN to existing VLAN Policy and Ethernet Network Group Policies.  If desired Create a new LAN Connectivity Policy.
-   * `clone_policies`: Clone policies from one Organization to another.  Currently only supports policies without child policies.
-   * `hcl_inventory`: Use UCS server inventory injested from vCenter to to check Intersight HCL inventory.
-   * `server_inventory`: Function to clone policies from one Organization to another.
+   * `add_policies`: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.\n'\
+   * `add_vlans`: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.\n'\
+   * `audit_logs`: Function to Get List of Users that have logged into the Account and performed actions/changes.\n'\
+   * `clone_policies`: Function to clone policies from one Organization to another.\n'\
+   * `hcl_status`: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.\n'\
+   * `inventory`: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.\n'\
+   * `server_identities`: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.\n',
 
 ## EZDAY2TOOLS - `add_policies`: Use Case
 
@@ -183,6 +185,8 @@ tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlan
      same organization or from a shared organization.
    * add_vlans: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.
      Optionally can also create LAN Connectivity Policies.
+   * audit_logs: Function to Get List of Users that have logged into the Account and performed
+     actions/changes.
    * clone_policies: Function to clone policies from one Organization to another.
    * hcl_status: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
    * inventory: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
@@ -193,10 +197,11 @@ tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlan
     Select an Option Below:
        1. add_policies
        2. add_vlans
-       3. clone_policies
-       4. hcl_inventory
-       5. inventory
-       6. server_identities
+       3. audit_logs
+       4. clone_policies
+       5. hcl_inventory
+       6. inventory
+       7. server_identities
 
 Please Enter the Option Number to select for Day2Tools Process.  [6]: 2
 
@@ -453,24 +458,71 @@ python ezday2tools.py -p hcl_inventory -j 2024-04-10_09-49-27.json
 
 See example Excel output in `examples/day2tools/hcl_inventory`.
 
-## EZDAY2TOOLS - `server_inventory`: Use Cases
+## EZDAY2TOOLS - `inventory`: Use Cases
 
-  - Collect UCS Inventory and export to Spreadsheet.
+* Collect Domain Inventory.
+  - Contracts
+  - Domain/Switch Profile(s)
+  - Fans
+  - Installed Firmware
+  - Power Supplies
+* Collect Chassis Inventory.
+  - Chassis Profile
+  - Contracts
+  - Fans
+  - Installed Firmware
+  - IO Modules (IFMs/IOMs)
+  - Power Supplies
+  - Slot Inventory - Accounting for X410 double slot, PCI Nodes, and B480 double wides
+  - X-Fabric Modules
+* Collect Server Inventory.
+  - Adapters
+  - Contracts
+  - Fans
+  - GPUs
+  - Installed Firmware
+  - Memory - Available Memory/DIMM part numbers and installed slots
+  - PCI Node - with GPU's
+  - Power Supplies
+  - Processors
+  - Server Profile
+  - Storage Controller - Including physical drives and virtual drives
+  - TPM Chips
 
-### EZDAY2TOOLS - `server_inventory`: Get Inventory from Intersight and Create Spreadsheet.
+### EZDAY2TOOLS - `inventory`: Get Server Identities from Intersight and Create Spreadsheet.
 
 #### Linux
 
 ```bash
-ezday2tools.py -p server_inventory -fi
+ezday2tools.py -p inventory
 ```
 
 #### Windows
 
 ```powershell
-python ezday2tools.py -p server_inventory -fi
+python ezday2tools.py -p inventory
+```
+
+See example output in `examples/day2tools/inventory`.
+
+## EZDAY2TOOLS - `server_identities`: Use Cases
+
+  - Collect UCS Server Identities and export to Spreadsheet.
+
+### EZDAY2TOOLS - `server_identities`: Get Server Identities from Intersight and Create Spreadsheet.
+
+#### Linux
+
+```bash
+ezday2tools.py -p server_identities -fi
+```
+
+#### Windows
+
+```powershell
+python ezday2tools.py -p server_identities -fi
 ```
 
 Note: `-fi` pulls adds more details; without, primarily focused of function is WWNN/WWPN identities for server profiles.
 
-See example output in `examples/day2tools/server_inventory`.
+See example output in `examples/day2tools/server_identities`.
