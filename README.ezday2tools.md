@@ -5,12 +5,12 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
 ### Capabilities
 
    * [add_policies](#add-policies): Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
-   * [add_vlans]: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.
-   * `audit_logs`: Function to Get List of Users that have logged into the Account and performed actions/changes.
-   * `clone_policies`: Function to clone policies from one Organization to another.
-   * `hcl_status`: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
-   * `inventory`: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
-   * `server_identities`: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.,
+   * [add_vlans](#add-vlans): Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.
+   * [audit_logs](#audit-logs): Function to Get List of Users that have logged into the Account and performed actions/changes.
+   * [clone_policies](#clone-policies): Function to clone policies from one Organization to another.
+   * [hcl_status](#hcl-inventory): Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
+   * [inventory](#inventory): Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
+   * [server_identities](#server-identities): Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.,
 
 ## Add Policies
 
@@ -151,6 +151,8 @@ Enter `Y` for `True` or `N` for `False` for `Deploy Profiles`. [N]: Y
 
 ```
 
+## Add VLANs
+
 ## EZDAY2TOOLS - `add_vlans`: Use Cases
 
   - Add VLAN to VLAN Policy and Ethernet Network Groups to Organization List.  If desired also create a new LAN Connectivity Policy for the new VLAN.
@@ -201,7 +203,7 @@ tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlan
        2. add_vlans
        3. audit_logs
        4. clone_policies
-       5. hcl_inventory
+       5. hcl_status
        6. inventory
        7. server_identities
 
@@ -266,6 +268,25 @@ Please Enter the Option Number to select for Day2Tools Process.  [6]: 2
 tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlans$ 
 ```
 
+## Audit Logs
+
+## EZDAY2TOOLS - `audit_logs`: Use Cases
+
+  - Get list of All Users that have logged into Intersight Account and how many days they have logged in a interval (number of months)
+
+#### Linux
+
+```bash
+ezday2tools.py -p audit_logs
+```
+
+#### Windows
+
+```powershell
+python ezday2tools.py -p audit_logs
+```
+
+## Clone Policies
 
 ## EZDAY2TOOLS - `clone_policies`: Use Cases
 
@@ -418,11 +439,13 @@ Please Enter the Option Number(s) to select for bios Policies: 3
 ------------------------------------------------------------------------------------------------------------
 ```
 
-## EZDAY2TOOLS - `hcl_inventory`: Use Cases
+## HCL Status
+
+## EZDAY2TOOLS - `hcl_status`: Use Cases
 
   - Collect UCS Inventory from list of vCenters and compare HCL inventory results in Intersight.
 
-### EZDAY2TOOLS - `hcl_inventory`: Obtain vCenter Inventory with `vcenter-hcl-inventory.ps1`
+### EZDAY2TOOLS - `hcl_status`: Obtain vCenter Inventory with `vcenter-hcl-inventory.ps1`
 
 #### Install PowerShell - Mac/Linux
 
@@ -440,25 +463,27 @@ pwsh
 ./vcenter-hcl-inventory.ps1 -j inventory.json
 ```
 
-See example `inventory.json` file in `examples/day2tools/hcl_inventory`.
+See example `inventory.json` file in `examples/day2tools/hcl_status`.
 
-### EZDAY2TOOLS - `hcl_inventory`: Compare Inventory to Intersight and Create Spreadsheet.
+### EZDAY2TOOLS - `hcl_status`: Compare Inventory to Intersight and Create Spreadsheet.
 
 From the previous PowerShell module use the output file for input to `ezday2tools.py` in example `2024-04-10_09-49-27.json`.
 
 #### Linux
 
 ```bash
-ezday2tools.py -p hcl_inventory -j 2024-04-10_09-49-27.json
+ezday2tools.py -p hcl_status -j 2024-04-10_09-49-27.json
 ```
 
 #### Windows
 
 ```powershell
-python ezday2tools.py -p hcl_inventory -j 2024-04-10_09-49-27.json
+python ezday2tools.py -p hcl_status -j 2024-04-10_09-49-27.json
 ```
 
-See example Excel output in `examples/day2tools/hcl_inventory`.
+See example Excel output in `examples/day2tools/hcl_status`.
+
+## Inventory
 
 ## EZDAY2TOOLS - `inventory`: Use Cases
 
@@ -545,6 +570,8 @@ tyscott@TYSCOTT-DESKTOP:~$ ezday2tools.py -p inventory
 
 tyscott@TYSCOTT-DESKTOP:~$
 ```
+
+## Server Identities
 
 ## EZDAY2TOOLS - `server_identities`: Use Cases
 

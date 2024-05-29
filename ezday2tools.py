@@ -93,7 +93,7 @@ def main():
                 '  * hcl_status: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.\n'\
                 '  * inventory: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.\n'\
                 '  * server_identities: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.\n',
-            enum = ['add_policies', 'add_vlans', 'audit_logs', 'clone_policies', 'hcl_inventory', 'inventory', 'server_identities'],
+            enum = ['add_policies', 'add_vlans', 'audit_logs', 'clone_policies', 'hcl_status', 'inventory', 'server_identities'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)
     kwargs = isight.api('organization').all_organizations(kwargs)
