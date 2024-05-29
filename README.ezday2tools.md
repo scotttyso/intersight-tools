@@ -4,15 +4,17 @@ The purpose of `ezday2tools.py` is to manage Server Environments in Intersight f
 
 ### Capabilities
 
-   * `add_policies`: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.\n'\
-   * `add_vlans`: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.\n'\
-   * `audit_logs`: Function to Get List of Users that have logged into the Account and performed actions/changes.\n'\
-   * `clone_policies`: Function to clone policies from one Organization to another.\n'\
-   * `hcl_status`: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.\n'\
-   * `inventory`: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.\n'\
-   * `server_identities`: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.\n',
+   * [add_policies](#add-policies): Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
+   * [add_vlans]: Function to add a VLAN to existing VLAN Poilcy and Ethernet Network Group Policies.  Optionally can also create LAN Connectivity Policies.
+   * `audit_logs`: Function to Get List of Users that have logged into the Account and performed actions/changes.
+   * `clone_policies`: Function to clone policies from one Organization to another.
+   * `hcl_status`: Function to take UCS inventory from vCenter and validate the status of the HCL VIB.
+   * `inventory`: Function to Create a Spreadsheet with inventory for Domains, Chassis, Servers.
+   * `server_identities`: Function to get WWNN/WWPN and MAC identities.  By default it only gathers the fibre-channel identities. To get full identities list add the `-fi` option at the CLI.,
 
-## EZDAY2TOOLS - `add_policies`: Use Case
+## Add Policies
+
+### EZDAY2TOOLS - `add_policies`: Use Case
 
   - Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.
 
