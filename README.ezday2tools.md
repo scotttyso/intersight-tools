@@ -151,6 +151,8 @@ Enter `Y` for `True` or `N` for `False` for `Deploy Profiles`. [N]: Y
 
 ```
 
+### [Back to Top](#ezday2tools-synopsis)
+
 ## Add VLANs
 
 ## EZDAY2TOOLS - `add_vlans`: Use Cases
@@ -268,6 +270,8 @@ Please Enter the Option Number to select for Day2Tools Process.  [6]: 2
 tyscott@TYSCOTT-DESKTOP:~/scotttyso/intersight-tools/examples/day2tools/add_vlans$ 
 ```
 
+### [Back to Top](#ezday2tools-synopsis)
+
 ## Audit Logs
 
 ## EZDAY2TOOLS - `audit_logs`: Use Cases
@@ -285,6 +289,8 @@ ezday2tools.py -p audit_logs
 ```powershell
 python ezday2tools.py -p audit_logs
 ```
+
+### [Back to Top](#ezday2tools-synopsis)
 
 ## Clone Policies
 
@@ -439,6 +445,8 @@ Please Enter the Option Number(s) to select for bios Policies: 3
 ------------------------------------------------------------------------------------------------------------
 ```
 
+### [Back to Top](#ezday2tools-synopsis)
+
 ## HCL Status
 
 ## EZDAY2TOOLS - `hcl_status`: Use Cases
@@ -482,6 +490,8 @@ python ezday2tools.py -p hcl_status -j 2024-04-10_09-49-27.json
 ```
 
 See example Excel output in `examples/day2tools/hcl_status`.
+
+### [Back to Top](#ezday2tools-synopsis)
 
 ## Inventory
 
@@ -570,6 +580,8 @@ tyscott@TYSCOTT-DESKTOP:~$ ezday2tools.py -p inventory
 
 tyscott@TYSCOTT-DESKTOP:~$
 ```
+
+### [Back to Top](#ezday2tools-synopsis)
 
 ## Server Identities
 
