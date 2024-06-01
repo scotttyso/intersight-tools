@@ -7,7 +7,7 @@
       },
       "info": {
         "description": "Cisco Easy IMM Data Model JSON Schema.  See: https://github.com/terraform-cisco-modules/easy-imm",
-        "version": "v4.2.11-16342",
+        "version": "4.2.11-17057",
         "title": "Cisco Intersight Managed Mode Schema",
         "license": {
           "name": "MIT",
@@ -249,6 +249,13 @@
                         "intersight_api": "$ref:EthSettings:adapter.EthSettings:LldpEnabled",
                         "title": "enable_lldp"
                     },
+                    "enable_physical_nic_mode": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Default is `false`.  When Physical NIC Mode is enabled, up-link ports of the VIC are set to pass-through mode. This allows the host to transmit packets without any modification. When Physical NIC Mode is enabled, VLAN tagging of the packets will not happen.",
+                        "intersight_api": "$ref:PhysicalNicModeSettings:adapter.PhysicalNicModeSettings:PhyNicEnabled",
+                        "title": "enable_physical_nic_mode"
+                    },
                     "enable_port_channel": {
                         "type": "boolean",
                         "default": true,
@@ -316,7 +323,7 @@
                     },
                     {
                         "type": "object",
-                        "description": "Policy for setting BIOS tokens on the endpoint.",
+                        "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * name\n\nRecommended Attribute: bios_template\n\nOptional Attributes:\n  * description\n  * tags\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * boot_option_num_retry\n  * boot_option_re_cool_down\n  * boot_option_retry\n  * ipv4http\n  * ipv4pxe\n  * ipv6http\n  * ipv6pxe\n  * network_stack\n  * onboard_scu_storage_support\n  * onboard_scu_storage_sw_stack\n  * pop_support\n  * psata\n  * sata_mode_select\n  * vmd_enable\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * intel_vt_for_directed_io\n  * intel_vtd_coherency_support\n  * intel_vtd_interrupt_remapping\n  * intel_vtd_pass_through_dma_support\n  * intel_vtdats_support\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * acs_control_gpu1state\n  * acs_control_gpu2state\n  * acs_control_gpu3state\n  * acs_control_gpu4state\n  * acs_control_gpu5state\n  * acs_control_gpu6state\n  * acs_control_gpu7state\n  * acs_control_gpu8state\n  * acs_control_slot11state\n  * acs_control_slot12state\n  * acs_control_slot13state\n  * acs_control_slot14state\n  * cdn_support\n  * edpc_en\n  * enable_clock_spread_spec\n  * lom_port0state\n  * lom_port1state\n  * lom_port2state\n  * lom_port3state\n  * lom_ports_all_state\n  * pch_pcie_pll_ssc\n  * pci_option_ro_ms\n  * pci_rom_clp\n  * pcie_ari_support\n  * pcie_pll_ssc\n  * pcie_slot_mraid1link_speed\n  * pcie_slot_mraid1option_rom\n  * pcie_slot_mraid2link_speed\n  * pcie_slot_mraid2option_rom\n  * pcie_slot_mstorraid_link_speed\n  * pcie_slot_mstorraid_option_rom\n  * pcie_slot_nvme1link_speed\n  * pcie_slot_nvme1option_rom\n  * pcie_slot_nvme2link_speed\n  * pcie_slot_nvme2option_rom\n  * pcie_slot_nvme3link_speed\n  * pcie_slot_nvme3option_rom\n  * pcie_slot_nvme4link_speed\n  * pcie_slot_nvme4option_rom\n  * pcie_slot_nvme5link_speed\n  * pcie_slot_nvme5option_rom\n  * pcie_slot_nvme6link_speed\n  * pcie_slot_nvme6option_rom\n  * slot10link_speed\n  * slot10state\n  * slot11link_speed\n  * slot11state\n  * slot12link_speed\n  * slot12state\n  * slot13state\n  * slot14state\n  * slot1link_speed\n  * slot1state\n  * slot2link_speed\n  * slot2state\n  * slot3link_speed\n  * slot3state\n  * slot4link_speed\n  * slot4state\n  * slot5link_speed\n  * slot5state\n  * slot6link_speed\n  * slot6state\n  * slot7link_speed\n  * slot7state\n  * slot8link_speed\n  * slot8state\n  * slot9link_speed\n  * slot9state\n  * slot_flom_link_speed\n  * slot_front_nvme10link_speed\n  * slot_front_nvme10option_rom\n  * slot_front_nvme11link_speed\n  * slot_front_nvme11option_rom\n  * slot_front_nvme12link_speed\n  * slot_front_nvme12option_rom\n  * slot_front_nvme13link_speed\n  * slot_front_nvme13option_rom\n  * slot_front_nvme14link_speed\n  * slot_front_nvme14option_rom\n  * slot_front_nvme15link_speed\n  * slot_front_nvme15option_rom\n  * slot_front_nvme16link_speed\n  * slot_front_nvme16option_rom\n  * slot_front_nvme17link_speed\n  * slot_front_nvme17option_rom\n  * slot_front_nvme18link_speed\n  * slot_front_nvme18option_rom\n  * slot_front_nvme19link_speed\n  * slot_front_nvme19option_rom\n  * slot_front_nvme1link_speed\n  * slot_front_nvme1option_rom\n  * slot_front_nvme20link_speed\n  * slot_front_nvme20option_rom\n  * slot_front_nvme21link_speed\n  * slot_front_nvme21option_rom\n  * slot_front_nvme22link_speed\n  * slot_front_nvme22option_rom\n  * slot_front_nvme23link_speed\n  * slot_front_nvme23option_rom\n  * slot_front_nvme24link_speed\n  * slot_front_nvme24option_rom\n  * slot_front_nvme2link_speed\n  * slot_front_nvme2option_rom\n  * slot_front_nvme3link_speed\n  * slot_front_nvme3option_rom\n  * slot_front_nvme4link_speed\n  * slot_front_nvme4option_rom\n  * slot_front_nvme5link_speed\n  * slot_front_nvme5option_rom\n  * slot_front_nvme6link_speed\n  * slot_front_nvme6option_rom\n  * slot_front_nvme7link_speed\n  * slot_front_nvme7option_rom\n  * slot_front_nvme8link_speed\n  * slot_front_nvme8option_rom\n  * slot_front_nvme9link_speed\n  * slot_front_nvme9option_rom\n  * slot_front_slot5link_speed\n  * slot_front_slot6link_speed\n  * slot_gpu1state\n  * slot_gpu2state\n  * slot_gpu3state\n  * slot_gpu4state\n  * slot_gpu5state\n  * slot_gpu6state\n  * slot_gpu7state\n  * slot_gpu8state\n  * slot_hba_link_speed\n  * slot_hba_state\n  * slot_lom1link\n  * slot_lom2link\n  * slot_mezz_state\n  * slot_mlom_link_speed\n  * slot_mlom_state\n  * slot_mraid_link_speed\n  * slot_mraid_state\n  * slot_n10state\n  * slot_n11state\n  * slot_n12state\n  * slot_n13state\n  * slot_n14state\n  * slot_n15state\n  * slot_n16state\n  * slot_n17state\n  * slot_n18state\n  * slot_n19state\n  * slot_n1state\n  * slot_n20state\n  * slot_n21state\n  * slot_n22state\n  * slot_n23state\n  * slot_n24state\n  * slot_n2state\n  * slot_n3state\n  * slot_n4state\n  * slot_n5state\n  * slot_n6state\n  * slot_n7state\n  * slot_n8state\n  * slot_n9state\n  * slot_raid_link_speed\n  * slot_raid_state\n  * slot_rear_nvme1link_speed\n  * slot_rear_nvme1state\n  * slot_rear_nvme2link_speed\n  * slot_rear_nvme2state\n  * slot_rear_nvme3link_speed\n  * slot_rear_nvme3state\n  * slot_rear_nvme4link_speed\n  * slot_rear_nvme4state\n  * slot_rear_nvme5state\n  * slot_rear_nvme6state\n  * slot_rear_nvme7state\n  * slot_rear_nvme8state\n  * slot_riser1link_speed\n  * slot_riser1slot1link_speed\n  * slot_riser1slot2link_speed\n  * slot_riser1slot3link_speed\n  * slot_riser2link_speed\n  * slot_riser2slot4link_speed\n  * slot_riser2slot5link_speed\n  * slot_riser2slot6link_speed\n  * slot_sas_state\n  * slot_ssd_slot1link_speed\n  * slot_ssd_slot2link_speed\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * pcie_slots_cdn_enable\n  * post_error_pause\n  * tpm_support\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * adaptive_refresh_mgmt_level\n  * advanced_mem_test\n  * bme_dma_mitigation\n  * burst_and_postponed_refresh\n  * cbs_cmn_cpu_sev_asid_space_limit\n  * cbs_cmn_cpu_smee\n  * cbs_cmn_gnb_nb_iommu\n  * cbs_cmn_mem_ctrl_bank_group_swap_ddr4\n  * cbs_cmn_mem_map_bank_interleave_ddr4\n  * cbs_cmn_mem_speed_ddr47xx2\n  * cbs_cmn_mem_speed_ddr47xx3\n  * cbs_dbg_cpu_snp_mem_cover\n  * cbs_dbg_cpu_snp_mem_size_cover\n  * cbs_df_cmn4link_max_xgmi_speed\n  * cbs_df_cmn_dram_nps\n  * cbs_df_cmn_dram_scrub_time\n  * cbs_df_cmn_mem_intlv\n  * cbs_df_cmn_mem_intlv_control\n  * cbs_df_cmn_mem_intlv_size\n  * cbs_gnb_dbg_pcie_tbt_support\n  * cbs_sev_snp_support\n  * cke_low_policy\n  * cr_qos\n  * crfastgo_config\n  * dcpmm_firmware_downgrade\n  * dram_refresh_rate\n  * dram_sw_thermal_throttling\n  * eadr_support\n  * enable_rmt\n  * error_check_scrub\n  * lv_ddr_mode\n  * memory_bandwidth_boost\n  * memory_refresh_rate\n  * memory_size_limit\n  * memory_thermal_throttling\n  * mirroring_mode\n  * mmioh_base\n  * mmioh_size\n  * numa_optimized\n  * nvmdimm_perform_config\n  * operation_mode\n  * panic_high_watermark\n  * partial_cache_line_sparing\n  * partial_mirror_mode_config\n  * partial_mirror_percent\n  * partial_mirror_value1\n  * partial_mirror_value2\n  * partial_mirror_value3\n  * partial_mirror_value4\n  * pc_ie_ras_support\n  * post_package_repair\n  * runtime_post_package_repair\n  * select_memory_ras_configuration\n  * select_ppr_type\n  * sev\n  * smee\n  * snoopy_mode_for2lm\n  * snoopy_mode_for_ad\n  * sparing_mode\n  * tsme\n  * uma_based_clustering\n  * vol_memory_mode\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * aspm_support\n  * ioh_resource\n  * memory_mapped_io_above4gb\n  * mmcfg_base\n  * onboard10gbit_lom\n  * onboard_gbit_lom\n  * pc_ie_ssd_hot_plug_support\n  * resize_bar_support\n  * sr_iov\n  * vga_priority\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * c1auto_demotion\n  * c1auto_un_demotion\n  * cbs_cmn_cpu_cpb\n  * cbs_cmn_cpu_global_cstate_ctrl\n  * cbs_cmn_cpu_l1stream_hw_prefetcher\n  * cbs_cmn_cpu_l2stream_hw_prefetcher\n  * cbs_cmn_determinism_slider\n  * cbs_cmn_efficiency_mode_en\n  * cbs_cmn_efficiency_mode_en_rs\n  * cbs_cmn_gnb_smucppc\n  * cbs_cmnc_tdp_ctl\n  * cpu_perf_enhancement\n  * llc_alloc\n  * optimized_power_mode\n  * upi_link_enablement\n  * upi_power_management\n  * virtual_numa\n  * x2apic_opt_out\n  * xpt_remote_prefetch\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * adjacent_cache_line_prefetch\n  * altitude\n  * auto_cc_state\n  * autonumous_cstate_enable\n  * boot_performance_mode\n  * cbs_cmn_apbdis\n  * cbs_cmn_apbdis_df_pstate_rs\n  * cbs_cmn_cpu_avx512\n  * cbs_cmn_cpu_gen_downcore_ctrl\n  * cbs_cmn_cpu_streaming_stores_ctrl\n  * cbs_cmn_edc_control_throttle\n  * cbs_cmn_fixed_soc_pstate\n  * cbs_cmn_gnb_smu_df_cstates\n  * cbs_cmn_gnb_smu_dffo_rs\n  * cbs_cmn_gnb_smu_dlwm_support\n  * cbs_cmn_mem_ctrller_pwr_dn_en_ddr\n  * cbs_cmn_preferred_io7xx2\n  * cbs_cmn_preferred_io7xx3\n  * cbs_cmnx_gmi_force_link_width_rs\n  * cbs_cpu_ccd_ctrl_ssp\n  * cbs_cpu_core_ctrl\n  * cbs_cpu_down_core_ctrl_bergamo\n  * cbs_cpu_down_core_ctrl_genoa\n  * cbs_cpu_smt_ctrl\n  * cbs_dbg_cpu_gen_cpu_wdt\n  * cbs_dbg_cpu_lapic_mode\n  * cbs_df_cmn_acpi_srat_l3numa\n  * cbs_df_dbg_xgmi_link_cfg\n  * channel_inter_leave\n  * cisco_xgmi_max_speed\n  * closed_loop_therm_throtl\n  * cmci_enable\n  * config_tdp\n  * config_tdp_level\n  * core_multi_processing\n  * cpu_energy_performance\n  * cpu_frequency_floor\n  * cpu_performance\n  * cpu_power_management\n  * demand_scrub\n  * dfx_osb_en\n  * direct_cache_access\n  * dram_clock_throttling\n  * energy_efficient_turbo\n  * eng_perf_tuning\n  * enhanced_intel_speed_step_tech\n  * epp_enable\n  * epp_profile\n  * execute_disable_bit\n  * extended_apic\n  * hardware_prefetch\n  * hwpm_enable\n  * imc_interleave\n  * intel_dynamic_speed_select\n  * intel_hyper_threading_tech\n  * intel_speed_select\n  * intel_turbo_boost_tech\n  * intel_virtualization_technology\n  * ioat_config_cpm\n  * ioh_error_enable\n  * ip_prefetch\n  * kti_prefetch\n  * llc_prefetch\n  * memory_inter_leave\n  * package_cstate_limit\n  * patrol_scrub\n  * patrol_scrub_duration\n  * prmrr_size\n  * processor_c1e\n  * processor_c3report\n  * processor_c6report\n  * processor_cstate\n  * pstate_coord_type\n  * pwr_perf_tuning\n  * qpi_link_speed\n  * rank_inter_leave\n  * single_pctl_enable\n  * smt_mode\n  * snc\n  * streamer_prefetch\n  * svm_mode\n  * ufs_disable\n  * work_load_config\n  * xpt_prefetch\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * qpi_link_frequency\n  * qpi_snoop_mode\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * enable_tdx\n  * enable_tdx_seamldr\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * serial_port_aenable\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * assert_nmi_on_perr\n  * assert_nmi_on_serr\n  * baud_rate\n  * cdn_enable\n  * cisco_adaptive_mem_training\n  * cisco_debug_level\n  * cisco_oprom_launch_optimization\n  * console_redirection\n  * flow_control\n  * frb2enable\n  * legacy_os_redirection\n  * os_boot_watchdog_timer\n  * os_boot_watchdog_timer_policy\n  * os_boot_watchdog_timer_timeout\n  * out_of_band_mgmt_port\n  * putty_key_pad\n  * redirection_after_post\n  * serial_mux\n  * terminal_type\n  * ucsm_boot_order_rule\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * cpu_pa_limit\n  * enable_mktme\n  * dma_ctrl_opt_in\n  * enable_sgx\n  * enable_tme\n  * epoch_update\n  * sgx_auto_registration_agent\n  * sgx_epoch0\n  * sgx_epoch1\n  * sgx_factory_reset\n  * sgx_le_pub_key_hash0\n  * sgx_le_pub_key_hash1\n  * sgx_le_pub_key_hash2\n  * sgx_le_pub_key_hash3\n  * sgx_le_wr\n  * sgx_package_info_in_band_access\n  * sgx_qos\n  * sha1pcr_bank\n  * sha256pcr_bank\n  * sha384pcr_bank\n  * tpm_control\n  * tpm_pending_operation\n  * tpm_ppi_required\n  * txt_support\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * all_usb_devices\n  * legacy_usb_support\n  * make_device_non_bootable\n  * pch_usb30mode\n  * usb_emul6064\n  * usb_port_front\n  * usb_port_internal\n  * usb_port_kvm\n  * usb_port_rear\n  * usb_port_sd_card\n  * usb_port_vmedia\n  * usb_xhci_support",
                         "required": [],
                         "title": "bios",
                         "properties": {
@@ -737,6 +744,7 @@
                                 "intersight_api": "C1autoDemotion",
                                 "enum": [
                                     "platform-default",
+                                    "Auto",
                                     "enabled",
                                     "disabled"
                                 ],
@@ -749,6 +757,7 @@
                                 "intersight_api": "C1autoUnDemotion",
                                 "enum": [
                                     "platform-default",
+                                    "Auto",
                                     "enabled",
                                     "disabled"
                                 ],
@@ -761,8 +770,8 @@
                                 "intersight_api": "CbsCmnApbdis",
                                 "enum": [
                                     "platform-default",
-                                    0,
-                                    1,
+                                    "0",
+                                    "1",
                                     "Auto"
                                 ],
                                 "title": "cbs_cmn_apbdis"
@@ -1052,18 +1061,6 @@
                                 ],
                                 "title": "cbs_cmn_mem_ctrller_pwr_dn_en_ddr"
                             },
-                            "cbs_cmn_mem_dram_refresh_rate": {
-                                "type": "string",
-                                "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting DRAM Refresh Rate configuration.\n* `platform-default` - Default value used by the platform for the BIOS setting.\n* `3.9 usec` - Value - 3.9 usec for configuring CbsCmnMemDramRefreshRate token.\n* `7.8 usec` - Value - 7.8 usec for configuring CbsCmnMemDramRefreshRate token.",
-                                "intersight_api": "CbsCmnMemDramRefreshRate",
-                                "enum": [
-                                    "platform-default",
-                                    "3.9 usec",
-                                    "7.8 usec"
-                                ],
-                                "title": "cbs_cmn_mem_dram_refresh_rate"
-                            },
                             "cbs_cmn_mem_map_bank_interleave_ddr4": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -1072,7 +1069,8 @@
                                 "enum": [
                                     "platform-default",
                                     "Auto",
-                                    "disabled"
+                                    "disabled",
+                                    "Enabled"
                                 ],
                                 "title": "cbs_cmn_mem_map_bank_interleave_ddr4"
                             },
@@ -1181,6 +1179,8 @@
                                     "3 CCDs",
                                     "4 CCDs",
                                     "6 CCDs",
+                                    "8 CCDs",
+                                    "10 CCDs",
                                     "Auto"
                                 ],
                                 "title": "cbs_cpu_ccd_ctrl_ssp"
@@ -1278,33 +1278,6 @@
                                     "XAPIC"
                                 ],
                                 "title": "cbs_dbg_cpu_lapic_mode"
-                            },
-                            "cbs_dbg_cpu_lapic_mode7xx2": {
-                                "type": "string",
-                                "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Local APIC Mode 7xx2 configuration.\n* `platform-default` - Default value used by the platform for the BIOS setting.\n* `Auto` - Value - Auto for configuring CbsDbgCpuLapicMode7xx2 token.\n* `X2APIC` - Value - X2APIC for configuring CbsDbgCpuLapicMode7xx2 token.\n* `XAPIC` - Value - XAPIC for configuring CbsDbgCpuLapicMode7xx2 token.",
-                                "intersight_api": "CbsDbgCpuLapicMode7xx2",
-                                "enum": [
-                                    "platform-default",
-                                    "Auto",
-                                    "X2APIC",
-                                    "XAPIC"
-                                ],
-                                "title": "cbs_dbg_cpu_lapic_mode7xx2"
-                            },
-                            "cbs_dbg_cpu_lapic_mode7xx3": {
-                                "type": "string",
-                                "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Local APIC Mode 7xx3 configuration.\n* `platform-default` - Default value used by the platform for the BIOS setting.\n* `Auto` - Value - Auto for configuring CbsDbgCpuLapicMode7xx3 token.\n* `Compatibility` - Value - Compatibility for configuring CbsDbgCpuLapicMode7xx3 token.\n* `X2APIC` - Value - X2APIC for configuring CbsDbgCpuLapicMode7xx3 token.\n* `XAPIC` - Value - XAPIC for configuring CbsDbgCpuLapicMode7xx3 token.",
-                                "intersight_api": "CbsDbgCpuLapicMode7xx3",
-                                "enum": [
-                                    "platform-default",
-                                    "Auto",
-                                    "Compatibility",
-                                    "X2APIC",
-                                    "XAPIC"
-                                ],
-                                "title": "cbs_dbg_cpu_lapic_mode7xx3"
                             },
                             "cbs_dbg_cpu_snp_mem_cover": {
                                 "type": "string",
@@ -1470,6 +1443,7 @@
                                 "intersight_api": "CbsSevSnpSupport",
                                 "enum": [
                                     "platform-default",
+                                    "Auto",
                                     "enabled",
                                     "disabled"
                                 ],
@@ -3200,7 +3174,8 @@
                                     "GEN1",
                                     "GEN2",
                                     "GEN3",
-                                    "GEN4"
+                                    "GEN4",
+                                    "GEN5"
                                 ],
                                 "title": "pcie_slot_mstorraid_link_speed"
                             },
@@ -3445,7 +3420,9 @@
                                     "512G",
                                     "128M",
                                     "256M",
-                                    "512M"
+                                    "512M",
+                                    "Auto",
+                                    "Invalid Config."
                                 ],
                                 "title": "prmrr_size"
                             },
@@ -3579,6 +3556,7 @@
                                     "12.8GT/s",
                                     "14.4GT/s",
                                     "16.0GT/s",
+                                    "20.0GT/s",
                                     "9.6GT/s",
                                     "Auto"
                                 ],
@@ -7278,7 +7256,7 @@
                             "adapter_template": {
                                 "type": "string",
                                 "default": "VMware",
-                                "description": "Name of a Pre-Configured Adapter Template.  Options are:\n  * 16RxQs-4G\n  * 16RxQs-5G\n  * Linux\n  * Linux-NVMe-RoCE\n  * Linux-v2\n  * MQ\n  * MQ-SMBd\n  * SMBClient\n  * SMBServer\n  * Solaris\n  * SRIOV-HPN\n  * usNIC\n  * usNICOracleRAC\n  * VMware\n  * VMware-High-Trf\n  * VMware-v2\n  * VMwareNVMeRoCEv2\n  * VMwarePassThru\n  * WIN-AzureStack\n  * Win-HPN\n  * Win-HPN-SMBd\n  * Win-HPN-v2\n  * Windows",
+                                "description": "Name of a Pre-Configured Adapter Template.  Options are:\n  * 16RxQs-4G\n  * 16RxQs-5G\n  * Linux\n  * Linux-NVMe-RoCE\n  * Linux-v2\n  * MQ\n  * MQ-SMBd\n  * SMBClient\n  * SMBServer\n  * Solaris\n  * SRIOV-HPN\n  * usNIC\n  * usNICOracleRAC\n  * VMware\n  * VMware-High-Trf\n  * VMware-v2\n  * VMwareNVMeRoCEv2\n  * VMwarePassThru\n  * Win-AzureStack\n  * Win-HPN\n  * Win-HPN-SMBd\n  * Win-HPN-v2\n  * Windows",
                                 "intersight_api": "adapter_template",
                                 "enum": [
                                     "16RxQs-4G",
@@ -7299,7 +7277,7 @@
                                     "VMware-v2",
                                     "VMwareNVMeRoCEv2",
                                     "VMwarePassThru",
-                                    "WIN-AzureStack",
+                                    "Win-AzureStack",
                                     "Win-HPN",
                                     "Win-HPN-SMBd",
                                     "Win-HPN-v2",
@@ -8255,6 +8233,15 @@
                                 "maximum": 4094,
                                 "title": "default_vlan"
                             },
+                            "qinq_vlan": {
+                                "type": "integer",
+                                "default": 0,
+                                "description": "Default is `0`.  The VLAN ID for VIC QinQ (802.1Q-in-802.1Q) Tunneling.  Any value other than 0 will enable QnQ Tunneling.",
+                                "intersight_api": "$ref:VlanSettings:vnic.VlanSettings:QinqVlan",
+                                "minimum": 1,
+                                "maximum": 4093,
+                                "title": "qinq_vlan"
+                            },
                             "vlan_mode": {
                                 "type": "string",
                                 "default": "ACCESS",
@@ -8391,6 +8378,15 @@
                                 "maximum": 4093,
                                 "optional": true,
                                 "title": "native_vlan"
+                            },
+                            "qinq_vlan": {
+                                "type": "integer",
+                                "default": 0,
+                                "description": "Default is `0`.  The VLAN ID for VIC QinQ (802.1Q-in-802.1Q) Tunneling.  Any value other than 0 will enable QnQ Tunneling.",
+                                "intersight_api": "$ref:VlanSettings:fabric.VlanSettings:QinqVlan",
+                                "minimum": 1,
+                                "maximum": 4093,
+                                "title": "qinq_vlan"
                             }
                         }
                     }
@@ -10089,6 +10085,19 @@
                     }
                 }
             },
+            "ip.reservations": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "The IP reservation object, used to hold reserved addresses.",
+                "intersight_api": "reservations",
+                "intersight_uri": "ippool/Reservations",
+                "intersight_type": "pool",
+                "ObjectType": "ippool.Reservation",
+                "required": [
+                    "identities"
+                ],
+                "title": "IP Identity Reservations"
+            },
             "ipmi_over_lan": {
                 "description": "Intelligent Platform Management Interface Over LAN Policy.",
                 "intersight_type": "policies",
@@ -10123,7 +10132,7 @@
                             "encryption_key": {
                                 "type": "integer",
                                 "default": 1,
-                                "description": "Default is `1`.  The Encryption Key Sensitive Variable Identifier.  i.e. `var.ipmi_key`.",
+                                "description": "Default is `1`.  The Encryption Key Sensitive Variable Identifier.  i.e. `var.ipmi_key`.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use “00” to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.",
                                 "intersight_api": "not_applicable",
                                 "minimum": 1,
                                 "maximum": 64,
@@ -10658,7 +10667,7 @@
                             },
                             "vnics": {
                                 "type": "array",
-                                "description": "List of VNICs to add to the LAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * placement\n\nRequired for FIAttached:\n  * ethernet_adapter_policy\n  * ethernet_network_control_policy\n  * ethernet_network_group_policies\n  * ethernet_qos_policy\n\nRequired for Standalone:\n  * ethernet_network_policy\n  * ethernet_qos_policy\n\nOptional Attributes:\n  * enable_failover\n  * cdn_source\n  * cdn_values\n  * iscsi_boot_policies\n  * mac_address_pools\n  * mac_addresses_static\n  * sr_iov\n  * usnic\n  * vmq",
+                                "description": "List of VNICs to add to the LAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * placement\n\nRequired for FIAttached:\n  * ethernet_adapter_policy\n  * ethernet_network_control_policy\n  * ethernet_network_group_policies\n  * ethernet_qos_policy\n\nRequired for Standalone:\n  * ethernet_network_policy\n  * ethernet_qos_policy\n\nOptional Attributes:\n  * enable_failover\n  * cdn_source\n  * cdn_values\n  * iscsi_boot_policies\n  * mac_address_pools\n  * mac_addresses_static\n  * sriov\n  * usnic\n  * vmq",
                                 "intersight_uri": "vnic/EthIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/lan_connectivity.vnics"
@@ -10668,7 +10677,7 @@
                             },
                             "vnics_from_template": {
                                 "type": "array",
-                                "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vnic_template\n\nOptional Attributes:\n  * ethernet_adapter_policy - If Allow Override Enabled on the template\n  * cdn_value - Only if Consistency Device Naming has been configured as User at the Template Level. \n  * iscsi_boot_policy - If Allow Override Enabled on the template\n  * mac_address_pool - If Allow Override Enabled on the template\n  * sr_iov\n  * usnic\n  * vmq",
+                                "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vnic_template\n\nOptional Attributes:\n  * ethernet_adapter_policy - If Allow Override Enabled on the template\n  * cdn_value - Only if Consistency Device Naming has been configured as User at the Template Level. \n  * iscsi_boot_policy - If Allow Override Enabled on the template\n  * mac_address_pool - If Allow Override Enabled on the template\n  * sriov\n  * usnic\n  * vmq",
                                 "intersight_uri": "vnic/EthIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/lan_connectivity.vnics"
@@ -10715,13 +10724,13 @@
                             "type": "string",
                             "default": "default",
                             "description": "The CDN value entered in case of user defined mode.",
-                            "intersight_api": "$ref:vnic.Cdn:Value",
+                            "intersight_api": "$ref:Cdn:vnic.Cdn:Value",
                             "minLength": 1,
                             "maxLength": 31,
                             "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
                             "title": "cdn_value"
                         },
-                        "object_type": "$ref:vnic.Cdn:Value",
+                        "object_type": "vnic.Cdn",
                         "title": "cdn_values - Cdn Values"
                     },
                     "enable_failover": {
@@ -10875,8 +10884,8 @@
                     "placement": {
                         "$ref": "#/components/schemas/lan_connectivity.vnics.placement"
                     },
-                    "sr_iov": {
-                        "$ref": "#/components/schemas/lan_connectivity.vnics.sr_iov"
+                    "sriov": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.sriov"
                     },
                     "usnic": {
                         "$ref": "#/components/schemas/lan_connectivity.vnics.usnic"
@@ -10901,31 +10910,31 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true` if `pci_links` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
-                        "intersight_api": "Enabled",
-                        "title": "enabled"
+                        "intersight_api": "AutoPciLink",
+                        "title": "automatic_pci_link_assignment"
                     },
                     "automatic_slot_id_assignment": {
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true` if `slot_ids` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
-                        "intersight_api": "Enabled",
-                        "title": "enabled"
+                        "intersight_api": "AutoSlotId",
+                        "title": "automatic_slot_id_assignment"
                     },
                     "pci_links": {
                         "type": "array",
-                        "description": "Default is `0`.  The PCI Link used as transport for the virtual interface. All VIC adapters have a single PCI link except VIC 1385 which has two.",
+                        "description": "The PCI Link used as transport for the virtual interface. All VIC adapters have a single PCI link except VIC 1385 which has two.",
                         "intersight_api": "PciLink",
                         "items": {
                             "type": "integer",
                             "default": 0,
-                            "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                            "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                             "intersight_api": "PciLink",
                             "minimum": 0,
                             "maximum": 3,
                             "title": "pci_link"
                         },
-                        "object_type": "PciLink",
-                        "title": "pci_links - Pci Link - object_type: vnic.PlacementSettings"
+                        "objectType": "PciLink",
+                        "title": "pci_links - Pci Link - Object Type: vnic.PlacementSettings"
                     },
                     "pci_order": {
                         "type": "array",
@@ -10934,13 +10943,13 @@
                         "items": {
                             "type": "integer",
                             "default": 0,
-                            "description": "PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                            "description": "Default is `0`.  PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
                             "intersight_api": "Order",
                             "minimum": 0,
-                            "maximum": 20,
+                            "maximum": 256,
                             "title": "pci_order"
                         },
-                        "object_type": "Order",
+                        "objectType": "Order",
                         "title": "pci_order - Pci Order"
                     },
                     "slot_ids": {
@@ -10949,25 +10958,25 @@
                         "intersight_api": "Id",
                         "items": {
                             "type": "string",
-                            "default": "None",
-                            "description": "PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
+                            "default": "",
+                            "description": "Default is ``.  PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
                             "intersight_api": "Id",
                             "minLength": 1,
                             "maxLength": 4,
                             "pattern": "^([1-9]|1[0-5]|MLOM)$",
                             "title": "slot_id"
                         },
-                        "object_type": "Id",
-                        "title": "slot_ids - Slot Ids - object_type: vnic.PlacementSettings"
+                        "objectType": "Id",
+                        "title": "slot_ids - Slot Ids - Object Type: vnic.PlacementSettings"
                     },
                     "switch_ids": {
                         "type": "array",
-                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "items": {
                             "type": "string",
                             "default": "None",
-                            "description": "The fabric port to which the vNICs will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                            "description": "Default is `None`.  The fabric port to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                             "intersight_api": "SwitchId",
                             "enum": [
                                 "A",
@@ -10976,37 +10985,37 @@
                             ],
                             "title": "switch_id"
                         },
-                        "object_type": "SwitchId",
-                        "title": "switch_ids - Switch Ids - object_type: vnic.PlacementSettings"
+                        "objectType": "SwitchId",
+                        "title": "switch_ids - Switch Ids - Object Type: vnic.PlacementSettings"
                     },
                     "uplink_ports": {
                         "type": "array",
-                        "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  This attribute is for Standalone Servers Only.",
+                        "description": "Adapter port on which the virtual interface will be created.  This attribute is for Standalone Servers Only.",
                         "intersight_api": "Uplink",
                         "items": {
                             "type": "integer",
                             "default": 0,
-                            "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                            "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                             "intersight_api": "Uplink",
                             "minimum": 0,
                             "maximum": 3,
                             "title": "pci_link"
                         },
-                        "object_type": "Uplink",
-                        "title": "uplink_ports - Uplink Port - object_type: vnic.PlacementSettings"
+                        "objectType": "Uplink",
+                        "title": "uplink_ports - Uplink Port - Object Type: vnic.PlacementSettings"
                     }
                 }
             },
-            "lan_connectivity.vnics.sr_iov": {
+            "lan_connectivity.vnics.sriov": {
                 "type": "object",
                 "additionalProperties": false,
                 "description": "Single Root Input Output Virtualization Settings that enable one physical ethernet socket to appear as multiple NICs to the hypervisor.\n\nNote: If this is a vnic_from_template and Connection Settings (SR-IOV|usNIC|VMQ) have been configured in the template, you cannot configure with the vnic_from_template as well.\n\nRequired Attributes:\n  * enabled\n\nOptional Attributes:\n  * completion_queue_count_per_vf\n  * interrupt_count_per_vf\n  * number_of_vfs\n  * receive_queue_count_per_vf\n  * transmit_queue_count_per_vf",
-                "intersight_api": "SrIovSettings",
-                "object_type": "vnic.SrIovSettings",
+                "intersight_api": "SriovSettings",
+                "object_type": "vnic.SriovSettings",
                 "required": [
                     "enabled"
                 ],
-                "title": "sr_iov - SR-IOV Settings - object_type: vnic.SrIovSettings",
+                "title": "sriov - SR-IOV Settings - object_type: vnic.SriovSettings",
                 "properties": {
                     "completion_queue_count_per_vf": {
                         "type": "integer",
@@ -11175,7 +11184,7 @@
                         "type": "string",
                         "default": "default",
                         "description": "Only use if the vNIC template is configured as user defined consistency device naming",
-                        "intersight_api": "$ref:vnic.Cdn:Value",
+                        "intersight_api": "$ref:Cdn:vnic.Cdn:Value",
                         "minLength": 1,
                         "maxLength": 31,
                         "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
@@ -11244,8 +11253,8 @@
                     "placement": {
                         "$ref": "#/components/schemas/lan_connectivity.vnics_from_template.placement"
                     },
-                    "sr_iov": {
-                        "$ref": "#/components/schemas/lan_connectivity.vnics.sr_iov"
+                    "sriov": {
+                        "$ref": "#/components/schemas/lan_connectivity.vnics.sriov"
                     },
                     "usnic": {
                         "$ref": "#/components/schemas/lan_connectivity.vnics.usnic"
@@ -11280,20 +11289,20 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true` if `pci_link` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
-                        "intersight_api": "Enabled",
-                        "title": "enabled"
+                        "intersight_api": "AutoPciLink",
+                        "title": "automatic_pci_link_assignment"
                     },
                     "automatic_slot_id_assignment": {
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true` if `slot_id` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
-                        "intersight_api": "Enabled",
-                        "title": "enabled"
+                        "intersight_api": "AutoSlotId",
+                        "title": "automatic_slot_id_assignment"
                     },
                     "pci_link": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                         "intersight_api": "PciLink",
                         "minimum": 0,
                         "maximum": 3,
@@ -11302,16 +11311,16 @@
                     "pci_order": {
                         "type": "integer",
                         "default": 0,
-                        "description": "PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                        "description": "Default is `0`.  PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.  Range is `0-256`.",
                         "intersight_api": "Order",
                         "minimum": 0,
-                        "maximum": 20,
+                        "maximum": 256,
                         "title": "pci_order"
                     },
                     "slot_id": {
                         "type": "string",
-                        "default": "None",
-                        "description": "PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
+                        "default": "",
+                        "description": "Default is ``.  PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
                         "intersight_api": "Id",
                         "minLength": 1,
                         "maxLength": 4,
@@ -11321,7 +11330,7 @@
                     "switch_id": {
                         "type": "string",
                         "default": "None",
-                        "description": "The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "description": "Default is `None`.  The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "enum": [
                             "A",
@@ -11332,7 +11341,7 @@
                     "uplink_port": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                         "intersight_api": "Uplink",
                         "minimum": 0,
                         "maximum": 3,
@@ -16334,21 +16343,35 @@
                 ],
                 "title": "placement - Placement Settings - object_type: vnic.PlacementSettings",
                 "properties": {
+                    "automatic_pci_link_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `pci_links` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
+                        "intersight_api": "AutoPciLink",
+                        "title": "automatic_pci_link_assignment"
+                    },
+                    "automatic_slot_id_assignment": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true` if `slot_ids` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
+                        "intersight_api": "AutoSlotId",
+                        "title": "automatic_slot_id_assignment"
+                    },
                     "pci_links": {
                         "type": "array",
-                        "description": "Default is `0`.  The PCI Link used as transport for the virtual interface. All VIC adapters have a single PCI link except VIC 1385 which has two.",
+                        "description": "The PCI Link used as transport for the virtual interface. All VIC adapters have a single PCI link except VIC 1385 which has two.",
                         "intersight_api": "PciLink",
                         "items": {
                             "type": "integer",
                             "default": 0,
-                            "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                            "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                             "intersight_api": "PciLink",
                             "minimum": 0,
                             "maximum": 3,
                             "title": "pci_link"
                         },
-                        "object_type": "PciLink",
-                        "title": "pci_links - Pci Link - object_type: vnic.PlacementSettings"
+                        "objectType": "PciLink",
+                        "title": "pci_links - Pci Link - Object Type: vnic.PlacementSettings"
                     },
                     "pci_order": {
                         "type": "array",
@@ -16357,13 +16380,13 @@
                         "items": {
                             "type": "integer",
                             "default": 0,
-                            "description": "PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                            "description": "Default is `0`.  PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
                             "intersight_api": "Order",
                             "minimum": 0,
-                            "maximum": 20,
+                            "maximum": 256,
                             "title": "pci_order"
                         },
-                        "object_type": "Order",
+                        "objectType": "Order",
                         "title": "pci_order - Pci Order"
                     },
                     "slot_ids": {
@@ -16372,25 +16395,25 @@
                         "intersight_api": "Id",
                         "items": {
                             "type": "string",
-                            "default": "None",
-                            "description": "PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
+                            "default": "",
+                            "description": "Default is ``.  PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
                             "intersight_api": "Id",
                             "minLength": 1,
-                            "maxLength": 64,
+                            "maxLength": 4,
                             "pattern": "^([1-9]|1[0-5]|MLOM)$",
                             "title": "slot_id"
                         },
-                        "object_type": "Id",
-                        "title": "slot_ids - Slot Ids - object_type: vnic.PlacementSettings"
+                        "objectType": "Id",
+                        "title": "slot_ids - Slot Ids - Object Type: vnic.PlacementSettings"
                     },
                     "switch_ids": {
                         "type": "array",
-                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "items": {
                             "type": "string",
                             "default": "None",
-                            "description": "The fabric port to which the vNICs will be associated.\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                            "description": "Default is `None`.  The fabric port to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                             "intersight_api": "SwitchId",
                             "enum": [
                                 "A",
@@ -16399,24 +16422,24 @@
                             ],
                             "title": "switch_id"
                         },
-                        "object_type": "SwitchId",
-                        "title": "switch_ids - Switch Ids - object_type: vnic.PlacementSettings"
+                        "objectType": "SwitchId",
+                        "title": "switch_ids - Switch Ids - Object Type: vnic.PlacementSettings"
                     },
                     "uplink_ports": {
                         "type": "array",
-                        "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  This attribute is for Standalone Servers Only.",
+                        "description": "Adapter port on which the virtual interface will be created.  This attribute is for Standalone Servers Only.",
                         "intersight_api": "Uplink",
                         "items": {
                             "type": "integer",
                             "default": 0,
-                            "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                            "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                             "intersight_api": "Uplink",
                             "minimum": 0,
                             "maximum": 3,
                             "title": "pci_link"
                         },
-                        "object_type": "Uplink",
-                        "title": "uplink_ports - Uplink Port - object_type: vnic.PlacementSettings"
+                        "objectType": "Uplink",
+                        "title": "uplink_ports - Uplink Port - Object Type: vnic.PlacementSettings"
                     }
                 }
             },
@@ -16540,20 +16563,20 @@
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true` if `pci_link` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the PCI Link in a dual-link adapter. This option applies only to 13xx series VICs that support dual-link. If enabled, the system determines the placement of the vNIC/vHBA on either of the PCI Links.",
-                        "intersight_api": "Enabled",
-                        "title": "enabled"
+                        "intersight_api": "AutoPciLink",
+                        "title": "automatic_pci_link_assignment"
                     },
                     "automatic_slot_id_assignment": {
                         "type": "boolean",
                         "default": true,
                         "description": "Default is `true` if `slot_id` is undefined, otherwise this is ignored.  Enable or disable automatic assignment of the VIC slot ID. If enabled and the server has only one VIC, the same VIC is chosen for all the vNICs. If enabled and the server has multiple VICs, the vNIC/vHBA are deployed on the first VIC. The Slot ID determines the first VIC. MLOM is the first Slot ID and the ID increments to 2, 3, and so on.",
-                        "intersight_api": "Enabled",
-                        "title": "enabled"
+                        "intersight_api": "AutoSlotId",
+                        "title": "automatic_slot_id_assignment"
                     },
                     "pci_link": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                         "intersight_api": "PciLink",
                         "minimum": 0,
                         "maximum": 3,
@@ -16562,16 +16585,16 @@
                     "pci_order": {
                         "type": "integer",
                         "default": 0,
-                        "description": "PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.",
+                        "description": "Default is `0`.  PCI Order Assigned to the Interface. The order should start from zero with no overlaps, including LAN and SAN Policies.  Range is `0-256`.",
                         "intersight_api": "Order",
                         "minimum": 0,
-                        "maximum": 20,
+                        "maximum": 256,
                         "title": "pci_order"
                     },
                     "slot_id": {
                         "type": "string",
-                        "default": "None",
-                        "description": "PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
+                        "default": "",
+                        "description": "Default is ``.  PCIe Slot where the VIC adapter is installed. Supported values are (1-15) and MLOM.",
                         "intersight_api": "Id",
                         "minLength": 1,
                         "maxLength": 4,
@@ -16581,7 +16604,7 @@
                     "switch_id": {
                         "type": "string",
                         "default": "None",
-                        "description": "The fabric port to which the vHBAs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                        "description": "Default is `None`.  The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "enum": [
                             "A",
@@ -16592,7 +16615,7 @@
                     "uplink_port": {
                         "type": "integer",
                         "default": 0,
-                        "description": "Adapter port on which the virtual interface will be created.  Range is `0-3`.",
+                        "description": "Default is `0`.  Adapter port on which the virtual interface will be created.  Range is `0-3`.",
                         "intersight_api": "Uplink",
                         "minimum": 0,
                         "maximum": 3,
@@ -19486,8 +19509,8 @@
                             "cdn_value": {
                                 "type": "string",
                                 "default": "",
-                                "description": "Only used when `cdn_source` is `user` (aka user defined).  ",
-                                "intersight_api": "$ref:vnic.Cdn:Value",
+                                "description": "Only used when `cdn_source` is `user` (aka user defined).",
+                                "intersight_api": "$ref:Cdn:vnic.Cdn:Value",
                                 "minLength": 1,
                                 "maxLength": 31,
                                 "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
@@ -19582,8 +19605,8 @@
                                 ],
                                 "title": "placement_switch_id"
                             },
-                            "sr_iov": {
-                                "$ref": "#/components/schemas/lan_connectivity.vnics.sr_iov"
+                            "sriov": {
+                                "$ref": "#/components/schemas/lan_connectivity.vnics.sriov"
                             },
                             "usnic": {
                                 "$ref": "#/components/schemas/lan_connectivity.vnics.usnic"

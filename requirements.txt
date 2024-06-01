@@ -19,6 +19,7 @@ pexpect
 pyopenssl==22.0.0
 pytz
 pyvmomi
+python-dateutil
 requests
 simplejson
 six

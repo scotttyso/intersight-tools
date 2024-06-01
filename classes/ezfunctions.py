@@ -128,8 +128,9 @@ def base_script_settings(kwargs):
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
-    ezdata = materialize(RefDict(f'{kwargs.script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
-    kwargs.ez_tags  = {'Key':script_name,'Value':ezdata['info']['version']}
+    ezdata          = materialize(RefDict(f'{kwargs.script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
+    script_tag      = script_name.replace('ez', 'easy-')
+    kwargs.ez_tags  = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['info']['version']}]
     kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
     kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
     #=========================================================================
@@ -953,7 +954,8 @@ def message_starting_over(policy_type):
 #=============================================================================
 def mod_pol_description(pol_description):
     pdescr = str.title(pol_description.replace('_', ' '))
-    pdescr = pdescr.replace('Fiattached', 'FIAttached')
+    pdescr = (((pdescr.replace('Fiattached', 'FIAttached')).replace('Imc', 'IMC')).replace('Mac', 'MAC')).replace('Uuid', 'UUID')
+    pdescr = (((pdescr.replace('Iscsi', 'iSCSI')).replace('Fc', 'FC')).replace('San', 'SAN')).replace('Lan', 'LAN')
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
     pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')

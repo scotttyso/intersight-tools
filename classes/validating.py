@@ -22,6 +22,8 @@ policy_regex = re.compile('(network_connectivity|ntp|port|snmp|switch_control|sy
 #=============================================================================
 def mod_pol_description(pol_description):
     pdescr = str.title(pol_description.replace('_', ' '))
+    pdescr = (((pdescr.replace('Fiattached', 'FIAttached')).replace('Imc', 'IMC')).replace('Mac', 'MAC')).replace('Uuid', 'UUID')
+    pdescr = (((pdescr.replace('Iscsi', 'iSCSI')).replace('Fc', 'FC')).replace('San', 'SAN')).replace('Lan', 'LAN')
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
     pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
