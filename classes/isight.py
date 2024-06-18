@@ -1322,9 +1322,7 @@ class imm(object):
         # Attach Organization Map, Tags, and return Dict
         #=====================================================================
         api_body = imm(self.type).org_map(api_body, kwargs.org_moids[kwargs.org].moid)
-        if not api_body.get('Tags'):
-            if type(kwargs.ez_tags) == dict: api_body['Tags'] = [e for e in kwargs.ez_tags]
-            else: api_body['Tags'] = [e.toDict() for e in kwargs.ez_tags]
+        if not api_body.get('Tags'): api_body['Tags'] = [e for e in kwargs.ez_tags]
         else:
             tags = []
             for e in kwargs.ez_tags:
