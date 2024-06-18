@@ -26,7 +26,7 @@ There may be additional variables to define in the environment based on the depl
 
 Note: The above examples are based on the key being in your Downloads folder.  Set according to your environment.  The script works with both `V2` and `V3` API keys.  Recently it has been noted in Intersight that `V2` API keys have been deprecated so it is recommended to start using `V3` keys.
 
-## README Content
+## README Table of Content
 
   * [Help Menu](#help-menu) - Command Line options, when using the script.
   * [Convert](#convert): Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
