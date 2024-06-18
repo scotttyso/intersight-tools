@@ -1,10 +1,10 @@
 ## EZIMM Synopsis
 
-The purpose of `ezimm.py` is to manage Server Environments in Intersight using Infastructure as Code with `Python`.  It provides a number a wizards to build YAML data models and push these definitions to the Intersight API.  This may also include 3rd party calls for integrations with Hypervisors and Storage partners.
+The purpose of `ezimm.py` is to manage UCS Environments in Intersight using Infastructure as Code with `Python`.  It provides a number a wizards to build YAML data models and push these definitions to the Intersight API.  This may also include 3rd party calls for integrations with Hypervisors and Storage partners.
 
 ### Running the Wizard(s)
 
-It is recommend to add the following secure variables to your environment before running the script at a minimum.
+It is recommend to add the following secure variables to your environment before running the script, at a minimum.
 
 #### Linux
 
@@ -22,10 +22,11 @@ $env:intersight_api_key_id="<your_intersight_api_key>"
 $env:intersight_secret_key="$HOME\Downloads\SecretKey.txt"
 ```
 
-Note: The above examples are based on the key being in your Downloads folder.  Set according to your environment.
-
-
 There may be additional variables to define in the environment based on the deployment type, but the API key and Secret File are the bare minimum requirements.
+
+Note: The above examples are based on the key being in your Downloads folder.  Set according to your environment.  The script works with both `V2` and `V3` API keys.  Recently it has been noted in Intersight that `V2` API keys have been deprecated so it is recommended to start using `V3` keys.
+
+  * [Help Menu](#help-menu) - Options, when using the script.
 
 ## Wizard Options
 
@@ -37,6 +38,81 @@ There may be additional variables to define in the environment based on the depl
   * [Server](#domainserver): Build server profiles/templates for Intersight Managed Servers.
 
   The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
+
+  * [Sensitive Environment Variables](#sensitive-environment-variables) - Important for `Domain`, `OS Install`, and `Server` options above.
+
+## Help Menu
+
+```bash
+./ezimm.py -h
+
+usage: ezimm.py [-h] [-a INTERSIGHT_API_KEY_ID] [-d DIR] [-dl DEBUG_LEVEL] [-f INTERSIGHT_FQDN] [-i] [-j JSON_FILE] [-k INTERSIGHT_SECRET_KEY] [-l] [-y YAML_FILE] [-ccp CCO_PASSWORD] [-ccu CCO_USER] [-ilp LOCAL_USER_PASSWORD_1] [-ilp2 LOCAL_USER_PASSWORD_2]
+                [-imm IMM_TRANSITION_PASSWORD] [-isa SNMP_AUTH_PASSWORD_1] [-isp SNMP_PRIVACY_PASSWORD_1] [-np NETAPP_PASSWORD] [-nsa NETAPP_SNMP_AUTH] [-nsp NETAPP_SNMP_PRIV] [-nxp NEXUS_PASSWORD] [-p PURE_STORAGE_PASSWORD] [-psa PURE_STORAGE_SNMP_AUTH]
+                [-psp PURE_STORAGE_SNMP_PRIV] [-pxp PROXY_PASSWORD] [-vep VMWARE_ESXI_PASSWORD] [-vvp VMWARE_VCENTER_PASSWORD] [-wap WINDOWS_ADMIN_PASSWORD] [-wdp WINDOWS_DOMAIN_PASSWORD] [-dm DEPLOYMENT_METHOD] [-dt DEPLOYMENT_TYPE]
+
+Intersight Easy IMM Deployment Module
+
+options:
+  -h, --help            show this help message and exit
+  -a INTERSIGHT_API_KEY_ID, --intersight-api-key-id INTERSIGHT_API_KEY_ID
+                        The Intersight API key id for HTTP signature scheme.
+  -d DIR, --dir DIR     The Directory to use for the Creation of the YAML Configuration Files.
+  -dl DEBUG_LEVEL, --debug-level DEBUG_LEVEL
+                        Used for troubleshooting. The Amount of Debug output to Show: 1. Shows the api request response status code 5. Show URL String + Lower Options 6. Adds Results + Lower Options 7. Adds json payload + Lower Options Note: payload shows as pretty
+                        and straight to check for stray object types like Dotmap and numpy
+  -f INTERSIGHT_FQDN, --intersight-fqdn INTERSIGHT_FQDN
+                        The Directory to use for the Creation of the YAML Configuration Files.
+  -i, --ignore-tls      Ignore TLS server-side certificate verification. Default is False.
+  -j JSON_FILE, --json-file JSON_FILE
+                        The IMM Transition Tool JSON Dump File to Convert to HCL.
+  -k INTERSIGHT_SECRET_KEY, --intersight-secret-key INTERSIGHT_SECRET_KEY
+                        Name of the file containing The Intersight secret key or contents of the secret key in environment.
+  -l, --load-config     Skip Wizard and Just Load Configuration Files.
+  -y YAML_FILE, --yaml-file YAML_FILE
+                        The input YAML File.
+  -ccp CCO_PASSWORD, --cco-password CCO_PASSWORD
+                        Cisco Connection Online Password to Authorize Firmware Downloads.
+  -ccu CCO_USER, --cco-user CCO_USER
+                        Cisco Connection Online Username to Authorize Firmware Downloads.
+  -ilp LOCAL_USER_PASSWORD_1, --local-user-password-1 LOCAL_USER_PASSWORD_1
+                        Intersight Managed Mode Local User Password 1.
+  -ilp2 LOCAL_USER_PASSWORD_2, --local-user-password-2 LOCAL_USER_PASSWORD_2
+                        Intersight Managed Mode Local User Password 2.
+  -imm IMM_TRANSITION_PASSWORD, --imm-transition-password IMM_TRANSITION_PASSWORD
+                        IMM Transition Tool Password.
+  -isa SNMP_AUTH_PASSWORD_1, --snmp-auth-password-1 SNMP_AUTH_PASSWORD_1
+                        Intersight Managed Mode SNMP Auth Password.
+  -isp SNMP_PRIVACY_PASSWORD_1, --snmp-privacy-password-1 SNMP_PRIVACY_PASSWORD_1
+                        Intersight Managed Mode SNMP Privilege Password.
+  -np NETAPP_PASSWORD, --netapp-password NETAPP_PASSWORD
+                        NetApp Login Password.
+  -nsa NETAPP_SNMP_AUTH, --netapp-snmp-auth NETAPP_SNMP_AUTH
+                        NetApp SNMP Auth Password.
+  -nsp NETAPP_SNMP_PRIV, --netapp-snmp-priv NETAPP_SNMP_PRIV
+                        NetApp SNMP Privilege Password.
+  -nxp NEXUS_PASSWORD, --nexus-password NEXUS_PASSWORD
+                        Nexus Login Password.
+  -p PURE_STORAGE_PASSWORD, --pure-storage-password PURE_STORAGE_PASSWORD
+                        Pure Storage Login Password.
+  -psa PURE_STORAGE_SNMP_AUTH, --pure-storage-snmp-auth PURE_STORAGE_SNMP_AUTH
+                        Pure Storage SNMP Auth Password.
+  -psp PURE_STORAGE_SNMP_PRIV, --pure-storage-snmp-priv PURE_STORAGE_SNMP_PRIV
+                        Pure Storage SNMP Privilege Password.
+  -pxp PROXY_PASSWORD, --proxy-password PROXY_PASSWORD
+                        Proxy Password.
+  -vep VMWARE_ESXI_PASSWORD, --vmware-esxi-password VMWARE_ESXI_PASSWORD
+                        VMware ESXi Root Login Password.
+  -vvp VMWARE_VCENTER_PASSWORD, --vmware-vcenter-password VMWARE_VCENTER_PASSWORD
+                        VMware vCenter Admin Login Password.
+  -wap WINDOWS_ADMIN_PASSWORD, --windows-admin-password WINDOWS_ADMIN_PASSWORD
+                        Windows Administrator Login Password.
+  -wdp WINDOWS_DOMAIN_PASSWORD, --windows-domain-password WINDOWS_DOMAIN_PASSWORD
+                        Windows Domain Registration Login Password.
+  -dm DEPLOYMENT_METHOD, --deployment-method DEPLOYMENT_METHOD
+                        Deployment Method values are: 1. Python 2. Terraform
+  -dt DEPLOYMENT_TYPE, --deployment-type DEPLOYMENT_TYPE
+                        Deployment Type values are: 1. Convert 2. Deploy 3. Domain 4. Individual 5. OSInstall 6. Server 7. StateUpdate 8. Exit
+```
 
 ### [Back to Top](#ezimm-synopsis)
 
@@ -241,43 +317,7 @@ $env:root_password="<your_root_password>"
 
 See examples under `examples/ezimm/os_install/`
 
-## Wizard Help Menu
-
-```bash
-./ezimm.py -h
-
-usage: ezimm.py [-h] [-a INTERSIGHT_API_KEY_ID] [-ccp CCO_PASSWORD] [-ccu CCO_USER] [-d DIR] [-dl DEBUG_LEVEL] [-dm DEPLOYMENT_METHOD] [-dt DEPLOYMENT_TYPE]
-                [-f INTERSIGHT_FQDN] [-i] [-j JSON_FILE] [-k INTERSIGHT_SECRET_KEY] [-l] [-v]
-
-Intersight Easy IMM Deployment Module
-
-options:
-  -h, --help            show this help message and exit
-  -a INTERSIGHT_API_KEY_ID, --intersight-api-key-id INTERSIGHT_API_KEY_ID
-                        The Intersight API key id for HTTP signature scheme.
-  -ccp CCO_PASSWORD, --cco-password CCO_PASSWORD
-                        Cisco Connection Online Password to Authorize Firmware Downloads.
-  -ccu CCO_USER, --cco-user CCO_USER
-                        Cisco Connection Online Username to Authorize Firmware Downloads.
-  -d DIR, --dir DIR     The Directory to use for the Creation of the YAML Configuration Files.
-  -dl DEBUG_LEVEL, --debug-level DEBUG_LEVEL
-                        Used for troubleshooting. The Amount of Debug output to Show: 1. Shows the api request response status code 5. Show URL String + Lower
-                        Options 6. Adds Results + Lower Options 7. Adds json payload + Lower Options Note: payload shows as pretty and straight to check for
-                        stray object types like Dotmap and numpy
-  -dm DEPLOYMENT_METHOD, --deployment-method DEPLOYMENT_METHOD
-                        Deployment Method values are: 1. Python 2. Terraform
-  -dt DEPLOYMENT_TYPE, --deployment-type DEPLOYMENT_TYPE
-                        Deployment Type values are: 1. Convert 2. Deploy 3. Domain 4. Individual 5. OSInstall 6. Server 7. Exit
-  -f INTERSIGHT_FQDN, --intersight-fqdn INTERSIGHT_FQDN
-                        The Directory to use for the Creation of the YAML Configuration Files.
-  -i, --ignore-tls      Ignore TLS server-side certificate verification. Default is False.
-  -j JSON_FILE, --json-file JSON_FILE
-                        The IMM Transition Tool JSON Dump File to Convert to HCL.
-  -k INTERSIGHT_SECRET_KEY, --intersight-secret-key INTERSIGHT_SECRET_KEY
-                        Name of the file containing The Intersight secret key or contents of the secret key in environment.
-  -l, --load-config     Skip Wizard and Just Load Configuration Files.
-  -v, --api-key-v3      Flag for API Key Version 3.
-```
+### [Back to Top](#ezimm-synopsis)
 
 ## Sensitive Environment Variables
 
