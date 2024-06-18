@@ -26,20 +26,19 @@ There may be additional variables to define in the environment based on the depl
 
 Note: The above examples are based on the key being in your Downloads folder.  Set according to your environment.  The script works with both `V2` and `V3` API keys.  Recently it has been noted in Intersight that `V2` API keys have been deprecated so it is recommended to start using `V3` keys.
 
-  * [Help Menu](#help-menu) - Options, when using the script.
+## README Content
 
-## Wizard Options
-
+  * [Help Menu](#help-menu) - Command Line options, when using the script.
   * [Convert](#convert): Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
   * [Deploy](#deploy): Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
   * [Domain](#domainserver)`: Deploy a domain via cloning an existing profile or creating net new.
   * `Individual`: Select individual pools, policies, profiles, or templates to build.
   * [OSInstall](#os-install): Install an Operating System with either new or existing profiles.
   * [Server](#domainserver): Build server profiles/templates for Intersight Managed Servers.
+  * [Sensitive Environment Variables](#sensitive-environment-variables) - Helpful for `Domain`, `OS Install`, and `Server` options above.
+
 
   The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
-
-  * [Sensitive Environment Variables](#sensitive-environment-variables) - Important for `Domain`, `OS Install`, and `Server` options above.
 
 ## Help Menu
 
