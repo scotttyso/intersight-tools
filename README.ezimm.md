@@ -342,18 +342,16 @@ $env:intersight_secret_key="<secret-key-file-location>"
 
 ## Sensitive Variables for the Policies Module:
 
-Take note of the `locals.tf` that currently has all the sensitive variables mapped.
-
-This is the default sensitive variable mappings.  You can add or remove to these according to the needs of your environment.
-
-The important point is that if you need more than is added by default you can expand the locals.tf and variables.tf to accomodate your environment.
+You can add or remove to these according to the needs of your environment.
 
 ## To Assign any of these values for consumption you can define them as discussed below.
 
 ### Certificate Management
 
-* `cert_mgmt_certificate`: Options are by default 1-5 for Up to 5 Certificates.  Variable Should Point to the File Location of the PEM Certificate or be the value of the PEM certificate.
-* `cert_mgmt_private_key`: Options are by default 1-5 for Up to 5 Private Keys.  Variable Should Point to the File Location of the PEM Private Key or be the value of the PEM Private Key.
+* `cert_mgmt_certificate`: Variable Should Point to the File Location of the PEM Certificate.
+* `cert_mgmt_private_key`: Variable Should Point to the File Location of the Private Key.
+
+Note: Incriment the value of these to define multiple.  Variable Should Point to the File Location of the PEM Certificate or be the value of the PEM certificate.
 
 #### Linux
 
@@ -390,10 +388,10 @@ export drive_security_server_ca_certificate='<drive_security_server_ca_certifica
 #### Windows
 
 ```powershell
-$env:TF_VAR_drive_security_password='<drive_security_password>'
+$env:drive_security_password='<drive_security_password>'
 ```
 ```powershell
-$env:TF_VAR_drive_security_server_ca_certificate='<drive_security_server_ca_certificate_file_location>'
+$env:drive_security_server_ca_certificate='<drive_security_server_ca_certificate_file_location>'
 ```
 
 ### Firmware - CCO  Credentials
@@ -413,10 +411,40 @@ export cco_password='<cco_password>'
 #### Windows
 
 ```powershell
-$env:TF_VAR_cco_user='<cco_user>'
+$env:cco_user='<cco_user>'
 ```
 ```powershell
-$env:TF_VAR_cco_password='<cco_password>'
+$env:cco_password='<cco_password>'
+```
+### Comprehensive List of Sensitive Variables
+
+```bash
+# Certificate Management Policy
+export cert_mgmt_certificate_1   # increment for multiple definitions
+export cert_mgmt_private_key_1   # increment for multiple definitions
+# Drive Security Policy
+export drive_security_password
+export drive_security_server_ca_certificate
+# Firmware Management Policy - Intersight Authorization
+export cco_password
+export cco_user
+# IPMI Policy - Key
+export ipmi_key
+# iSCSI Boot Policy - Password
+export iscsi_boot_password
+# LDAP Policy - Binding Password
+export binding_parameters_password
+# Local User Policy - User Passwords
+export local_user_password_1     # increment for multiple definitions
+# Persistent Memory - Passphrase
+export persistent_passphrase
+# SNMP Policy - Community Strings/User Passwords
+export access_community_string_1 # increment for multiple definitions
+export snmp_auth_password_1      # increment for multiple definitions
+export snmp_privacy_password_1   # increment for multiple definitions
+export snmp_trap_community_1     # increment for multiple definitions
+# vMedia Policy - vMedia Mount Passwords
+export vmedia_password_1         # increment for multiple definitions
 ```
 
 ### [Back to Top](#ezimm-synopsis)
