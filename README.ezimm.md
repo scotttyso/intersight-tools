@@ -131,7 +131,7 @@ The easy-imm repository provides a YAML data model to manage Intersight configur
 The easy-imm repo includes the ability to push this data model using Terraform.  The `Deploy` option allows to manage/push the data model to Intersight using this Python library.  Following are reasons that I added this as an option.
 
   * API Optimization: Terraform makes an individual API call for each object it manages.  Intersight supports API optimization with Bulk API calls.  This libary uses the Bulk API's to reduce the number of API calls speeding up the code deployments.
-  * Server Profile/Template challenges:  Intersight uses the bulk/Merger api for adding the server profile template to server profiles.  This is transient, the record does not remain after the initial API call.  Because Terraform wants to be the source of truth and the record is transient, there is no good way to support template updates with Terraform.
+  * Server Profile/Template challenges:  Intersight uses the bulk/Merger api for adding the server profile template to server profiles.  This is transient, the record does not remain after the initial API call.  Because Terraform wants to be the source of truth and the record is transient, it isn't as optimized to do this with Terraform.
   * Order Creation: Terraform creates 10 threads of API calls when communicating to Intersight.  Because of this multi-threading it has been observed that server profiles get created in random orders.  Many customers that want to gaurantee that identities are assigned in the order they have defined have complained about this.  This library is written to address the order of creation.
 
 What the library doesn't address is deleting objects.  Because the library doesn't maintain a state file in the same way Terraform does, this library does not delete objects created in Intersight.  That was a decision I made as my intention is not to duplicate what Terraform does.  If full scrum management is desired, it would be recommended to use the Terraform modules in the easy-imm repository, instead of this Python library.
@@ -148,17 +148,17 @@ The `-l` option will load the YAML from the directory without prompting you to l
 
 ### IMPORTANT NOTES
 
-Take a look at the (pools|policies|profiles|templates) folders in the [easy-imm repository](https://github.com/terraform-cisco-modules/easy-imm).
+Take a look at the `(pools|policies|profiles|templates)` folders in the [easy-imm repository](https://github.com/terraform-cisco-modules/easy-imm).
 
-Take notice of the `ezi.yaml` extension on the files.  This is how the  YAML schema will recognize the files as part of the library to be read by the script.
+Notice the `ezi.yaml` extension on the files.  This is how the  YAML schema will recognize the files as part of the library to be read by the script.
 
-The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in the easy-imm repository.  The script is going to look for a parent folder that contains the folders pools, policies, profiles, and templates, or any combination of those together.
+The Structure of the YAML files is very flexible.  You can have all the YAML Data in a single file or you can have it in multiple individual folders like is shown in the easy-imm repository.  The script is going to look for a parent folder that contains the folders `pools`, `policies`, `profiles`, and `templates`, or any combination of those together.
 
 ## YAML Schema Notes for auto-completion, Help, and Error Validation:
 
 If you would like to utilize Autocompletion, Help Context, and Error Validation, `(HIGHLY RECOMMENDED)` make sure the files all utilize the `.ezi.yaml` file extension.
 
-And Add the Following to `YAML: Schemas`.  In Visual Studio Code: Settings > Settings > Search for `YAML: Schema`: Click edit in `settings.json`.  In the `yaml.schemas` section:
+And Add the Following to `YAML: Schemas`.  In `Visual Studio Code`: `Settings` > `Settings` > Search for `YAML: Schema`: Click edit in `settings.json`.  In the `yaml.schemas` section:
 
 ```bash
 "https://raw.githubusercontent.com/terraform-cisco-modules/easy-imm/main/yaml_schema/easy-imm.json": "*.ezi.yaml"
