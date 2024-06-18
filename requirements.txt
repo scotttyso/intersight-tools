@@ -2,6 +2,7 @@
 argparse
 collection
 dotmap
+ecdsa
 GitPython
 git_status_checker
 inflect

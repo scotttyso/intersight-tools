@@ -887,10 +887,10 @@ class policies(object):
     #=========================================================================
     def port(self, kwargs):
         args = DotMap()
-        args.fabric_a.name = 'Create New'; args.fabric_b.name = 'Create New'
-        #for e in ['A', 'B']:
-        #    pcolor.Yellow(f'\n\n ** Fabric {e} Port Policy **')
-        #    args[f'fabric_{e.lower()}'].name = policies(self.type).policy_select(kwargs)
+        for e in ['A', 'B']:
+            pcolor.Yellow(f'\n\n ** Fabric {e} Port Policy **')
+            args[f'fabric_{e.lower()}'].name = policies(self.type).policy_select(kwargs)
+            if args[f'fabric_{e.lower()}'].name == 'Create New': break
         if args.fabric_a.name == 'Create New' or args.fabric_b.name == 'Create New':
             policies(self.type).announcement(kwargs)
             kwargs.available_ports    = []
@@ -958,15 +958,17 @@ class policies(object):
                 #=====================================================================
                 domain_name = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.name
                 port_names = [f'{domain_name}-{e}' for e in ['A', 'B']]
-                indx = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[kwargs.org].policies.port) if d['names'] == port_names), None)
+                if kwargs.use_shared_org == True: org = kwargs.shared_org
+                else: org = kwargs.org
+                indx = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[org].policies.port) if d['names'] == port_names), None)
                 if indx == None:
-                    idict_keys = list(kwargs.imm_dict.orgs[kwargs.org].policies.keys())
-                    if not 'port' in idict_keys: kwargs.imm_dict.orgs[kwargs.org].policies.port = []
-                    elif type(kwargs.imm_dict.orgs[kwargs.org].policies.port) != list:
-                        kwargs.imm_dict.orgs[kwargs.org].policies.port = []
-                    kwargs.imm_dict.orgs[kwargs.org].policies.port.append(DotMap(names = port_names))
-                    indx = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[kwargs.org].policies.port) if d['names'] == port_names), None)
-                pvars = deepcopy(kwargs.imm_dict.orgs[kwargs.org].policies.port[indx])
+                    idict_keys = list(kwargs.imm_dict.orgs[org].policies.keys())
+                    if not 'port' in idict_keys: kwargs.imm_dict.orgs[org].policies.port = []
+                    elif type(kwargs.imm_dict.orgs[org].policies.port) != list:
+                        kwargs.imm_dict.orgs[org].policies.port = []
+                    kwargs.imm_dict.orgs[org].policies.port.append(DotMap(names = port_names))
+                    indx = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[org].policies.port) if d['names'] == port_names), None)
+                pvars = deepcopy(kwargs.imm_dict.orgs[org].policies.port[indx])
                 pkeys = list(pvars.keys())
                 if len(kwargs.fc_ports) > 0:
                     if not 'port_modes' in pkeys:
@@ -991,7 +993,7 @@ class policies(object):
                         #=====================================================================
                         if not 'port_modes' in pkeys:
                             pvars, kwargs = policies('port_modes').port_modes(pvars, kwargs)
-                            kwargs.imm_dict.orgs[kwargs.org].policies.port[indx].port_modes = pvars.port_modes
+                            kwargs.imm_dict.orgs[org].policies.port[indx].port_modes = pvars.port_modes
                             policies.create_yaml_files(kwargs)
                         for x in range(pvars.port_modes[0].port_list[0], pvars.port_modes[0].port_list[1]+1):
                             kwargs.available_ports.remove(x)
@@ -1002,14 +1004,14 @@ class policies(object):
                         # Loop Thru Fibre-Channel Uplink Types
                         #=====================================================================
                         kwargs.jdata = deepcopy(kwargs.ezwizard.port.properties.uplink_types_fcp)
-                        if kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.switch_control.switching_mode_fc == 'end-host':
+                        if kwargs.imm_dict.orgs[org].wizard.setup.domain.switch_control.switching_mode_fc == 'end-host':
                             kwargs.jdata.enum.remove('port_role_fc_storage'); kwargs.jdata.pop('multi_select')
                         uplink_types = ezfunctions.variable_prompt(kwargs)
                         if type(uplink_types) == str: uplink_types = [uplink_types]
                         for e in uplink_types:
                             if not e in pkeys:
                                 pvars, kwargs = eval(f'policies(f"port.{e}").{e}(pvars, kwargs)')
-                                kwargs.imm_dict.orgs[kwargs.org].policies.port[indx][e] = pvars[e]
+                                kwargs.imm_dict.orgs[org].policies.port[indx][e] = pvars[e]
                                 policies.create_yaml_files(kwargs)
                 #=====================================================================
                 # Configure Breakout Ports
@@ -1020,7 +1022,7 @@ class policies(object):
                 if eth_breakout == True:
                     if not 'breakout_ports' in pkeys:
                         pvars, kwargs = policies('port_breakouts').port_eth_breakouts(kwargs)
-                        kwargs.imm_dict.orgs[kwargs.org].policies.port[indx].breakout_ports = pvars.port_modes
+                        kwargs.imm_dict.orgs[org].policies.port[indx].breakout_ports = pvars.port_modes
                         policies.create_yaml_files(kwargs)
                 #=====================================================================
                 # Loop Thru Ethernet Uplink Types
@@ -1030,7 +1032,7 @@ class policies(object):
                 for e in uplink_types:
                     if not e in pkeys:
                         pvars, kwargs = eval(f'policies(f"port.{e}").{e}(pvars, kwargs)')
-                        kwargs.imm_dict.orgs[kwargs.org].policies.port[indx][e] = pvars[e]
+                        kwargs.imm_dict.orgs[org].policies.port[indx][e] = pvars[e]
                         policies.create_yaml_files(kwargs)
                 #=====================================================================
                 # Configure Server Ports
@@ -1039,7 +1041,7 @@ class policies(object):
                 if ddict.model != 'UCSX-S9108-100G':
                     if not 'port_role_servers' in pkeys:
                         pvars, kwargs = policies('port.port_role_servers').port_role_servers(pvars, kwargs)
-                        kwargs.imm_dict.orgs[kwargs.org].policies.port[indx].port_role_servers = pvars[e]
+                        kwargs.imm_dict.orgs[org].policies.port[indx].port_role_servers = pvars['port_role_servers']
                         policies.create_yaml_files(kwargs)
                 #=====================================================================
                 # Prompt User to Accept the Policy
@@ -1066,7 +1068,13 @@ class policies(object):
         ports = []
         if port_type == 'eth': psource = kwargs.available_ports
         else: psource = kwargs.fc_converted_ports
-        for e in psource: ports.append(f'{pmap[e].interface}, Transceiver: {pmap[e].transceiver}')
+        eth_map = kwargs['eth_map']
+        pmap_keys = list(pmap.keys())
+        for e in psource:
+            if e in pmap_keys: ports.append(f'{pmap[e].interface}, Transceiver: {pmap[e].transceiver}')
+            else:
+                ename = e.replace('fc', 'eth'); fc_int = eth_map[ename].interface.replace('eth', 'fc')
+                ports.append(f'{fc_int}, Transceiver: {eth_map[ename].transceiver}')
         return ports
 
     #=========================================================================
@@ -1169,7 +1177,7 @@ class policies(object):
             port_policies = sorted(port_policies)
             for e in port_policies:
                 kwargs   = eval(f'policies(f"{e}").{e}(kwargs)')
-                edict[e] = kwargs.policy_name
+                edict[f'{e}_policy'] = kwargs.policy_name
             edict = DotMap(sorted(edict.items()))
             #=====================================================================
             # Prompt User to Accept the Policy
@@ -1242,7 +1250,7 @@ class policies(object):
     # Function: Prompt User for FCOE Uplink Port-Channels
     #=========================================================================
     def port_channel_fcoe_uplinks(self, pvars, kwargs):
-        pvars, kwargs = policies(self.type).port_channel_fcoe_uplinks(pvars, kwargs)
+        pvars, kwargs = policies(self.type).port_channel_ethernet_uplinks(pvars, kwargs)
         #=====================================================================
         # Return pvars and kwargs
         #=====================================================================
@@ -2255,6 +2263,14 @@ class profiles(object):
         self.type = type
 
     #=========================================================================
+    # Function: Create YAML Files
+    #=========================================================================
+    def create_yaml_files(kwargs):
+        orgs   = list(kwargs.org_moids.keys())
+        kwargs = ezfunctions.remove_duplicates(orgs, ['profiles', 'wizard'], kwargs)
+        ezfunctions.create_yaml(orgs, kwargs)
+
+    #=========================================================================
     # Function: Prompt User for Target Platform
     #=========================================================================
     def profile_type(kwargs):
@@ -2360,7 +2376,6 @@ class prompt_user(object):
     # Function: Prompt User to Accept Configuration
     #=========================================================================
     def to_accept(self, item, idict, kwargs):
-        print(self.type)
         if re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', self.type): ptitle = f'{self.type} pool'
         elif re.search(r'(profiles|templates)\.(chasssis|domain|server|switch)', self.type):
             p2, p1 = self.type.split('.')

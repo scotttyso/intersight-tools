@@ -9,6 +9,7 @@ try:
     from Crypto.PublicKey import RSA
     from datetime import datetime, timedelta
     from dotmap import DotMap
+    from ecdsa import SigningKey
     from git import cmd, Repo
     from json_ref_dict import materialize, RefDict
     from openpyxl import load_workbook
@@ -67,7 +68,6 @@ def base_arguments(parser):
     parser.add_argument(
         '-l', '--load-config', action = 'store_true',
         help = 'Skip Wizard and Just Load Configuration Files.')
-    parser.add_argument('-v', '--api-key-v3', action = 'store_true', help = 'Flag for API Key Version 3.' )
     parser.add_argument('-y', '--yaml-file', default = None,  help = 'The input YAML File.')
     return parser
 
@@ -95,6 +95,7 @@ def base_arguments_ezimm_sensitive_variables(parser):
     parser.add_argument('-wap',  '--windows-admin-password',  help='Windows Administrator Login Password.' )
     parser.add_argument('-wdp',  '--windows-domain-password', help='Windows Domain Registration Login Password.' )
     return parser
+
 #=============================================================================
 # Function - Basic Setup for the Majority of the modules
 #=============================================================================
@@ -755,18 +756,18 @@ def intersight_config(kwargs):
             if not secret_path == '':
                 if not os.path.isfile(secret_path): pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key not found.')
                 else:
-                    try:
-                        is_key = RSA.RsaKey.has_private(RSA.import_key(open(secret_path).read()))
-                    except Exception as e:
-                        pcolor.Red(e)
+                    def key_error(secret_path):
                         pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
                         pcolor.Red(f'\n{"-"*108}\n')
                         len(False); sys.exit(1)
-                    if is_key == True: kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
-                    else:
-                        pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
-                        pcolor.Red(f'\n{"-"*108}\n')
-                        len(False); sys.exit(1)
+                    if 'EC PRIVATE KEY' in open(secret_path).read():
+                        try: SigningKey.from_pem(open(secret_path).read())
+                        except Exception as e: pcolor.Red(e); key_error(secret_path)
+                    elif 'RSA PRIVATE KEY' in open(secret_path).read():
+                        try: RSA.RsaKey.has_private(RSA.import_key(open(secret_path).read()))
+                        except Exception as e: pcolor.Red(e); key_error(secret_path)
+                    else: key_error(secret_path)
+                    kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
             if not valid == True:
                 kwargs.jdata = DotMap(
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',

@@ -63,7 +63,7 @@
                         "default": "default",
                         "description": "Description of the policy.",
                         "intersight_api": "Description",
-                        "minLength": 1,
+                        "minLength": 0,
                         "maxLength": 1024,
                         "pattern": "^$|^[a-zA-Z0-9]+[\\x00-\\xFF]*$",
                         "title": "description"
@@ -108,7 +108,7 @@
                         "default": "default",
                         "description": "Description of the Pool.",
                         "intersight_api": "Description",
-                        "minLength": 1,
+                        "minLength": 0,
                         "maxLength": 1024,
                         "pattern": "^$|^[a-zA-Z0-9]+[\\x00-\\xFF]*$",
                         "title": "description"
@@ -143,7 +143,7 @@
                         "default": "default",
                         "description": "Description of the profile.",
                         "intersight_api": "Description",
-                        "minLength": 1,
+                        "minLength": 0,
                         "maxLength": 1024,
                         "pattern": "^$|^[a-zA-Z0-9]+[\\x00-\\xFF]*$",
                         "title": "description"
@@ -160,6 +160,16 @@
                     },
                     "tags" : {
                         "$ref": "#/components/schemas/tags"
+                    },
+                    "user_label": {
+                        "type": "string",
+                        "default": "",
+                        "description": "User label assigned to the profile.",
+                        "intersight_api": "UserLabel",
+                        "minLength": 0,
+                        "maxLength": 64,
+                        "pattern": "^$|^[ !#$%&\\(\\)\\*\\+,\\-\\./:;\\?@\\[\\]_\\{\\|\\}~a-zA-Z0-9]+$",
+                        "title": "user_label"
                     }
                 }
             },
@@ -15109,9 +15119,7 @@
                         "description": "Definition of the list of properties defined in 'chassis.Profile', excluding properties defined in parent classes.",
                         "required": [
                             "action",
-                            "power_policy",
-                            "targets",
-                            "thermal_policy"
+                            "targets"
                         ],
                         "title": "chass",
                         "properties": {
@@ -15166,7 +15174,7 @@
                             },
                             "targets": {
                                 "type": "array",
-                                "description": "A List of Chassis' to Assign these policies/settings to.\n\nRequired Attributes:\n  * name\n  * serial_number\n\nOptional Attributes:\n  * description",
+                                "description": "A List of Chassis' to Assign these policies/settings to.\n\nRequired Attributes:\n  * name\n  * serial_number\n\nOptional Attributes:\n  * description\n  * user_label",
                                 "items": {
                                     "$ref": "#/components/schemas/profiles.chassis.targets"
                                 },
@@ -15754,7 +15762,7 @@
                             },
                             "targets": {
                                 "type": "array",
-                                "description": "A List of Servers to Assign these policies/settings to.\n\nRequired Attributes:\n  * name\n  * serial_number or pre_assign\n\nOptional Attributes:\n  * description\n  * static_uuid_address",
+                                "description": "A List of Servers to Assign these policies/settings to.\n\nRequired Attributes:\n  * name\n  * serial_number or pre_assign\n\nOptional Attributes:\n  * description\n  * static_uuid_address\n  * user_label",
                                 "items": {
                                     "$ref": "#/components/schemas/profiles.server.targets"
                                 },

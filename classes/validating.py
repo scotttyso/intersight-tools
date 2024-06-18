@@ -82,6 +82,7 @@ def completed_item(ptype, kwargs):
         parents      = DotMap()
         for k,v in kwargs.isight[kwargs.org].policies[kwargs.parent_key].items(): parents[v] = k
         if 'an_connectivity' in kwargs.parent_key: kwargs.parent_name = parents[iresults[f'{pascalcase(kwargs.parent_key)}Policy'].Moid]
+        elif kwargs.parent_key == 'port': kwargs.parent_name = parents[iresults[f'PortPolicy'].Moid]
         elif kwargs.parent_key == 'vlan': kwargs.parent_name = parents[iresults[f'EthNetworkPolicy'].Moid]
         elif kwargs.parent_key == 'vsan': kwargs.parent_name = parents[iresults[f'FcNetworkPolicy'].Moid]
         else: kwargs.parent_name = list(parents.values())[list(parents.keys()).index(iresults.Parent.Moid)]

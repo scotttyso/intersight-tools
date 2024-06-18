@@ -29,14 +29,18 @@ There may be additional variables to define in the environment based on the depl
 
 ## Wizard Options
 
-  * `Convert`: Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
-  * `Deploy`: Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
-  * `Domain`: Deploy a domain via cloning an existing profile or creating net new.
+  * [Convert](#convert): Convert a configuration export from Intersight Transition Tool to the YAML data model for the easy-imm repository.
+  * [Deploy](#deploy): Deploy pools, policies, profiles, and templates defined in YAML using the JSON schema with the easy-imm repository.
+  * [Domain](#domainserver)`: Deploy a domain via cloning an existing profile or creating net new.
   * `Individual`: Select individual pools, policies, profiles, or templates to build.
-  * `OSInstall`: Install an Operating System with either new or existing profiles.
-  * `Server`: Build server profiles/templates for Intersight Managed Servers.
+  * [OSInstall](#os-install): Install an Operating System with either new or existing profiles.
+  * [Server](#domainserver): Build server profiles/templates for Intersight Managed Servers.
 
   The wizard selection can be chosen through a prompt or passed as a variable with `-dt {option above}` as an example.
+
+### [Back to Top](#ezimm-synopsis)
+
+## Convert
 
 ### Wizard - `Convert`: Brownfield Migration with [Cisco Intersight Transition Tool](https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/IMM-Transition-Tool/User-Guide-4-0/b_imm_transition_tool_user_guide_4_0.html)
 
@@ -109,6 +113,10 @@ tyscott@TYSCOTT-DESKTOP:~$
 
 Once the configuration has been converted to the YAML Data model it can be managed with [easy-imm](https://github.com/terraform-cisco-modules/easy-imm) or the `Deploy` option described below.
 
+### [Back to Top](#ezimm-synopsis)
+
+## Deploy
+
 ### Wizard - `Deploy`: Use Cases
 
   - Create/Manage Pools
@@ -158,6 +166,10 @@ And Add the Following to `YAML: Schemas`.  In Visual Studio Code: Settings > Set
 
 Soon the Schema for these YAML Files have been registered with [*SchemaStore*](https://github.com/SchemaStore/schemastore/blob/master/src/api/json/catalog.json) via utilizing this `.ezi.yaml` file extension.  But until that is complete, need to still add to settings.
 
+### [Back to Top](#ezimm-synopsis)
+
+## Domain/Server
+
 ### Wizard - `Domain/Server`: Use Cases
 
   - Create/Manage Domain Profiles via a wizard based setup
@@ -180,6 +192,10 @@ The `Domain` and `Server` options allow you to walk thru a wizard based configur
 ```
 
 See example output under `examples/ezimm/domain/`
+
+### [Back to Top](#ezimm-synopsis)
+
+## OS Install
 
 ### Wizard - `OSInstall`: Use Cases
 
@@ -363,3 +379,5 @@ $env:TF_VAR_cco_user='<cco_user>'
 ```powershell
 $env:TF_VAR_cco_password='<cco_password>'
 ```
+
+### [Back to Top](#ezimm-synopsis)

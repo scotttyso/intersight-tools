@@ -361,11 +361,8 @@ def menu(kwargs):
         elif type(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.shared_org) == str: kwargs.use_shared_org = True
         else: questions.orgs.organization_shared(kwargs)
     orgs = list(kwargs.imm_dict.orgs.keys())
-    if kwargs.org in orgs:
-        for org in orgs:
-            kwargs.org = org
-            for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
-            kwargs = build.intersight('setup').setup(kwargs)
+    for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.items(): kwargs[k] = v
+    kwargs = build.intersight('setup').setup(kwargs)
     return kwargs
 
 #=============================================================================

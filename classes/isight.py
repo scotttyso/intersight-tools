@@ -1509,13 +1509,9 @@ class imm(object):
         for e in ['vnic_template', 'vhba_template', 'iscsi_static_target']:
             kwargs.policies_list.remove(e)
             kwargs.policies_list.insert(iboot_index, e)
-        #kwargs.policies_list.remove('network_connectivity')
-        #kwargs.policies_list.remove('ntp')
-        #kwargs.policies_list = ['lan_connectivity']
         #=====================================================================
         # Pools/Policies/Profiles/Templates
         #=====================================================================
-        #for e in ['policies']:
         for e in ['pools', 'policies', 'templates', 'profiles']:
             for ptype in kwargs[f'{e}_list']:
             #for ptype in kwargs[f'{e}_list']:
@@ -1526,6 +1522,32 @@ class imm(object):
                         if   e == 'templates': kwargs = eval(f"imm(f'templates.{ptype}').profiles(kwargs)")
                         elif e == 'profiles':  kwargs = eval(f"imm(f'profiles.{ptype}').profiles(kwargs)")
                         else: kwargs = eval(f"imm(ptype).{e}(kwargs)")
+        #=====================================================================
+        # return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function: Deploy Chassis Profiles to Intersight
+    #=========================================================================
+    def deploy_chassis(kwargs):
+        kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
+        #=====================================================================
+        # Create YAML Files
+        #=====================================================================
+        orgs = kwargs.orgs
+        ezfunctions.create_yaml(orgs, kwargs)
+        #=====================================================================
+        # Profiles/Templates
+        #=====================================================================
+        kwargs.profiles_list  = ['chassis']
+        for e in ['profiles']:
+            for ptype in kwargs[f'{e}_list']:
+                for org in orgs:
+                    kwargs.org = org
+                    pkeys = list(kwargs.imm_dict.orgs[org][e].keys())
+                    if ptype in pkeys:
+                        kwargs = eval(f"imm(f'profiles.{ptype}').profiles(kwargs)")
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -2228,7 +2250,7 @@ class imm(object):
             if self.type == 'port': names.extend([f'{np}{e.names[x]}{ns}' for x in range(0,len(e.names))])
             else: names.append(f"{np}{e['name']}{ns}")
         kwargs = api_get(True, names, self.type, kwargs)
-        kwargs.policy_results= kwargs.results
+        kwargs.policy_results = kwargs.results
         #=====================================================================
         # Validate the Sub Policies are defined or get Moids
         #=====================================================================
@@ -2441,9 +2463,8 @@ class imm(object):
                     kwargs.port_policy[f"{np}{item['names'][x]}{ns}"].names = []
                     for e in item[p[1]]: kwargs.port_policy[f"{np}{item['names'][x]}{ns}"].names.append(e.port_list[0])
                 for i in list(kwargs.port_policy.keys()):
-                    indx = next((index for (index, d) in enumerate(kwargs.policy_results) if d['Name'] == i), None)
-                    kwargs.parent_moid = kwargs.policy_results[indx].Moid
-                    kwargs.pmoid = kwargs.policy_results[indx].Moid
+                    kwargs.parent_moid = kwargs.isight[kwargs.org].policies['port'][i]
+                    kwargs.pmoid       = kwargs.parent_moid
                     kwargs = api_get(True, kwargs.port_policy[i].names, self.type, kwargs)
                     port_modes  = kwargs.pmoids
                     port_results= deepcopy(kwargs.results)
@@ -2552,7 +2573,7 @@ class imm(object):
                 kwargs.api_body = imm(f'port.{port_type}').build_api_body(api_body, ezdata.properties, i, kwargs)
                 if i.get('pc_ids'):
                     if len(kwargs.api_body['PcId']) == 2: kwargs.api_body['PcId'] = i.pc_ids[x]
-                    else: kwargs.api_body['PcId'] = i.pc_ids[x]
+                    else: kwargs.api_body['PcId'] = i.pc_ids[0]
                     if re.search('appliance|ethernet|fcoe', port_type): kwargs = policy_update(f'port.{port_type}', kwargs)
                     for y in range(len(api_body['Ports'])):
                         if not kwargs.api_body['Ports'][y].get('AggregatePortId'): kwargs.api_body['Ports'][y]['AggregatePortId'] = 0
@@ -2683,12 +2704,12 @@ class imm(object):
         #=====================================================================
         # Function - Get Template Names
         #=====================================================================
-        def get_template(ekeys, kwargs):
+        def get_template(e, ekeys, kwargs):
             args         = DotMap(org = kwargs.org, tname = '', template = '')
             template_key = f'ucs_{dtype}_profile_template'
             if   template_key in ekeys: template_key = template_key
             elif 'ucs_server_template' in ekeys: template_key = 'ucs_server_template'
-            if   template_key in ekeys and len(e[template_key]) > 0:
+            if template_key in ekeys and len(e[template_key]) > 0 and e.get('attach_template') == True:
                 args.org, args.template = imm(self.type).seperate_org_pname(e[template_key], kwargs)
                 args.tkey  = template_key
                 args.tname = e[template_key]
@@ -2700,7 +2721,7 @@ class imm(object):
         for e in profiles:
             if 'profiles.' in self.type:
                 ekeys = list(e.keys())
-                args  = get_template(ekeys, kwargs)
+                args  = get_template(e, ekeys, kwargs)
                 if len(args.template) > 0:
                      tkeys = list(kwargs.isight[args.org].templates[dtype].keys())
                      if not args.template in tkeys: templates.append(f'{args.org}/{args.template}')
@@ -2717,7 +2738,7 @@ class imm(object):
             for e in profiles:
                 ekeys = list(e.keys())
                 if 'targets' in ekeys: e.pop('targets')
-                args = get_template(ekeys, kwargs)
+                args = get_template(e, ekeys, kwargs)
                 if len(args.template) > 0:
                     tkeys = list(kwargs.isight[args.org].templates[dtype].keys())
                     if not args.template in tkeys:
@@ -3009,8 +3030,9 @@ class imm(object):
                 changes  = profile_results[indx].ConfigChanges.Changes
                 cstate   = profile_results[indx].ConfigContext.ConfigState
                 csummary = profile_results[indx].ConfigContext.ConfigStateSummary
-                isummary = profile_results[indx].ConfigChangeContext.InitialConfigContext.ConfigStateSummary
-                if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary) or re.search(cregex, isummary):
+                #isummary = profile_results[indx].ConfigChangeContext.InitialConfigContext.ConfigStateSummary
+                #if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary) or re.search(cregex, isummary):
+                if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary):
                     pending_changes = True
                     kwargs.profile_update[e].pending_changes = 'Deploy'
                 elif len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
@@ -3027,9 +3049,9 @@ class imm(object):
                 for e in list(kwargs.profile_update.keys()):
                     if kwargs.profile_update[e].pending_changes == 'Deploy':
                         pcolor.Green(f'{" "*4}- Beginning Profile Deployment for `{e}`.')
-                        kwargs.api_body= {'Action':'Deploy'}
-                        kwargs.method = 'patch'
-                        kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[dtype][e]
+                        kwargs.api_body = {'Action': 'Deploy', 'Name': e}
+                        kwargs.method   = 'patch'
+                        kwargs.pmoid    = kwargs.isight[kwargs.org].profiles[dtype][e]
                         kwargs = api(self.type).calls(kwargs)
                     else: pcolor.LightPurple(f'{" "*4}- Skipping Org: {kwargs.org}; Profile Deployment for `{e}`.  No Pending Changes.')
                 if deploy_pending == True:
@@ -3040,7 +3062,7 @@ class imm(object):
                         deploy_complete= False
                         while deploy_complete == False:
                             kwargs.method = 'get_by_moid'
-                            kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[self.type][e]
+                            kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[dtype][e]
                             kwargs = api(self.type).calls(kwargs)
                             if kwargs.results.ConfigContext.ControlAction == 'No-op':
                                 deploy_complete = True
@@ -3210,8 +3232,9 @@ class imm(object):
         for k,v in kwargs.isight[kwargs.org].profiles[dtype].items(): clusters[v] = k
         if len(kwargs.names) > 0:
             kwargs.method = 'get'
+            kwargs.parent = 'SwitchClusterProfile'
             kwargs.uri    = kwargs.ezdata[self.type].switch_intersight_uri
-            kwargs        = api('moid_filter').calls(kwargs)
+            kwargs        = api('parent_moids').calls(kwargs)
             for e in kwargs.results:
                 if len(e.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", e.ConfigContext.ConfigState):
                     pending_changes = True
@@ -3225,19 +3248,20 @@ class imm(object):
         for k in list(kwargs.cluster_update.keys()):
             if kwargs.cluster_update[k].pending_changes == True:
                 for e in kwargs.cluster_update[k].names:
-                    kwargs.bulk_list.append({'Action':'Deploy', 'pmoid':kwargs.isight[kwargs.org].profiles['switch'][e]})
+                    kwargs.bulk_list.append({'Action':'Deploy', 'Name': e, 'pmoid':kwargs.isight[kwargs.org].profiles['switch'][e]})
         if len(kwargs.bulk_list) > 0: kwargs = imm('profiles.switch').bulk_request(kwargs)
         if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n'); time.sleep(60)
         for k in list(kwargs.cluster_update.keys()):
             if kwargs.cluster_update[k].pending_changes == True:
+                kwargs.method = 'get_by_moid'
+                kwargs.uri    = kwargs.ezdata[self.type].switch_intersight_uri
                 for e in kwargs.cluster_update[k].names:
-                    kwargs.method= 'get_by_moid'
                     kwargs.pmoid = kwargs.isight[kwargs.org].profiles['switch'][e]
                     deploy_complete = False
                     while deploy_complete == False:
                         kwargs = api('switch_profiles').calls(kwargs)
                         if kwargs.results.ConfigContext.ControlAction == 'No-op':
-                            pcolor.Green(f'{" "*4}- Completed Profile Deployment for {e}')
+                            pcolor.Green(f'{" "*4}- Completed Switch Profile Deployment for {e}')
                             deploy_complete = True
                         else:  pcolor.Cyan(f'{" "*6}* Deploy Still Occuring on {e}.  Waiting 120 seconds.'); time.sleep(120)
         if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n')
@@ -3318,6 +3342,7 @@ class imm(object):
     # Function - Deploy Profile if Action is Deploy
     #=========================================================================
     def profiles_server_activate(self, kwargs):
+        dtype  = self.type.split('.')[1]
         pcolor.LightPurple(f'\n{"-"*108}\n')
         names = []
         for e in list(kwargs.profile_update.keys()):
@@ -3333,7 +3358,7 @@ class imm(object):
                     pcolor.Green(f'{" "*4}- Beginning Profile Activation for `{e}`.')
                     kwargs.api_body= {'ScheduledActions':[{'Action':'Activate', 'ProceedOnReboot':True}]}
                     kwargs.method = 'patch'
-                    kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[self.type][e]
+                    kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[dtype][e]
                     kwargs = api(self.type).calls(kwargs)
                     pending_activations = True
                 else:
@@ -3368,7 +3393,7 @@ class imm(object):
         for e in list(kwargs.profile_update.keys()):
             retry_count = 60
             if not kwargs.profile_update[e].pending_changes == 'Empty':
-                prmoid = kwargs.isight[kwargs.org].profiles[self.type][e]
+                prmoid = kwargs.isight[kwargs.org].profiles[dtype][e]
                 indx   = next((index for (index, d) in enumerate(activate_results) if d['AssociatedObject']['Moid'] == prmoid), None)
                 deploy_complete = False
                 while deploy_complete == False:

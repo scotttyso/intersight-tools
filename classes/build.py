@@ -7,7 +7,7 @@ try:
     from classes import ezfunctions, isight, pcolor, questions
     from copy import deepcopy
     from dotmap import DotMap
-    import ipaddress, json, inflect, numpy, os, re, urllib3
+    import ipaddress, json, inflect, numpy, os, re, time, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -314,13 +314,18 @@ class intersight(object):
         # Build the Domain Profile Dictionary
         #=====================================================================
         domain_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.keys())
-        policies.extend(['name', 'port_policies', 'serial_numbers', 'switch_control_policy', 'vlan_policies'])
+        policies.extend(['name', 'port_policies', 'serial_numbers', 'switch_control_policy', 'vlan_policies', 'vsan_policies'])
         policies = sorted(policies)
-        pvars = DotMap(action = 'Deploy')
-        for e in policies:
-            if e in domain_keys: pvars[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[e]
-        kwargs.class_path = f'profiles,domain'
-        kwargs = ezfunctions.ez_append(pvars, kwargs)
+        dname = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.name
+        indx = next((index for (index, d) in enumerate(kwargs.imm_dict.orgs[kwargs.org].profiles.domain) if d['name'] == dname), None)
+        if indx == None:
+            pvars = DotMap(action = 'Deploy')
+            for e in policies:
+                if e in domain_keys and kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[e] != 'skip_policy':
+                        pvars[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[e]
+            kwargs.class_path = f'profiles,domain'
+            kwargs = ezfunctions.ez_append(pvars, kwargs)
+        questions.profiles.create_yaml_files(kwargs)
         #=====================================================================
         # Loop through Policy List and Build Dictionaries for Chassis
         #=====================================================================
@@ -332,21 +337,41 @@ class intersight(object):
             policies   = ['power_policy', 'thermal_policy']
         else: policies = ['imc_access_policy', 'power_policy', 'snmp_policy', 'thermal_policy']
         for e in policies:
-            print(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis)
             policy = e.replace('_policy', '')
             if not e in profile_setup_keys: kwargs = eval(f'questions.policies(policy).{policy}(kwargs)')
-        kwargs = isight.imm.deploy(kwargs)
+        org        = kwargs.org
+        kwargs     = isight.imm.deploy(kwargs)
+        kwargs.org = org
+        #=====================================================================
+        # Sleep for 120 seconds and Build Domain Dictionary
+        #=====================================================================
+        pcolor.LightGray(f'\n{"-"*108}\n')
+        pcolor.Cyan('  Sleeping for 120 seconds to wait for Chassis Inventory Discovery')#; time.sleep(120)
+        kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
+        kwargs = isight.api('domains').domain_device_registrations(kwargs)
+        for k,v in kwargs.domains.items():
+            for s in kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain.serial_numbers:
+                if s in v.serial: dev_reg_moid = k; break
         #=====================================================================
         # Build the Chassis Profile Dictionary
         #=====================================================================
-        chassis_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.keys())
-        policies.extend(['name', 'port_policies', 'serial_numbers', 'switch_control_policy', 'vlan_policies'])
-        policies = sorted(policies)
-        pvars = DotMap(action = 'Deploy')
+        kwargs.api_filter = f"RegisteredDevice.Moid eq '{dev_reg_moid}'"
+        kwargs.method     = 'get'
+        kwargs.uri        = 'equipment/Chasses'
+        kwargs            = isight.api('serial').calls(kwargs)
+        chassis_keys      = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.keys())
+        policies          = sorted(policies)
+        pvars             = DotMap(action = 'Deploy')
         for e in policies:
-            if e in chassis_keys: pvars[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.domain[e]
-        kwargs.class_path = f'profiles,chassis'
-        kwargs = ezfunctions.ez_append(pvars, kwargs)
+            if e in chassis_keys and kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[e] != 'skip_policy':
+                pvars[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[e]
+        pvars.targets = [DotMap({'name':c.Name,'serial_number': c.Serial}) for c in kwargs.results]
+        pvars = DotMap(sorted(pvars.items()))
+        if len(pvars.targets) > 0:
+            kwargs.class_path = f'profiles,chassis'
+            kwargs = ezfunctions.ez_append(pvars, kwargs)
+            questions.profiles.create_yaml_files(kwargs)
+            kwargs = isight.imm(f'profiles.chassis').profiles(kwargs)
         return kwargs
 
     #=========================================================================

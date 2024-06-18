@@ -196,41 +196,58 @@ class imm(object):
         #=====================================================
         kwargs.boot_volume = kwargs.imm.policies.boot_volume
         if len(kwargs.domain) > 0:
-            kwargs.chassis = DotMap([])
-            kwargs.method  = 'get'
-            kwargs.names   = [kwargs.domain.serial_numbers[0]]
-            kwargs.uri     = 'network/Elements'
-            kwargs         = isight.api('serial_number').calls(kwargs)
-            pmoids         = kwargs.pmoids
-            for k, v in pmoids.items(): reg_device = v.registered_device
-            kwargs.api_filter = f"RegisteredDevice.Moid eq '{reg_device}'"
-            kwargs.uri        = 'equipment/Chasses'
-            kwargs            = isight.api('equipment_chasses').calls(kwargs)
-            chassis_pmoids    = kwargs.pmoids
-            platform_types    = "('IMCBlade', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9')"
-            kwargs.api_filter = f"ParentConnection.Moid eq '{reg_device}' and PlatformType in {platform_types}"
-            kwargs.uri        = 'asset/DeviceRegistrations'
-            kwargs            = isight.api('device_registrations').calls(kwargs)
-            server_pmoids     = kwargs.pmoids
-            #=====================================================
-            # Build Chassis Dictionary
-            #=====================================================
-            models = []
-            for k, v in chassis_pmoids.items(): models.append(str(v.model).lower())
-            models = list(numpy.unique(numpy.array(models)))
-            for model in models: kwargs.chassis[model] = []
-            for k, v in chassis_pmoids.items():
-                model = str(v.model).lower()
-                kwargs.chassis[model].append(DotMap(domain = kwargs.domain.name, identity = v.id, serial = k))
-            #=====================================================
-            # Build Server Dictionaries - Domain
-            #=====================================================
-            kwargs.method = 'get'
-            kwargs.names  = [k for k in list(server_pmoids.keys())]
-            kwargs.uri    = 'compute/PhysicalSummaries'
-            kwargs        = isight.api('serial_number').calls(kwargs)
-            kwargs        = isight.api(kwargs.args.deployment_type).build_compute_dictionary(kwargs)
-            for k in list(kwargs.servers.keys()): kwargs.servers[k].domain = kwargs.domain.name
+            #=====================================================================
+            # Domain Inventory
+            #=====================================================================
+            kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
+            kwargs = isight.api('domains').domain_device_registrations(kwargs)
+            kwargs.api_filter = f"SwitchType eq 'FabricInterconnect'"
+            kwargs = isight.api('domains').domain_network_elements(kwargs)
+            #=====================================================================
+            # Chassis Inventory
+            #=====================================================================
+            kwargs = isight.api('chassis').chassis_equipment(kwargs)
+            #=====================================================================
+            # Server Inventory
+            #=====================================================================
+            for e in ['compute', 'children_equipment', 'profiles']:
+                kwargs.api_filter = 'ignore'
+                kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
+            #kwargs.chassis = DotMap([])
+            #kwargs.method  = 'get'
+            #kwargs.names   = [kwargs.domain.serial_numbers[0]]
+            #kwargs.uri     = 'network/Elements'
+            #kwargs         = isight.api('serial_number').calls(kwargs)
+            #pmoids         = kwargs.pmoids
+            #for k, v in pmoids.items(): reg_device = v.registered_device
+            #kwargs.api_filter = f"RegisteredDevice.Moid eq '{reg_device}'"
+            #kwargs.uri        = 'equipment/Chasses'
+            #kwargs            = isight.api('equipment_chasses').calls(kwargs)
+            #chassis_pmoids    = kwargs.pmoids
+            #platform_types    = "('IMCBlade', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9')"
+            #kwargs.api_filter = f"ParentConnection.Moid eq '{reg_device}' and PlatformType in {platform_types}"
+            #kwargs.uri        = 'asset/DeviceRegistrations'
+            #kwargs            = isight.api('device_registrations').calls(kwargs)
+            #server_pmoids     = kwargs.pmoids
+            ##=====================================================
+            ## Build Chassis Dictionary
+            ##=====================================================
+            #models = []
+            #for k, v in chassis_pmoids.items(): models.append(str(v.model).lower())
+            #models = list(numpy.unique(numpy.array(models)))
+            #for model in models: kwargs.chassis[model] = []
+            #for k, v in chassis_pmoids.items():
+            #    model = str(v.model).lower()
+            #    kwargs.chassis[model].append(DotMap(domain = kwargs.domain.name, identity = v.id, serial = k))
+            ##=====================================================
+            ## Build Server Dictionaries - Domain
+            ##=====================================================
+            #kwargs.method = 'get'
+            #kwargs.names  = [k for k in list(server_pmoids.keys())]
+            #kwargs.uri    = 'compute/PhysicalSummaries'
+            #kwargs        = isight.api('serial_number').calls(kwargs)
+            #kwargs        = isight.api(kwargs.args.deployment_type).build_compute_dictionary(kwargs)
+            #for k in list(kwargs.servers.keys()): kwargs.servers[k].domain = kwargs.domain.name
         else:
             #=====================================================
             # Build Server Dictionaries - Standalone

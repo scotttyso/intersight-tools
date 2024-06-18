@@ -5,7 +5,7 @@ def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
     from classes import isight, pcolor
-    import os, re, subprocess, sys
+    import pexpect, os, re, subprocess, sys
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -19,30 +19,35 @@ class state(object):
     def __init__(self, type):
         self.type = type
     
-    def run_commands(self, kwargs):
-        #child.sendline('')
+    def run_commands(self, child, kwargs):
+        child.sendline('')
         if self.type == 'lan_connectivity': policy = 'intersight_vnic_eth_if'
         else: policy = 'intersight_vnic_fc_if'
         for v in kwargs.names:
             moid    = kwargs.isight[kwargs.org].policies[f'{self.type}.{kwargs.vnic}'][v]
-            print(moid)
-            #command = f'terraform import module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"] {moid}'
-            result = subprocess.run(
-                ['terraform', 'import', f'module.policies[\"map\"].{policy}.map[\"{kwargs.org}/{kwargs.policy}/{v}\"]', moid],
-                capture_output=True,
-                text=True)
-            pcolor.Yellow(result.stderr)
-            pcolor.Yellow(result.stdout)
-            #child.sendline(command)
-            #child.expect(moid)
-            #child.expect('Import successful')
+            command = f'terraform import module.policies[\\"map\\"].{policy}.map[\\"{kwargs.org}/{kwargs.policy}/{v}\\"] {moid}'
+            #result = subprocess.run(
+            #    ['terraform', 'import', f'module.policies[\"map\"].{policy}.map[\"{kwargs.org}/{kwargs.policy}/{v}\"]', moid],
+            #    capture_output=True,
+            #    text=True)
+            #pcolor.Yellow(result.stderr)
+            #pcolor.Yellow(result.stdout)
+            child.sendline(command)
+            child.expect(moid)
+            cmd_check = False
+            while cmd_check == False:
+                i = child.expect(['Import successful', 'Resource already managed by Terraform', kwargs.host_prompt])
+                if   i == 0: pass
+                elif i == 1: pass
+                elif i == 2: cmd_check = True
         pcolor.Cyan('')
         return kwargs
 
     def state_import(self, kwargs):
-        #system_shell = os.environ['SHELL']
-        #child = pexpect.spawn(system_shell, encoding='utf-8', timeout=60, codec_errors='ignore')
-        #child.logfile_read = sys.stdout
+        system_shell = os.environ['SHELL']
+        child = pexpect.spawn(system_shell, encoding='utf-8', timeout=60, codec_errors='ignore')
+        child.logfile_read = sys.stdout
+        kwargs.host_prompt = '\\$ '
         kwargs = isight.api('organization').all_organizations(kwargs)
         orgs   = list(kwargs.imm_dict.orgs.keys())
         for org in orgs:
@@ -62,6 +67,6 @@ class state(object):
                         kwargs.policy = e.name
                         kwargs        = isight.api_get(False, names, f'{self.type}.{kwargs.vnic}', kwargs)
                         kwargs.names  = names
-                        kwargs = state(self.type).run_commands(kwargs)
+                        kwargs = state(self.type).run_commands(child, kwargs)
         #child.close()
         return kwargs
