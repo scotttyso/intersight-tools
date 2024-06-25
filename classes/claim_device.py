@@ -158,8 +158,6 @@ def claim_targets(kwargs):
                 result[device.hostname].serial   = device_id
             if ('dc_obj' in locals() or 'dc_obj' in globals()): dc_obj.logout()
         null_selector = False
-        print(i)
-        print(resource_groups)
         if len(resource_groups[i.resource_group].selectors) > 0 and re.search(r'ParentConnection eq null',  resource_groups[i.resource_group].selectors[0].Selector):
             null_selector = True
         elif len(resource_groups[i.resource_group].selectors) > 0 and re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector):
@@ -180,7 +178,6 @@ def claim_targets(kwargs):
                 'ObjectType': 'resource.Selector',
                 'Selector': '/api/v1/asset/DeviceRegistrations?$filter=Moid in('f"{appended_targets})"
             }] }
-            print(kwargs.api_body)
             kwargs.method = 'patch'
             kwargs.pmoid  = resource_groups[i.resource_group].moid
             kwargs.uri    = 'resource/Groups'

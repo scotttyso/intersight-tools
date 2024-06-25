@@ -245,15 +245,18 @@ class imm(object):
             #=================================================================
             # Server Inventory
             #=================================================================
+            kwargs.org = org
             for e in ['compute', 'children_equipment']:
                 kwargs.api_filter = 'ignore'
                 kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
-            kwargs.org      = org
-            kwargs.method   = 'get'
-            kwargs.names    = [kwargs.result[k].serial for k in list(kwargs.result.keys())]
-            kwargs.uri      = 'compute/PhysicalSummaries'
-            kwargs          = isight.api('serial_number').calls(kwargs)
-            kwargs          = isight.api(kwargs.args.deployment_type).build_compute_dictionary(kwargs)
+            #kwargs.method = 'get'
+            #kwargs.names  = [kwargs.result[k].serial for k in list(kwargs.result.keys())]
+            #kwargs.uri    = 'compute/PhysicalSummaries'
+            #kwargs        = isight.api('serial_number').calls(kwargs)
+            #kwargs        = isight.api(kwargs.args.deployment_type).build_compute_dictionary(kwargs)
+            print(json.dumps(kwargs.servers, indent=4))
+            print(json.dumps(kwargs.server, indent=4))
+            exit()
             for i in list(kwargs.servers.keys()):
                 for k, v in kwargs.result.items():
                     indx = next((index for (index, d) in enumerate(kwargs.imm.profiles) if d['cimc'] == k), None)

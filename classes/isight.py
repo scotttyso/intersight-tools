@@ -134,7 +134,6 @@ class api(object):
         api_dict = DotMap()
         if not kwargs.build_skip == True and api_results.get('Results'):
             for i in api_results.Results:
-                if i.ObjectType == 'resource.Group': print(json.dumps(i, indent=4))
                 if i.get('Body'): i = i.Body
                 ikeys = list(i.keys())
                 if   'VlanId'  in ikeys: iname = str(i.VlanId)
