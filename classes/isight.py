@@ -1177,8 +1177,8 @@ class imm(object):
     def bios(self, api_body, item, kwargs):
         if api_body.get('bios_template'):
             btemplate = kwargs.ezdata['bios.template'].properties
-            if '-tpm' in api_body['bios_template']:
-                api_body = dict(api_body, **btemplate[item.bios_template.replace('-tpm', '')].toDict(), **btemplate.tpm.toDict())
+            if '-tpm' in (api_body['bios_template']).lower():
+                api_body = dict(api_body, **btemplate[(item.bios_template.replace('-tpm', '')).replace('-Tpm', '')].toDict(), **btemplate.tpm.toDict())
             else: api_body = dict(api_body, **btemplate[item.bios_template].toDict(), **btemplate.tpm_disabled.toDict())
             api_body.pop('bios_template')
         return api_body
@@ -1322,7 +1322,7 @@ class imm(object):
         # Attach Organization Map, Tags, and return Dict
         #=====================================================================
         api_body = imm(self.type).org_map(api_body, kwargs.org_moids[kwargs.org].moid)
-        if not api_body.get('Tags'): api_body['Tags'] = [e for e in kwargs.ez_tags]
+        if not api_body.get('Tags'): api_body['Tags'] = [(DotMap(e)).toDict() for e in kwargs.ez_tags]
         else:
             tags = []
             for e in kwargs.ez_tags:

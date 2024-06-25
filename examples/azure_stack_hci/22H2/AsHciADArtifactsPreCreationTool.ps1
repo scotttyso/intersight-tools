@@ -1,8 +1,8 @@
 #############################################################
- #                                                           #
- # Copyright (C) Microsoft Corporation. All rights reserved. #
- #                                                           #
- #############################################################>
+#                                                           #
+# Copyright (C) Microsoft Corporation. All rights reserved. #
+#                                                           #
+#############################################################>
 
 # Script to create AD objects from domain admin context prior to azurestack hci deployment driver execution.
 #

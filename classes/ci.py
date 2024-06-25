@@ -24,9 +24,9 @@ class imm(object):
     def __init__(self, type):
         self.type = type
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policies - BIOS
-    #=============================================================================
+    #=========================================================================
     def bios(self, kwargs):
         # Build Dictionary
         descr     = (self.type.replace('_', ' ')).upper()
@@ -37,7 +37,7 @@ class imm(object):
         models = list(numpy.unique(numpy.array(dataset)))
         for i in models:
             gen, cpu, tpm = i.split('-')
-            if kwargs.args.deployment_type == 'azurestack':
+            if kwargs.args.deployment_type == 'azure_stack':
                 if len(tpm) > 0: btemplates.append(f'{gen}-{cpu}-azure-tpm')
                 else: btemplates.append(f'{gen}-{cpu}-azure')
             else:
@@ -57,14 +57,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policies - Boot Order
-    #=============================================================================
+    #=========================================================================
     def boot_order(self, kwargs):
         # Build Dictionary
         if kwargs.imm.policies.boot_volume == 'iscsi': boot_type = 'iscsi'
@@ -126,7 +126,7 @@ class imm(object):
                     'port': 1,
                     'slot': vic.split(":")[1]
                 }])
-            if 'azurestack' in kwargs.args.deployment_type:
+            if 'azure_stack' in kwargs.args.deployment_type:
                 indx = next((index for (index, d) in enumerate(pvars['boot_devices']) if d['device_type'] == 'pxe_boot'), None)
                 pvars['boot_devices'][indx]['interface_source'] = 'port'
                 pvars['boot_devices'][indx].pop('interface_name')
@@ -154,14 +154,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Profiles - Chassis
-    #=============================================================================
+    #=========================================================================
     def chassis(self, kwargs):
         # Build Dictionary
         for k, v in kwargs.chassis.items():
@@ -181,84 +181,49 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'profiles,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Compute Dictionary
-    #=============================================================================
+    #=========================================================================
     def compute_environment(self, kwargs):
         kwargs.servers  = DotMap([])
-        #=====================================================
+        #=====================================================================
         # Build Domain Dictionaries
-        #=====================================================
+        #=====================================================================
         kwargs.boot_volume = kwargs.imm.policies.boot_volume
         if len(kwargs.domain) > 0:
-            #=====================================================================
+            #=================================================================
             # Domain Inventory
-            #=====================================================================
+            #=================================================================
             kwargs.api_filter = f"PlatformType in ('UCSFI', 'UCSFIISM')"
             kwargs = isight.api('domains').domain_device_registrations(kwargs)
             kwargs.api_filter = f"SwitchType eq 'FabricInterconnect'"
             kwargs = isight.api('domains').domain_network_elements(kwargs)
-            #=====================================================================
+            #=================================================================
             # Chassis Inventory
-            #=====================================================================
+            #=================================================================
             kwargs = isight.api('chassis').chassis_equipment(kwargs)
-            #=====================================================================
+            #=================================================================
             # Server Inventory
-            #=====================================================================
-            for e in ['compute', 'children_equipment', 'profiles']:
+            #=================================================================
+            for e in ['compute', 'children_equipment']:
                 kwargs.api_filter = 'ignore'
                 kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
-            #kwargs.chassis = DotMap([])
-            #kwargs.method  = 'get'
-            #kwargs.names   = [kwargs.domain.serial_numbers[0]]
-            #kwargs.uri     = 'network/Elements'
-            #kwargs         = isight.api('serial_number').calls(kwargs)
-            #pmoids         = kwargs.pmoids
-            #for k, v in pmoids.items(): reg_device = v.registered_device
-            #kwargs.api_filter = f"RegisteredDevice.Moid eq '{reg_device}'"
-            #kwargs.uri        = 'equipment/Chasses'
-            #kwargs            = isight.api('equipment_chasses').calls(kwargs)
-            #chassis_pmoids    = kwargs.pmoids
-            #platform_types    = "('IMCBlade', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9')"
-            #kwargs.api_filter = f"ParentConnection.Moid eq '{reg_device}' and PlatformType in {platform_types}"
-            #kwargs.uri        = 'asset/DeviceRegistrations'
-            #kwargs            = isight.api('device_registrations').calls(kwargs)
-            #server_pmoids     = kwargs.pmoids
-            ##=====================================================
-            ## Build Chassis Dictionary
-            ##=====================================================
-            #models = []
-            #for k, v in chassis_pmoids.items(): models.append(str(v.model).lower())
-            #models = list(numpy.unique(numpy.array(models)))
-            #for model in models: kwargs.chassis[model] = []
-            #for k, v in chassis_pmoids.items():
-            #    model = str(v.model).lower()
-            #    kwargs.chassis[model].append(DotMap(domain = kwargs.domain.name, identity = v.id, serial = k))
-            ##=====================================================
-            ## Build Server Dictionaries - Domain
-            ##=====================================================
-            #kwargs.method = 'get'
-            #kwargs.names  = [k for k in list(server_pmoids.keys())]
-            #kwargs.uri    = 'compute/PhysicalSummaries'
-            #kwargs        = isight.api('serial_number').calls(kwargs)
-            #kwargs        = isight.api(kwargs.args.deployment_type).build_compute_dictionary(kwargs)
-            #for k in list(kwargs.servers.keys()): kwargs.servers[k].domain = kwargs.domain.name
         else:
-            #=====================================================
-            # Build Server Dictionaries - Standalone
-            #=====================================================
+            #=================================================================
+            # Intersight Target(s) - Registration/Validation
+            #=================================================================
+            org = kwargs.org
             if kwargs.imm.cimc_default == False:
                 kwargs.sensitive_var = 'local_user_password_1'
                 kwargs  = ezfunctions.sensitive_var_value(kwargs)
                 password = kwargs.var_value
             else: password ='Password'
             devices = [e.cimc for e in kwargs.imm.profiles]
-            org     = kwargs.org
             if kwargs.imm_dict.wizard.get('proxy'):
                 kwargs.proxy = kwargs.imm_dict.wizard.proxy
                 proxy_data = re.search('^http(s)?://(.*):([0-9]+)$', kwargs.proxy.host)
@@ -277,6 +242,12 @@ class imm(object):
             kwargs.username = kwargs.imm.username
             kwargs.password = password
             kwargs          = claim_device.claim_targets(kwargs)
+            #=================================================================
+            # Server Inventory
+            #=================================================================
+            for e in ['compute', 'children_equipment']:
+                kwargs.api_filter = 'ignore'
+                kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
             kwargs.org      = org
             kwargs.method   = 'get'
             kwargs.names    = [kwargs.result[k].serial for k in list(kwargs.result.keys())]
@@ -291,14 +262,14 @@ class imm(object):
                             enable_dhcp = v.enable_dhcp, enable_dhcp_dns  = v.enable_dhcp_dns,
                             enable_ipv6 = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp)))
                     if type(indx) == int: kwargs.servers[i].active_directory = kwargs.imm.profiles[indx].active_directory
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Profiles - Domain
-    #=============================================================================
+    #=========================================================================
     def domain(self, kwargs):
         # Build Dictionary
         pvars = dict(
@@ -329,14 +300,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'profiles,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Ethernet Adapter
-    #=============================================================================
+    #=========================================================================
     def ethernet_adapter(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -352,14 +323,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Ethernet Network Control
-    #=============================================================================
+    #=========================================================================
     def ethernet_network_control(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -380,19 +351,19 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Ethernet Network Group
-    #=============================================================================
+    #=========================================================================
     def ethernet_network_group(self, kwargs):
         kwargs.descr = (self.type.replace('_', ' ')).title()
-        #=====================================================
+        #=====================================================================
         # Assign Configuration to Policy
-        #=====================================================
+        #=====================================================================
         def create_eth_groups(kwargs):
             pvars = dict(
                 allowed_vlans = kwargs.allowed,
@@ -404,9 +375,9 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
             return kwargs
-        #=====================================================
+        #=====================================================================
         # Add All VLANs for Guest vSwitch
-        #=====================================================
+        #=====================================================================
         vlans = []
         for i in kwargs.vlans: vlans.append(i.vlan_id)
         for i in kwargs.ranges:
@@ -420,9 +391,9 @@ class imm(object):
             if i.vlan_type == 'iscsi': kwargs.iscsi+=1; kwargs.iscsi_vlans.append(i.vlan_id)
             elif i.vlan_type == 'nvme': kwargs.nvme+=1; kwargs.nvme_vlans.append(i.vlan_id)
 
-        #=====================================================
+        #=====================================================================
         # Create Uplink Groups if Disjoint is Present
-        #=====================================================
+        #=====================================================================
         if kwargs.disjoint == True:
             disjoint_vlans = []
             disjoint_native= 1
@@ -450,9 +421,9 @@ class imm(object):
             kwargs.native = disjoint_native
             kwargs = create_eth_groups(kwargs)
 
-        #=====================================================
+        #=====================================================================
         # Create Eth NetworkGroups for Virtual Switches
-        #=====================================================
+        #=====================================================================
         for item in kwargs.virtualization:
             for i in item.virtual_switches:
                 if re.search('vswitch0', i.name, re.IGNORECASE):
@@ -519,14 +490,14 @@ class imm(object):
                         mvlans.sort()
                         kwargs.allowed= ezfunctions.vlan_list_format(mvlans)
                         kwargs        = create_eth_groups(kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Ethernet QoS
-    #=============================================================================
+    #=========================================================================
     def ethernet_qos(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -547,14 +518,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - FC Zone
-    #=============================================================================
+    #=========================================================================
     def fc_zone(self, kwargs):
         descr = (self.type.replace('_', ' ')).title()
         fabrics = ['a', 'b']
@@ -584,14 +555,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Fibre-Channel Adapter
-    #=============================================================================
+    #=========================================================================
     def fibre_channel_adapter(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -605,14 +576,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Fibre-Channel Network
-    #=============================================================================
+    #=========================================================================
     def fibre_channel_network(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -625,14 +596,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Fibre-Channel QoS
-    #=============================================================================
+    #=========================================================================
     def fibre_channel_qos(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -648,14 +619,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policies - Firmware
-    #=============================================================================
+    #=========================================================================
     def firmware(self, kwargs):
         # Build Dictionary
         descr   = (self.type.replace('_', ' ')).capitalize()
@@ -691,14 +662,14 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         pvars = dict(cco_password = 1, cco_user = 1)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policies - Firmware
-    #=============================================================================
+    #=========================================================================
     def firmware_authenticate(self, kwargs):
         pvars = dict(cco_password = 1, cco_user = 1)
         # Add Policy for Firmware Authentication
@@ -706,14 +677,14 @@ class imm(object):
         kwargs.append_type = 'map'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
 
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Flow Control
-    #=============================================================================
+    #=========================================================================
     def flow_control(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -724,14 +695,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - IMC Access
-    #=============================================================================
+    #=========================================================================
     def imc_access(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -745,14 +716,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Pools - IP
-    #=============================================================================
+    #=========================================================================
     def ip(self, kwargs):
         pdns = kwargs.dns_servers[0]
         sdns = ''
@@ -796,14 +767,14 @@ class imm(object):
                 # Add Policy Variables to imm_dict
                 kwargs.class_path = f'pools,{self.type}'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Pools - IQN
-    #=============================================================================
+    #=========================================================================
     def iqn(self, kwargs):
         # Build Dictionary
         pvars = dict(
@@ -820,14 +791,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'pools,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - IPMI over LAN
-    #=============================================================================
+    #=========================================================================
     def ipmi_over_lan(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -839,14 +810,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - iSCSI Adapter
-    #=============================================================================
+    #=========================================================================
     def iscsi_adapter(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -860,14 +831,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - iSCSI Boot
-    #=============================================================================
+    #=========================================================================
     def iscsi_boot(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -894,14 +865,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - iSCSI Target
-    #=============================================================================
+    #=========================================================================
     def iscsi_static_target(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -922,14 +893,14 @@ class imm(object):
                     # Add Policy Variables to imm_dict
                     kwargs.class_path = f'policies,{self.type}'
                     kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - LAN Connectivity
-    #=============================================================================
+    #=========================================================================
     def lan_connectivity(self, kwargs):
         # Build Dictionary
         descr= (self.type.replace('_', ' ')).title()
@@ -1024,15 +995,15 @@ class imm(object):
                 # Add Policy Variables to imm_dict
                 kwargs.class_path = f'policies,{self.type}'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         kwargs.pci_order = pci_order
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Link Aggregation
-    #=============================================================================
+    #=========================================================================
     def link_aggregation(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1043,14 +1014,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Link Control
-    #=============================================================================
+    #=========================================================================
     def link_control(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1061,14 +1032,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Local User
-    #=============================================================================
+    #=========================================================================
     def local_user(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1087,14 +1058,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Pools - MAC
-    #=============================================================================
+    #=========================================================================
     def mac(self, kwargs):
         # Build Dictionary
         mcount = 1
@@ -1122,14 +1093,14 @@ class imm(object):
                     kwargs = ezfunctions.ez_append(pvars, kwargs)
                 # Increment MAC Count
                 mcount = mcount + 2
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Multicast
-    #=============================================================================
+    #=========================================================================
     def multicast(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1140,18 +1111,18 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Network Connectivity
-    #=============================================================================
+    #=========================================================================
     def network_connectivity(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
-        if len(kwargs.dhcp_servers) > 0 and kwargs.deployment_type == 'azurestack':
+        if len(kwargs.dhcp_servers) > 0 and kwargs.deployment_type == 'azure_stack':
             enable_dhcp = True; enable_dhcp_dns = True; enable_ipv6 = False; enable_ipv6_dhcp = False
             e = kwargs.servers[list(kwargs.servers.keys())[0]]
             if (e.get('enable_dhcp') is not None) and (e.enable_dhcp == 'no'): enable_dhcp = False
@@ -1183,14 +1154,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,network_connectivity'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - NTP
-    #=============================================================================
+    #=========================================================================
     def ntp(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1203,14 +1174,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,ntp'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Port
-    #=============================================================================
+    #=========================================================================
     def port(self, kwargs):
         def ethernet_pc_uplinks(kwargs):
             idict = dict(
@@ -1224,9 +1195,9 @@ class imm(object):
             )
             return idict
         eth_breakout_ports = []
-        #=====================================================
+        #=====================================================================
         # Base Dictionary
-        #=====================================================
+        #=====================================================================
         descr = (self.type.replace('_', ' ')).title()
         pvars = dict(
             description  = f'{kwargs.domain.name} {descr} Policy',
@@ -1234,9 +1205,9 @@ class imm(object):
             names        = [f'{kwargs.domain.name}-A', f'{kwargs.domain.name}-B'],
             port_channel_ethernet_uplinks = []
         )
-        #=====================================================
+        #=====================================================================
         # Uplink Port-Channels
-        #=====================================================
+        #=====================================================================
         x = str(kwargs.domain.eth_uplinks[0]).split('/')
         if len(x) == 3: eth_breakout_ports.extend(kwargs.domain.eth_uplinks)
         if kwargs.disjoint == True:
@@ -1269,9 +1240,9 @@ class imm(object):
             kwargs.pc_id     = int(pc_id)
             kwargs.vlan_group= 'all_vlans'
             pvars['port_channel_ethernet_uplinks'].append(ethernet_pc_uplinks(kwargs))
-        #=====================================================
+        #=====================================================================
         # Fibre-Channel Uplinks/Port-Channels
-        #=====================================================
+        #=====================================================================
         if kwargs.domain.get('vsans'):
             ports= []
             x    = kwargs.domain.fcp_uplink_ports[0].split('/')
@@ -1323,9 +1294,9 @@ class imm(object):
                         vsan_ids     = kwargs.domain.vsans
                     )
                     pvars['port_role_fc_storage'].append(idict)
-            #=====================================================
+            #=================================================================
             # Configure Fibre Channel Unified Port Mode
-            #=====================================================
+            #=================================================================
             if len(x) == 3:
                 port_start = int(kwargs.domain.fcp_uplink_ports[0].split('/')[-2])
                 port_end   = int(kwargs.domain.fcp_uplink_ports[-1].split('/')[-2])
@@ -1349,9 +1320,9 @@ class imm(object):
                         port_list   = [port_start, port_end]
                     )]
                 ))
-        #=====================================================
+        #=====================================================================
         # Ethernet Uplink Breakout Ports if present
-        #=====================================================
+        #=====================================================================
         if len(eth_breakout_ports) > 0:
             port_start= int(eth_breakout_ports[0].split('/'))[2]
             port_end  = int(eth_breakout_ports[-1].split('/'))[2]
@@ -1359,9 +1330,9 @@ class imm(object):
                 custom_mode = f'BreakoutEthernet{kwargs.domain.eth_breakout_speed}',
                 port_list   = [port_start, port_end]
             ))
-        #=====================================================
+        #=====================================================================
         # Server Ports
-        #=====================================================
+        #=====================================================================
         pvars.update({'port_role_servers':[]})
         for i in kwargs.domain.profiles:
             if len(i.domain_ports[0].split('/')) == 3:
@@ -1390,14 +1361,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Power
-    #=============================================================================
+    #=========================================================================
     def power(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1418,14 +1389,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - SAN Connectivity
-    #=============================================================================
+    #=========================================================================
     def san_connectivity(self, kwargs):
         # Build Dictionary
         descr     = (self.type.replace('_', ' ')).title()
@@ -1476,14 +1447,14 @@ class imm(object):
                 kwargs.class_path = f'policies,{self.type}'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
         
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Serial over LAN
-    #=============================================================================
+    #=========================================================================
     def serial_over_lan(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1494,34 +1465,34 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Profiles - Server
-    #=============================================================================
+    #=========================================================================
     def server(self, kwargs):
-        #=====================================================
+        #=====================================================================
         # Server Profile IP settings Function
-        #=====================================================
+        #=====================================================================
         def server_profile_networks(name, p, kwargs):
-            #=====================================================
+            #=================================================================
             # Send Error Message if IP Range isn't long enough
-            #=====================================================
+            #=================================================================
             def error_ip_range(i):
                 pcolor.Red(f'!!! ERROR !!!\nNot Enough IPs in Range {i.server} for {name}')
                 sys.exit(1)
-            #=====================================================
+            #=================================================================
             # Send Error Message if Server Range is missing
-            #=====================================================
+            #=================================================================
             def error_server_range(i):
                 pcolor.Red(f'!!! ERROR !!!\nDid Not Find Server IP Range defined for {i.vlan_type}:{i.name}:{i.vlan_id}')
                 sys.exit(1)
-            #=====================================================
+            #=================================================================
             # Dictionary of IP Settings for Server
-            #=====================================================
+            #=================================================================
             def ipdict(i, ipindex):
                 idict = dict(
                     gateway  = i.gateway,
@@ -1532,15 +1503,15 @@ class imm(object):
                     vlan_name= i.name,
                 )
                 return idict
-            #=====================================================
+            #=================================================================
             # Obtain the Index of the Starting IP Address
-            #=====================================================
+            #=================================================================
             ipindex = kwargs.inband.server.index(p.inband_start)
             if 'compute.Blade' in kwargs.server_profiles[name].object_type:
                 ipindex = ipindex + int(kwargs.server_profiles[name].slot) - 1
-            #=====================================================
+            #=================================================================
             # Loop thru the VLANs
-            #=====================================================
+            #=================================================================
             for i in kwargs.vlans:
                 if re.search('(inband|iscsi|migration|nfs|nvme|storage|tenant)', i.vlan_type):
                     if not i.server: error_server_range(i)
@@ -1555,9 +1526,9 @@ class imm(object):
                     kwargs.server_profiles[name][i.vlan_type] = idict
             return kwargs
         
-        #=====================================================
+        #=====================================================================
         # Build Server Profiles
-        #=====================================================
+        #=====================================================================
         templates = []
         for k, v in kwargs.servers.items(): templates.append(v.template)
         templates = list(numpy.unique(numpy.array(templates)))
@@ -1629,14 +1600,14 @@ class imm(object):
             pvars.update(deepcopy({'name':k}))
             kwargs.class_path= f'wizard,server_profiles'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - SNMP
-    #=============================================================================
+    #=========================================================================
     def snmp(self, kwargs):
         # Build Dictionary
         if len(kwargs.domain) > 0: idict = kwargs.domain.policies
@@ -1666,14 +1637,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,snmp'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Storage
-    #=============================================================================
+    #=========================================================================
     def ssh(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1684,14 +1655,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Storage
-    #=============================================================================
+    #=========================================================================
     def storage(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1704,14 +1675,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Switch Control
-    #=============================================================================
+    #=========================================================================
     def switch_control(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1726,14 +1697,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,switch_control'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Syslog
-    #=============================================================================
+    #=========================================================================
     def syslog(self, kwargs):
         # Build Dictionary
         if len(kwargs.domain) > 0: idict = kwargs.domain.policies
@@ -1753,14 +1724,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,syslog'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - System QoS
-    #=============================================================================
+    #=========================================================================
     def system_qos(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).title()
@@ -1772,19 +1743,19 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Templates - Server
-    #=============================================================================
+    #=========================================================================
     def templates(self, kwargs):
         # Build Dictionary
-        #=====================================================
+        #=====================================================================
         # Templates and Types
-        #=====================================================
+        #=====================================================================
         server_profiles = []
         for k, v in kwargs.servers.items(): server_profiles.append(v.template)
         server_profiles = list(numpy.unique(numpy.array(server_profiles)))
@@ -1844,14 +1815,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'{self.type},server'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Thermal
-    #=============================================================================
+    #=========================================================================
     def thermal(self, kwargs):
         # Build Dictionary
         policies = []
@@ -1867,14 +1838,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Pools - MAC
-    #=============================================================================
+    #=========================================================================
     def uuid(self, kwargs):
         # Build Dictionary
         pvars = dict(
@@ -1890,14 +1861,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'pools,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Virtual KVM
-    #=============================================================================
+    #=========================================================================
     def virtual_kvm(self, kwargs):
         # Build Dictionary
         pvars = dict(
@@ -1909,14 +1880,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - Virtual Media
-    #=============================================================================
+    #=========================================================================
     def virtual_media(self, kwargs):
         descr = (self.type.replace('_', ' ')).title()
         # Build Dictionary
@@ -1928,14 +1899,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - VLAN
-    #=============================================================================
+    #=========================================================================
     def vlan(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).upper()
@@ -1969,14 +1940,14 @@ class imm(object):
         # Add Policy Variables to imm_dict
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policy - VSAN
-    #=============================================================================
+    #=========================================================================
     def vsan(self, kwargs):
         # Build Dictionary
         descr = (self.type.replace('_', ' ')).upper()
@@ -1997,14 +1968,14 @@ class imm(object):
             # Add Policy Variables to imm_dict
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Pools - WWNN/WWPN
-    #=============================================================================
+    #=========================================================================
     def wwnn(self, kwargs):
         # Build Dictionary
         pfx = kwargs.domain.pools.prefix
@@ -2018,9 +1989,9 @@ class imm(object):
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Pools - WWNN/WWPN
-    #=============================================================================
+    #=========================================================================
     def wwpn(self, kwargs):
         # Build Dictionary
         # Loop through WWPN Pools
@@ -2034,9 +2005,9 @@ class imm(object):
                 id_blocks        = [{ 'from':f'20:00:00:25:B5:{pfx}:{i}0:00', 'size':255 }])
             kwargs.class_path = f'pools,wwpn'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
 #=============================================================================
@@ -2046,9 +2017,9 @@ class wizard(object):
     def __init__(self, type):
         self.type = type
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Intersight Managed Mode Domain Dictionaries
-    #=============================================================================
+    #=========================================================================
     def build_imm_domain(self, kwargs):
         #==================================
         # Configure Domain Policies
@@ -2066,18 +2037,18 @@ class wizard(object):
         # Configure Domain Profiles
         #==================================
         kwargs = imm('domain').domain(kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         kwargs.policy_list = policy_list
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Intersight Managed Mode Server Dictionaries
-    #=============================================================================
+    #=========================================================================
     def build_imm_servers(self, kwargs):
         pool_list = []; policy_list = []
-        if not kwargs.args.deployment_type == 'azurestack':
+        if not kwargs.args.deployment_type == 'azure_stack':
             #==================================
             # Configure IMM Pools
             #==================================
@@ -2090,11 +2061,11 @@ class wizard(object):
         #==================================
         # Modify the Policy List
         #==================================
-        if kwargs.args.deployment_type == 'azurestack':
+        if kwargs.args.deployment_type == 'azure_stack':
             for k, v in kwargs.ezdata.items():
                 if v.intersight_type == 'policies' and 'Standalone' in v.target_platforms and not '.' in k:
                     policy_list.append(k)
-            pop_list = kwargs.ezdata.converged_pop_list.properties.azurestack.enum
+            pop_list = kwargs.ezdata.converged_pop_list.properties.azure_stack.enum
             for i in pop_list:
                 if i in policy_list: policy_list.remove(i)
             kwargs = imm('compute_environment').compute_environment(kwargs)
@@ -2127,25 +2098,25 @@ class wizard(object):
                 for i in pop_list: policy_list.remove(i)
             kwargs.pci_order = 0
             for i in policy_list: kwargs = eval(f'imm(i).{i}(kwargs)')
-        #=====================================================
+        #=====================================================================
         # Configure Templates/Chassis/Server Profiles
-        #=====================================================
+        #=====================================================================
         kwargs.policy_list = policy_list
         profiles_list = ['templates', 'chassis', 'server']
-        if kwargs.args.deployment_type == 'azurestack': profiles_list.remove('chassis')
+        if kwargs.args.deployment_type == 'azure_stack': profiles_list.remove('chassis')
         for p in profiles_list: kwargs = eval(f'imm(p).{p}(kwargs)')
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - FlexPod Converged Stack - Build Storage Dictionaries
-    #=============================================================================
+    #=========================================================================
     def build_netapp(self, kwargs):
-        #=====================================================
+        #=====================================================================
         # Build Dictionaries
-        #=====================================================
+        #=====================================================================
         for name,items in kwargs.netapp.cluster.items(): kwargs = netapp.build('cluster').cluster(items, name, kwargs)
         #==================================
         # Configure NetApp
@@ -2159,18 +2130,18 @@ class wizard(object):
             for a, b in v.items():
                 kwargs.class_path = f'storage,appliances'
                 kwargs = ezfunctions.ez_append(b, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - FlashStack Converged Stack - Build Storage Dictionaries
-    #=============================================================================
+    #=========================================================================
     def build_pure_storage(self, kwargs):
-        #=====================================================
+        #=====================================================================
         # Build Pure Storage Dictionaries
-        #=====================================================
+        #=====================================================================
         for name,items in kwargs.pure_storage.items():
             kwargs = pure_storage.build('array').array(items, name, kwargs)
         #==================================
@@ -2185,14 +2156,14 @@ class wizard(object):
             for a, b in v.items():
                 kwargs.class_path = f'storage,appliances'
                 kwargs = ezfunctions.ez_append(b, kwargs)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - DHCP - DNS - NTP Attributes
-    #=============================================================================
+    #=========================================================================
     def dns_ntp(self, kwargs):
         i = kwargs.imm_dict.wizard.protocols
         kwargs.dhcp_servers = i.dhcp_servers
@@ -2202,37 +2173,37 @@ class wizard(object):
         kwargs.timezone     = i.timezone
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Intersight Managed Mode Attributes
-    #=============================================================================
+    #=========================================================================
     def imm(self, kwargs):
         kwargs.orgs = []
         for item in kwargs.imm_dict.wizard.intersight:
             item = DotMap(item)
             kwargs.orgs.append(item.organization)
             kwargs.org            = item.organization
-            if re.search('azurestack|standalone', kwargs.args.deployment_type):
+            if re.search('azure_stack|standalone', kwargs.args.deployment_type):
                 kwargs.imm.cimc_default  = item.cimc_default
                 kwargs.imm.firmware      = item.firmware
                 kwargs.imm.policies      = item.policies
                 kwargs.imm.tags          = kwargs.ezdata.tags
                 kwargs.imm.username      = item.policies.local_user
-                if re.search('azurestack', kwargs.args.deployment_type):
+                if re.search('azure_stack', kwargs.args.deployment_type):
                     kwargs.imm.profiles = []
-                    for item in kwargs.imm_dict.wizard.azurestack:
+                    for item in kwargs.imm_dict.wizard.azure_stack:
                         icount = 0
                         for i in item.clusters:
                             for e in i.members:
                                 kwargs.imm.profiles.append(DotMap(
-                                    active_directory = item.active_directory,
-                                    azurestack_admin = item.azurestack_admin,
-                                    cimc             = e.cimc,
-                                    equipment_type   = 'RackServer',
-                                    identifier       = 1,
-                                    os_vendor          = 'Microsoft',
-                                    profile_start    = e.hostname,
-                                    suffix_digits    = 1,
-                                    inband_start     = kwargs.inband.server[icount]))
+                                    active_directory  = item.active_directory,
+                                    azure_stack_admin = item.azure_stack_admin,
+                                    cimc              = e.cimc,
+                                    equipment_type    = 'RackServer',
+                                    identifier        = 1,
+                                    os_vendor           = 'Microsoft',
+                                    profile_start     = e.hostname,
+                                    suffix_digits     = 1,
+                                    inband_start      = kwargs.inband.server[icount]))
                                 icount += 1
                     kwargs.imm.policies.boot_volume = 'm2'
             else:
@@ -2286,9 +2257,9 @@ class wizard(object):
                             mgmt_port   = i.network.management,
                             network_port= i.network.data[x],
                             port_channel=True)
-                    #=====================================================
+                    #=================================================================
                     # Confirm if Fibre-Channel is in Use
-                    #=====================================================
+                    #=================================================================
                     fcp_count = 0
                     if i.get('fcp_uplink_ports'):
                         if len(i.fcp_uplink_ports) >= 2: fcp_count += 1
@@ -2306,14 +2277,14 @@ class wizard(object):
             if not kwargs.imm.policies.prefix == None and len(str(kwargs.imm.policies.prefix)) > 0:
                 kwargs.imm_dict.orgs[kwargs.org].policies.name_prefix = DotMap(default = kwargs.imm.policies.prefix)
             else: kwargs.imm.policies.prefix = ''
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - FlexPod Converged Stack Attributes
-    #=============================================================================
+    #=========================================================================
     def netapp(self, kwargs):
         #==================================
         # Build Cluster Dictionary
@@ -2365,14 +2336,14 @@ class wizard(object):
                         mgmt_port    = i.nodes.network.management,
                         network_port = i.nodes.network.data[x],
                         port_channel =True)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - FlexPod Converged Stack Attributes
-    #=============================================================================
+    #=========================================================================
     def pure_storage(self, kwargs):
         #==================================
         # Build Cluster Dictionary
@@ -2396,18 +2367,18 @@ class wizard(object):
                 protocols  = protocols,
                 volumes    = i.volumes,
                 username   = i.username)
-        #=====================================================
+        #=====================================================================
         # Return kwargs and kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policies - BIOS
-    #=============================================================================
+    #=========================================================================
     def os_install(self, kwargs):
-        #=====================================================
+        #=====================================================================
         # Load Variables and Send Begin Notification
-        #=====================================================
+        #=====================================================================
         validating.begin_section(self.type, 'Install')
         kwargs.org_moid= kwargs.org_moids[kwargs.org].moid
         kwargs.models  = []
@@ -2508,7 +2479,7 @@ class wizard(object):
                     kwargs            = isight.api('hcl_operating_system').calls(kwargs)
                     kwargs.distributions[version] = DotMap(moid = kwargs.results[0].Moid)
                 kwargs.distribution_moid = kwargs.distributions[version].moid
-                file_content = (open(f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}{ctemplate}', 'r')).read()
+                file_content = (open(os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3', ctemplate), 'r')).read()
                 for e in ['LayeredDriver:layeredDriver', 'UILanguageFallback:secondaryLanguage']:
                     elist = e.split(':')
                     rstring = '            <%s>{{ .%s }}</%s>\n' % (elist[0], elist[1], elist[0])
@@ -2620,9 +2591,9 @@ class wizard(object):
                 os_install_fail_count += 1
                 pcolor.Red(f'      * Something went wrong with the OS Install Request for {k}. Please Validate the Server.')
             else: pcolor.Cyan(f'      * Skipping Operating System Install for {k}.')
-        #=====================================================
+        #=====================================================================
         # Send End Notification and return kwargs
-        #=====================================================
+        #=====================================================================
         validating.end_section(self.type, 'Install')
         if os_install_fail_count > 0:
             pcolor.Yellow(kwargs.names)
@@ -2633,9 +2604,9 @@ class wizard(object):
             sys.exit(1)
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Converged Stack - VLAN Attributes
-    #=============================================================================
+    #=========================================================================
     def vlans(self, kwargs):
         kwargs.vlans = []
         for i in kwargs.imm_dict.wizard.vlans:
@@ -2684,28 +2655,28 @@ class wizard(object):
         #==================================
         for i in kwargs.vlans:
             if re.search('(inband|nfs|ooband|migration)', i.vlan_type): kwargs[i.vlan_type] = i
-        #=====================================================
+        #=====================================================================
         # Return kwargs
-        #=====================================================
+        #=====================================================================
         return kwargs
 
-    #=============================================================================
+    #=========================================================================
     # Function - Build Policies - BIOS
-    #=============================================================================
+    #=========================================================================
     def windows_prep(self, kwargs):
-        #=====================================================
+        #=====================================================================
         # Load Variables and Send Begin Notification
-        #=====================================================
+        #=====================================================================
         validating.begin_section(self.type, 'preparation')
         kwargs.org_moid = kwargs.org_moids[kwargs.org].moid
         kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
         kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
         kwargs = ezfunctions.windows_languages(kwargs.imm_dict.wizard.windows_install, kwargs)
         kwargs = ezfunctions.windows_timezones(kwargs)
-        #=====================================================
+        #=====================================================================
         # Get Physical Server Tags to Check for
         # Existing OS Install
-        #=====================================================
+        #=====================================================================
         kwargs.repo_server = kwargs.imm_dict.wizard.imm_transition
         for v in ['imm_transition_password', 'windows_admin_password', 'windows_domain_password']:
             kwargs.sensitive_var = v
@@ -2789,9 +2760,9 @@ class wizard(object):
         azs_file_name = 'azure_stack_hci_files'
         shutil.make_archive(f'{cwd}{os.sep}{azs_file_name}', 'zip', f'{cwd}{os.sep}{new_dir}')
         azs_file_name = 'azure_stack_hci_files.zip'
-        #=====================================================
+        #=====================================================================
         # LOGIN TO IMM TRANSITION API
-        #=====================================================
+        #=====================================================================
         s = requests.Session()
         data = json.dumps({'username':'admin','password':kwargs['imm_transition_password']})
         url = f'https://{kwargs.imm_dict.wizard.imm_transition}'
@@ -2800,9 +2771,9 @@ class wizard(object):
         if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
         jdata = json.loads(r.text)
         token = jdata['token']
-        #=====================================================
+        #=====================================================================
         # GET EXISTING FILES FROM THE SOFTWARE REPOSITORY
-        #=====================================================
+        #=====================================================================
         try: r = s.get(url = f'{url}/api/v1/repo/files', headers={'x-access-token': token}, verify=False)
         except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if not r.ok: pcolor.Red(r.text); sys.exit(1)
@@ -2813,9 +2784,9 @@ class wizard(object):
             try: r = s.delete(url = f'{url}/api/v1/repo/files/{azs_file_name}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if not r.ok: pcolor.Red(r.text); sys.exit(1)
-        #=====================================================
+        #=====================================================================
         # CREATE ZIP FILE IN THE SOFTWARE REPOSITORY
-        #=====================================================
+        #=====================================================================
         file = open(f'{cwd}{os.sep}{azs_file_name}', 'rb')
         files = {'file': file}
         values = {'uuid':str(uuid.uuid4())}
@@ -2826,22 +2797,22 @@ class wizard(object):
             pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
         if not r.ok: pcolor.Red(r.text); sys.exit(1)
         file.close()
-        #=====================================================
+        #=====================================================================
         # LOGOUT OF THE API
-        #=====================================================
+        #=====================================================================
         for uri in ['logout']:
             try: r = s.get(url = f'{url}/api/v1/{uri}', headers={'x-access-token': token}, verify=False)
             except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
             if 'repo' in uri: jdata = json.loads(r.text)
             if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
-        #=====================================================
+        #=====================================================================
         # REMOVE FOLDER and ZIP FILE
-        #=====================================================
+        #=====================================================================
         try: shutil.rmtree(new_dir)
         except OSError as e: print("Error: %s - %s." % (e.filename, e.strerror))
         os.remove(f'{cwd}{os.sep}{azs_file_name}')
-        #=====================================================
+        #=====================================================================
         # END SECTION
-        #=====================================================
+        #=====================================================================
         validating.end_section(self.type, 'preparation')
         return kwargs

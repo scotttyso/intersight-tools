@@ -86,7 +86,7 @@ class nxos(object):
             #================================
             # Configure Interfaces
             #================================
-            if kwargs.deployment_type == 'azurestack': cmds.extend(add_interfaces_standalone(x, nxmap, kwargs))
+            if kwargs.deployment_type == 'azure_stack': cmds.extend(add_interfaces_standalone(x, nxmap, kwargs))
             else: cmds.extend(add_interfaces(x, nxmap, kwargs))
             cmds.append('end')
 
@@ -254,7 +254,7 @@ def add_interfaces_standalone(x, nxmap, kwargs):
                 f"  priority-flow-control mode on",
                 f"  no shutdown",
                 f"!"])
-            if kwargs.deployment_type == 'azurestack':
+            if kwargs.deployment_type == 'azure_stack':
                 cmds.extend([
                     f"  service-policy type qos input AzS_HCI_QoS",
                     f"  service-policy type queueing output QoS_Egress_Port"])
@@ -285,7 +285,7 @@ def base_configuration(kwargs):
         f"ip domain-name {kwargs.dns_domains[0]}",
         f"ip domain-lookup",
         f"ntp master 3"]
-    if kwargs.deployment_type == 'azurestack': cmds.extend(["feature bgp", "feature dhcp"])
+    if kwargs.deployment_type == 'azure_stack': cmds.extend(["feature bgp", "feature dhcp"])
     return cmds
 
 #=====================================================
@@ -586,7 +586,7 @@ def vpc_config(x, nxmap, kwargs):
         f"  switchport mode trunk",
         f"  vpc peer-link",
         f"!"])
-    if kwargs.deployment_type == 'azurestack':
+    if kwargs.deployment_type == 'azure_stack':
         cmds.append(f" service-policy type qos input AzS_HCI_QoS")
 
     #================================

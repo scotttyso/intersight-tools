@@ -75,25 +75,27 @@ def base_arguments(parser):
 # Function - Arguments used by EZIMM For Sensitive Variables
 #=============================================================================
 def base_arguments_ezimm_sensitive_variables(parser):
-    parser.add_argument('-ccp',  '--cco-password',            help='Cisco Connection Online Password to Authorize Firmware Downloads.' )
-    parser.add_argument('-ccu',  '--cco-user',                help='Cisco Connection Online Username to Authorize Firmware Downloads.' )
-    parser.add_argument('-ilp',  '--local-user-password-1',   help='Intersight Managed Mode Local User Password 1.' )
-    parser.add_argument('-ilp2', '--local-user-password-2',   help='Intersight Managed Mode Local User Password 2.' )
-    parser.add_argument('-imm',  '--imm-transition-password', help='IMM Transition Tool Password.' )
-    parser.add_argument('-isa',  '--snmp-auth-password-1',    help='Intersight Managed Mode SNMP Auth Password.' )
-    parser.add_argument('-isp',  '--snmp-privacy-password-1', help='Intersight Managed Mode SNMP Privilege Password.' )
-    parser.add_argument('-np',   '--netapp-password',         help='NetApp Login Password.' )
-    parser.add_argument('-nsa',  '--netapp-snmp-auth',        help='NetApp SNMP Auth Password.' )
-    parser.add_argument('-nsp',  '--netapp-snmp-priv',        help='NetApp SNMP Privilege Password.' )
-    parser.add_argument('-nxp',  '--nexus-password',          help='Nexus Login Password.' )
-    parser.add_argument('-p',    '--pure-storage-password',   help='Pure Storage Login Password.' )
-    parser.add_argument('-psa',  '--pure-storage-snmp-auth',  help='Pure Storage SNMP Auth Password.' )
-    parser.add_argument('-psp',  '--pure-storage-snmp-priv',  help='Pure Storage SNMP Privilege Password.' )
-    parser.add_argument('-pxp',  '--proxy-password',          help='Proxy Password.' )
-    parser.add_argument('-vep',  '--vmware-esxi-password',    help='VMware ESXi Root Login Password.' )
-    parser.add_argument('-vvp',  '--vmware-vcenter-password', help='VMware vCenter Admin Login Password.' )
-    parser.add_argument('-wap',  '--windows-admin-password',  help='Windows Administrator Login Password.' )
-    parser.add_argument('-wdp',  '--windows-domain-password', help='Windows Domain Registration Login Password.' )
+    parser.add_argument('-aap',  '--azure-stack-admin-password', help='Azure Stack HCI Local Adminsitrator Password.')
+    parser.add_argument('-alp',  '--azure-stack-lcm-password',   help='Azure Stack HCI Life Cycle Management User Password.')
+    parser.add_argument('-ccp',  '--cco-password',               help='Cisco Connection Online Password to Authorize Firmware Downloads.')
+    parser.add_argument('-ccu',  '--cco-user',                   help='Cisco Connection Online Username to Authorize Firmware Downloads.')
+    parser.add_argument('-ilp',  '--local-user-password-1',      help='Intersight Managed Mode Local User Password 1.')
+    parser.add_argument('-ilp2', '--local-user-password-2',      help='Intersight Managed Mode Local User Password 2.')
+    parser.add_argument('-imm',  '--imm-transition-password',    help='IMM Transition Tool Password.')
+    parser.add_argument('-isa',  '--snmp-auth-password-1',       help='Intersight Managed Mode SNMP Auth Password.')
+    parser.add_argument('-isp',  '--snmp-privacy-password-1',    help='Intersight Managed Mode SNMP Privilege Password.')
+    parser.add_argument('-np',   '--netapp-password',            help='NetApp Login Password.')
+    parser.add_argument('-nsa',  '--netapp-snmp-auth',           help='NetApp SNMP Auth Password.')
+    parser.add_argument('-nsp',  '--netapp-snmp-priv',           help='NetApp SNMP Privilege Password.')
+    parser.add_argument('-nxp',  '--nexus-password',             help='Nexus Login Password.')
+    parser.add_argument('-p',    '--pure-storage-password',      help='Pure Storage Login Password.')
+    parser.add_argument('-psa',  '--pure-storage-snmp-auth',     help='Pure Storage SNMP Auth Password.')
+    parser.add_argument('-psp',  '--pure-storage-snmp-priv',     help='Pure Storage SNMP Privilege Password.')
+    parser.add_argument('-pxp',  '--proxy-password',             help='Proxy Password.')
+    parser.add_argument('-vep',  '--vmware-esxi-password',       help='VMware ESXi Root Login Password.')
+    parser.add_argument('-vvp',  '--vmware-vcenter-password',    help='VMware vCenter Admin Login Password.')
+    parser.add_argument('-wap',  '--windows-admin-password',     help='Windows Administrator Login Password.')
+    parser.add_argument('-wdp',  '--windows-domain-password',    help='Windows Domain Registration Login Password.')
     return parser
 
 #=============================================================================
@@ -687,10 +689,10 @@ def installation_body_vmware(v, kwargs):
 # Function - Build api_body for Operating System Installation - Azure Stack
 #=============================================================================
 def installation_body_windows(v, kwargs):
-    if kwargs.args.deployment_type == 'azurestack':
-        ou           = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
-        org_unit     = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
-        organization = kwargs.imm_dict.wizard.azurestack[0].organization
+    if kwargs.args.deployment_type == 'azure_stack':
+        ou           = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_ou
+        org_unit     = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain.replace('.', ',DC=')
+        organization = kwargs.imm_dict.wizard.azure_stack[0].organization
     else: ou = ''; org_unit = ''; organization = 'Example'
     api_body = {
         "AdditionalParameters": [],

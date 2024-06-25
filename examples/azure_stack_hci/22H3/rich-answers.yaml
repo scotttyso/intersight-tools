@@ -1,0 +1,17 @@
+---
+active_directory:
+  administrator: tyscott@rich.ciscolabs.com
+  azure_stack_prefix: AzS
+  domain: rich.ciscolabs.com
+clusters:
+  - cluster_name: cluster01
+    life_cycle_management_user: admin_cluster01@rich.ciscolabs.com
+    members:
+    - host1.rich.ciscolabs.com
+    - host2.rich.ciscolabs.com
+    naming_prefix: cl01
+    organizational_unit: Azs-Cluster01
+file_share_witness:
+  host: witness.rich.ciscolabs.com
+  share_name: \\witness.rich.ciscolabs.com\file_share
+  type: domain
