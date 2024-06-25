@@ -134,61 +134,61 @@ class api(object):
         api_dict = DotMap()
         if not kwargs.build_skip == True and api_results.get('Results'):
             for i in api_results.Results:
+                if i.ObjectType == 'resource.Group': print(json.dumps(i, indent=4))
                 if i.get('Body'): i = i.Body
-                if i.get('VlanId'): iname = str(i.VlanId)
-                elif i.get('PcId'): iname = str(i.PcId)
-                elif i.get('PortId'): iname = str(i.PortId)
+                ikeys = list(i.keys())
+                if   'VlanId'  in ikeys: iname = str(i.VlanId)
                 elif i.ObjectType == 'asset.DeviceRegistration': iname = i.Serial[0]
-                elif i.get('Serial'): iname = i.Serial
-                elif i.get('VsanId'): iname = str(i.VsanId)
-                elif i.get('Answers'): iname = i.Answers.Hostname
-                elif i.get('Name'): iname = i.Name
-                elif self.type == 'upgrade':
-                    if i.Status == 'IN_PROGRESS': iname = kwargs.srv_moid
-                elif i.get('SocketDesignation'): iname = i.Dn
-                elif i.get('EndPointUser'): iname = i.EndPointUser.Moid
-                elif i.get('PortIdStart'): iname = str(i.PortIdStart)
-                elif i.get('Version'): iname = i.Version
-                elif i.get('ControllerId'): iname = i.ControllerId
-                elif i.get('Identity'): iname = i.Identity
-                elif i.get('MacAddress'): iname = i.MacAddress
-                elif i.get('WWnId'): iname = i.WWnId
-                elif i.get('IpV4Address'): iname = i.IpV4Address
-                elif i.get('IpV6Address'): iname = i.IpV6Address
-                elif i.get('IqnAddress'): iname = i.IqnAddress
-                elif i.get('Uuid'): iname = i.Uuid
-                elif i.get('PciSlot'): iname = str(i.PciSlot)
+                elif 'PcId'    in ikeys: iname = str(i.PcId)
+                elif 'PortId'  in ikeys: iname = str(i.PortId)
+                elif 'Serial'  in ikeys: iname = i.Serial
+                elif 'VsanId'  in ikeys: iname = str(i.VsanId)
+                elif 'Answers' in ikeys: iname = i.Answers.Hostname
+                elif 'Name'    in ikeys: iname = i.Name
+                elif self.type == 'upgrade' and i.Status == 'IN_PROGRESS': iname = kwargs.srv_moid
+                elif 'SocketDesignation' in ikeys: iname = i.Dn
+                elif 'EndPointUser'      in ikeys: iname = i.EndPointUser.Moid
+                elif 'PortIdStart'       in ikeys: iname = str(i.PortIdStart)
+                elif 'Version'           in ikeys: iname = i.Version
+                elif 'ControllerId'      in ikeys: iname = i.ControllerId
+                elif 'Identity'          in ikeys: iname = i.Identity
+                elif 'MacAddress'        in ikeys: iname = i.MacAddress
+                elif 'WWnId'             in ikeys: iname = i.WWnId
+                elif 'IpV4Address'       in ikeys: iname = i.IpV4Address
+                elif 'IpV6Address'       in ikeys: iname = i.IpV6Address
+                elif 'IqnAddress'        in ikeys: iname = i.IqnAddress
+                elif 'Uuid'              in ikeys: iname = i.Uuid
+                elif 'PciSlot'           in ikeys: iname = str(i.PciSlot)
                 else: iname = i.Moid
                 if i.get('PcId') or i.get('PortId') or i.get('PortIdStart'):
                     api_dict[i.PortPolicy.Moid][iname].moid = i.Moid
                 else: api_dict[iname].moid = i.Moid
-                if i.get('ConfiguredBootMode'): api_dict[iname].boot_mode = i.ConfiguredBootMode
-                if i.get('EnforceUefiSecureBoot'): api_dict[iname].enable_secure_boot = i.EnforceUefiSecureBoot
-                if i.get('IpV4Config'): api_dict[iname].ipv4_config = i.IpV4Config
-                if i.get('IpV6Config'): api_dict[iname].ipv6_config = i.IpV6Config
-                if i.get('ManagementMode'): api_dict[iname].management_mode = i.ManagementMode
-                if i.get('MgmtIpAddress'): api_dict[iname].management_ip_address = i.MgmtIpAddress
-                if i.get('Model'):
+                if 'ConfiguredBootMode'    in ikeys: api_dict[iname].boot_mode = i.ConfiguredBootMode
+                if 'EnforceUefiSecureBoot' in ikeys: api_dict[iname].enable_secure_boot = i.EnforceUefiSecureBoot
+                if 'IpV4Config'            in ikeys: api_dict[iname].ipv4_config = i.IpV4Config
+                if 'IpV6Config'            in ikeys: api_dict[iname].ipv6_config = i.IpV6Config
+                if 'ManagementMode'        in ikeys: api_dict[iname].management_mode = i.ManagementMode
+                if 'MgmtIpAddress'         in ikeys: api_dict[iname].management_ip_address = i.MgmtIpAddress
+                if 'Model'                 in ikeys:
                     api_dict[iname].model = i.Model
                     api_dict[iname].name = i.Name
                     api_dict[iname].object_type = i.ObjectType
                     api_dict[iname].registered_device = i.RegisteredDevice.Moid
-                    if i.get('ChassisId'): api_dict[iname].id = i.ChassisId
-                    if i.get('SourceObjectType'): api_dict[iname].object_type = i.SourceObjectType
-                if i.get('Organization'): api_dict[iname].organization = kwargs.org_names[i.Organization.Moid]
-                if i.get('PolicyBucket'): api_dict[iname].policy_bucket = i.PolicyBucket
-                if i.get('Selectors'): api_dict[iname].selectors = i.Selectors
-                if i.get('Source'):
-                    if i.Source.get('LocationLink'): api_dict[iname].url = i.Source.LocationLink
-                if i.get('SwitchId'): api_dict[iname].switch_id = i.SwitchId
-                if i.get('Tags'): api_dict[iname].tags = i.Tags
-                if i.get('UpgradeStatus'): api_dict[iname].upgrade_status = i.UpgradeStatus
-                if i.get('WorkflowInfo'): api_dict[iname].workflow_moid = i.WorkflowInfo.Moid
-                if i.get('Vendor') and type(i.Vendor) != str: api_dict[iname].vendor_moid = i.Vendor.Moid
-                if i.get('Distributions'): api_dict[iname].distributions = [e.Moid for e in i.Distributions]
-                if i.get('Profiles'):
+                    if 'ChassisId'        in ikeys: api_dict[iname].id = i.ChassisId
+                    if 'SourceObjectType' in ikeys: api_dict[iname].object_type = i.SourceObjectType
+                if 'Organization'  in ikeys: api_dict[iname].organization = kwargs.org_names[i.Organization.Moid]
+                if 'PolicyBucket'  in ikeys: api_dict[iname].policy_bucket = i.PolicyBucket
+                if 'Selectors'     in ikeys: api_dict[iname].selectors = i.Selectors
+                if 'SwitchId'      in ikeys: api_dict[iname].switch_id = i.SwitchId
+                if 'Tags'          in ikeys: api_dict[iname].tags = i.Tags
+                if 'UpgradeStatus' in ikeys: api_dict[iname].upgrade_status = i.UpgradeStatus
+                if 'WorkflowInfo'  in ikeys: api_dict[iname].workflow_moid  = i.WorkflowInfo.Moid
+                if 'Distributions' in ikeys: api_dict[iname].distributions  = [e.Moid for e in i.Distributions]
+                if 'Source'   in ikeys and 'LocationLink' in ikeys: api_dict[iname].url = i.Source.LocationLink
+                if 'Vendor'   in ikeys and   type(i.Vendor) != str: api_dict[iname].vendor_moid = i.Vendor.Moid
+                if 'Profiles' in ikeys:
                     api_dict[iname].profiles = []
-                    for x in i['Profiles']:
+                    for x in i.Profiles:
                         xdict = DotMap(Moid=x.Moid,ObjectType=x.ObjectType)
                         api_dict[iname].profiles.append(xdict)
         return api_dict

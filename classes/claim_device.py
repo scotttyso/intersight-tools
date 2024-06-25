@@ -157,8 +157,9 @@ def claim_targets(kwargs):
                 result[device.hostname].changed  = False
                 result[device.hostname].serial   = device_id
             if ('dc_obj' in locals() or 'dc_obj' in globals()): dc_obj.logout()
-
         null_selector = False
+        print(i)
+        print(resource_groups)
         if re.search(r'ParentConnection eq null',  resource_groups[i.resource_group].selectors[0].Selector): null_selector = True
         elif re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector):
             device_registrations= re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector).group(1)
