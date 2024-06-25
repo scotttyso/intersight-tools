@@ -44,8 +44,9 @@ def completed_item(ptype, kwargs):
     method = kwargs.method
     name   = None
     pmoid  = iresults.Moid
-    if   'vnic.EthIf' == iresults['ObjectType']: name = f"vNIC {iresults['Name']}"
-    elif 'vnic.FcIf' == iresults['ObjectType']:  name = f"vHBA {iresults['Name']}"
+    if   'vnic.EthIf' == iresults.ObjectType: name = f"vNIC {iresults.Name}"
+    elif 'vnic.FcIf' == iresults.ObjectType:  name = f"vHBA {iresults.Name}"
+    elif 'asset.DeviceClaim' == iresults.ObjectType:  name = f"Claiming Server `{iresults.SerialNumber}` Registration"
     elif 'autosupport' == ptype:        name = "AutoSupport"
     elif iresults.get('PcId'):          name = f"PC {iresults['PcId']}"
     elif iresults.get('PortId'):        name = f"Port {iresults['PortId']}"
@@ -94,6 +95,7 @@ def completed_item(ptype, kwargs):
     elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
         if method == 'post': pcolor.Green(f'{" "*6}* Completed {method.upper()} for {ptype} {name}.')
         else: pcolor.LightPurple(f'      * Completed {method.upper()} for {ptype} {name}.')
+    elif 'Claiming' in name: pcolor.Green(f'{" "*6}- Completed POST for {name} - Moid: {pmoid}')
     elif 'Reservation' in name: pcolor.Green(f'{" "*6}- Completed POST for {name} - Moid: {pmoid}')
     elif 'bulk/MoMergers' == kwargs.uri:
         if method == 'post': pcolor.Green(f'{" "*6}- Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
