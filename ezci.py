@@ -15,7 +15,7 @@ The Script uses argparse to take in the following CLI arguments:
                                      4. operating_system
                                      5. os_configuration
     -t  or -deployment-type:       Infrastructure Deployment Type. Options Are: 
-                                     1. azurestack
+                                     1. azure_stack
                                      2. flashstack
                                      3. flexpod
                                      4. imm_domain
@@ -60,7 +60,7 @@ def cli_arguments():
     parser.add_argument(
         '-t', '--deployment-type', default ='imm_domain', required=True,
         help ='Infrastructure Deployment Type. Options Are: '\
-            '1. azurestack '
+            '1. azure_stack '
             '2. flashstack '\
             '3. flexpod '\
             '3. imm_domain '\
@@ -217,7 +217,7 @@ def main():
             # Run Lun Creation Class
             #=================================================================
             if kwargs.args.deployment_type == 'flexpod': kwargs = netapp.build('lun').lun(kwargs)
-        if 'azurestack' == kwargs.args.deployment_type:
+        if 'azure_stack' == kwargs.args.deployment_type:
             for org in orgs: kwargs = ci.wizard('wizard').windows_prep(kwargs)
         #=====================================================================
         # Create YAML Files

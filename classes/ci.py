@@ -58,7 +58,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -155,7 +155,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -182,7 +182,7 @@ class imm(object):
             kwargs.class_path = f'profiles,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -247,26 +247,20 @@ class imm(object):
             #=================================================================
             kwargs.org = org
             for e in ['compute', 'children_equipment']:
-                kwargs.api_filter = 'ignore'
-                kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
-            #kwargs.method = 'get'
-            #kwargs.names  = [kwargs.result[k].serial for k in list(kwargs.result.keys())]
-            #kwargs.uri    = 'compute/PhysicalSummaries'
-            #kwargs        = isight.api('serial_number').calls(kwargs)
-            #kwargs        = isight.api(kwargs.args.deployment_type).build_compute_dictionary(kwargs)
-            print(json.dumps(kwargs.servers, indent=4))
-            print(json.dumps(kwargs.server, indent=4))
-            exit()
-            for i in list(kwargs.servers.keys()):
-                for k, v in kwargs.result.items():
-                    indx = next((index for (index, d) in enumerate(kwargs.imm.profiles) if d['cimc'] == k), None)
-                    if v.serial == i:
-                        kwargs.servers[i] = DotMap(dict(kwargs.servers[i].toDict(), **dict(
-                            enable_dhcp = v.enable_dhcp, enable_dhcp_dns  = v.enable_dhcp_dns,
-                            enable_ipv6 = v.enable_ipv6, enable_ipv6_dhcp = v.enable_ipv6_dhcp)))
-                    if type(indx) == int: kwargs.servers[i].active_directory = kwargs.imm.profiles[indx].active_directory
+                kwargs.api_filter = 'ignore'; kwargs = eval(f"isight.api('server').server_{e}(kwargs)")
+            for k,v in kwargs.servers.items():
+                if len(v.kvm_ip_addresses) > 0:
+                    for i in v.kvm_ip_addresses: kwargs.server_ips[i] = k
+            dlist = ['enable_dhcp', 'enable_dhcp_dns', 'enable_ipv6', 'enable_ipv6_dhcp']
+            for k, v in kwargs.result.items():
+                for e in dlist: kwargs.servers[kwargs.server_ips[k]][e] = v[e]
+                indx = next((index for (index, d) in enumerate(kwargs.imm.profiles) if d.cimc == k), None)
+                kwargs.servers[kwargs.server_ips[k]].active_directory = kwargs.imm.profiles[indx].active_directory
+                kwargs.servers[kwargs.server_ips[k]].azure_stack = kwargs.imm.profiles[indx].azure_stack
+                #kwargs.servers[kwargs.server_ips[k]] = DotMap(sorted(kwargs.servers[kwargs.server_ips[k]].items()))
+            #kwargs.servers = DotMap(sorted(kwargs.servers.items(), key=lambda ele: ele[1].name))
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -304,7 +298,7 @@ class imm(object):
         kwargs.class_path = f'profiles,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -327,7 +321,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -355,7 +349,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -494,7 +488,7 @@ class imm(object):
                         kwargs.allowed= ezfunctions.vlan_list_format(mvlans)
                         kwargs        = create_eth_groups(kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -522,7 +516,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -559,7 +553,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -580,7 +574,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -600,7 +594,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -623,7 +617,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -666,7 +660,7 @@ class imm(object):
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         pvars = dict(cco_password = 1, cco_user = 1)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -681,7 +675,7 @@ class imm(object):
         kwargs = ezfunctions.ez_append(pvars, kwargs)
 
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -699,7 +693,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -720,7 +714,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -771,7 +765,7 @@ class imm(object):
                 kwargs.class_path = f'pools,{self.type}'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -795,7 +789,7 @@ class imm(object):
         kwargs.class_path = f'pools,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -814,7 +808,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -835,7 +829,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -869,7 +863,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -897,7 +891,7 @@ class imm(object):
                     kwargs.class_path = f'policies,{self.type}'
                     kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -999,7 +993,7 @@ class imm(object):
                 kwargs.class_path = f'policies,{self.type}'
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         kwargs.pci_order = pci_order
         return kwargs
@@ -1018,7 +1012,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1036,7 +1030,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1062,7 +1056,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1097,7 +1091,7 @@ class imm(object):
                 # Increment MAC Count
                 mcount = mcount + 2
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1115,7 +1109,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1158,7 +1152,7 @@ class imm(object):
         kwargs.class_path = f'policies,network_connectivity'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1178,7 +1172,7 @@ class imm(object):
         kwargs.class_path = f'policies,ntp'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1365,7 +1359,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1393,7 +1387,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1451,7 +1445,7 @@ class imm(object):
                 kwargs = ezfunctions.ez_append(pvars, kwargs)
         
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1469,7 +1463,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1604,7 +1598,7 @@ class imm(object):
             kwargs.class_path= f'wizard,server_profiles'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1641,7 +1635,7 @@ class imm(object):
         kwargs.class_path = f'policies,snmp'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1659,7 +1653,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1679,7 +1673,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1701,7 +1695,7 @@ class imm(object):
         kwargs.class_path = f'policies,switch_control'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1728,7 +1722,7 @@ class imm(object):
         kwargs.class_path = f'policies,syslog'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1747,7 +1741,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1819,7 +1813,7 @@ class imm(object):
             kwargs.class_path = f'{self.type},server'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1842,7 +1836,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1865,7 +1859,7 @@ class imm(object):
         kwargs.class_path = f'pools,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1884,7 +1878,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1903,7 +1897,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1944,7 +1938,7 @@ class imm(object):
         kwargs.class_path = f'policies,{self.type}'
         kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -1972,7 +1966,7 @@ class imm(object):
             kwargs.class_path = f'policies,{self.type}'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2009,7 +2003,7 @@ class imm(object):
             kwargs.class_path = f'pools,wwpn'
             kwargs = ezfunctions.ez_append(pvars, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2041,7 +2035,7 @@ class wizard(object):
         #==================================
         kwargs = imm('domain').domain(kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         kwargs.policy_list = policy_list
         return kwargs
@@ -2069,6 +2063,8 @@ class wizard(object):
                 if v.intersight_type == 'policies' and 'Standalone' in v.target_platforms and not '.' in k:
                     policy_list.append(k)
             pop_list = kwargs.ezdata.converged_pop_list.properties.azure_stack.enum
+            print(pop_list)
+            exit()
             for i in pop_list:
                 if i in policy_list: policy_list.remove(i)
             kwargs = imm('compute_environment').compute_environment(kwargs)
@@ -2109,7 +2105,7 @@ class wizard(object):
         if kwargs.args.deployment_type == 'azure_stack': profiles_list.remove('chassis')
         for p in profiles_list: kwargs = eval(f'imm(p).{p}(kwargs)')
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2134,7 +2130,7 @@ class wizard(object):
                 kwargs.class_path = f'storage,appliances'
                 kwargs = ezfunctions.ez_append(b, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2160,7 +2156,7 @@ class wizard(object):
                 kwargs.class_path = f'storage,appliances'
                 kwargs = ezfunctions.ez_append(b, kwargs)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2281,7 +2277,7 @@ class wizard(object):
                 kwargs.imm_dict.orgs[kwargs.org].policies.name_prefix = DotMap(default = kwargs.imm.policies.prefix)
             else: kwargs.imm.policies.prefix = ''
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2340,7 +2336,7 @@ class wizard(object):
                         network_port = i.nodes.network.data[x],
                         port_channel =True)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 
@@ -2371,7 +2367,7 @@ class wizard(object):
                 volumes    = i.volumes,
                 username   = i.username)
         #=====================================================================
-        # Return kwargs and kwargs
+        # Return kwargs
         #=====================================================================
         return kwargs
 

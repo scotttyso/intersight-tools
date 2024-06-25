@@ -7423,11 +7423,11 @@
                 "object_type": "not_applicable",
                 "title": "ezci",
                 "properties": {
-                    "azurestack": {
+                    "azure_stack": {
                         "type": "string",
                         "default": "",
                         "description": "List of Policies to Exclude from AzureStack HCI.",
-                        "title": "azurestack",
+                        "title": "azure_stack",
                         "enum": [
                             "adapter_configuration",
                             "certificate_management",
