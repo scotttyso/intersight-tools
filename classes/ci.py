@@ -32,7 +32,13 @@ class imm(object):
         descr     = (self.type.replace('_', ' ')).upper()
         btemplates= []
         dataset   = []
+        for k,v in kwargs.servers.items():
+            for e in v.kvm_ip_addresses:
+                if e in list(kwargs.result.keys()):
+                    print(json.dumps(v, indent=4))
+        exit()
         for k, v in kwargs.servers.items():
+            
             dataset.append(f"{v.gen}-{v.cpu}-{v.tpm}")
         models = list(numpy.unique(numpy.array(dataset)))
         for i in models:
@@ -2063,8 +2069,6 @@ class wizard(object):
                 if v.intersight_type == 'policies' and 'Standalone' in v.target_platforms and not '.' in k:
                     policy_list.append(k)
             pop_list = kwargs.ezdata.converged_pop_list.properties.azure_stack.enum
-            print(pop_list)
-            exit()
             for i in pop_list:
                 if i in policy_list: policy_list.remove(i)
             kwargs = imm('compute_environment').compute_environment(kwargs)
