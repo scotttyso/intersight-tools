@@ -160,8 +160,9 @@ def claim_targets(kwargs):
         null_selector = False
         print(i)
         print(resource_groups)
-        if re.search(r'ParentConnection eq null',  resource_groups[i.resource_group].selectors[0].Selector): null_selector = True
-        elif re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector):
+        if len(resource_groups[i.resource_group].selectors) > 0 and re.search(r'ParentConnection eq null',  resource_groups[i.resource_group].selectors[0].Selector):
+            null_selector = True
+        elif len(resource_groups[i.resource_group].selectors) > 0 and re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector):
             device_registrations= re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector).group(1)
         else: device_registrations= ''
         if null_selector == False:
@@ -174,11 +175,12 @@ def claim_targets(kwargs):
                     result[s]['Resource Updated'] = True
                 else: result[s]['Resource Updated'] = False
 
-            kwargs.api_body = { "Selectors":[{
-                "ClassId": "resource.Selector",
-                "ObjectType": "resource.Selector",
-                "Selector": "/api/v1/asset/DeviceRegistrations?$filter=Moid in("f"{appended_targets})"
+            kwargs.api_body = { 'Selectors':[{
+                'ClassId': 'resource.Selector',
+                'ObjectType': 'resource.Selector',
+                'Selector': '/api/v1/asset/DeviceRegistrations?$filter=Moid in('f"{appended_targets})"
             }] }
+            print(kwargs.api_body)
             kwargs.method = 'patch'
             kwargs.pmoid  = resource_groups[i.resource_group].moid
             kwargs.uri    = 'resource/Groups'
