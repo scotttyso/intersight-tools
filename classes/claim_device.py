@@ -164,25 +164,26 @@ def claim_targets(kwargs):
             device_registrations= re.search(r'\(([0-9a-z\'\,]+)\)', resource_groups[i.resource_group].selectors[0].Selector).group(1)
         else: device_registrations= ''
         if null_selector == False:
+            update_resource_group = False
             for s in i.devices:
                 result[s]['Resource Group'] = i.resource_group
                 if not result[s].reg_moid in device_registrations:
+                    update_resource_group = True
                     if len(device_registrations) > 0:
                         appended_targets = device_registrations + "," + f"'{result[s].reg_moid}'"
                     else: appended_targets = f"'{result[s].reg_moid}'"
                     result[s]['Resource Updated'] = True
                 else: result[s]['Resource Updated'] = False
-
-            kwargs.api_body = { 'Selectors':[{
-                'ClassId': 'resource.Selector',
-                'ObjectType': 'resource.Selector',
-                'Selector': '/api/v1/asset/DeviceRegistrations?$filter=Moid in('f"{appended_targets})"
-            }] }
-            kwargs.method = 'patch'
-            kwargs.pmoid  = resource_groups[i.resource_group].moid
-            kwargs.uri    = 'resource/Groups'
-            kwargs        = isight.api('resource_group').calls(kwargs)
-
+            if update_resource_group == True:
+                kwargs.api_body = { 'Selectors':[{
+                    'ClassId': 'resource.Selector',
+                    'ObjectType': 'resource.Selector',
+                    'Selector': '/api/v1/asset/DeviceRegistrations?$filter=Moid in('f"{appended_targets})"
+                }] }
+                kwargs.method = 'patch'
+                kwargs.pmoid  = resource_groups[i.resource_group].moid
+                kwargs.uri    = 'resource/Groups'
+                kwargs        = isight.api('resource_group').calls(kwargs)
     pcolor.Cyan(f'\n{"-" * 60}\n {"-" * 5}')
     for key, value in result.items():
         for k, v in value.items():
