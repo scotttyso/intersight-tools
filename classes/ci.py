@@ -2669,8 +2669,8 @@ class wizard(object):
         #=====================================================================
         validating.begin_section(self.type, 'preparation')
         kwargs.org_moid = kwargs.org_moids[kwargs.org].moid
-        kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
-        kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
+        kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, 'variables', 'windowsTimeZones.json'), 'r'))
+        kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, 'variables', 'windowsLocals.json'), 'r'))
         kwargs = ezfunctions.windows_languages(kwargs.imm_dict.wizard.windows_install, kwargs)
         kwargs = ezfunctions.windows_timezones(kwargs)
         #=====================================================================
@@ -2682,20 +2682,20 @@ class wizard(object):
             kwargs.sensitive_var = v
             kwargs  = ezfunctions.sensitive_var_value(kwargs)
             kwargs[v]=kwargs.var_value
-        tloader  = jinja2.FileSystemLoader(searchpath=f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci')
+        tloader  = jinja2.FileSystemLoader(searchpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3'))
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
         if kwargs.imm_dict.wizard.install_source == 'wds':
             template = tenviro.get_template('AzureStackHCI.xml')
-            ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou
-            org_unit = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azurestack[0].active_directory.domain.replace('.', ',DC=')
+            ou       = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_ou
+            org_unit = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain.replace('.', ',DC=')
             install_server = kwargs.imm_dict.wizard.install_server.hostname
             share_path     = kwargs.imm_dict.wizard.install_server.reminst_share
             jargs = dict(
                 administratorPassword  = kwargs['windows_admin_password'],
-                domain                 = kwargs.imm_dict.wizard.azurestack[0].active_directory.domain,
-                domainAdministrator    = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
+                domain                 = kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain,
+                domainAdministrator    = kwargs.imm_dict.wizard.azure_stack[0].active_directory.administrator,
                 domainPassword         = kwargs['windows_domain_password'],
-                organization           = kwargs.imm_dict.wizard.azurestack[0].organization,
+                organization           = kwargs.imm_dict.wizard.azure_stack[0].organization,
                 organizationalUnit     = org_unit,
                 sharePath              = f'\\\\{install_server}\\{share_path}',
                 # Language
@@ -2712,9 +2712,9 @@ class wizard(object):
                 if f'            <{x}></{x}>' in jtemplate: jtemplate = jtemplate.replace(f'            <{x}></{x}>\n', '')
             cwd = os.getcwd()
             new_dir = 'AzureStack'
-            if not os.path.exists(f'{cwd}{os.sep}{new_dir}'):
-                os.makedirs(f'{cwd}{os.sep}{new_dir}')
-            file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}AzureStackHCI.xml', 'w')
+            if not os.path.exists(os.path.join(cwd, new_dir)):
+                os.makedirs(os.path.join(cwd, new_dir))
+            file  = open(os.path.join(cwd, new_dir, 'AzureStackHCI.xml'), 'w')
             file.write(jtemplate)
             file.close()
         models = []
@@ -2726,17 +2726,17 @@ class wizard(object):
             elif re.search('UCSC.*M6', e): server_model = 'CxxxM6'; break
         template = tenviro.get_template('azs-template.jinja2')
         jargs = dict(
-            administrator       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_admin,
-            azurestack_ou       = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_ou,
-            azurestack_prefix   = kwargs.imm_dict.wizard.azurestack[0].active_directory.azurestack_prefix,
-            domain              = kwargs.imm_dict.wizard.azurestack[0].active_directory.domain,
-            domainAdministrator = kwargs.imm_dict.wizard.azurestack[0].active_directory.administrator,
-            clusters            = kwargs.imm_dict.wizard.azurestack[0].clusters,
-            file_share_witness  = {},
-            install_server      = kwargs.imm_dict.wizard.install_server.toDict(),
-            operating_system    = 'W2K22',
-            proxy               = {},
-            server_model        = server_model
+            administrator        = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_admin,
+            azure_stack_ou       = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_ou,
+            azure_stack_prefix   = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_prefix,
+            domain               = kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain,
+            domainAdministrator  = kwargs.imm_dict.wizard.azure_stack[0].active_directory.administrator,
+            clusters             = kwargs.imm_dict.wizard.azure_stack[0].clusters,
+            file_share_witness   = {},
+            install_server       = kwargs.imm_dict.wizard.install_server.toDict(),
+            operating_system     = 'W2K22',
+            proxy                = {},
+            server_model         = server_model
         )
         if kwargs.imm_dict.wizard.get('proxy'): jargs['proxy'] = kwargs.imm_dict.wizard.proxy.toDict()
         else: jargs.pop('proxy')
@@ -2744,21 +2744,21 @@ class wizard(object):
             jargs['file_share_witness'] = kwargs.imm_dict.wizard.file_share_witness
         else: jargs.pop('file_share_witness')
         jtemplate = template.render(jargs)
-        file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}azs-answers.yaml', 'w')
+        file = open(os.path.join(cwd, new_dir, 'azs-answers.yaml'), 'w')
         file.write(jtemplate)
         file.close()
         hostnames = {}
         for k, v in kwargs.server_profiles.items():
             hostnames.update({v.serial:k})
-        file  = open(f'{cwd}{os.sep}{new_dir}{os.sep}hostnames.json', 'w')
+        file = open(os.path.join(cwd, new_dir, 'hostnames.json'), 'w')
         file.write(json.dumps(hostnames, indent=4))
         file.close()
-        fpath = f'{kwargs.script_path}{os.sep}examples{os.sep}azurestack_hci{os.sep}'
+        fpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3')
         win_files = ['azs-hci-adprep.ps1', 'azs-hci-drivers.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
         for file in win_files:
-            shutil.copyfile(f'{fpath}{file}', f'{cwd}{os.sep}{new_dir}{os.sep}{file}')
+            shutil.copyfile(os.path.join(fpath, file), os.path.join(cwd, new_dir, file))
         azs_file_name = 'azure_stack_hci_files'
-        shutil.make_archive(f'{cwd}{os.sep}{azs_file_name}', 'zip', f'{cwd}{os.sep}{new_dir}')
+        shutil.make_archive(os.path.join(cwd, azs_file_name), 'zip', os.path.join(cwd, new_dir))
         azs_file_name = 'azure_stack_hci_files.zip'
         #=====================================================================
         # LOGIN TO IMM TRANSITION API
@@ -2787,7 +2787,7 @@ class wizard(object):
         #=====================================================================
         # CREATE ZIP FILE IN THE SOFTWARE REPOSITORY
         #=====================================================================
-        file = open(f'{cwd}{os.sep}{azs_file_name}', 'rb')
+        file  = open(os.path.join(cwd, azs_file_name), 'rb')
         files = {'file': file}
         values = {'uuid':str(uuid.uuid4())}
         pcolor.Green(f'  * Uploading `{azs_file_name}` to `{url}/api/v1/repo/files`')
@@ -2810,7 +2810,7 @@ class wizard(object):
         #=====================================================================
         try: shutil.rmtree(new_dir)
         except OSError as e: print("Error: %s - %s." % (e.filename, e.strerror))
-        os.remove(f'{cwd}{os.sep}{azs_file_name}')
+        os.remove(os.path.join(cwd, azs_file_name))
         #=====================================================================
         # END SECTION
         #=====================================================================

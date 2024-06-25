@@ -38,7 +38,7 @@ class policies(object):
             print(f'  configuration to the {yaml_file}.yaml file at your descretion.')
             print(f'  That will not be covered by this wizard as the focus of the wizard is on simplicity.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure an {policy_type} Policy?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -110,7 +110,7 @@ class policies(object):
             print(f'  An {policy_type} will allow you to control Network Discovery with ')
             print(f'  protocols like CDP and LLDP as well as MAC Address Control Features.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -220,7 +220,7 @@ class policies(object):
             print(f'     1-10,20-30 - Ranges and Lists of VLANs')
             print(f'  If you want to Assign a Native VLAN Make sure it is in the allowed list.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             #==============================================
             # Prompt User for VLAN Policy Name
@@ -342,7 +342,7 @@ class policies(object):
             print(f'  or multiple VLANs (Trunk) traffic. You can specify the VLAN to be associated with an ')
             print(f'  Ethernet packet if no tag is found.\n\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure an {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -435,7 +435,7 @@ class policies(object):
             print(f'     storage - Platinum')
             print(f'     dvs - Gold.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             #================================================
             # Prompt User for Sytem QoS Policy if FIAttached
@@ -570,7 +570,7 @@ class policies(object):
             print(f'  FC Zone Policy Notes:')
             print(f'  - You will need at a Minimum One Zone Policy per Fabric.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -736,7 +736,7 @@ class policies(object):
             print(f'  configuration to the {yaml_file}.yaml file at your descretion.  ')
             print(f'  That will not be covered by this wizard as the focus of the wizard is on simplicity.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -809,7 +809,7 @@ class policies(object):
             print(f'  Fibre-Channel Network Policies Notes:')
             print(f'  - You will need one Policy per Fabric.  VSAN A and VSAN B.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -919,7 +919,7 @@ class policies(object):
             print(f'  creates the policy with all the default values, so you only need one')
             print(f'  {policy_type}.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -981,7 +981,7 @@ class policies(object):
             print(f'  description for the Policy.  You only need one of these policies for Organization')
             print(f'  {org}.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -1037,7 +1037,7 @@ class policies(object):
             print(f'  The {policy_type} allows you to configure values for TCP Connection Timeout, ')
             print(f'  DHCP Timeout, and the Retry Count if the specified LUN ID is busy.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -1129,7 +1129,7 @@ class policies(object):
             print(f'  blade and rack servers from a remote disk across a Storage Area Network. The remote disk, ')
             print(f'  known as the target, is accessed using TCP/IP and iSCSI boot firmware.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -1333,7 +1333,7 @@ class policies(object):
             print(f'  logical unit number of the primary target for iSCSI boot. You can optionally specify these ')
             print(f'  details for a secondary target as well.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -1447,7 +1447,7 @@ class policies(object):
             print(f'     3. storage')
             print(f'     4. dvs\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -1803,7 +1803,7 @@ class policies(object):
             print(f'  name and description for the Policy.  You only need one of these policies for ')
             print(f'  Organization {org}.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -1861,7 +1861,7 @@ class policies(object):
             print(f'  and description for the Policy.  You only need one of these policies for')
             print(f'  Organization {org}.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -1920,7 +1920,7 @@ class policies(object):
             print(f'  If you configure IGMP Queriers for a Multicast Policy that Policy should only be')
             print(f'  Assigned to the VLAN for which those Queriers will service.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -1995,7 +1995,7 @@ class policies(object):
             print(f'  You can Skip this policy if you are not configuring Fibre-Channel.\n')
             print(f'  A {policy_type} will configure vHBA adapters for Server Profiles.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -2245,7 +2245,7 @@ class policies(object):
             print(f'  the name and description for the Policy.  You only need one of these policies for')
             print(f'  Organization {org}.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -2331,7 +2331,7 @@ class policies(object):
             print(f'  Beyond the System MTU, we recommend you utilize the default parameters of this wizard.')
             print(f'  You only need one of these policies for Organization {org}.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -2425,7 +2425,7 @@ class policies(object):
             print(f'  IMPORTANT NOTE: You can only have one Native VLAN for the Fabric at this time,')
             print(f'                  as Disjoint Layer 2 is not yet supported.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -2526,7 +2526,7 @@ class policies(object):
             print(f'                  in a FCoE (Fibre-Channel over Ethernet) VLAN.  This VLAN Must not be')
             print(f'                  already used by the VLAN Policy.\n')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':

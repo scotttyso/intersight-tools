@@ -748,7 +748,7 @@ def auth(kwargs, section=''):
     #    # Run the PowerShell Script
     #    #=====================================================
     #    hostname = kwargs.pure_storage.hostname
-    #    out_file = f'{kwargs.home}{os.sep}pure_storage.json'
+    #    out_file = os.path.join(kwargs.home, 'pure_storage.json')
     #    username = kwargs.pure_storage.username
     #    if platform.system() == 'Windows': pwsh = 'powershell.exe'
     #    else: pwsh = 'pwsh'

@@ -42,7 +42,7 @@ class pools(object):
             pcolor.Cyan(f'  management is not supported for KVM vMedia access.  This IP Pool will need to be associated ')
             pcolor.Cyan(f'  to a VLAN assigned to the VLAN Pool of the Domain.\n')
             pcolor.Cyan(f'  This wizard will save the configuration for this section to the following file:')
-            pcolor.Cyan(f'  - {baseRepo}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            pcolor.Cyan(f'  - {os.path.join(baseRepo, self.type, f"{yaml_file}.yaml")}')
             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure an {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -420,7 +420,7 @@ class pools(object):
             pcolor.Cyan(f'  - Pool Size can be between 1 and 1024 addresses.')
             pcolor.Cyan(f'  - Refer to "UCS Naming Conventions 0.5.ppsx" in the Repository for further guidance.\n')
             pcolor.Cyan(f'  This wizard will save the configuration for this section to the following file:')
-            pcolor.Cyan(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            pcolor.Cyan(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
             loop_count = 0
             policy_loop = False
@@ -514,7 +514,7 @@ class pools(object):
             pcolor.Cyan(f'  The {policy_type} represents a collection of resources that can be associated to ')
             pcolor.Cyan(f'  the configuration entities such as server profiles.\n')
             pcolor.Cyan(f'  This wizard will save the configuration for this section to the following file:')
-            pcolor.Cyan(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            pcolor.Cyan(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -703,7 +703,7 @@ class pools(object):
             pcolor.Cyan(f'  - Pool Size can be between 1 and 1024 addresses.')
             pcolor.Cyan(f'  - Refer to "UCS Naming Conventions 0.5.ppsx" in the Repository for further guidance.\n')
             pcolor.Cyan(f'  This wizard will save the configuration for this section to the following file:')
-            pcolor.Cyan(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            pcolor.Cyan(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -791,7 +791,7 @@ class pools(object):
             pcolor.Cyan(f'  - Pool Size can be between 1 and 1024 addresses.')
             pcolor.Cyan(f'  - Refer to "UCS Naming Conventions 0.5.ppsx" in the Repository for further guidance.\n')
             pcolor.Cyan(f'  This wizard will save the configuration for this section to the following file:')
-            pcolor.Cyan(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            pcolor.Cyan(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             pcolor.Cyan(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':

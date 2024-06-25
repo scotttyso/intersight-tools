@@ -493,7 +493,7 @@ class policies(object):
         pcolor.Cyan(f'  The next group of questions will be for configuring a(n) `{policy_title}` Policy to attach to {kwargs.profile_type} profile '\
                     f'`{name}`.  The wizard will ask for input and confirm the policy inputs before proceeding to the next policy.\n')
         pcolor.Cyan(f'  This wizard will save the configuration for the `{self.type}` policy to the following file:')
-        pcolor.Yellow(f'    - {kwargs.args.dir}{os.sep}policies{os.sep}{yaml_file}.yaml')
+        pcolor.Yellow(f'    - {os.path.join(kwargs.args.dir, "policies", f"{yaml_file}.yaml")}')
         input(f'\n Press Enter to Continue: ')
         return kwargs
 

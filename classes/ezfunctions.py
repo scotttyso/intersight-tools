@@ -112,7 +112,7 @@ def base_script_settings(kwargs):
     if not os.path.exists(os.path.join(dest_dir, dest_file)): 
         create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
     FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
-    logging.basicConfig( filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
+    logging.basicConfig(filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
     logger = logging.getLogger('openapi')
     #=========================================================================
     # Determine the Script Path
@@ -131,7 +131,7 @@ def base_script_settings(kwargs):
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
-    ezdata          = materialize(RefDict(f'{kwargs.script_path}{os.sep}variables{os.sep}easy-imm.json', 'r', encoding="utf8"))
+    ezdata          = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), 'r', encoding="utf8"))
     script_tag      = script_name.replace('ez', 'easy-')
     kwargs.ez_tags  = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['info']['version']}]
     kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
@@ -773,8 +773,8 @@ def intersight_config(kwargs):
             if not valid == True:
                 kwargs.jdata = DotMap(
                     type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
-                    description= 'Intersight Secret Key File Location.',
-                    default    = f'{kwargs.home}{os.sep}Downloads{os.sep}SecretKey.txt')
+                    description = 'Intersight Secret Key File Location.',
+                    default     = os.path.join(kwargs.home, 'Downloads', 'SecretKey.txt'))
                 secret_path = variable_prompt(kwargs)
     #=========================================================================
     # Prompt User for Intersight FQDN
@@ -1500,7 +1500,7 @@ def ucs_serial(kwargs):
     while valid == False:
         pcolor.Cyan(f'\n{"-"*108}\n')
         pcolor.Cyan(f'  Note: If you do not have the Serial Number(s) at this time you can manually add it to:')
-        pcolor.Cyan(f'    - {baseRepo}{os.sep}{org}{os.sep}profiles{os.sep}{yaml_file}.yaml')
+        pcolor.Cyan(f'    - {os.path.join(baseRepo, org, "profiles", f"{yaml_file}.yaml")}')
         pcolor.Cyan(f'      file later.')
         pcolor.Cyan(f'\n{"-"*108}\n')
         serial = input(f'What is the Serial Number of the {device_type}? [press enter to skip]: ')
@@ -1519,7 +1519,7 @@ def ucs_domain_serials(kwargs):
     org = kwargs['org']
     pcolor.Cyan(f'\n{"-"*108}\n')
     pcolor.Cyan(f'  Note: If you do not have the Serial Numbers at this time you can manually add them here:\n')
-    pcolor.Cyan(f'    * {baseRepo}{os.sep}{org}{os.sep}profiles{os.sep}domain.yaml\n')
+    pcolor.Cyan(f'    * {os.path.join(baseRepo, "profiles", f"domain.yaml")}\n')
     pcolor.Cyan(f'  After the Wizard has completed.')
     pcolor.Cyan(f'\n{"-"*108}\n')
     valid = False
@@ -1945,7 +1945,7 @@ def vlan_pool(name):
 # Function - Obtain Windows Language Dictionary
 #=============================================================================
 def windows_languages(windows_language, kwargs):
-    kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsLocals.json'), 'r'))
+    kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, 'variables', 'windowsLocals.json'), 'r'))
     language = [e for e in kwargs.windows_languages if (
         (DotMap(e)).language.replace("(", "_")).replace(")", "_") == (windows_language.language_pack.replace("(", "_")).replace(")", "_")]
     if len(language) == 1: language = DotMap(language[0])
@@ -1970,7 +1970,7 @@ def windows_languages(windows_language, kwargs):
 # Function - Obtain Windows Timezone
 #=============================================================================
 def windows_timezones(kwargs):
-    kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, f'variables{os.sep}windowsTimeZones.json'), 'r')))
+    kwargs.windows_timezones = DotMap(json.load(open(os.path.join(kwargs.script_path, 'variables', 'windowsTimeZones.json'), 'r')))
     tz = pytz.timezone(kwargs.timezone)
     june = pytz.utc.localize(datetime(2023, 6, 2, 12, 1, tzinfo=None))
     december = pytz.utc.localize(datetime(2023, 12, 2, 12, 1, tzinfo=None))

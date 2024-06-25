@@ -265,7 +265,7 @@ class imc_device_connector(device_connector, object):
         utils_extension = ''
         if system_type == 'Darwin': system_type = 'Mac'
         elif system_type == 'Windows': utils_extension = '.exe'
-        utils_exe = f"{self.device.script_path}{os.sep}get_data{os.sep}{system_type}{os.sep}GetData{utils_extension}"
+        utils_exe = os.path.join(self.device.script_path, 'get_data', system_type, f'GetData{utils_extension}')
         try:
             user = self.device.username
             passphrase = subprocess.check_output([utils_exe, user])

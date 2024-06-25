@@ -736,12 +736,12 @@ class api(object):
         #=====================================================
         # Load Variables and Login to Storage Array
         #=====================================================
-        kwargs.hostname   = i.nodes[0].name + '.' + kwargs.dns_domains[0]
-        kwargs.host_prompt= kwargs.netapp.cluster[i.name].host_prompt
-        kwargs.password   = 'netapp_password'
-        kwargs.username   = kwargs.netapp.cluster[i.name].username
-        child, kwargs    = ezfunctions.child_login(kwargs)
-        host_file = open(f'Logs{os.sep}{kwargs.hostname}.txt', 'r')
+        kwargs.hostname    = i.nodes[0].name + '.' + kwargs.dns_domains[0]
+        kwargs.host_prompt = kwargs.netapp.cluster[i.name].host_prompt
+        kwargs.password    = 'netapp_password'
+        kwargs.username    = kwargs.netapp.cluster[i.name].username
+        child, kwargs      = ezfunctions.child_login(kwargs)
+        host_file          = open(os.path.join('Logs', kwargs.hostname), 'r')
         #=====================================================
         # Using pexpect, configure SVM
         #=====================================================

@@ -33,7 +33,7 @@ class profiles(object):
             print(f'  This will create {policy_type}(s).  The Wizard will will first ask for the policies to')
             print(f'  assign.  Then you can assign multiple Names/Serials to the same Profile Policy.')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -172,7 +172,7 @@ class profiles(object):
             print(f'\n-------------------------------------------------------------------------------------------\n')
             print(f'  This will create {policy_type}(s).')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
@@ -278,7 +278,7 @@ class profiles(object):
             print(f'  This will create {policy_type}(s).  The Wizard will will first ask for the policies to')
             print(f'  assign.  Then you can assign multiple Names/Serials to the same Profile Policy.')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}{self.type}{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, self.type, yaml_file)}.yaml')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             policy_loop = False
             while policy_loop == False:
@@ -511,7 +511,7 @@ class profiles(object):
             print(f'\n-------------------------------------------------------------------------------------------\n')
             print(f'  This will create {policy_type}(s).')
             print(f'  This wizard will save the configuration for this section to the following file:')
-            print(f'  - {baseRepo}{os.sep}{org}{os.sep}templates{os.sep}{yaml_file}.yaml')
+            print(f'  - {os.path.join(baseRepo, org, "templates", f"{yaml_file}.yaml")}')
             print(f'\n-------------------------------------------------------------------------------------------\n')
             configure = input(f'Do You Want to Configure a {policy_type}?  Enter "Y" or "N" [Y]: ')
             if configure == 'Y' or configure == '':
