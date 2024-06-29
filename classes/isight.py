@@ -37,10 +37,8 @@ class api(object):
         #=====================================================================
         # Get Organization List from the API
         #=====================================================================
-        kwargs.api_filter = 'ignore'
-        kwargs.method     = 'get'
-        kwargs.uri        = 'organization/Organizations'
-        kwargs            = api(self.type).calls(kwargs)
+        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'organization/Organizations')
+        kwargs = api(self.type).calls(kwargs)
         kwargs.org_moids  = kwargs.pmoids
         for k, v in kwargs.org_moids.items(): kwargs.org_names[v.moid] = k
         return kwargs
@@ -52,8 +50,7 @@ class api(object):
         server_results = kwargs.results
         pcolor.Cyan(f'\n   - Pulling Server Inventory for the following Physical Server(s):')
         for e in server_results: pcolor.Cyan(f'     * {e.Serial}')
-        kwargs.method = 'get'
-        kwargs.names  = [e.Moid for e in server_results]
+        kwargs = kwargs | DotMap(method = 'get', names = [e.Moid for e in server_results])
         for e in ['adapter/Units', 'equipment/Tpms', 'processor/Units', 'storage/Controllers']:
             kwargs.uri = e
             kwargs     = api('ancestors').calls(kwargs)
@@ -232,6 +229,7 @@ class api(object):
             #=================================================================
             aargs   = kwargs.api_args
             aauth   = kwargs.api_auth
+            method  = kwargs.method
             moid    = kwargs.pmoid
             payload = kwargs.api_body
             retries = 3
@@ -243,22 +241,22 @@ class api(object):
                         pcolor.Red(json.dumps(kwargs.api_body, indent=4))
                         pcolor.Red(kwargs.api_body)
                         pcolor.Red(f'!!! ERROR !!!')
-                        if kwargs.method == 'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif kwargs.method ==    'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif kwargs.method ==       'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
-                        elif kwargs.method ==     'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif kwargs.method ==      'post': pcolor.Red(f'  URL: {url}/{uri}')
-                        pcolor.Red(f'  Running Process: {kwargs.method} {self.type}')
+                        if   method == 'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==      'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==         'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
+                        elif method ==       'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==        'post': pcolor.Red(f'  URL: {url}/{uri}')
+                        pcolor.Red(f'  Running Process: {method} {self.type}')
                         pcolor.Red(f'    Error status is {response}')
                         if '{' in response.text:
                             for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
                         else: pcolor.Red(response.text)
                         len(False); sys.exit(1)
-                    if 'get_by_moid' in kwargs.method: response = requests.get(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
-                    elif 'delete' in kwargs.method: response = requests.delete(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
-                    elif 'get' in kwargs.method:    response = requests.get(   f'{url}/{uri}{aargs}', verify=False, auth=aauth)
-                    elif 'patch' in kwargs.method:  response = requests.patch( f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
-                    elif 'post' in kwargs.method:   response = requests.post(  f'{url}/{uri}',        verify=False, auth=aauth, json=payload)
+                    if   method == 'get_by_moid': response = requests.get(   f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                    elif method ==      'delete': response = requests.delete(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                    elif method ==         'get': response = requests.get(   f'{url}/{uri}{aargs}', verify=False, auth=aauth)
+                    elif method ==       'patch': response = requests.patch( f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
+                    elif method ==        'post': response = requests.post(  f'{url}/{uri}',        verify=False, auth=aauth, json=payload)
                     if re.search('40[0|3]', str(response)):
                         retry_action = False
                         #send_error()
@@ -291,10 +289,10 @@ class api(object):
             api_results = DotMap(response.json())
             if int(debug_level) >= 1: pcolor.Cyan(f'RESPONSE: {str(response)}')
             if int(debug_level)>= 5:
-                if   kwargs.method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
-                elif kwargs.method ==         'get': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}{aargs}')
-                elif kwargs.method ==       'patch': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
-                elif kwargs.method ==        'post': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}')
+                if   method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
+                elif method ==         'get': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}{aargs}')
+                elif method ==       'patch': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
+                elif method ==        'post': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}')
             if int(debug_level) >= 6:
                 pcolor.Cyan('HEADERS:')
                 pcolor.Cyan(json.dumps(dict(response.headers), indent=4))
@@ -307,7 +305,7 @@ class api(object):
             if 'Results' in results_keys: kwargs.results = api_results.Results
             else: kwargs.results = api_results
             if not kwargs.build_skip == True: kwargs.build_skip = False
-            if 'post' in kwargs.method:
+            if 'post' in method:
                 if api_results.get('Responses'):
                     api_results['Results'] = deepcopy(api_results['Responses'])
                     kwargs.pmoids = api.build_pmoid_dictionary(self, api_results, kwargs)
@@ -321,7 +319,7 @@ class api(object):
             #=================================================================
             # Print Progress Notifications
             #=================================================================
-            if re.search('(patch|post)', kwargs.method):
+            if re.search('(patch|post)', method):
                 if api_results.get('Responses'):
                     for e in api_results.Responses:
                         kwargs.api_results = e.Body
@@ -473,12 +471,9 @@ class api(object):
     # Function - Chassis Inventory - Equipment
     #=========================================================================
     def chassis_equipment(self, kwargs):
-        kwargs.expand   = 'Fanmodules,Psus'
-        kwargs.method   = 'get'
-        kwargs.order_by = 'Dn'
-        kwargs.uri      = 'equipment/Chasses'
+        kwargs = kwargs | DotMap(expand = 'Fanmodules,Psus', method = 'get', order_by = 'Dn', uri = 'equipment/Chasses')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs          = api('registered_device').calls(kwargs)
+        kwargs = api('registered_device').calls(kwargs)
         for e in kwargs.results:
             kwargs.chassis[e.Moid] = DotMap(
                 chassis_id = e.ChassisId, chassis_name = e.Name, contract = None, domain = e.RegisteredDevice.Moid, dn = e.Dn,
@@ -507,11 +502,9 @@ class api(object):
         #=========================================================================
         kwargs_keys = list(kwargs.keys())
         if 'api_filter' in kwargs_keys: api_filter = deepcopy(kwargs.api_filter); kwargs.api_filter = api_filter
-        kwargs.expand = 'FanModules'
-        kwargs.method = 'get'
-        kwargs.uri    = 'equipment/ExpanderModules'
+        kwargs = kwargs | DotMap(expand = 'Fanmodules', method = 'get', uri = 'equipment/ExpanderModules')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('expander_modules').calls(kwargs)
+        kwargs = api('expander_modules').calls(kwargs)
         for e in kwargs.results:
             edict = DotMap(); indx = e.ModuleId - 1
             for d in ['Dn', 'FanModules', 'Moid', 'Model', 'OperState', 'OperReason', 'Serial']: key = snakecase(d); edict[key] = e[d]
@@ -525,10 +518,9 @@ class api(object):
         # IO Modules - IFM/IOMs
         #=========================================================================
         if 'api_filter' in kwargs_keys: kwargs.api_filter = api_filter
-        kwargs.expand = 'AcknowledgedPeerInterface,FanModules,NetworkPorts'
-        kwargs.uri    = 'equipment/IoCards'
+        kwargs = kwargs | DotMap(expand = 'AcknowledgedPeerInterface,FanModules,NetworkPorts', uri = 'equipment/IoCards')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('io_cards').calls(kwargs)
+        kwargs = api('io_cards').calls(kwargs)
         for e in kwargs.results:
             edict = DotMap(); indx = ord(e.ConnectionPath) - 65
             for d in ['Dn', 'FanModules', 'Moid', 'NetworkPorts', 'OperState', 'OperReason', 'Model', 'Serial']: key = snakecase(d); edict[key] = e[d]
@@ -540,10 +532,9 @@ class api(object):
         for k,v in kwargs.domains.items():
             for x in range(1,3): domain_serials[v.serial[x-1]] = v.name + '-' + chr(ord('@')+x)
         if 'api_filter' in kwargs_keys: kwargs.api_filter = api_filter
-        kwargs.build_skip = True
-        kwargs.expand = 'AcknowledgedPeerInterface'
-        kwargs.uri    = 'ether/NetworkPorts'
-        kwargs        = api('host_ports').calls(kwargs)
+        kwargs = kwargs | DotMap(build_skip = True, expand = 'AcknowledgedPeerInterface', uri = 'ether/NetworkPorts')
+        pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
+        kwargs = api('host_ports').calls(kwargs)
         for e in kwargs.results:
             if e.AcknowledgedPeerInterface != None:
                 peer = e.AcknowledgedPeerInterface
@@ -572,15 +563,13 @@ class api(object):
     # Function - Chassis Inventory - Chassis Profiles
     #=========================================================================
     def chassis_profiles(self, kwargs):
-        kwargs.method = 'get'
-        kwargs.uri    = 'chassis/Profiles'
+        kwargs = kwargs | DotMap(method = 'get', uri = kwargs.ezdata['profiles.chassis'].intersight_uri)
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('chassis').calls(kwargs)
+        kwargs = api('chassis').calls(kwargs)
         for e in kwargs.results:
             if not e.AssignedChassis == None:
-                kwargs.chassis[e.AssignedChassis.Moid].moid         = e.Moid
-                kwargs.chassis[e.AssignedChassis.Moid].name         = e.Name
-                kwargs.chassis[e.AssignedChassis.Moid].organization = kwargs.org_names[e.Organization.Moid]
+                kwargs.chassis[e.AssignedChassis.Moid] = kwargs.chassis[e.AssignedChassis.Moid] | DotMap(
+                    moid = e.Moid, name = e.Name, organization = kwargs.org_names[e.Organization.Moid])
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -590,15 +579,13 @@ class api(object):
     # Function - Domain Inventory - Cluster Profiles
     #=========================================================================
     def domain_cluster_profiles(self, kwargs):
-        kwargs.method = 'get'
-        kwargs.uri    = 'fabric/SwitchClusterProfiles'
+        kwargs = kwargs | DotMap(method = 'get', uri = 'fabric/SwitchClusterProfiles')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('cluster_profile').calls(kwargs)
+        kwargs = api('cluster_profile').calls(kwargs)
         for e in kwargs.results:
             if kwargs.switch_profile[e.Moid].assigned == True:
-                kwargs.domains[kwargs.switch_profile[e.Moid].registration].moid         = e.Moid
-                kwargs.domains[kwargs.switch_profile[e.Moid].registration].name         = e.Name
-                kwargs.domains[kwargs.switch_profile[e.Moid].registration].organization = kwargs.org_names[e.Organization.Moid]
+                kwargs.domains[kwargs.switch_profile[e.Moid].registration] = kwargs.domains[kwargs.switch_profile[e.Moid].registration] | DotMap(
+                    moid = e.Moid, name = e.Name, organization = kwargs.org_names[e.Organization.Moid])
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -608,10 +595,9 @@ class api(object):
     # Function - Domain Inventory - Device Registrations
     #=========================================================================
     def domain_device_registrations(self, kwargs):
-        kwargs.method = 'get'
-        kwargs.uri    = 'asset/DeviceRegistrations'
+        kwargs = kwargs | DotMap(method = 'get', uri = 'asset/DeviceRegistrations')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('moid_filter').calls(kwargs)
+        kwargs = api('moid_filter').calls(kwargs)
         for e in kwargs.results:
             kwargs.domains[e.Moid] = DotMap(
                 contracts = DotMap(), device_hostname = e.DeviceHostname[0], fan_modules = [DotMap(),DotMap()], firmware = DotMap(),
@@ -630,12 +616,9 @@ class api(object):
     # Function - Domain Inventory - Network Elements
     #=========================================================================
     def domain_network_elements(self, kwargs):
-        kwargs.expand   = 'Fanmodules,Psus'
-        kwargs.method   = 'get'
-        kwargs.order_by = 'SwitchId'
-        kwargs.uri      = 'network/Elements'
+        kwargs = kwargs | DotMap(expand = 'Fanmodules,Psus', method = 'get', order_by = 'SwitchId', uri = 'network/Elements')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs          = api('registered_device').calls(kwargs)
+        kwargs = api('registered_device').calls(kwargs)
         for e in kwargs.results:
             dev_reg = e.RegisteredDevice.Moid
             indx    = kwargs.domains[dev_reg].serial.index(e.Serial)
@@ -656,11 +639,9 @@ class api(object):
     # Function - Domain Inventory - Switch Profiles
     #=========================================================================
     def domain_switch_profiles(self, kwargs):
-        kwargs.method   = 'get'
-        kwargs.order_by = 'Name'
-        kwargs.uri      = 'fabric/SwitchProfiles'
+        kwargs = kwargs | DotMap(method = 'get', order_by = 'Name', uri = 'fabric/SwitchProfiles')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs          = api('switch_profiles').calls(kwargs)
+        kwargs = api('switch_profiles').calls(kwargs)
         kwargs.switch_profile = DotMap()
         for e in kwargs.results:
             switch_keys = list(kwargs.switch_profile[e.SwitchClusterProfile.Moid].keys())
@@ -678,25 +659,18 @@ class api(object):
     # Function - Inventory Contract Status - Chassis|Domain|Servers
     #=========================================================================
     def inventory_contracts(self, kwargs):
-        edict = DotMap()
         kwargs_keys = list(kwargs.keys())
-        if 'chassis' in kwargs_keys:
-            for k,v in kwargs.chassis.items(): edict[v.serial] = DotMap(moid = k, type = 'chassis')
+        if 'chassis' in kwargs_keys: edict = DotMap({f'{v.serial}':{'moid':k,'type':'chassis'} for k,v in kwargs.chassis.items()})
         if 'domains' in kwargs_keys:
-            for k,v in kwargs.domains.items():
-                for x in range(0,len(v.serial)): edict[v.serial[x]] = DotMap(index = x, moid = k, type = 'domains')
-        if 'servers' in kwargs_keys:
-            for k,v in kwargs.servers.items(): edict[v.serial] = DotMap(moid = k, type = 'servers')
-        kwargs.method = 'get'
-        kwargs.uri    = 'asset/DeviceContractInformations'
+            for k,v in kwargs.domains.items(): edict = DotMap({f'{v.serial[x]}':{'index':x,'moid':k,'type':'domains'} for x in range(0,len(v.serial))})
+        if 'servers' in kwargs_keys: edict = DotMap({f'{v.serial}':{'moid':k,'type':'servers'} for k,v in kwargs.servers.items()})
+        kwargs = kwargs | DotMap(method = 'get', uri = 'asset/DeviceContractInformations')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('contracts').calls(kwargs)
+        kwargs      = api('contracts').calls(kwargs)
         serial_keys = list(edict.keys())
         for e in kwargs.results:
             if e.DeviceId in serial_keys:
-                ddict = DotMap()
-                dtype = edict[e.DeviceId].type
-                moid  = edict[e.DeviceId].moid
+                ddict = DotMap(); dtype = edict[e.DeviceId].type; moid  = edict[e.DeviceId].moid
                 for d in ['ContractStatus', 'ContractStatusReason', 'DeviceId', 'DeviceType', 'SalesOrderNumber', 'ServiceDescription',
                           'ServiceEndDate', 'ServiceLevel']:
                     key = snakecase(d); ddict[key] = e[d]
@@ -704,10 +678,8 @@ class api(object):
                 if dtype == 'domains': kwargs[dtype][moid].contracts[edict[e.DeviceId].index] = ddict
                 else: kwargs[dtype][moid].contract = ddict
         for k in list(kwargs.domains.keys()):
-            empty = True
-            for x in range(0,len(kwargs.domains[k].contracts)):
-                if len(kwargs.domains[k].contracts[x]) > 0: empty = False
-            if empty == True: kwargs.domains[k].contracts = None
+            empty = [True for x in range(0,len(kwargs.domains[k].contracts)) if len(kwargs.domains[k].contracts[x]) > 0]
+            if len(empty) == 0: kwargs.domains[k].contracts = None
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -742,8 +714,7 @@ class api(object):
     # Function - Build Running Firmware Inventory Dictionary
     #=========================================================================
     def running_firmware(self, kwargs):
-        kwargs.method   = 'get'
-        kwargs.uri      = 'firmware/RunningFirmwares'
+        kwargs = kwargs | DotMap(method = 'get', uri = 'firmware/RunningFirmwares')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
         kwargs          = api('firmware').calls(kwargs)
         kwargs.firmware = DotMap({e.Moid:{'version':e.Version} for e in kwargs.results})
@@ -894,11 +865,9 @@ class api(object):
         #=========================================================================
         kwargs_keys = list(kwargs.keys())
         if 'api_filter' in kwargs_keys: api_filter = deepcopy(kwargs.api_filter); kwargs.api_filter = api_filter
-        kwargs.expand = 'Adapters,GraphicsCards'
-        kwargs.method = 'get'
-        kwargs.uri    = 'compute/Blades'
+        kwargs = kwargs | DotMap(expand = 'Adapters,GraphicsCards', method = 'get', uri = 'compute/Blades')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('moid_filter').calls(kwargs)
+        kwargs = api('moid_filter').calls(kwargs)
         for e in kwargs.results:
             kwargs = server_dictionary(e, kwargs)
             for d in ['fan_modules', 'power_supplies', 'server_id']: kwargs.servers[e.Moid].pop(d)
@@ -908,12 +877,10 @@ class api(object):
         # Rackmount Inventory
         #=========================================================================
         if 'api_filter' in kwargs_keys: kwargs.api_filter = api_filter
-        kwargs.expand = 'Adapters,Fanmodules,GraphicsCards,Psus'
-        kwargs.method = 'get'
-        kwargs.uri    = 'compute/RackUnits'
+        kwargs = kwargs | DotMap(expand = 'Adapters,Fanmodules,GraphicsCards,Psus', method = 'get', uri = 'compute/RackUnits')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
-        kwargs        = api('moid_filter').calls(kwargs)
-        dkeys         = list(kwargs.domains.keys())
+        kwargs = api('moid_filter').calls(kwargs)
+        dkeys  = list(kwargs.domains.keys())
         for e in kwargs.results:
             kwargs = server_dictionary(e, kwargs)
             fan_modules, power_supplies = api.inventory_fans_psus(element=e)
@@ -945,10 +912,8 @@ class api(object):
         #=====================================================================
         # Get Server Profile Elements
         #=====================================================================
-        kwargs.method = 'get'
-        kwargs.names  = [v.moid for k,v in kwargs.server_profiles.items()]
-        kwargs.uri    = kwargs.ezdata['profiles.server'].intersight_uri
-        kwargs        = api('moid_filter').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get', names = [v.moid for k,v in kwargs.server_profiles.items()], uri = kwargs.ezdata['profiles.server'].intersight_uri)
+        kwargs = api('moid_filter').calls(kwargs)
         for e in kwargs.results:
             k = e.AssignedServer.Moid
             kwargs.server_profiles[k].boot_order = DotMap(boot_mode = '', method = '', moid = '', name = '', wwpn_targets = [])
@@ -959,11 +924,9 @@ class api(object):
         #=====================================================================
         # Assign Boot Order Policies
         #=====================================================================
-        kwargs.method = 'get'
-        kwargs.names  = list(numpy.unique(numpy.array(boot_moids)))
-        kwargs.uri    = kwargs.ezdata.boot_order.intersight_uri
-        kwargs        = api('moid_filter').calls(kwargs)
-        boot_moids    = DotMap()
+        kwargs = kwargs | DotMap(method = 'get', names = list(numpy.unique(numpy.array(boot_moids))), uri = kwargs.ezdata.boot_order.intersight_uri)
+        kwargs = api('moid_filter').calls(kwargs)
+        boot_moids = DotMap()
         for e in kwargs.results: boot_moids[e.Moid] = e
         for k in list(kwargs.server_profiles.keys()):
             v = kwargs.server_profiles[k]
@@ -977,11 +940,8 @@ class api(object):
         #=====================================================================
         # Get iSCSI | vHBA | vNIC Identifiers
         #=====================================================================
-        kwargs.expand = 'HostEthIfs,HostFcIfs,HostIscsiIfs'
-        kwargs.method = 'get'
-        kwargs.names  = hardware_moids
-        kwargs.uri    = 'adapter/Units'
-        kwargs        = api('ancestors').calls(kwargs)
+        kwargs = kwargs | DotMap(expand = 'HostEthIfs,HostFcIfs,HostIscsiIfs', method = 'get', names = hardware_moids, uri = 'adapter/Units')
+        kwargs = api('ancestors').calls(kwargs)
         for e in kwargs.results:
             pci_slot = ezfunctions.pci_slot(e)
             for d in e.Ancestors:
@@ -1009,10 +969,8 @@ class api(object):
         #=====================================================================
         # Get IQN for Host and Add to Profile Map
         #=====================================================================
-        kwargs.names  = profile_moids
-        kwargs.method = 'get'
-        kwargs.uri    = 'iqnpool/Pools'
-        kwargs        = api('iqn_pool_leases').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get', names = profile_moids, uri = 'iqnpool/Pools')
+        kwargs = api('iqn_pool_leases').calls(kwargs)
         if len(kwargs.results) > 0:
             for k in list(kwargs.server_profiles.keys()):
                 for e in kwargs.results:
@@ -1038,16 +996,14 @@ class api(object):
     # Function - Server Inventory - Server Profiles
     #=========================================================================
     def server_profiles(self, kwargs):
-        server_keys   = list(kwargs.servers.keys())
-        kwargs.method = 'get'
-        kwargs.uri    = kwargs.ezdata['profiles.server'].intersight_uri
+        server_keys = list(kwargs.servers.keys())
+        kwargs = kwargs | DotMap(method = 'get', uri = kwargs.ezdata['profiles.server'].intersight_uri)
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
         kwargs = api('server_profile').calls(kwargs)
         for e in kwargs.results:
             if e.AssociatedServer != None and e.AssignedServer.Moid in server_keys:
-                kwargs.servers[e.AssignedServer.Moid].organization = kwargs.org_names[e.Organization.Moid]
-                kwargs.servers[e.AssignedServer.Moid].name = e.Name
-                kwargs.servers[e.AssignedServer.Moid].moid = e.Moid
+                kwargs.servers[e.AssignedServer.Moid] = kwargs.servers[e.AssignedServer.Moid] | DotMap(
+                    moid = e.Moid, name = e.Name, organization = kwargs.org_names[e.Organization.Moid])
         #=====================================================================
         # return kwargs
         #=====================================================================
@@ -1057,8 +1013,7 @@ class api(object):
     # Function - Server Inventory - Server Profiles
     #=========================================================================
     def server_virtual_drives(self, kwargs):
-        kwargs.method = 'get'
-        kwargs.uri    = 'storage/VirtualDrives'
+        kwargs = kwargs | DotMap(method = 'get', uri = 'storage/VirtualDrives')
         pcolor.Cyan(f'{" "*4}* Querying `{kwargs.uri}` for Inventory.')
         kwargs = api('virtual_drives').calls(kwargs)
         for e in kwargs.results:
@@ -1084,42 +1039,35 @@ class api(object):
     # Function - Get Organizations from Intersight
     #=========================================================================
     def organizations(self, kwargs):
-        kwargs.method    = 'get'
-        kwargs.names     = kwargs.orgs
-        kwargs.uri       = 'resource/Groups'
-        kwargs           = api('resource_group').calls(kwargs)
-        kwargs.rsg_moids = kwargs.pmoids
+        kwargs = kwargs | DotMap(method = 'get', names = kwargs.orgs, uri = 'resource/Groups')
+        kwargs = api('resource_group').calls(kwargs)
+        kwargs.rsg_moids   = kwargs.pmoids
         kwargs.rsg_results = kwargs.results
         #=====================================================================
         # Get Organization List from the API
         #=====================================================================
-        kwargs.uri         = 'organization/Organizations'
-        kwargs             = api('organization').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get', names = kwargs.orgs, uri = 'resource/Groups')
+        kwargs = api('organization').calls(kwargs)
         kwargs.org_moids   = kwargs.pmoids
         kwargs.org_results = kwargs.results
+        org_keys = list(kwargs.org_moids.keys())
         for org in kwargs.orgs:
             create_rsg = False
-            if org in kwargs.org_moids:
+            if org in org_keys:
                 indx = next((index for (index, d) in enumerate(kwargs.org_results) if d['Name'] == org), None)
                 if indx == None: create_rsg = True
                 else:
-                    if len(kwargs.org_results[indx].ResourceGroups) == 0:
-                        if len(kwargs.org_results[indx].SharedWithResources) == 0: create_rsg = True
+                    if len(kwargs.org_results[indx].ResourceGroups) == 0 and len(kwargs.org_results[indx].SharedWithResources) == 0: create_rsg = True
             else: create_rsg = True
             if create_rsg == True:
-                kwargs.org      = org
-                kwargs.api_body = {'Description':f'{org} Resource Group', 'Name':org}
-                kwargs.method   = 'post'
-                kwargs.uri      = 'resource/Groups'
-                kwargs          = api(self.type).calls(kwargs)
+                kwargs = kwargs | DotMap(api_body = {'Description':f'{org} Resource Group', 'Name':org}, method = 'post', org = org, uri = 'resource/Groups')
+                kwargs = api(self.type).calls(kwargs)
                 kwargs.rsg_moids[org].moid      = kwargs.results.Moid
                 kwargs.rsg_moids[org].selectors = kwargs.results.Selectors
-            if not org in kwargs.org_moids:
-                kwargs.api_body = {'Description':f'{org} Organization', 'Name':org,
-                                   'ResourceGroups':[{'Moid': kwargs.rsg_moids[org].moid, 'ObjectType': 'resource.Group'}]}
-                kwargs.method = 'post'
-                kwargs.uri    = 'organization/Organizations'
-                kwargs        = api(self.type).calls(kwargs)
+            if not org in org_keys:
+                api_body = {'Description':f'{org} Organization','Name':org,'ResourceGroups':[{'Moid':kwargs.rsg_moids[org].moid,'ObjectType':'resource.Group'}]}
+                kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = 'organization/Organizations')
+                kwargs = api(self.type).calls(kwargs)
                 kwargs.org_moids[org].moid = kwargs.results.Moid
         return kwargs
 
@@ -1346,9 +1294,8 @@ class imm(object):
     #=========================================================================
     def bulk_request(self, kwargs):
         def post_to_api(kwargs):
-            kwargs.method = 'post'
-            kwargs.uri    = 'bulk/Requests'
-            kwargs        = api('bulk_request').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'post', uri = 'bulk/Requests')
+            kwargs = api('bulk_request').calls(kwargs)
             return kwargs
         def loop_thru_lists(kwargs):
             if len(kwargs.api_body['Requests']) > 99:
@@ -1569,9 +1516,8 @@ class imm(object):
             ekeys = list(e.keys()); spolicy = np + e.name + ns
             if 'drive_groups' in ekeys: kwargs.names.append(kwargs.isight[kwargs.org].policies['storage'][spolicy])
         if len(kwargs.names) > 0:
-            kwargs.method = 'get'; kwargs.parent = 'StoragePolicy'
-            kwargs.uri   = kwargs.ezdata[self.type].intersight_uri
-            kwargs       = api('parent_moids').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get', parent = 'StoragePolicy', uri = kwargs.ezdata[self.type].intersight_uri)
+            kwargs = api('parent_moids').calls(kwargs)
             drive_groups = DotMap(); storage = DotMap()
             for k,v in kwargs.isight[kwargs.org].policies['storage'].items(): storage[v] = k
             for e in kwargs.results:
@@ -1691,14 +1637,11 @@ class imm(object):
         for e in ['cco_password', 'cco_user']:
             if os.environ.get(e) == None:
                 kwargs.sensitive_var = e
-                kwargs               = ezfunctions.sensitive_var_value(kwargs)
-                os.environ[e]        = kwargs.value
-        kwargs.api_body = {
-            'ObjectType':'softwarerepository.Authorization','Password':os.environ['cco_password'],
-            'RepositoryType':'Cisco','UserId':os.environ['cco_user']}
-        kwargs.method   = 'post'
-        kwargs.uri      = 'softwarerepository/Authorizations'
-        kwargs          = api('firmware_authorization').calls(kwargs)
+                kwargs        = ezfunctions.sensitive_var_value(kwargs)
+                os.environ[e] = kwargs.value
+        api_body = {'ObjectType':'softwarerepository.Authorization','Password':os.environ['cco_password'],'RepositoryType':'Cisco','UserId':os.environ['cco_user']}
+        kwargs   = kwargs | DotMap(api_body = api_body, method = 'post', uri = 'softwarerepository/Authorizations')
+        kwargs   = api('firmware_authorization').calls(kwargs)
         return kwargs
 
     #=========================================================================
@@ -1749,9 +1692,8 @@ class imm(object):
         # Get Pool Moids
         #=====================================================================
         for k, v in kwargs.pools.items():
-            names         = list(numpy.unique(numpy.array(v)))
-            kwargs.method = 'get'
-            kwargs        = api_get(True, names, k, kwargs)
+            names  = list(numpy.unique(numpy.array(v)))
+            kwargs = api_get(True, names, k, kwargs)
         #=====================================================================
         # Get Pool Leases
         #=====================================================================
@@ -1765,20 +1707,19 @@ class imm(object):
         for k, v in kwargs.reservations.items():
             if len(v) > 0:
                 kwargs = reservation_settings(k, kwargs)
-                kwargs.method = 'get'
                 names = list(numpy.unique(numpy.array(v)))
                 if k == 'ip':
-                    names  = list(numpy.unique(numpy.array(v)))
                     for e in ['IPv4', 'IPv6']:
                         if 'v4' in e: check = '.'; kwargs.pkey = 'IpV4Address'
                         else: check = ':'; kwargs.pkey = 'IpV6Address'
-                        kwargs.names = [d for d in names if check in d]
-                        if len(kwargs.names) > 0:
-                            kwargs        = api(f'{k}_leases').calls(kwargs)
+                        names = [d for d in names if check in d]
+                        if len(names) > 0:
+                            kwargs = kwargs | DotMap(method = 'get', names = names)
+                            kwargs = api(f'{k}_leases').calls(kwargs)
                             kwargs.leases[k][e] = kwargs.results
                 else:
-                    kwargs.names  = list(numpy.unique(numpy.array(v)))
-                    kwargs        = api(f'{k}_leases').calls(kwargs)
+                    kwargs = kwargs | DotMap(method = 'get', names = names)
+                    kwargs = api(f'{k}_leases').calls(kwargs)
                     kwargs.leases[k] = kwargs.results
         #=====================================================================
         # Get Identity Reservations
@@ -2433,11 +2374,9 @@ class imm(object):
             # Resource Pool Updates
             #=================================================================
             if self.type == 'resource':
-                kwargs.method = 'get'
-                kwargs.names  = api_body['serial_number_list']
-                kwargs.uri    = kwargs.ezdata[self.type].intersight_uri_serial
-                kwargs        = api('serial_number').calls(kwargs)
-                smoids        = kwargs.pmoids
+                kwargs = kwargs | DotMap(method = 'get', names = api_body['serial_number_list'], uri = kwargs.ezdata[self.type].intersight_uri_serial)
+                kwargs = api('serial_number').calls(kwargs)
+                smoids = kwargs.pmoids
                 selector = "','".join(kwargs.names); selector = f"'{selector}'"
                 stype = f"{smoids[api_body['serial_number_list'][0]].object_type.split('.')[1]}s"
                 mmode = smoids[api_body['serial_number_list'][0]].management_mode
@@ -2507,11 +2446,9 @@ class imm(object):
                         kwargs.parent_type = 'Port Policy'
                         kwargs.parent_moid = kwargs.isight[kwargs.org].policies['port'][i]
                         if port_modes.get(kwargs.parent_moid):
-                            if port_modes[kwargs.parent_moid].get(str(e.port_list[0])):
-                                kwargs.method= 'patch'
-                            else: kwargs.method= 'post'
-                        else: kwargs.method= 'post'
-                        if kwargs.method == 'post': kwargs.bulk_list.append(deepcopy(api_body))
+                            kwargs.method   = 'patch' if port_modes[kwargs.parent_moid].get(str(e.port_list[0])) else 'post'
+                        else: kwargs.method = 'post'
+                        if    kwargs.method == 'post': kwargs.bulk_list.append(deepcopy(api_body))
                         else:
                             indx = next((index for (index, d) in enumerate(port_results) if d['PortIdStart'] == e.port_list[0]), None)
                             patch_port = imm(self.type).compare_body_result(api_body, port_results[indx])
@@ -2645,17 +2582,13 @@ class imm(object):
                     if item.get(e):
                         np, ns = ezfunctions.name_prefix_suffix('port', kwargs)
                         kwargs.plist[e] = []
-                        kwargs.parent_key  = self.type.split('.')[0]
-                        kwargs.parent_name = f'{np}{item.names[x]}{ns}'
-                        kwargs.parent_type = 'Port Policy'
+                        kwargs = kwargs | DotMap(parent_key = self.type.split('.')[0], parent_name = f'{np}{item.names[x]}{ns}', parent_type = 'Port Policy')
                         kwargs.parent_moid = kwargs.isight[kwargs.org].policies['port'][kwargs.parent_name]
                         kwargs = get_ports(e, item, x, kwargs)
                         port_type_call(e, item, x, kwargs)
                         if len(kwargs.plist[e]) > 0:
-                            kwargs.api_body= {'Requests':kwargs.plist[e]}
-                            kwargs.method = 'post'
-                            kwargs.uri    = 'bulk/Requests'
-                            kwargs        = api('bulk_request').calls(kwargs)
+                            kwargs = kwargs | DotMap(api_body = {'Requests':kwargs.plist[e]}, method = 'post', uri = 'bulk/Requests')
+                            kwargs = api('bulk_request').calls(kwargs)
         return kwargs
 
     #=========================================================================
@@ -2863,11 +2796,9 @@ class imm(object):
                 if 'SrcTemplate' in api_body:
                     if api_body['SrcTemplate'] != None and kwargs.profile_results[indx].SrcTemplate != None:
                         if api_body['SrcTemplate']['Moid'] != kwargs.profile_results[indx].SrcTemplate.Moid:
-                            kwargs.api_body = {'SrcTemplate':None}
-                            kwargs.method   = 'patch'
-                            kwargs.pmoid    = kwargs.isight[kwargs.org][profile_type][dtype][api_body['Name']]
-                            kwargs.uri      = kwargs.ezdata[self.type].intersight_uri
-                            kwargs          = api(self.type).calls(kwargs)
+                            pmoid  = kwargs.isight[kwargs.org][profile_type][dtype][api_body['Name']]
+                            kwargs = kwargs | DotMap(api_body = {'SrcTemplate':None}, method = 'patch', pmoid = pmoid, uri = kwargs.ezdata[self.type].intersight_uri)
+                            kwargs = api(self.type).calls(kwargs)
                 kwargs.bulk_list.append(deepcopy(api_body))
             else:
                 pcolor.Cyan(
@@ -2918,10 +2849,8 @@ class imm(object):
         #=====================================================================
         if len(kwargs.bulk_merger_template) > 0:
             for e in kwargs.bulk_merger_template.keys():
-                kwargs.api_body = kwargs.bulk_merger_template[e]
-                kwargs.method   = 'post'
-                kwargs.uri      = 'bulk/MoMergers'
-                kwargs          = api('bulk').calls(kwargs)
+                kwargs = kwargs | DotMap(api_body = kwargs.bulk_merger_template[e], method = 'post', uri = 'bulk/MoMergers')
+                kwargs = api('bulk').calls(kwargs)
         return kwargs
 
     #=========================================================================
@@ -3055,8 +2984,6 @@ class imm(object):
                 changes  = profile_results[indx].ConfigChanges.Changes
                 cstate   = profile_results[indx].ConfigContext.ConfigState
                 csummary = profile_results[indx].ConfigContext.ConfigStateSummary
-                #isummary = profile_results[indx].ConfigChangeContext.InitialConfigContext.ConfigStateSummary
-                #if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary) or re.search(cregex, isummary):
                 if len(changes) > 0 or re.search(cregex, cstate) or re.search(cregex, csummary):
                     pending_changes = True
                     kwargs.profile_update[e].pending_changes = 'Deploy'
@@ -3074,9 +3001,7 @@ class imm(object):
                 for e in list(kwargs.profile_update.keys()):
                     if kwargs.profile_update[e].pending_changes == 'Deploy':
                         pcolor.Green(f'{" "*4}- Beginning Profile Deployment for `{e}`.')
-                        kwargs.api_body = {'Action': 'Deploy', 'Name': e}
-                        kwargs.method   = 'patch'
-                        kwargs.pmoid    = kwargs.isight[kwargs.org].profiles[dtype][e]
+                        kwargs = kwargs | DotMap(api_body = {'Action': 'Deploy', 'Name': e}, method = 'patch', pmoid = kwargs.isight[kwargs.org].profiles[dtype][e])
                         kwargs = api(self.type).calls(kwargs)
                     else: pcolor.LightPurple(f'{" "*4}- Skipping Org: {kwargs.org}; Profile Deployment for `{e}`.  No Pending Changes.')
                 if deploy_pending == True:
@@ -3086,8 +3011,7 @@ class imm(object):
                     if kwargs.profile_update[e].pending_changes == 'Deploy':
                         deploy_complete= False
                         while deploy_complete == False:
-                            kwargs.method = 'get_by_moid'
-                            kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[dtype][e]
+                            kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = kwargs.isight[kwargs.org].profiles[dtype][e])
                             kwargs = api(self.type).calls(kwargs)
                             if kwargs.results.ConfigContext.ControlAction == 'No-op':
                                 deploy_complete = True
@@ -3115,10 +3039,8 @@ class imm(object):
                 if not kwargs.lookup.get('uuid'): kwargs.lookup.uuid = []
                 kwargs.lookup.uuid.append(e.UuidPool.Moid)
         for k in list(kwargs.lookup.keys()):
-            kwargs.method = 'get'
-            kwargs.names  = list(numpy.unique(numpy.array(kwargs.lookup[k])))
-            kwargs.uri    = kwargs.ezdata[k].intersight_uri
-            kwargs        = api('moid_filter').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get', names = list(numpy.unique(numpy.array(kwargs.lookup[k]))), uri = kwargs.ezdata[k].intersight_uri)
+            kwargs = api('moid_filter').calls(kwargs)
             for e in kwargs.results:
                 ptype = kwargs.ezdata[k].intersight_type
                 kwargs.isight[kwargs.org_names[e.Organization.Moid]][ptype][k][e.Name] = e.Moid
@@ -3256,10 +3178,8 @@ class imm(object):
         clusters = DotMap()
         for k,v in kwargs.isight[kwargs.org].profiles[dtype].items(): clusters[v] = k
         if len(kwargs.names) > 0:
-            kwargs.method = 'get'
-            kwargs.parent = 'SwitchClusterProfile'
-            kwargs.uri    = kwargs.ezdata[self.type].switch_intersight_uri
-            kwargs        = api('parent_moids').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get', parent = 'SwitchClusterProfile', uri = kwargs.ezdata[self.type].switch_intersight_uri)
+            kwargs = api('parent_moids').calls(kwargs)
             for e in kwargs.results:
                 if len(e.ConfigChanges.Changes) > 0 or re.search("Assigned|Failed|Pending-changes", e.ConfigContext.ConfigState):
                     pending_changes = True
@@ -3278,8 +3198,7 @@ class imm(object):
         if pending_changes == True: pcolor.LightPurple(f'\n{"-"*108}\n'); time.sleep(60)
         for k in list(kwargs.cluster_update.keys()):
             if kwargs.cluster_update[k].pending_changes == True:
-                kwargs.method = 'get_by_moid'
-                kwargs.uri    = kwargs.ezdata[self.type].switch_intersight_uri
+                kwargs = kwargs | DotMap(method = 'get_by_moid', uri = kwargs.ezdata[self.type].switch_intersight_uri)
                 for e in kwargs.cluster_update[k].names:
                     kwargs.pmoid = kwargs.isight[kwargs.org].profiles['switch'][e]
                     deploy_complete = False
@@ -3312,10 +3231,8 @@ class imm(object):
                 if not kwargs.lookup.get(kwargs.object_type_map[p.ObjectType].ezkey): kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey] = []
                 kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey].append(p.Moid)
         for k in list(kwargs.lookup.keys()):
-            kwargs.method = 'get'
-            kwargs.names  = list(numpy.unique(numpy.array(kwargs.lookup[k])))
-            kwargs.uri    = kwargs.ezdata[k].intersight_uri
-            kwargs        = api('moid_filter').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get', names = list(numpy.unique(numpy.array(kwargs.lookup[k]))), uri = kwargs.ezdata[k].intersight_uri)
+            kwargs = api('moid_filter').calls(kwargs)
             for e in kwargs.results:
                 ptype = kwargs.ezdata[k].intersight_type
                 kwargs.isight[kwargs.org_names[e.Organization.Moid]][ptype][k][e.Name] = e.Moid
@@ -3381,10 +3298,9 @@ class imm(object):
                 indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
                 if len(profile_results[indx].ConfigChanges.PolicyDisruptions) > 0:
                     pcolor.Green(f'{" "*4}- Beginning Profile Activation for `{e}`.')
-                    kwargs.api_body= {'ScheduledActions':[{'Action':'Activate', 'ProceedOnReboot':True}]}
-                    kwargs.method = 'patch'
-                    kwargs.pmoid  = kwargs.isight[kwargs.org].profiles[dtype][e]
-                    kwargs = api(self.type).calls(kwargs)
+                    api_body = {'ScheduledActions':[{'Action':'Activate', 'ProceedOnReboot':True}]}
+                    kwargs   = kwargs | DotMap(api_body = api_body, method = 'patch', pmoid = kwargs.isight[kwargs.org].profiles[dtype][e])
+                    kwargs   = api(self.type).calls(kwargs)
                     pending_activations = True
                 else:
                     pcolor.LightPurple(f'{" "*4}- Skipping Org: {kwargs.org}; Profile Activation for `{e}`.  No Pending Changes.')
@@ -3397,15 +3313,13 @@ class imm(object):
             if not kwargs.profile_update[e].pending_changes == 'Empty':
                 activate_names.append(kwargs.isight[kwargs.org].profiles[self.type][e])
         if len(activate_names) > 0:
-            dt    = datetime.today().strftime('%Y-%m-%d')
-            names = "', '".join(activate_names).strip("', '")
-            str1  = f"CreateTime gt {dt}T00:00:00.000Z and CreateTime lt {dt}T23:59:59.999Z and AssociatedObject.Moid in ('{names}')"
-            str2  = f" and WorkflowCtx.WorkflowType eq 'Activate'"
-            kwargs.api_filter = str1 + str2
-            kwargs.method     = 'get'
-            kwargs.uri        = 'workflow/WorkflowInfos'
-            kwargs            = api('workflows').calls(kwargs)
-            activate_results  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+            dt     = datetime.today().strftime('%Y-%m-%d')
+            names  = "', '".join(activate_names).strip("', '")
+            str1   = f"CreateTime gt {dt}T00:00:00.000Z and CreateTime lt {dt}T23:59:59.999Z and AssociatedObject.Moid in ('{names}')"
+            str2   = f" and WorkflowCtx.WorkflowType eq 'Activate'"
+            kwargs = kwargs | DotMap(api_filter = str1 + str2, method = 'get', uri = 'workflow/WorkflowInfos')
+            kwargs = api('workflows').calls(kwargs)
+            activate_results = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
         loop_count = 0
         def activation_message(e, progress, status):
             pcolor.Cyan(f'{" "*6}* Still In Progress for `{e}`.  Status: `{status}` Progress Percentage: `{progress}`, Sleeping for 120 seconds.')
@@ -3424,9 +3338,8 @@ class imm(object):
                 while deploy_complete == False:
                     if retry_count > 60: failed_message(e); deploy_complete == True
                     if loop_count > 0:
-                        kwargs.method = 'get_by_moid'
-                        kwargs.pmoid  = activate_results[indx].Moid
-                        kwargs        = api(self.type).calls(kwargs)
+                        kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = activate_results[indx].Moid)
+                        kwargs = api(self.type).calls(kwargs)
                         active_result = kwargs.results
                     else: active_result = activate_results[indx]
                     if active_result.WorkflowStatus == 'Completed': success_message(e); deploy_complete   = True
@@ -4097,24 +4010,18 @@ class software_repository(object):
     #=========================================================================
     def os_vendor_and_version(self, kwargs):
         org_moid                = kwargs.org_moids[kwargs.org].moid
-        kwargs.api_filter       = 'ignore'
-        kwargs.method           = 'get'
-        kwargs.uri              = 'hcl/OperatingSystemVendors'
-        kwargs                  = api('os_vendors').calls(kwargs)
-        kwargs.os_vendors       = kwargs.pmoids
-        kwargs.api_filter       = 'ignore'
-        kwargs.method           = 'get'
-        kwargs.uri              = 'hcl/OperatingSystems'
-        kwargs                  = api('os_vendors').calls(kwargs)
-        kwargs.os_versions      = kwargs.pmoids
-        kwargs.api_filter       = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')"
-        kwargs.method           = 'get'
-        kwargs.uri              = 'os/Catalogs'
-        kwargs                  = api('os_catalog').calls(kwargs)
-        catalog_moids           = kwargs.pmoids
-        kwargs.api_filter       = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
-        kwargs.uri              = 'os/ConfigurationFiles'
-        kwargs                  = api('os_configuration').calls(kwargs)
+        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'hcl/OperatingSystemVendors')
+        kwargs = api('os_vendors').calls(kwargs)
+        kwargs.os_vendors = kwargs.pmoids
+        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'hcl/OperatingSystems')
+        kwargs = api('os_vendors').calls(kwargs)
+        kwargs.os_versions = kwargs.pmoids
+        kwargs = kwargs | DotMap(api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')", method = 'get', uri = 'os/Catalogs')
+        kwargs = api('os_catalog').calls(kwargs)
+        catalog_moids = kwargs.pmoids
+        api_filter = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
+        kwargs     = kwargs | DotMap(api_filter = api_filter, method = 'get', uri = 'os/ConfigurationFiles')
+        kwargs     = api('os_configuration').calls(kwargs)
         kwargs.org_catalog_moid = catalog_moids[org_moid].moid
         kwargs.os_cfg_moids     = kwargs.pmoids
         kwargs.os_cfg_results   = kwargs.results
@@ -4176,22 +4083,15 @@ def api_get(empty, names, otype, kwargs):
         kwargs.glist[org].names.append(policy)
     orgs = list(kwargs.glist.keys()); results = []; pmoids  = DotMap()
     for org in orgs:
-        kwargs.org    = org
-        kwargs.names  = kwargs.glist[org].names
-        kwargs.method = 'get'
-        kwargs.uri    = kwargs.ezdata[otype].intersight_uri
-        kwargs        = api(otype).calls(kwargs)
+        kwargs = kwargs | DotMap(names = kwargs.glist[org].names, org = org, method = 'get', uri = kwargs.ezdata[otype].intersight_uri)
+        kwargs = api(otype).calls(kwargs)
         if empty == False and kwargs.results == []: empty_results(kwargs)
         else:
             if kwargs.ezdata[otype].get('intersight_type'):
                 for k, v in kwargs.pmoids.items():
-                    if re.search('(profiles|templates)\\.', otype):
-                        ntype = (otype.replace('profiles.', '')).replace('templates.', '')
-                    else: ntype = otype
+                    ntype = (otype.replace('profiles.', '')).replace('templates.', '') if re.search('(profiles|templates)\\.', otype) else otype
                     kwargs.isight[org][kwargs.ezdata[otype].intersight_type][ntype][k] = v.moid
-            if len(kwargs.results) > 0:
-                results.extend(kwargs.results)
-                pmoids = DotMap(dict(pmoids.toDict(), **kwargs.pmoids.toDict()))
+            if len(kwargs.results) > 0: results.extend(kwargs.results); pmoids = DotMap(dict(pmoids.toDict(), **kwargs.pmoids.toDict()))
     kwargs.org = original_org; kwargs.pmoids  = pmoids; kwargs.results = results
     return kwargs
 
