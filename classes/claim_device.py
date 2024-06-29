@@ -22,10 +22,8 @@ def claim_targets(kwargs):
     for i in kwargs.yaml.device_list: resource_groups.append(i.resource_group)
     names= "', '".join(numpy.unique(numpy.array(resource_groups))).strip("', '")
     # Get Intersight Resource Groups
-    kwargs.api_filter = f"Name in ('{names}')"
-    kwargs.method     = 'get'
-    kwargs.uri        = 'resource/Groups'
-    kwargs            = isight.api('resource_group').calls(kwargs)
+    kwargs = kwargs | DotMap(api_filter = f"Name in ('{names}')", method = 'get', uri = 'resource/Groups')
+    kwargs = isight.api('resource_group').calls(kwargs)
     resource_groups   = kwargs.pmoids
     # Loop Through Device List
     for i in kwargs.yaml.device_list:
@@ -139,20 +137,16 @@ def claim_targets(kwargs):
                 result[device.hostname].msg += f"#Token : {claim_code}"
 
                 # Post claim_code and device_id
-                kwargs.api_body = {'SecurityToken': claim_code, 'SerialNumber': device_id}
-                kwargs.method   = 'post'
-                kwargs.uri      = 'asset/DeviceClaims'
-                kwargs          = isight.api('device_claim').calls(kwargs)
-                reg_moid        = kwargs.results.Moid
+                kwargs   = kwargs | DotMap(api_body = {'SecurityToken': claim_code, 'SerialNumber': device_id}, method = 'post', uri = 'asset/DeviceClaims')
+                kwargs   = isight.api('device_claim').calls(kwargs)
+                reg_moid = kwargs.results.Moid
                 result[device.hostname].reg_moid = reg_moid
                 result[device.hostname].changed  = True
                 result[device.hostname].serial   = device_id
             else:
-                kwargs.method     = 'get'
-                kwargs.api_filter = f'contains(Serial,{device_id})'
-                kwargs.uri        = 'asset/DeviceRegistrations'
-                kwargs            = isight.api('device_registration').calls(kwargs)
-                reg_moid          = kwargs.results[0].Moid
+                kwargs   = kwargs | DotMap(api_filter = f'contains(Serial,{device_id})', method = 'get', uri = 'asset/DeviceRegistrations')
+                kwargs   = isight.api('device_registration').calls(kwargs)
+                reg_moid = kwargs.results[0].Moid
                 result[device.hostname].reg_moid = reg_moid
                 result[device.hostname].changed  = False
                 result[device.hostname].serial   = device_id
@@ -175,15 +169,10 @@ def claim_targets(kwargs):
                     result[s]['Resource Updated'] = True
                 else: result[s]['Resource Updated'] = False
             if update_resource_group == True:
-                kwargs.api_body = { 'Selectors':[{
-                    'ClassId': 'resource.Selector',
-                    'ObjectType': 'resource.Selector',
-                    'Selector': '/api/v1/asset/DeviceRegistrations?$filter=Moid in('f"{appended_targets})"
-                }] }
-                kwargs.method = 'patch'
-                kwargs.pmoid  = resource_groups[i.resource_group].moid
-                kwargs.uri    = 'resource/Groups'
-                kwargs        = isight.api('resource_group').calls(kwargs)
+                kwargs.api_body = { 'Selectors':[{'ClassId': 'resource.Selector','ObjectType': 'resource.Selector',
+                    'Selector': '/api/v1/asset/DeviceRegistrations?$filter=Moid in('f"{appended_targets})"}] }
+                kwargs = kwargs | DotMap(method = 'patch', pmoid = resource_groups[i.resource_group].moid, uri = 'resource/Groups')
+                kwargs = isight.api('resource_group').calls(kwargs)
     pcolor.Cyan(f'\n{"-" * 60}\n {"-" * 5}')
     for key, value in result.items():
         for k, v in value.items():

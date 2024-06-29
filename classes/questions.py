@@ -219,23 +219,17 @@ class orgs(object):
                 kwargs.jdata = deepcopy(kwargs.ezdata.organization.allOf[1].properties[e])
                 if e == 'name': kwargs.jdata.default = 'example'
                 kwargs[e]    = ezfunctions.variable_prompt(kwargs)
-            kwargs.org    = kwargs.name
-            kwargs.names  = [kwargs.org]
-            kwargs.method = 'get'
-            kwargs.uri    = deepcopy(kwargs.ezdata.resource_group.intersight_uri)
+            kwargs = kwargs | DotMap(method = 'get', names = [kwargs.name], org = kwargs.name, uri = deepcopy(kwargs.ezdata.resource_group.intersight_uri))
             kwargs = isight.api('resource_group').calls(kwargs)
             if not kwargs.pmoids.get(kwargs.org):
-                kwargs.api_body = {"Description": kwargs.description, "Name":f'{kwargs.org}', "ObjectType":"resource.Group"}
-                kwargs.method   = 'post'
+                kwargs = kwargs | DotMap(api_body = {"Description": kwargs.description, "Name":f'{kwargs.org}', "ObjectType":"resource.Group"}, method = 'post')
                 kwargs = isight.api('resource_group').calls(kwargs)
                 rg_moid = kwargs.pmoid
             else: rg_moid = kwargs.pmoids[kwargs.org].moid
-            kwargs.api_body = {
-                "Description": kwargs.description, "Name":kwargs.org, "ObjectType":"organization.Organization",
-                "ResourceGroups":[{"Moid": rg_moid, "ObjectType":"resource.Group"}]}
-            kwargs.method = 'post'
-            kwargs.uri    = deepcopy(kwargs.ezdata.organization.intersight_uri)
-            kwargs        = isight.api('organization').calls(kwargs)
+            api_body = {"Description": kwargs.description, "Name":kwargs.org, "ObjectType":"organization.Organization",
+                        "ResourceGroups":[{"Moid": rg_moid, "ObjectType":"resource.Group"}]}
+            kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = deepcopy(kwargs.ezdata.organization.intersight_uri))
+            kwargs = isight.api('organization').calls(kwargs)
             kwargs.org_moids[kwargs.org] = DotMap(moid = kwargs.pmoid)
         return kwargs
 
@@ -288,13 +282,11 @@ class orgs(object):
                     title        = 'Intersight Shared Organization',
                     type         = 'string')
                 shared_sub_orgs = ezfunctions.variable_prompt(kwargs)
-                kwargs.api_body = {"Description": kwargs.description, "Name": kwargs.shared_org, "ObjectType":"organization.Organization"}
-                kwargs.method = 'post'
-                kwargs.uri    = deepcopy(kwargs.ezdata.organization.intersight_uri)
+                api_body = {"Description": kwargs.description, "Name": kwargs.shared_org, "ObjectType":"organization.Organization"}
+                kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = deepcopy(kwargs.ezdata.organization.intersight_uri))
                 kwargs = isight.api('organization').calls(kwargs)
                 kwargs.org_moids[kwargs.shared_org] = DotMap(moid = kwargs.pmoid)
-                kwargs.build_skip = True
-                kwargs.bulk_list  = []
+                kwargs.build_skip = True; kwargs.bulk_list  = []
                 for e in shared_sub_orgs:
                     kwargs.bulk_list.append(
                         {"SharedResource":{"Moid": kwargs.org_moids[kwargs.shared_org].moid, "ObjectType":"organization.Organization"},
@@ -425,11 +417,8 @@ class os_install(object):
         template_name = version + '-' + ctemplate.split('_')[0]
         kwargs.os_config_template = template_name
         if not kwargs.distributions.get(version):
-            kwargs.api_filter = f"Version eq '{op_system.version.name}'"
-            kwargs.build_skip = True
-            kwargs.method     = 'get'
-            kwargs.uri        = 'hcl/OperatingSystems'
-            kwargs            = isight.api('hcl_operating_system').calls(kwargs)
+            kwargs = kwargs | DotMap(api_filter = f"Version eq '{op_system.version.name}'", build_skip = True, method = 'get', uri = 'hcl/OperatingSystems')
+            kwargs = isight.api('hcl_operating_system').calls(kwargs)
             kwargs.distributions[version].moid = kwargs.results[0].Moid
         kwargs.distribution_moid = kwargs.distributions[version].moid
         file_content = (open(os.path.join(answer), 'r')).read()
@@ -438,10 +427,8 @@ class os_install(object):
             rstring = '%s<%s>{{ .%s }}</%s>\n' % (" "*12, elist[0], elist[1], elist[0])
             if kwargs.language[elist[1]] == '': file_content = file_content.replace(rstring, '')
         kwargs.file_content = file_content
-        kwargs.api_body     = ezfunctions.os_configuration_file(kwargs)
-        kwargs.method       = 'post'
-        kwargs.uri          = 'os/ConfigurationFiles'
-        kwargs              = isight.api('os_configuration').calls(kwargs)
+        kwargs = kwargs | DotMap(api_body = ezfunctions.os_configuration_file(kwargs), method = 'post', uri = 'os/ConfigurationFiles')
+        kwargs = isight.api('os_configuration').calls(kwargs)
         kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
         kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
         #=====================================================================
@@ -939,10 +926,9 @@ class policies(object):
     def policy_select(self, kwargs):
         kwargs.names  = [kwargs.org_moids[kwargs.org].moid]
         if kwargs.use_shared_org == True: kwargs.names.append(kwargs.org_moids[kwargs.shared_org].moid)
-        kwargs.method = 'get'
-        kwargs.uri    = deepcopy(kwargs.ezdata[self.type].intersight_uri)
-        kwargs        = isight.api('multi_org').calls(kwargs)
-        policy_keys   = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
+        kwargs = kwargs | DotMap(method = 'get', uri = deepcopy(kwargs.ezdata[self.type].intersight_uri))
+        kwargs = isight.api('multi_org').calls(kwargs)
+        policy_keys = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
         for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].policies[self.type][e.Name] = e.Moid
         org_keys = list(kwargs.org_moids.keys())
         for org in org_keys:
@@ -992,27 +978,24 @@ class policies(object):
                 domain_moid  = kwargs.domain.moid
                 port_results = DotMap()
                 for e in ['ether', 'fc']:
-                    kwargs.api_filter = f"RegisteredDevice.Moid eq '{domain_moid}'"
-                    kwargs.build_skip = True
-                    kwargs.method     = 'get'
-                    kwargs.uri        = f'{e}/PhysicalPorts'
+                    kwargs = kwargs | DotMap(api_filter=f"RegisteredDevice.Moid eq '{domain_moid}'", build_skip = True, method = 'get', uri = f'{e}/PhysicalPorts')
                     kwargs = isight.api('physical_ports').calls(kwargs)
                     port_results[f'{e}'] = kwargs.results
                 kwargs.eth_ports = []; kwargs.fc_ports = []
                 for i in ['ether', 'fc']:
                     for e in port_results[i]:
                         if ('FC' in e.TransceiverType or 'sfp' in e.TransceiverType) and e.SwitchId == 'A':
-                            kwargs.fc_ports.append(DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId,
-                                                          slot_id = e.SlotId, transceiver = e.TransceiverType))
+                            kwargs.fc_ports.append(
+                                DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId, slot_id = e.SlotId, transceiver = e.TransceiverType))
                         elif i == 'ether' and e.SwitchId == 'A':
-                            kwargs.eth_ports.append(DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId,
-                                                           slot_id = e.SlotId, transceiver = e.TransceiverType))
+                            kwargs.eth_ports.append(
+                                DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId, slot_id = e.SlotId, transceiver = e.TransceiverType))
                         elif i == 'fc' and e.OperState == 'up' and e.SwitchId == 'A':
-                            kwargs.fc_ports.append(DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId,
-                                                           slot_id = e.SlotId, transceiver = 'sfp'))
+                            kwargs.fc_ports.append(
+                                DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId, slot_id = e.SlotId, transceiver = 'sfp'))
                         elif i == 'fc' and e.SwitchId == 'A':
-                            kwargs.fc_ports.append(DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId,
-                                                           slot_id = e.SlotId, transceiver = 'unknown'))
+                            kwargs.fc_ports.append(
+                                DotMap(breakout_port_id = e.AggregatePortId, moid = e.Moid, port_id = e.PortId, slot_id = e.SlotId, transceiver = 'unknown'))
                     kwargs = policies.port_map(i.replace('er', ''), kwargs)
                 #=====================================================================
                 # Switch Control Policy
@@ -2089,11 +2072,8 @@ class policies(object):
                 parent_moids[kwargs.isight[e.split('/')[0]].policies.vsan[e.split('/')[1]]] = e
             vsan_list     = []
             vsan_policies = [args[f'fabric_{e.lower()}'].name for e in ['A', 'B'] if args[f'fabric_{e.lower()}'].name != 'Create New']
-            kwargs.method = 'get'
-            kwargs.names  = list(parent_moids.keys())
-            kwargs.parent = 'FcNetworkPolicy'
-            kwargs.uri    = kwargs.ezdata['vsan.vsans'].intersight_uri
-            kwargs        = isight.api('parent_moids').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get', names = list(parent_moids.keys()), parent = 'FcNetworkPolicy', uri = kwargs.ezdata['vsan.vsans'].intersight_uri)
+            kwargs = isight.api('parent_moids').calls(kwargs)
             for e in kwargs.results:
                 parent = parent_moids[e.FcNetworkPolicy.Moid].replace(f'{kwargs.org}/', '')
                 if   parent == args.fabric_a.name: fabric = 'A'
@@ -2309,12 +2289,11 @@ class pools(object):
     # Function: Prompt User for New or Existing Pool
     #=========================================================================
     def pool_select(self, kwargs):
-        kwargs.names  = [kwargs.org_moids[kwargs.org].moid]
+        kwargs.names = [kwargs.org_moids[kwargs.org].moid]
         if kwargs.use_shared_org == True: kwargs.names.append(kwargs.org_moids[kwargs.shared_org].moid)
-        kwargs.method = 'get'
-        kwargs.uri    = deepcopy(kwargs.ezdata[self.type].intersight_uri)
-        kwargs        = isight.api('multi_org').calls(kwargs)
-        pool_keys     = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
+        kwargs = kwargs | DotMap(method = 'get', uri = deepcopy(kwargs.ezdata[self.type].intersight_uri))
+        kwargs = isight.api('multi_org').calls(kwargs)
+        pool_keys = sorted([f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}' for e in kwargs.results])
         for e in kwargs.results: kwargs.isight[kwargs.org_names[e.Organization.Moid]].pools[self.type][e.Name] = e.Moid
         org_keys = list(kwargs.org_moids.keys())
         for org in org_keys:

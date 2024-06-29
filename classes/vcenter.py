@@ -22,11 +22,11 @@ class api(object):
     def __init__(self, type):
         self.type = type
 
-    #=============================================================================
+    #=========================================================================
     # Function - Perform API Calls to Intersight
-    #=============================================================================
+    #=========================================================================
     def calls(self, kwargs):
-        #=============================================================================
+        #=====================================================================
         # Global options for debugging
         # 1 - Shows the api request response status code
         # 5 - Show URL String + Lower Options
@@ -34,11 +34,11 @@ class api(object):
         # 7 - Adds json payload + Lower Options
         # Note: payload shows as pretty and straight to check
         #       for stray object types like Dotmap and numpy
-        #=============================================================================
+        #=====================================================================
         debug_level   = kwargs.args.debug_level
-        #=============================================================================
+        #=====================================================================
         # Authenticate to the API
-        #=============================================================================
+        #=====================================================================
         def api_auth_function(kwargs):
             password = os.environ['vmware_vcenter_password']
             url      = f'https://{kwargs.vcenter_hostname}/api'
@@ -49,14 +49,15 @@ class api(object):
             return kwargs
         if not kwargs.get('vcenter_session_id'): kwargs = api_auth_function(kwargs)
 
-        #=============================================================================
+        #=====================================================================
         # Setup API Parameters
-        #=============================================================================
+        #=====================================================================
         def api_calls(kwargs):
-            #=============================================================================
+            #=================================================================
             # Perform the apiCall
-            #=============================================================================
+            #=================================================================
             aargs      = kwargs.api_args
+            method     = kwargs.method
             moid       = kwargs.pmoid
             payload    = kwargs.api_body
             retries    = 3
@@ -69,22 +70,22 @@ class api(object):
                         pcolor.Red(json.dumps(kwargs.api_body, indent=4))
                         pcolor.Red(kwargs.api_body)
                         pcolor.Red(f'!!! ERROR !!!')
-                        if   kwargs.method == 'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif kwargs.method ==      'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif kwargs.method ==         'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
-                        elif kwargs.method ==       'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif kwargs.method ==        'post': pcolor.Red(f'  URL: {url}/{uri}')
-                        pcolor.Red(f'  Running Process: {kwargs.method} {self.type}')
+                        if   method == 'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==      'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==         'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
+                        elif method ==       'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==        'post': pcolor.Red(f'  URL: {url}/{uri}')
+                        pcolor.Red(f'  Running Process: {method} {self.type}')
                         pcolor.Red(f'    Error status is {response}')
                         for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
                         len(False); sys.exit(1)
-                    if re.search('delete|get', kwargs.method): headers = {"vmware-api-session-id": session_id}
+                    if re.search('delete|get', method): headers = {"vmware-api-session-id": session_id}
                     else: headers = {"vmware-api-session-id": session_id, 'Content-Type': 'application/json'}
-                    if 'get_by_moid' in kwargs.method: response = requests.get(f'{url}/{uri}/{moid}', verify=False, headers=headers)
-                    elif 'delete' in kwargs.method: response = requests.delete(f'{url}/{uri}/{moid}', verify=False, headers=headers)
-                    elif 'get' in kwargs.method:    response = requests.get(   f'{url}/{uri}{aargs}', verify=False, headers=headers)
-                    elif 'patch' in kwargs.method:  response = requests.patch( f'{url}/{uri}/{moid}', verify=False, headers=headers, json=payload)
-                    elif 'post' in kwargs.method:   response = requests.post(  f'{url}/{uri}',        verify=False, headers=headers, json=payload)
+                    if   method == 'get_by_moid': response = requests.get(   f'{url}/{uri}/{moid}', verify=False, headers=headers)
+                    elif method ==      'delete': response = requests.delete(f'{url}/{uri}/{moid}', verify=False, headers=headers)
+                    elif method ==         'get': response = requests.get(   f'{url}/{uri}{aargs}', verify=False, headers=headers)
+                    elif method ==       'patch': response = requests.patch( f'{url}/{uri}/{moid}', verify=False, headers=headers, json=payload)
+                    elif method ==        'post': response = requests.post(  f'{url}/{uri}',        verify=False, headers=headers, json=payload)
                     if re.search('40[0|3]', str(response)):
                         retry_action = False
                         for k, v in (response.json()).items():
@@ -110,34 +111,33 @@ class api(object):
                         pcolor.Red(f"Exception when calling {url}/{kwargs.uri}: {e}\n")
                         len(False); sys.exit(1)
                 break
-            #=============================================================================
+            #=================================================================
             # Print Debug Information if Turned on
-            #=============================================================================
+            #=================================================================
             results = response.json()
             if type(results) == list: api_results = [DotMap(e) for e in results]
             else: api_results = DotMap(response.json())
             if int(debug_level) >= 1: pcolor.Cyan(f'RESPONSE: {str(response)}')
             if int(debug_level)>= 5:                            #RESPONSE: 
-                if kwargs.method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
-                elif kwargs.method ==       'get': pcolor.Cyan(f'URL:      {url}/{uri}{aargs}')
-                elif kwargs.method ==     'patch': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
-                elif kwargs.method ==      'post': pcolor.Cyan(f'URL:      {url}/{uri}')
+                if   method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method ==         'get': pcolor.Cyan(f'URL:      {url}/{uri}{aargs}')
+                elif method ==       'patch': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method ==        'post': pcolor.Cyan(f'URL:      {url}/{uri}')
             if int(debug_level) >= 6:
                 pcolor.Cyan('HEADERS:')
                 pcolor.Cyan(json.dumps(dict(response.headers), indent=4))
                 if len(payload) > 0: pcolor.Cyan('PAYLOAD:'); pcolor.Cyan(json.dumps(payload, indent=4))
             if int(debug_level) == 7: pcolor.Cyan('RESPONSE:'); pcolor.Cyan(json.dumps(api_results, indent=4))
-            #=============================================================================
+            #=================================================================
             # Return kwargs
-            #=============================================================================
+            #=================================================================
             kwargs.results = api_results
             return kwargs
-        
         kwargs.api_args = ''
         kwargs          = api_calls(kwargs)
-        #=============================================================================
+        #=====================================================================
         # Return kwargs
-        #=============================================================================
+        #=====================================================================
         kwargs_keys = list(kwargs.keys())
         if 'api_filter' in kwargs_keys: kwargs.pop('api_filter')
         if 'build_skip' in kwargs_keys: kwargs.pop('build_skip')
@@ -147,16 +147,14 @@ kwargs = DotMap(
     args = DotMap(debug_level = 0),
     vcenter_hostname = 'vcenter.rich.ciscolabs.com',
     vcenter_username = 'administrator@rich.local')
-kwargs.method = 'get'
-kwargs.uri    = 'vcenter/vm'
-kwargs        = api('vm').calls(kwargs)
-
-kwargs.uri    = 'vcenter/folder'
-kwargs        = api('folder').calls(kwargs)
-folders       = kwargs.results
-folder        = 'Staging'
-indx          = next((index for (index, d) in enumerate(folders) if d['name'] == folder), None)
-host_folder   = folders[indx].folder
+kwargs = kwargs | DotMap(method = 'get', uri = 'vcenter/vm')
+kwargs = api('vm').calls(kwargs)
+kwargs = kwargs | DotMap(method = 'get', uri = 'vcenter/folder')
+kwargs = api('folder').calls(kwargs)
+folders = kwargs.results
+folder  = 'Staging'
+indx    = next((index for (index, d) in enumerate(folders) if d['name'] == folder), None)
+host_folder = folders[indx].folder
 
 password = os.environ['vmware_esxi_password']
 kwargs.uri    = 'vcenter/host'
@@ -165,8 +163,7 @@ hosts         = kwargs.results
 host_keys     = [e.name for e in hosts]
 for e in ['r143e-2-1-4.rich.ciscolabs.com', 'r143e-2-1-7.rich.ciscolabs.com', 'r143e-2-1-8.rich.ciscolabs.com']:
     if not e in host_keys:
-        kwargs.api_body = {
+        api_body = {
             "folder": host_folder, "force_add": True, "hostname": e, "password": password, "thumbprint_verification": "NONE", "user_name": "root"}
-        kwargs.method = 'post'
-        kwargs.uri    = 'vcenter/host'
-        kwargs        = api('host').calls(kwargs)
+        kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = 'vcenter/host')
+        kwargs = api('host').calls(kwargs)

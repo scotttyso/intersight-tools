@@ -7,9 +7,7 @@ try:
     from classes import claim_device, ezfunctions, isight, netapp, pcolor, pure_storage, validating
     from copy import deepcopy
     from dotmap import DotMap
-    from operator import itemgetter
-    from stringcase import snakecase
-    import ipaddress, jinja2, json, numpy, os, re, requests, shutil, time, urllib3, uuid
+    import ipaddress, jinja2, json, numpy, os, re, requests, shutil, urllib3, uuid
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -1934,14 +1932,8 @@ class wizard(object):
         # Build Dictionaries
         #=====================================================================
         for name,items in kwargs.netapp.cluster.items(): kwargs = netapp.build('cluster').cluster(items, name, kwargs)
-        #==================================
-        # Configure NetApp
-        #==================================
         kwargs = netapp.api('cluster').cluster(kwargs)
-        #==================================
-        # Add Policy Variables to imm_dict
-        #==================================
-        idict = kwargs.storage.toDict()
+        idict  = kwargs.storage.toDict()
         for k, v in idict.items():
             for a, b in v.items():
                 kwargs.class_path = f'storage,appliances'
@@ -1982,11 +1974,7 @@ class wizard(object):
     #=========================================================================
     def dns_ntp(self, kwargs):
         i = kwargs.imm_dict.wizard.protocols
-        kwargs.dhcp_servers = i.dhcp_servers
-        kwargs.dns_servers  = i.dns_servers
-        kwargs.dns_domains  = i.dns_domains
-        kwargs.ntp_servers  = i.ntp_servers
-        kwargs.timezone     = i.timezone
+        for e in ['dhcp_servers', 'dns_servers', 'dns_domains', 'ntp_servers', 'timezone']: kwargs[e] = i[e]
         return kwargs
 
     #=========================================================================
@@ -1999,11 +1987,9 @@ class wizard(object):
             kwargs.orgs.append(item.organization)
             kwargs.org = item.organization
             if re.search('azure_stack|standalone', kwargs.args.deployment_type):
-                kwargs.imm.cimc_default = item.cimc_default
-                kwargs.imm.firmware     = item.firmware
-                kwargs.imm.policies     = item.policies
-                kwargs.imm.tags         = kwargs.ezdata.tags
-                kwargs.imm.username     = item.policies.local_user
+                kwargs.imm = kwargs.imm | DotMap(
+                    cimc_default = item.cimc_default, firmware = item.firmware, policies = item.policies,
+                    tags = kwargs.ezdata.tags, username = item.policies.local_user)
                 if re.search('azure_stack', kwargs.args.deployment_type):
                     kwargs.imm.profiles = []
                     for item in kwargs.imm_dict.wizard.azure_stack:
@@ -2011,14 +1997,8 @@ class wizard(object):
                         for i in item.clusters:
                             for e in i.members:
                                 kwargs.imm.profiles.append(DotMap(
-                                    active_directory  = item.active_directory,
-                                    cimc              = e.cimc,
-                                    equipment_type    = 'RackServer',
-                                    identifier        = 1,
-                                    os_vendor           = 'Microsoft',
-                                    profile_start     = e.hostname,
-                                    suffix_digits     = 1,
-                                    inband_start      = kwargs.inband.server[icount]))
+                                    active_directory = item.active_directory, cimc = e.cimc, equipment_type = 'RackServer', identifier = 1,
+                                    os_vendor = 'Microsoft', profile_start = e.hostname, suffix_digits = 1, inband_start = kwargs.inband.server[icount]))
                                 icount += 1
                     kwargs.imm.policies.boot_volume = 'm2'
             else:
@@ -2030,23 +2010,19 @@ class wizard(object):
                     #=================================================================
                     # Get Moids for Fabric Switches
                     #=================================================================
-                    kwargs.method     = 'get'
-                    kwargs.uri        = 'network/Elements'
-                    kwargs.names      = i.serial_numbers
-                    kwargs            = isight.api('serial_number').calls(kwargs)
-                    serial_moids      = kwargs.pmoids
-                    serial            = i.serial_numbers[0]
-                    serial_moids      = {k: v for k, v in sorted(serial_moids.items(), key=lambda ele: ele[1].switch_id)}
-                    kwargs.api_filter = f"RegisteredDevice.Moid eq '{serial_moids[serial]['registered_device']}'"
-                    kwargs.uri        = 'asset/Targets'
-                    kwargs            = isight.api('asset_target').calls(kwargs)
-                    names = list(kwargs.pmoids.keys())
-                    i.name= names[0]
+                    kwargs = kwargs | DotMap(method = 'get', names = i.serialnumbers, uri = 'network/Elements')
+                    kwargs = isight.api('serial_number').calls(kwargs)
+                    serial = i.serial_numbers[0]
+                    serial_moids = {k: v for k, v in sorted(serial_moids.items(), key=lambda ele: ele[1].switch_id)}
+                    kwargs = kwargs | DotMap(api_filter = f"RegisteredDevice.Moid eq '{serial_moids[serial]['registered_device']}'", uri = 'asset/Targets')
+                    kwargs = isight.api('asset_target').calls(kwargs)
+                    names  = list(kwargs.pmoids.keys())
+                    i.name = names[0]
                     #=================================================================
                     # Build Domain Dictionary
                     #=================================================================
-                    kwargs.imm.pool.prefix    = item.pools.prefix
-                    kwargs.imm.policies       = item.policies
+                    kwargs.imm.pool.prefix = item.pools.prefix
+                    kwargs.imm.policies    = item.policies
                     kwargs.imm.domain[i.name] = DotMap(
                         cfg_qos_priorities = item.cfg_qos_priorities,
                         device_model       = serial_moids[serial]['model'],
@@ -2067,11 +2043,8 @@ class wizard(object):
                     fabrics = ['A', 'B']
                     for x in range(0,2):
                         kwargs.network.imm[f'{i.name}-{fabrics[x]}'] = DotMap(
-                            data_ports   = i.eth_uplink_ports,
-                            data_speed   = i.eth_uplink_speed,
-                            mgmt_port    = i.network.management,
-                            network_port = i.network.data[x],
-                            port_channel = True)
+                            data_ports = i.eth_uplink_ports, data_speed = i.eth_uplink_speed, mgmt_port = i.network.management,
+                            network_port = i.network.data[x], port_channel = True)
                     #=================================================================
                     # Confirm if Fibre-Channel is in Use
                     #=================================================================
@@ -2081,10 +2054,8 @@ class wizard(object):
                     if i.get('switch_mode'): fcp_count += 1
                     if i.get('vsans') and len(i.vsans) >= 2: fcp_count += 1
                     if fcp_count == 4:
-                        kwargs.imm.domain[i.name].fcp_uplink_ports= i.fcp_uplink_ports
-                        kwargs.imm.domain[i.name].fcp_uplink_speed= i.fcp_uplink_speed
-                        kwargs.imm.domain[i.name].switch_mode     = i.switch_mode
-                        kwargs.imm.domain[i.name].vsans           = i.vsans
+                        kwargs.imm.domain[i.name] = kwargs.imm.domain[i.name] | DotMap(
+                            fcp_uplink_ports = i.fcp_uplink_ports, fcp_uplink_speed = i.fcp_uplink_speed, switch_mode = i.switch_mode, vsans = i.vsans)
                     kwargs.imm.domain[i.name].virtualization = item.virtualization
                 if len(kwargs.imm.domains) == 0: kwargs.imm.profiles = item.profiles
             if not kwargs.imm.policies.prefix == None and len(str(kwargs.imm.policies.prefix)) > 0:
@@ -2112,30 +2083,15 @@ class wizard(object):
                 if 'nvme-fc' in protocols or 'nvme-tcp' in protocols: protocols.append('nvme_of')
                 protocols = list(numpy.unique(numpy.array(protocols)))
                 kwargs.protocols = protocols
-                kwargs.storage[i.name][i.svm.name] = DotMap(
-                    cluster = i.name,
-                    name    = f"{i.name}:{i.svm.name}",
-                    svm     = i.svm.name,
-                    vendor  = 'netapp')
+                kwargs.storage[i.name][i.svm.name] = DotMap(cluster = i.name, name = f"{i.name}:{i.svm.name}", svm = i.svm.name, vendor = 'netapp')
                 cname = i.name
                 rootv = (i.svm.name).replace('-', '_').lower() + '_root'
                 kwargs.netapp.cluster[cname] = DotMap(
-                    autosupport = item.autosupport,
-                    banner      = i.login_banner,
-                    host_prompt = r'[\w]+::>',
-                    nodes       = i.nodes,
-                    protocols   = protocols,
-                    snmp        = item.snmp,
-                    svm         = DotMap(
-                        agg1      = i.nodes.node01.replace('-', '_').lower() + '_1',
-                        agg2      = i.nodes.node02.replace('-', '_').lower() + '_1',
-                        banner    = i.svm.login_banner,
-                        name      = i.svm.name,
-                        m01       = rootv + '_m01',
-                        m02       = rootv + '_m02',
-                        protocols = protocols,
-                        rootv     = rootv,
-                        volumes   = i.svm.volumes),
+                    autosupport = item.autosupport, banner = i.login_banner, host_prompt = r'[\w]+::>', nodes = i.nodes, protocols = protocols, snmp = item.snmp,
+                    svm = DotMap(
+                        agg1 = i.nodes.node01.replace('-', '_').lower() + '_1', agg2 = i.nodes.node02.replace('-', '_').lower() + '_1',
+                        banner = i.svm.login_banner, name = i.svm.name, m01 = rootv + '_m01', m02 = rootv + '_m02', protocols = protocols,
+                        rootv = rootv, volumes = i.svm.volumes),
                     username = item.username)
                 kwargs.netapp.cluster[cname].nodes.node_list = [i.nodes.node01, i.nodes.node02]
                 #=================================================================
@@ -2144,11 +2100,8 @@ class wizard(object):
                 nodes = kwargs.netapp.cluster[cname].nodes.node_list
                 for x in range(0,len(nodes)):
                     kwargs.network.storage[nodes[x]] = DotMap(
-                        data_ports   = i.nodes.data_ports,
-                        data_speed   = i.nodes.data_speed,
-                        mgmt_port    = i.nodes.network.management,
-                        network_port = i.nodes.network.data[x],
-                        port_channel =True)
+                        data_ports = i.nodes.data_ports, data_speed = i.nodes.data_speed, mgmt_port = i.nodes.network.management,
+                        network_port = i.nodes.network.data[x], port_channel =True)
         #=====================================================================
         # Return kwargs
         #=====================================================================
@@ -2195,45 +2148,24 @@ class wizard(object):
             # Build VLAN Dictionary
             #=================================================================
             netwk = '%s' % ipaddress.IPv4Network(i.network, strict=False)
-            vDict = DotMap(
-                configure_l2 = i.configure_l2,
-                configure_l3 = i.configure_l3,
-                disjoint     = i.disjoint,
-                gateway      = i.network.split('/')[0],
-                name         = i.name,
-                native_vlan  = i.native_vlan,
-                netmask      = ((ipaddress.IPv4Network(netwk)).with_netmask).split('/')[1],
-                network      = netwk,
-                prefix       = i.network.split('/')[1],
-                switch_type  = i.switch_type,
-                vlan_id      = i.vlan_id,
-                vlan_type    = i.vlan_type)
+            vDict = DotMap(configure_l2 = i.configure_l2, configure_l3 = i.configure_l3, disjoint = i.disjoint, gateway = i.network.split('/')[0],
+                           name = i.name, native_vlan = i.native_vlan, netmask = ((ipaddress.IPv4Network(netwk)).with_netmask).split('/')[1],
+                           network = netwk, prefix = i.network.split('/')[1], switch_type = i.switch_type, vlan_id = i.vlan_id, vlan_type = i.vlan_type)
             def iprange(xrange):
-                ipsplit = xrange.split('-')
-                ip1 = ipsplit[0]
-                ips = []
-                a = ip1.split('.')
+                ipsplit = xrange.split('-'); ip1 = ipsplit[0]; ips = []; a = ip1.split('.')
                 for x in range(int(ip1.split('.')[-1]), int(ipsplit[1])+1):
-                    ipaddress = f'{a[0]}.{a[1]}.{a[2]}.{x}'
-                    ips.append(ipaddress)
+                    ipaddress = f'{a[0]}.{a[1]}.{a[2]}.{x}'; ips.append(ipaddress)
                 return ips
             if i.ranges.get('controller'): vDict.controller = iprange(i.ranges.controller)
             if i.ranges.get('pool') and re.search('(inband|ooband)', i.vlan_type): vDict.pool = iprange(i.ranges.pool)
             if i.ranges.get('server'): vDict.server = iprange(i.ranges.server)
             kwargs.vlans.append(vDict)
-        #==================================
-        # Build VLAN Ranges Dictionary
-        #==================================
+        #=====================================================================
+        # Build VLAN Dictionaries
+        #=====================================================================
         kwargs.ranges = []
         for i in kwargs.imm_dict.wizard.vlan_ranges:
-            kwargs.ranges.append(DotMap(
-                configure_l2= i.configure_l2,
-                disjoint    = i.disjoint,
-                name        = i.name_prefix,
-                vlan_list   = i.vlan_range))
-        #==================================
-        # Build inband|nfs|ooband Dict
-        #==================================
+            kwargs.ranges.append(DotMap(configure_l2 = i.configure_l2, disjoint = i.disjoint, name = i.name_prefix, vlan_list = i.vlan_range))
         for i in kwargs.vlans:
             if re.search('(inband|nfs|ooband|migration)', i.vlan_type): kwargs[i.vlan_type] = i
         #=====================================================================

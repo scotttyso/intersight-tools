@@ -35,22 +35,19 @@ class intersight(object):
         policy_name    = policy.split('/')[1]
         parent_policy  = self.type.split('.')[0]
         source_org     = policy.split('/')[0]
+        parent_moid    = kwargs.isight[destination_org].policies[parent_policy][policy_name]
         parent_object  = kwargs.ezdata[parent_policy].object_type
-        
         kwargs.parent  = kwargs.ezdata[parent_policy].object_type.split('.')[1]
-        key_list            = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
+        key_list       = intersight.clone_key_list(kwargs.ezdata[self.type].allOf[1].properties)
         associated_policies = []
-        kwargs.bulk_list    = []
-        kwargs.method       = 'get'
-        kwargs.names        = [kwargs.policies[parent_policy][kwargs.original_index].Moid]
-        kwargs.parent_moid  = kwargs.isight[destination_org].policies[parent_policy][policy_name]
-        kwargs.uri          = kwargs.ezdata[self.type].intersight_uri
-        kwargs              = isight.api('parent_moids').calls(kwargs)
-        policy_results      = kwargs.results
+        names  = [kwargs.policies[parent_policy][kwargs.original_index].Moid]
+        kwargs = kwargs | DotMap(bulk_list = [], method = 'get', names = names, parent_moid = parent_moid, uri = kwargs.ezdata[self.type].intersight_uri)
+        kwargs = isight.api('parent_moids').calls(kwargs)
+        policy_results = kwargs.results
         for k, v in kwargs.ezdata[self.type].allOf[1].properties.items():
             if '_policy' in k: associated_policies.append({k:v.object_type})
-        policy_names   = [e.Name for e in kwargs.results]
-        create_policy  = True
+        policy_names  = [e.Name for e in kwargs.results]
+        create_policy = True
         if policy_name in policy_names: create_policy = False
         if create_policy == True:
             kwargs.bulk_list = []
@@ -108,11 +105,9 @@ class intersight(object):
     # Function: Clone Policy
     #=========================================================================
     def clone_policy(self, destination_org, policy, kwargs):
-        source_org     = policy.split('/')[0]
-        kwargs.method  = 'get'
-        kwargs.names   = [kwargs.org_moid[source_org].moid]
-        kwargs.uri     = kwargs.ezdata[self.type].intersight_uri
-        kwargs         = isight.api('multi_org').calls(kwargs)
+        source_org = policy.split('/')[0]
+        kwargs = kwargs | DotMap(method = 'get', names = [kwargs.org_moid[source_org].moid], uri = kwargs.ezdata[self.type].intersight_uri)
+        kwargs = isight.api('multi_org').calls(kwargs)
         policy_results = kwargs.results
         policy_names   = [e.Name for e in kwargs.results]
         policy_name    = policy.split('/')[1]
@@ -147,12 +142,9 @@ class intersight(object):
     # Function: Build Server Profile Dict from Source
     #=========================================================================
     def domain_profiles_create_from_source(self, item, kwargs):
-        pvars = DotMap(port_policies = [], vlan_policies = [], vsan_policies = [])
-        kwargs.names = []
-        for e in item.SwitchProfiles: kwargs.names.append(e.Moid)
-        kwargs.method   = 'get'
-        kwargs.uri      = kwargs.ezdata['profiles.domain'].intersight_uri_switch
-        kwargs          = isight.api('moid_filter').calls(kwargs)
+        pvars  = DotMap(port_policies = [], vlan_policies = [], vsan_policies = [])
+        kwargs = kwargs | DotMap(method = 'get', names = [e.Moid for e in item.SwitchProfiles], uri = kwargs.ezdata['profiles.domain'].intersight_uri_switch)
+        kwargs = isight.api('moid_filter').calls(kwargs)
         switch_profiles = kwargs.results
         for x in range(0,len(switch_profiles)):
             i = switch_profiles[x]
@@ -217,10 +209,8 @@ class intersight(object):
             #=====================================================================
             # Obtain List of Physical Domains
             #=====================================================================
-            kwargs.api_filter = "PlatformType in ('UCSFIISM')"
-            kwargs.method     = 'get'
-            kwargs.uri        = 'asset/DeviceRegistrations'
-            kwargs            = isight.api('device_registrations').calls(kwargs)
+            kwargs = kwargs | DotMap(api_filter = "PlatformType in ('UCSFIISM')", method = 'get', uri = 'asset/DeviceRegistrations')
+            kwargs = isight.api('device_registrations').calls(kwargs)
             #=====================================================================
             # Prompt User for Physical Domain
             #=====================================================================
@@ -249,13 +239,9 @@ class intersight(object):
             #=====================================================================
             # Confirm Domain is Assigned to the correct Organization
             #=====================================================================
-            kwargs.method = 'get_by_moid'
-            kwargs.pmoid  = kwargs.org_moids[kwargs.org].moid
-            kwargs.uri    = 'organization/Organizations'
+            kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = kwargs.org_moids[kwargs.org].moid, uri = 'organization/Organizations')
             kwargs = isight.api(self.type).calls(kwargs)
-            kwargs.names  = [e.Moid for e in kwargs.results.ResourceGroups]
-            kwargs.method = 'get'
-            kwargs.uri    = 'resource/Groups'
+            kwargs = kwargs | DotMap(method = 'get', names = [e.Moid for e in kwargs.results.ResourceGroups], uri = 'resource/Groups')
             kwargs = isight.api('resource_groups').calls(kwargs)
             if len(kwargs.names) > 1:
                 names        = sorted([e.Name for e in kwargs.results])
@@ -274,9 +260,7 @@ class intersight(object):
                     flist = "', '".join(flist).strip("', '")
                     idict = rgroup.Selectors
                     idict[0].Selector = f"/api/v1/asset/DeviceRegistrations?$filter=(Moid in ('{flist}'))"
-                    kwargs.api_body = {'Selectors':[e.toDict() for e in idict]}
-                    kwargs.method   = 'patch'
-                    kwargs.pmoid    = rgroup.Moid
+                    kwargs = kwargs | DotMap(api_body = {'Selectors':[e.toDict() for e in idict]}, method = 'patch', pmoid = rgroup.Moid)
                     kwargs = isight.api('resource_group').calls(kwargs)
                 else: pcolor.Cyan(f'\n   Domain already assigned to Organization `{kwargs.org}` Resource Group `{rgroup.Name}`\n')
             intersight.create_yaml_files(kwargs)
@@ -348,13 +332,11 @@ class intersight(object):
         #=====================================================================
         # Build the Chassis Profile Dictionary
         #=====================================================================
-        kwargs.api_filter = f"RegisteredDevice.Moid eq '{dev_reg_moid}'"
-        kwargs.method     = 'get'
-        kwargs.uri        = 'equipment/Chasses'
-        kwargs            = isight.api('serial').calls(kwargs)
-        chassis_keys      = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.keys())
-        policies          = sorted(policies)
-        pvars             = DotMap(action = 'Deploy')
+        kwargs = kwargs | DotMap(api_filter = f"RegisteredDevice.Moid eq '{dev_reg_moid}'", method = 'get', uri = 'equipment/Chasses')
+        kwargs = isight.api('serial').calls(kwargs)
+        chassis_keys = list(kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis.keys())
+        policies     = sorted(policies)
+        pvars        = DotMap(action = 'Deploy')
         for e in policies:
             if e in chassis_keys and kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[e] != 'skip_policy':
                 pvars[e] = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.chassis[e]
@@ -492,10 +474,8 @@ class intersight(object):
     #=========================================================================
     def os_configuration_answers(self, kwargs):
         if type(kwargs.os_cfg_dict.Name) != str:
-            kwargs.method      = 'get_by_moid'
-            kwargs.pmoid       = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.os_configuration
-            kwargs.uri         = 'os/ConfigurationFiles'
-            kwargs             = isight.api('os_configuration').calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.os_configuration, uri = 'os/ConfigurationFiles')
+            kwargs = isight.api('os_configuration').calls(kwargs)
             kwargs.os_cfg_dict = kwargs.results
         valid_answers = False
         while valid_answers == False:
@@ -754,11 +734,9 @@ class intersight(object):
             profile_source = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_source
             profile_type   = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_type
             original_org   = kwargs.org
-            kwargs.org     = profile_source.split('/')[0]
-            kwargs.method  = 'get'
-            kwargs.names   = [profile_source.split('/')[1]]
-            kwargs.uri     = kwargs.ezdata[profile_type].intersight_uri
-            kwargs         = isight.api(profile_type).calls(kwargs)
+            kwargs = kwargs | DotMap(method = 'get', names = [profile_source.split('/')[1]], org = profile_source.split('/')[0],
+                                     uri = kwargs.ezdata[profile_type].intersight_uri)
+            kwargs = isight.api(profile_type).calls(kwargs)
             source_results = kwargs.results
             if profile_type == 'server':
                 kwargs.org = original_org
@@ -783,11 +761,9 @@ class intersight(object):
             original_org   = kwargs.org
             profile_source = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_source
             profile_type   = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_type
-            kwargs.org     = profile_source.split('/')[0]
-            kwargs.method  = 'get'
-            kwargs.names   = [profile_source.split('/')[1]]
-            kwargs.uri     = kwargs.ezdata[profile_type].intersight_uri
-            kwargs         = isight.api(profile_type).calls(kwargs)
+            names          = [profile_source.split('/')[1]]
+            kwargs = kwargs | DotMap(method = 'get', names = names, org = profile_source.split('/')[0], uri = kwargs.ezdata[profile_type].intersight_uri)
+            kwargs = isight.api(profile_type).calls(kwargs)
             source_results = kwargs.results
             for e in kwargs.results: kwargs.isight[kwargs.org].templates['server'][e.Name] = e.Moid
             # Create Template pvars
@@ -877,22 +853,19 @@ class intersight(object):
         api_filter = f"PermissionResources.Moid eq '{kwargs.org_moids[kwargs.org].moid}' and ManagementMode eq "
         if self.type == 'FIAttached': kwargs.api_filter = api_filter + f"'Intersight'"
         else: kwargs.api_filter = api_filter + f"'IntersightStandalone'"
-        kwargs.method     = 'get'
-        kwargs.uri        = 'compute/PhysicalSummaries'
-        kwargs            = isight.api('physical_servers').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get', uri = 'compute/PhysicalSummaries')
+        kwargs = isight.api('physical_servers').calls(kwargs)
         physical_servers  = kwargs.pmoids
         physical_results  = kwargs.results
         for k,v in physical_servers.items(): kwargs.physical_moids[v.moid] = DotMap(dict(v.toDict(), **dict(serial=k)))
         #=====================================================================
         # Obtain Server Profiles
         #=====================================================================
-        phmoids = kwargs.physical_moids
-        kwargs.api_filter = f"Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}' and TargetPlatform eq '{self.type}'"
-        kwargs.expand     = 'SrcTemplate'
-        kwargs.method     = 'get'
-        kwargs.uri        = kwargs.ezdata['profiles.server'].intersight_uri
-        kwargs            = isight.api('servers').calls(kwargs)
-        profile_results   = sorted(kwargs.results, key=lambda ele: ele.Name)
+        phmoids    = kwargs.physical_moids
+        api_filter = f"Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}' and TargetPlatform eq '{self.type}'"
+        kwargs = kwargs | DotMap(expand = 'SrcTemplate', method = 'get', api_filter = api_filter, uri = kwargs.ezdata['profiles.server'].intersight_uri)
+        kwargs = isight.api('servers').calls(kwargs)
+        profile_results = sorted(kwargs.results, key=lambda ele: ele.Name)
         plist = [f'Server Profile: {e.Name} || Serial: {phmoids[e.AssociatedServer.Moid].serial} || Profile Moid: {e.Moid} ' for e in profile_results if e.AssignedServer != None]
         #=====================================================================
         # Prompt user for Server Profiles
@@ -966,8 +939,7 @@ class intersight(object):
             api_filter = f"PermissionResources.Moid eq '{kwargs.org_moids[kwargs.org].moid}' and ManagementMode eq "
             if self.type == 'FIAttached': kwargs.api_filter = api_filter + f"'Intersight'"
             else: kwargs.api_filter = api_filter + f"'IntersightStandalone'"
-            kwargs.method     = 'get'
-            kwargs.uri        = 'compute/PhysicalSummaries'
+            kwargs = kwargs | DotMap(method = 'get', uri = 'compute/PhysicalSummaries')
             kwargs = isight.api('physical_servers').calls(kwargs)
             physical_servers = kwargs.pmoids
             physical_results = kwargs.results
@@ -975,8 +947,8 @@ class intersight(object):
             #=====================================================================
             # Prompt user for Boot Mode and Profile Source
             #=====================================================================
-            kwargs.jdata       = kwargs.ezwizard.server.properties.profile_source
-            profile_type       = ezfunctions.variable_prompt(kwargs)
+            kwargs.jdata = kwargs.ezwizard.server.properties.profile_source
+            profile_type = ezfunctions.variable_prompt(kwargs)
             kwargs.imm_dict.orgs[kwargs.org].wizard.setup.profile_type = profile_type
             #=====================================================================
             # Get Existing Profiles or Templates
@@ -985,13 +957,11 @@ class intersight(object):
                 shared_org = kwargs.imm_dict.orgs[kwargs.org].wizard.setup.shared_org
                 kwargs.api_filter = f"TargetPlatform eq '{self.type}' and Organization.Moid in ('{kwargs.org_moids[kwargs.org].moid}', '{kwargs.org_moids[shared_org].moid}')"
             else: kwargs.api_filter = f"TargetPlatform eq '{self.type}' and Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}'"
-            kwargs.method     = 'get'
-            kwargs.uri        = kwargs.ezdata[profile_type].intersight_uri
+            kwargs = kwargs | DotMap(method = 'get', uri = kwargs.ezdata[profile_type].intersight_uri)
             kwargs = isight.api('server').calls(kwargs)
-            source_results    = kwargs.results
-            kwargs.api_filter = f"TargetPlatform eq '{self.type}' and Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}'"
-            kwargs.method     = 'get'
-            kwargs.uri        = kwargs.ezdata['profiles.server'].intersight_uri
+            api_filter     = f"TargetPlatform eq '{self.type}' and Organization.Moid eq '{kwargs.org_moids[kwargs.org].moid}'"
+            source_results = kwargs.results
+            kwargs = kwargs | DotMap(api_filter = api_filter, method = 'get', uri = kwargs.ezdata['profiles.server'].intersight_uri)
             kwargs = isight.api('server').calls(kwargs)
             profile_results   = kwargs.results
             #=====================================================================

@@ -5,11 +5,10 @@ def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import sys
 try:
     from classes         import ezfunctions, isight, pcolor, questions
-    from copy            import deepcopy
     from datetime        import datetime
     from dotmap          import DotMap
     from openpyxl.styles import Alignment, Border, Font, NamedStyle, PatternFill, Side
-    from stringcase      import pascalcase, snakecase
+    from stringcase      import snakecase
     import dateutil.relativedelta, json, numpy, pytz, openpyxl, os, re, shutil, urllib3, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -69,10 +68,9 @@ class tools(object):
         while accept_policies == False:
             policy_names = DotMap()
             for e in update_types:
-                kwargs.api_filter      = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
-                kwargs.method          = 'get'
-                kwargs.uri             = kwargs.ezdata[e].intersight_uri
-                kwargs                 = isight.api(e).calls(kwargs)
+                api_filter = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
+                kwargs = kwargs | DotMap(api_filter = api_filter, method = 'get', uri = kwargs.ezdata[e].intersight_uri)
+                kwargs = isight.api(e).calls(kwargs)
                 kwargs[f'{e}_results'] = kwargs.results
                 for d in kwargs[f'{e}_results']: kwargs[e][d.Name] = d
                 policies = sorted([d.Name for d in kwargs[f'{e}_results']])
@@ -214,23 +212,18 @@ class tools(object):
         # Get VLAN Policy & VLAN(s) attributes
         #=====================================================================
         vlan_policy_moid  = kwargs.vlan_policy_moids[pvars.name].moid
-        kwargs.api_filter = f"EthNetworkPolicy.Moid eq '{vlan_policy_moid}'"
-        kwargs.method     = 'get'
-        kwargs.uri        = kwargs.ezdata['vlan.vlans'].intersight_uri
-        kwargs            = isight.api('vlan.vlans').calls(kwargs)
-        kwargs.method     = 'get_by_moid'
-        kwargs.pmoid      = kwargs.results[-1].MulticastPolicy.Moid
-        kwargs.uri        = kwargs.ezdata.multicast.intersight_uri
-        kwargs            = isight.api('multicast').calls(kwargs)
-        multicast_name    = f'{kwargs.org_names[kwargs.results.Organization.Moid]}/{kwargs.results.Name}'
-        multicast_name    = multicast_name.replace(f'{kwargs.org}/', '')
-        kwargs.add_vlans  = []
+        kwargs = kwargs | DotMap(api_filter = f"EthNetworkPolicy.Moid eq '{vlan_policy_moid}'", method = 'get', uri = kwargs.ezdata['vlan.vlans'].intersight_uri)
+        kwargs = isight.api('vlan.vlans').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = kwargs.results[-1].MulticastPolicy.Moid, uri = kwargs.ezdata.multicast.intersight_uri)
+        kwargs = isight.api('multicast').calls(kwargs)
+        multicast_name   = (f'{kwargs.org_names[kwargs.results.Organization.Moid]}/{kwargs.results.Name}').replace(f'{kwargs.org}/', '')
+        kwargs.add_vlans = []
         #=====================================================================
         # Update VLAN Policy with VLAN List
         #=====================================================================
         for e in i.vlans:
-            pvars.vlans.append(DotMap(multicast_policy = multicast_name, name = e.name, vlan_list = str(e.vlan_id)))
             kwargs.add_vlans.append(e.vlan_id)
+            pvars.vlans.append(DotMap(multicast_policy = multicast_name, name = e.name, vlan_list = str(e.vlan_id)))
         return kwargs
 
     #=========================================================================
@@ -245,10 +238,8 @@ class tools(object):
         months = ezfunctions.variable_prompt(kwargs)
         today      = datetime.now()
         last_month = today + dateutil.relativedelta.relativedelta(months=-int(months))
-        kwargs.api_filter = f"CreateTime gt {last_month.strftime('%Y-%m-%d')}T00:00:00.000Z and CreateTime lt {today.strftime('%Y-%m-%d')}T23:59:00.000Z"
-        kwargs.org        = 'default'
-        kwargs.method     = 'get'
-        kwargs.uri        = 'aaa/AuditRecords'
+        api_filter = f"CreateTime gt {last_month.strftime('%Y-%m-%d')}T00:00:00.000Z and CreateTime lt {today.strftime('%Y-%m-%d')}T23:59:00.000Z"
+        kwargs = kwargs | DotMap(api_filter = api_filter, method = 'get', org = 'default', uri = 'aaa/AuditRecords')
         kwargs = isight.api('audit_records').calls(kwargs)
         audit_dict = DotMap(); ucount = DotMap(); users = []
         for e in kwargs.results:
@@ -304,10 +295,9 @@ class tools(object):
         clone_types = pool_types
         kwargs.org  = source_org
         for e in clone_types:
-            kwargs.api_filter      = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
-            kwargs.method          = 'get'
-            kwargs.uri             = kwargs.ezdata[e].intersight_uri
-            kwargs                 = isight.api(e).calls(kwargs)
+            api_filter = f"Organization.Moid eq '{kwargs.org_moids[source_org].moid}'"
+            kwargs = kwargs | DotMap(api_filter = api_filter, method = 'get', uri = kwargs.ezdata[e].intersight_uri)
+            kwargs = isight.api(e).calls(kwargs)
             kwargs[f'{e}_results'] = kwargs.results
             for d in kwargs[f'{e}_results']: kwargs[e][d.Name] = d
             policies = sorted([d.Name for d in kwargs[f'{e}_results']])
@@ -353,30 +343,14 @@ class tools(object):
         # Obtain Server Profile Data
         for e in kwargs.json_data:
             if 'Cisco' in e.Hostname.Manufacturer:
-                pdict[e.Serial]     = DotMap(
-                    domain          = 'Standalone',
-                    model           = e.Hostname.Model,
-                    serial          = e.Serial,
-                    server_dn       = 'unknown',
-                    server_profile  = 'unassigned',
-                    firmware        = 'unknown',
-                    vcenter         = e.vCenter,
-                    cluster         = e.Cluster,
-                    hostname        = e.Hostname.Name,
-                    version         = e.Hostname.Version,
-                    build           = e.Hostname.Build,
-                    hcl_check       = 'unknown',
-                    hcl_status      = 'unknown',
-                    hcl_reason      = 'unknown',
-                    toolName        = e.Name,
-                    toolDate        = e.InstallDate,
-                    toolVer         = e.Version,
-                    moid            = 'unknown'
+                pdict[e.Serial] = DotMap(
+                    domain = 'Standalone', model = e.Hostname.Model, serial = e.Serial, server_dn = 'unknown', server_profile = 'unassigned',
+                    firmware = 'unknown', vcenter = e.vCenter, cluster = e.Cluster, hostname = e.Hostname.Name, version = e.Hostname.Version,
+                    build = e.Hostname.Build, hcl_check = 'unknown', hcl_status = 'unknown', hcl_reason = 'unknown', toolName = e.Name,
+                    toolDate = e.InstallDate, toolVer = e.Version, moid = 'unknown'
                 )
-        kwargs.names  = list(pdict.keys())
-        kwargs.method = 'get'
-        kwargs.uri    = 'compute/PhysicalSummaries'
-        kwargs        = isight.api('serial_number').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get', names = list(pdict.keys()), uri = 'compute/PhysicalSummaries')
+        kwargs = isight.api('serial_number').calls(kwargs)
         registered_devices  = []
         for e in kwargs.results:
             pdict[e.Serial].firmware = e.Firmware
@@ -389,12 +363,10 @@ class tools(object):
                 pdict[e.Serial].registered_moid = e.RegisteredDevice.Moid
                 registered_devices.append(e.RegisteredDevice.Moid)
         if len(registered_devices) > 0:
-            domain_map    = DotMap()
-            parents       = []
-            kwargs.method = 'get'
-            kwargs.names  = list(numpy.unique(numpy.array(registered_devices)))
-            kwargs.uri    = 'asset/DeviceRegistrations'
-            kwargs        = isight.api('registered_device').calls(kwargs)
+            domain_map = DotMap()
+            parents    = []
+            kwargs = kwargs | DotMap(method = 'get', names = list(numpy.unique(numpy.array(registered_devices))), uri = 'asset/DeviceRegistrations')
+            kwargs = isight.api('registered_device').calls(kwargs)
             for e in kwargs.results:
                 if e.get('ParentConnection'):
                     domain_map[e.Moid].hostname = None
@@ -711,11 +683,10 @@ class tools(object):
             if   e.get('AssignedServer'):  kwargs.names.append(e.AssignedServer.Moid)
             elif e.get('AssignedChassis'): kwargs.names.append(e.AssignedChassis.Moid)
             elif e.get('AssignedSwitch'):  kwargs.names.append(e.AssignedSwitch.Moid)
-        kwargs.method = 'get'
-        kwargs.uri    = kwargs.ezdata[self.type].intersight_uri_serial
-        kwargs        = isight.api('moid_filter').calls(kwargs)
-        phys_devices  = kwargs.results
-        profiles      = []
+        kwargs = kwargs | DotMap(method = 'get', uri = kwargs.ezdata[self.type].intersight_uri_serial)
+        kwargs = isight.api('moid_filter').calls(kwargs)
+        phys_devices = kwargs.results
+        profiles     = []
         #=====================================================================
         # Build Dictionary and Deploy Profiles
         #=====================================================================
@@ -760,10 +731,9 @@ class tools(object):
         if re.search('^server(_template)?$', utype):
             kwargs.api_filter   = f"Organization.Moid eq '{org_moid}' and TargetPlatform eq '{kwargs.target_platform}'"
         else: kwargs.api_filter = f"Organization.Moid eq '{org_moid}'"
-        kwargs.method = 'get'
-        kwargs.uri    = kwargs.ezdata[utype].intersight_uri
-        kwargs        = isight.api(utype).calls(kwargs)
-        profiles      = kwargs.pmoids
+        kwargs = kwargs | DotMap(method = 'get', uri = kwargs.ezdata[utype].intersight_uri)
+        kwargs = isight.api(utype).calls(kwargs)
+        profiles = kwargs.pmoids
         if len(profiles.toDict()) == 0: isight.empty_results(kwargs)
         kwargs.profile_results = kwargs.results
         #=====================================================================
@@ -839,9 +809,8 @@ class tools(object):
         #=====================================================================
         kwargs.org = 'default'
         kwargs.api_filter = f"PlatformType in ('IMCBlade', 'IMCRack', 'IMCM4', 'IMCM5', 'IMCM6', 'IMCM7', 'IMCM8', 'IMCM9', 'UCSFI', 'UCSFIISM')"
-        kwargs.method     = 'get'
-        kwargs.uri        = 'asset/DeviceRegistrations'
-        kwargs            = isight.api('device_registration').calls(kwargs)
+        kwargs = kwargs | DotMap(method = 'get', uri = 'asset/DeviceRegistrations')
+        kwargs = isight.api('device_registration').calls(kwargs)
         for e in kwargs.results:
             if re.search('UCSFI(ISM)?', e.PlatformType):
                 kwargs.domains[e.Moid] = DotMap(name = e.DeviceHostname[0], serials = e.Serial, servers = DotMap(), type = e.PlatformType)
