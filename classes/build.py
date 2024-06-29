@@ -670,6 +670,7 @@ class intersight(object):
                     pcolor.Cyan(f'\n{"-"*108}\n')
                     pcolor.Yellow(f'  The Operating System Install Requires `{var_name}` for Installation.')
                     if adict.Type.Properties.Secure:
+                        var_name = var_name.replace('secure', '')
                         pcolor.Cyan(f'\n{"-"*108}\n')
                         pcolor.Yellow(f'  "{var_name}" is a `secure variable`.  Checking System environment to see if it is already set.')
                         kwargs.sensitive_var = f'undefined_{var_name}'

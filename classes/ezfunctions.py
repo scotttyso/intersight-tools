@@ -583,7 +583,6 @@ def installation_body(v, kwargs):
         api_body['InstallTarget'] = {'InitiatorWwpn': kwargs.fc_ifs[kwargs.wwpn_index].wwpn, 'LunId': kwargs.san_target.lun,
                                      'ObjectType': 'os.FibreChannelTarget', 'TargetWwpn': kwargs.san_target.wwpn}
     api_body = dict(sorted(api_body.items()))
-    print(json.dumps(api_body, indent=4)); exit()
     return api_body
 
 #=============================================================================
@@ -604,7 +603,7 @@ def installation_body_azure_stack(v, kwargs):
         'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
     ad = kwargs.imm_dict.wizard.azure_stack[0].active_directory
     answers_dict = {
-        '.azure_stack_ou': f'OU=Computers,OU={ad.azure_stack_ou},DC=' + ad.domain.replace('.', ',DC='),
+        '.azure_stack_ou': f'OU={ad.azure_stack_ou},DC=' + ad.domain.replace('.', ',DC='),
         '.domain': ad.domain,
         '.azure_stack_lcm_user': ad.azure_stack_lcm_user.split('@')[0],
         '.hostname': v.name,

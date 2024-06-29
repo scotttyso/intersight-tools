@@ -36,6 +36,7 @@ def begin_loop(ptype1, ptype2):
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
 def begin_section(ptype1, ptype2):
+    ptype1 = mod_pol_description((ptype1.split('_')).title())
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.\n")
 
@@ -120,6 +121,7 @@ def end_loop(ptype1, ptype2):
     pcolor.LightPurple(f"\n   Completed {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.")
 
 def end_section(ptype1, ptype2):
+    ptype1 = mod_pol_description((ptype1.split('_')).title())
     pcolor.LightPurple(f"\n   Completed {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.")
 
 def error_policy_doesnt_exist(parent_type, parent_name, ptype, pname):

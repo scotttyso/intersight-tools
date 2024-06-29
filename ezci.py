@@ -237,7 +237,7 @@ def main():
         #=====================================================================
         # Loop thru Orgs and Install OS
         #=====================================================================
-        if kwargs.args.deployment_type == 'azure_stack': kwargs = ci.wizard('windows_prep').azure_stack_prep(kwargs)
+        if kwargs.args.deployment_type == 'azure_stack': kwargs = ci.wizard('windows').azure_stack_prep(kwargs)
         for org in orgs:
             kwargs.org = org
             kwargs = isight.imm('os_install').os_install(kwargs)

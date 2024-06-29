@@ -2115,25 +2115,25 @@ class imm(object):
                 #=============================================================
                 kwargs = kwargs | DotMap(api_body = ezfunctions.installation_body(v, kwargs), method = 'post', uri = 'os/Installs')
                 kwargs = api(self.type).calls(kwargs)
-                kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_install = DotMap(moid=kwargs.pmoid,workflow='')
+                kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_install = DotMap(moid = kwargs.pmoid, workflow = '')
+        names  = [e.os_install.moid for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles if v.os_installed == False and len(e.os_install.moid) > 0]
         if install_flag == True:
-            pcolor.Cyan(f'\n{"-" * 108}\n\nSleeping for 20 Minutes to pause for Workflow/Infos Lookup.')
+            pcolor.Cyan(f'\n{"-" * 108}\n\n    Sleeping for 30 Minutes to pause for Workflow/Infos Lookup.')
             pcolor.Cyan(f'\n{"-" * 108}\n')
-            time.sleep(1200)
+            time.sleep(1800)
         #=====================================================================
         # Monitor OS Installation until Complete
         #=====================================================================
-        names  = [e.os_install.moid for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles if v.os_installed == False and len(v.os_install.moid) > 0]
         kwargs = kwargs | DotMap(method = 'get', names = names, uri = 'os/Installs')
         kwargs = api('moid_filter').calls(kwargs)
-        workflow_pmoids  = kwargs.pmoids
-        workflow_results = kwargs.results
+        install_pmoids  = kwargs.pmoids
+        install_results = kwargs.results
         for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
             v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
-            indx = next((index for (index, d) in enumerate(workflow_results) if d['Moid'] == v.os_install.moid), None)
+            indx = next((index for (index, d) in enumerate(install_results) if d['Moid'] == v.os_install.moid), None)
             v.install_success = False
             if indx != None:
-                v.os_install.workflow = workflow_results[indx].WorkflowInfo.Moid
+                v.os_install.workflow = install_results[indx].WorkflowInfo.Moid
                 install_complete = False
                 while install_complete == False:
                     kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = v.os_install.workflow, uri = 'workflow/WorkflowInfos')
@@ -2178,9 +2178,9 @@ class imm(object):
         #=====================================================================
         validating.end_section(self.type, 'Install')
         if os_install_fail_count > 0:
-            pcolor.Yellow(kwargs.names)
-            pcolor.Yellow(workflow_pmoids)
-            pcolor.Yellow(json.dumps(workflow_results, indent=4))
+            pcolor.Yellow(names)
+            pcolor.Yellow(install_pmoids)
+            pcolor.Yellow(json.dumps(install_results, indent=4))
             pcolor.Red(f'\n{"-"*108}\n')
             for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
                 v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]

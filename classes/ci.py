@@ -1826,9 +1826,6 @@ class wizard(object):
                 except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
                 if 'repo' in uri: jdata = json.loads(r.text)
                 if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
-        print(json.dumps(kwargs.imm_dict.wizard.azure_stack, indent=4))
-        print(json.dumps(jargs, indent=4))
-        exit()
         #=================================================================
         # REMOVE FOLDER and ZIP FILE - END SECTION
         #=================================================================
