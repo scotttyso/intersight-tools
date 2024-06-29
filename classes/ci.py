@@ -1697,7 +1697,7 @@ class wizard(object):
         # Build the AzureStackHCI.xml Unnattend Answer File
         #=====================================================================
         cwd = os.getcwd()
-        if os.path.exists(os.path.join(cwd, azs_file_name)): os.remove(os.path.join(cwd, azs_file_name))
+        if os.path.exists(os.path.join(cwd, 'azure_stack_hci_files.zip')): os.remove(os.path.join(cwd, 'azure_stack_hci_files.zip'))
         if not os.path.exists(os.path.join(cwd, 'AzureStack')): os.makedirs(os.path.join(cwd, 'AzureStack'))
         tloader  = jinja2.FileSystemLoader(searchpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3'))
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
@@ -1745,10 +1745,10 @@ class wizard(object):
         template = tenviro.get_template('azs-template.jinja2')
         jargs = dict(
             active_directory = dict(
-                azure_stack_lcm_user = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_lcm_user,
+                azure_stack_lcm_user = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_lcm_user.split('@')[0],
                 azure_stack_ou       = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_ou,
                 domain               = kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain,
-                domain_administrator = kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain_administrator
+                domain_administrator = kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain_administrator.split('@')[0]
             ),
             clusters             = [e.toDict() for e in kwargs.imm_dict.wizard.azure_stack[0].clusters],
             file_share_witness   = {},
@@ -1826,6 +1826,9 @@ class wizard(object):
                 except requests.exceptions.ConnectionError as e: pcolor.Red(f'!!! ERROR !!!\n{e}'); sys.exit(1)
                 if 'repo' in uri: jdata = json.loads(r.text)
                 if not r.status_code == 200: pcolor.Red(r.text); sys.exit(1)
+        print(json.dumps(kwargs.imm_dict.wizard.azure_stack, indent=4))
+        print(json.dumps(jargs, indent=4))
+        exit()
         #=================================================================
         # REMOVE FOLDER and ZIP FILE - END SECTION
         #=================================================================

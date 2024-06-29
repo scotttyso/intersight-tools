@@ -106,7 +106,7 @@
                     <RequiresUserInput>false</RequiresUserInput>
                 </SynchronousCommand>
                 <SynchronousCommand wcm:action="add">
-                    <CommandLine>CMD /c &quot;echo $Cred = $(New-Object -Type &apos;PSCredential&apos; -Arg &apos;{{ azure_stack_lcm_user }}&apos;,$(ConvertTo-SecureString &apos;{{ azure_stack_lcm_password }}&apos; -AsPlain -Force)) &gt;&gt; C:\j.ps1&quot;</CommandLine>
+                    <CommandLine>CMD /c &quot;echo $Cred = $(New-Object -Type &apos;PSCredential&apos; -Arg &apos;{{ azure_stack_lcm_user.split("@")[0] }}&apos;,$(ConvertTo-SecureString &apos;{{ azure_stack_lcm_password }}&apos; -AsPlain -Force)) &gt;&gt; C:\j.ps1&quot;</CommandLine>
                     <Description>Set Credentials</Description>
                     <Order>32</Order>
                     <RequiresUserInput>false</RequiresUserInput>

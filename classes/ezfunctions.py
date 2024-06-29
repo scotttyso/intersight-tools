@@ -606,7 +606,7 @@ def installation_body_azure_stack(v, kwargs):
     answers_dict = {
         '.azure_stack_ou': f'OU=Computers,OU={ad.azure_stack_ou},DC=' + ad.domain.replace('.', ',DC='),
         '.domain': ad.domain,
-        '.azure_stack_lcm_user': ad.azure_stack_lcm_user,
+        '.azure_stack_lcm_user': ad.azure_stack_lcm_user.split('@')[0],
         '.hostname': v.name,
         '.organization': kwargs.imm_dict.wizard.azure_stack[0].organization,
         '.secure.azure_stack_lcm_password': kwargs.azure_stack_lcm_password,
