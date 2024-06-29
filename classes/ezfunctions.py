@@ -16,12 +16,12 @@ try:
     from OpenSSL import crypto
     from pathlib import Path
     from stringcase import snakecase
-    import base64, crypt, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform, pytz, re, requests
-    import shutil, subprocess, stdiomask, string, textwrap, validators, yaml
+    import argparse, base64, crypt, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform
+    import pytz, re, requests, shutil, subprocess, stdiomask, string, textwrap, validators, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
-    prRed(f" Module {e.name} is required to run this script")
-    prRed(f" Install the module using the following: `pip install {e.name}`")
+    prRed(f' Module {e.name} is required to run this script')
+    prRed(f' Install the module using the following: `pip install {e.name}`')
     sys.exit(1)
 #=============================================================================
 # Log levels 0 = None, 1 = Class only, 2 = Line
@@ -31,6 +31,7 @@ log_level = 2
 # Exception Classes and YAML dumper
 #=============================================================================
 class insufficient_args(Exception): pass
+
 class yaml_dumper(yaml.Dumper):
     def increase_indent(self, flow=False, indentless=False):
         return super(yaml_dumper, self).increase_indent(flow, False)
@@ -41,10 +42,10 @@ class yaml_dumper(yaml.Dumper):
 def base_arguments(parser):
     parser.add_argument(
         '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
-        help='The Intersight API key id for HTTP signature scheme.')
+        help   = 'The Intersight API key id for HTTP signature scheme.')
     parser.add_argument(
         '-d', '--dir', default = 'Intersight',
-        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
+        help   = 'The Directory to use for the Creation of the YAML Configuration Files.')
     parser.add_argument(
         '-dl', '--debug-level', default = 0,
         help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
@@ -55,19 +56,16 @@ def base_arguments(parser):
             'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
     parser.add_argument(
         '-f', '--intersight-fqdn', default ='intersight.com',
-        help = 'The Directory to use for the Creation of the YAML Configuration Files.')
+        help   = 'The Directory to use for the Creation of the YAML Configuration Files.')
     parser.add_argument(
         '-i', '--ignore-tls', action = 'store_false',
-        help = 'Ignore TLS server-side certificate verification.  Default is False.')
-    parser.add_argument(
-        '-j', '--json-file', default = None,
-        help = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
+        help   = 'Ignore TLS server-side certificate verification.  Default is False.')
+    parser.add_argument('-j', '--json-file', default = None, help   = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
     parser.add_argument(
         '-k', '--intersight-secret-key', default = os.getenv('intersight_secret_key'),
-        help='Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    parser.add_argument(
-        '-l', '--load-config', action = 'store_true',
-        help = 'Skip Wizard and Just Load Configuration Files.')
+        help   = 'Name of the file containing The Intersight secret key or contents of the secret key in environment.')
+    parser.add_argument('-rc', '--repository-check-skip', action = 'store_true', help   = 'Flag to Skip Repository URL Test for OS Install.')
+    parser.add_argument('-l',  '--load-config',      action = 'store_true', help   = 'Skip Wizard and Just Load Configuration Files.')
     parser.add_argument('-y', '--yaml-file', default = None,  help = 'The input YAML File.')
     return parser
 
@@ -75,27 +73,26 @@ def base_arguments(parser):
 # Function - Arguments used by EZIMM For Sensitive Variables
 #=============================================================================
 def base_arguments_ezimm_sensitive_variables(parser):
-    parser.add_argument('-aap',  '--azure-stack-admin-password', help='Azure Stack HCI Local Adminsitrator Password.')
-    parser.add_argument('-alp',  '--azure-stack-lcm-password',   help='Azure Stack HCI Life Cycle Management User Password.')
-    parser.add_argument('-ccp',  '--cco-password',               help='Cisco Connection Online Password to Authorize Firmware Downloads.')
-    parser.add_argument('-ccu',  '--cco-user',                   help='Cisco Connection Online Username to Authorize Firmware Downloads.')
-    parser.add_argument('-ilp',  '--local-user-password-1',      help='Intersight Managed Mode Local User Password 1.')
-    parser.add_argument('-ilp2', '--local-user-password-2',      help='Intersight Managed Mode Local User Password 2.')
-    parser.add_argument('-imm',  '--imm-transition-password',    help='IMM Transition Tool Password.')
-    parser.add_argument('-isa',  '--snmp-auth-password-1',       help='Intersight Managed Mode SNMP Auth Password.')
-    parser.add_argument('-isp',  '--snmp-privacy-password-1',    help='Intersight Managed Mode SNMP Privilege Password.')
-    parser.add_argument('-np',   '--netapp-password',            help='NetApp Login Password.')
-    parser.add_argument('-nsa',  '--netapp-snmp-auth',           help='NetApp SNMP Auth Password.')
-    parser.add_argument('-nsp',  '--netapp-snmp-priv',           help='NetApp SNMP Privilege Password.')
-    parser.add_argument('-nxp',  '--nexus-password',             help='Nexus Login Password.')
-    parser.add_argument('-p',    '--pure-storage-password',      help='Pure Storage Login Password.')
-    parser.add_argument('-psa',  '--pure-storage-snmp-auth',     help='Pure Storage SNMP Auth Password.')
-    parser.add_argument('-psp',  '--pure-storage-snmp-priv',     help='Pure Storage SNMP Privilege Password.')
-    parser.add_argument('-pxp',  '--proxy-password',             help='Proxy Password.')
-    parser.add_argument('-vep',  '--vmware-esxi-password',       help='VMware ESXi Root Login Password.')
-    parser.add_argument('-vvp',  '--vmware-vcenter-password',    help='VMware vCenter Admin Login Password.')
-    parser.add_argument('-wap',  '--windows-admin-password',     help='Windows Administrator Login Password.')
-    parser.add_argument('-wdp',  '--windows-domain-password',    help='Windows Domain Registration Login Password.')
+    parser.add_argument('-alp',  '--azure-stack-lcm-password',      help='Azure Stack HCI Life Cycle Management User Password.')
+    parser.add_argument('-ccp',  '--cco-password',                  help='CCO Password to Authorize Firmware Downloads.')
+    parser.add_argument('-ccu',  '--cco-user',                      help='CCO Username to Authorize Firmware Downloads.')
+    parser.add_argument('-dap',  '--domain-administrator-password', help='Windows Domain Administrator Password.')
+    parser.add_argument('-ilp',  '--local-user-password-1',         help='Intersight Managed Mode Local User Password 1.')
+    parser.add_argument('-ilp2', '--local-user-password-2',         help='Intersight Managed Mode Local User Password 2.')
+    parser.add_argument('-imm',  '--imm-transition-password',       help='IMM Transition Tool Password.')
+    parser.add_argument('-isa',  '--snmp-auth-password-1',          help='Intersight Managed Mode SNMP Auth Password.')
+    parser.add_argument('-isp',  '--snmp-privacy-password-1',       help='Intersight Managed Mode SNMP Privilege Password.')
+    parser.add_argument('-lap',  '--local-administrator-password',  help='Windows Local Administrator Password.')
+    parser.add_argument('-np',   '--netapp-password',               help='NetApp Login Password.')
+    parser.add_argument('-nsa',  '--netapp-snmp-auth',              help='NetApp SNMP Auth Password.')
+    parser.add_argument('-nsp',  '--netapp-snmp-priv',              help='NetApp SNMP Privilege Password.')
+    parser.add_argument('-nxp',  '--nexus-password',                help='Nexus Login Password.')
+    parser.add_argument('-p',    '--pure-storage-password',         help='Pure Storage Login Password.')
+    parser.add_argument('-psa',  '--pure-storage-snmp-auth',        help='Pure Storage SNMP Auth Password.')
+    parser.add_argument('-psp',  '--pure-storage-snmp-priv',        help='Pure Storage SNMP Privilege Password.')
+    parser.add_argument('-pxp',  '--proxy-password',                help='Proxy Password.')
+    parser.add_argument('-vep',  '--vmware-esxi-password',          help='VMware ESXi Root Login Password.')
+    parser.add_argument('-vvp',  '--vmware-vcenter-password',       help='VMware vCenter Admin Login Password.')
     return parser
 
 #=============================================================================
@@ -106,13 +103,13 @@ def base_script_settings(kwargs):
     # Configure logger and Build kwargs
     #=========================================================================
     script_name = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
-    dest_dir    = f"{Path.home()}{os.sep}Logs"
+    dest_dir    = f'{Path.home()}{os.sep}Logs'
     dest_file   = script_name + '.log'
     if not os.path.exists(dest_dir): os.mkdir(dest_dir)
     if not os.path.exists(os.path.join(dest_dir, dest_file)): 
         create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'; os.system(create_file)
     FORMAT = '%(asctime)-15s [%(levelname)s] [%(filename)s:%(lineno)s] %(message)s'
-    logging.basicConfig(filename=f"{dest_dir}{os.sep}{script_name}.log", filemode='a', format=FORMAT, level=logging.DEBUG )
+    logging.basicConfig(filename=f'{dest_dir}{os.sep}{script_name}.log', filemode='a', format=FORMAT, level=logging.DEBUG )
     logger = logging.getLogger('openapi')
     #=========================================================================
     # Determine the Script Path
@@ -120,7 +117,8 @@ def base_script_settings(kwargs):
     args_dict = vars(kwargs.args)
     for k,v in args_dict.items():
         if type(v) == str and v != None: os.environ[k] = v
-    kwargs.script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    kwargs.script_name   = (sys.argv[0].split(os.sep)[-1]).split('.')[0]
+    kwargs.script_path   = os.path.dirname(os.path.realpath(sys.argv[0]))
     kwargs.args.dir      = os.path.abspath(kwargs.args.dir)
     kwargs.home          = Path.home()
     kwargs.logger        = logger
@@ -131,7 +129,7 @@ def base_script_settings(kwargs):
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
-    ezdata          = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), 'r', encoding="utf8"))
+    ezdata          = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), 'r', encoding='utf8'))
     script_tag      = script_name.replace('ez', 'easy-')
     kwargs.ez_tags  = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['info']['version']}]
     kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
@@ -142,8 +140,6 @@ def base_script_settings(kwargs):
     # - endpoint
     # - keyfile
     #=========================================================================
-    if not os.getenv('intersight_secret_key'):
-        kwargs.args.intersight_secret_key = os.getenv('intersight_secret_key')
     if kwargs.args.intersight_secret_key:
         if '~' in kwargs.args.intersight_secret_key: kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
     if os.getenv('intersight_fqdn'): kwargs.args.intersight_fqdn = os.getenv('intersight_fqdn')
@@ -160,7 +156,7 @@ def base_script_settings(kwargs):
             pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!')
             pcolor.Red(f'  The Directory structure can only contain the following characters:')
             pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
-            pcolor.Red(f'  It can be a short path or a fully qualified path.  "{folder}" does not qualify.')
+            pcolor.Red(f'  It can be a short path or a fully qualified path.  `{folder}` does not qualify.')
             pcolor.Red(f'  Exiting...\n\n{"-"*108}\n')
             len(False); sys.exit(1)
     return kwargs
@@ -191,13 +187,13 @@ def child_login(kwargs):
     if kwargs.op_system == 'Windows':
         child.sendline(f'ping -n 2 {kwargs.hostname}')
         child.expect(f'ping -n 2 {kwargs.hostname}')
-        child.expect_exact("> ")
+        child.expect_exact('> ')
         child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | Tee-Object {log_dir}\{kwargs.hostname}.txt')
         child.expect(f'Tee-Object {log_dir}\{kwargs.hostname}.txt')
     else:
         child.sendline(f'ping -c 2 {kwargs.hostname}')
         child.expect(f'ping -c 2 {kwargs.hostname}')
-        child.expect_exact("$ ")
+        child.expect_exact('$ ')
         child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | tee {log_dir}/{kwargs.hostname}.txt')
         child.expect(f'tee {log_dir}/{kwargs.hostname}.txt')
     logged_in = False
@@ -212,9 +208,9 @@ def child_login(kwargs):
         elif i == 3: child.sendline(password)
         elif i == 4: logged_in = True
         elif i == 5:
-            pcolor.Red(f"\n{'-'*91}\n")
+            pcolor.Red(f'\n{"-"*91}\n')
             pcolor.Red(f'!!! FAILED !!!\n Could not open SSH Connection to {kwargs.hostname}')
-            pcolor.Red(f"\n{'-'*91}\n")
+            pcolor.Red(f'\n{"-"*91}\n')
             sys.exit(1)
     # Return values
     return child, kwargs
@@ -299,7 +295,7 @@ def create_yaml(orgs, kwargs):
                         if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
                     title     = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
-                    dest_file = f"{ezdata[i].title}.ezi.yaml"
+                    dest_file = f'{ezdata[i].title}.ezi.yaml'
                     write_file(dest_dir, dest_file, idict, title)
         else:
             for i in ezdata[item].enum:
@@ -326,7 +322,7 @@ def create_yaml(orgs, kwargs):
                         title   = mod_pol_description(str.title(item.replace('_', ' ')))
                     else: title = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((i).replace('_', ' '))}")
 
-                    write_file(dest_dir, f"{i}.yaml", idict, title)
+                    write_file(dest_dir, f'{i}.yaml', idict, title)
 
 #=============================================================================
 # Function - Cleanup Empty Parameters in Dictionary
@@ -520,7 +516,11 @@ def find_vars(ws, func, rows, count):
 # Function - Build api_body for Operating System Installation - VMware
 #=============================================================================
 def installation_body(v, kwargs):
-    if 'shared' in kwargs.os_cfg_moids[v.os_configuration].Owners:
+    if kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'azure_stack':
+        api_body = installation_body_azure_stack(v, kwargs)
+    elif kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'vmware':
+        api_body = installation_body_vmware(v, kwargs)
+    elif 'shared' in kwargs.os_cfg_moids[v.os_configuration].Owners:
         answers = DotMap(); encrypted = False
         answer_keys = list(v.answers.keys())
         for e in kwargs.os_cfg_moids[v.os_configuration].Placeholders:
@@ -562,32 +562,69 @@ def installation_body(v, kwargs):
             'OsduImage': {'Moid': v.scu, 'ObjectType': 'firmware.ServerConfigurationUtilityDistributable'},
             'OverrideSecureBoot': False,
             'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
-    if v.os_vendor == 'Microsoft':
-        api_body['OperatingSystemParameters']['Edition'] = v.answers.EditionString
-        api_body['Answers'].pop('EditionString')
-    else: api_body.pop('OperatingSystemParameters')
-    if api_body['Answers'].get('SecureBoot'):
-        api_body['Answers'].pop('SecureBoot')
-        if v.boot_order.enable_secure_boot == True: api_body.update({'OverrideSecureBoot': True})
-    if api_body['Answers'].get('BootMode'): api_body['Answers'].pop('BootMode')
-    if encrypted == True: api_body['Answers']['IsRootPasswordCrypted'] = True
+        if v.os_vendor == 'Microsoft':
+            api_body['OperatingSystemParameters']['Edition'] = v.answers.EditionString
+            api_body['Answers'].pop('EditionString')
+        else: api_body.pop('OperatingSystemParameters')
+        if api_body['Answers'].get('SecureBoot'):
+            api_body['Answers'].pop('SecureBoot')
+            if v.boot_order.enable_secure_boot == True: api_body.update({'OverrideSecureBoot': True})
+        if api_body['Answers'].get('BootMode'): api_body['Answers'].pop('BootMode')
+        if encrypted == True: api_body['Answers']['IsRootPasswordCrypted'] = True
     if v.boot_volume.lower() == 'm2':
         for k,v in v.storage_controllers.items():
             vkeys = list(v.keys())
-            if 'virtual_drives' in vkeys and v.slot == 'MSTOR-RAID':
-                drive = [DotMap(id = a, name = b.name) for a,b in v.virtual_drives.items() if int(b.size) > 128000][0]
+            slot_rx = re.compile('(MSTOR-RAID)')
+            if 'virtual_drives' in vkeys and re.search(slot_rx, v.slot):
+                drive = [DotMap(id = a, name = b.name, slot = re.search(slot_rx, v.slot).group(1)) for a,b in v.virtual_drives.items() if int(b.size) > 128000][0]
                 break
-        api_body['InstallTarget'] = {
-            "Id": str(drive.id),
-            "Name": drive.name,
-            "ObjectType": "os.VirtualDrive",
-            "StorageControllerSlotId": "MSTOR-RAID"}
+        api_body['InstallTarget'] = {'Id': str(drive.id), 'Name': drive.name, 'ObjectType': 'os.VirtualDrive', 'StorageControllerSlotId': drive.slot}
     elif v.boot_volume.lower() == 'san':
-        api_body['InstallTarget'] = {
-            'InitiatorWwpn': kwargs.fc_ifs[kwargs.wwpn_index].wwpn,
-            'LunId': kwargs.san_target.lun,
-            'ObjectType': 'os.FibreChannelTarget',
-            'TargetWwpn': kwargs.san_target.wwpn}
+        api_body['InstallTarget'] = {'InitiatorWwpn': kwargs.fc_ifs[kwargs.wwpn_index].wwpn, 'LunId': kwargs.san_target.lun,
+                                     'ObjectType': 'os.FibreChannelTarget', 'TargetWwpn': kwargs.san_target.wwpn}
+    api_body = dict(sorted(api_body.items()))
+    print(json.dumps(api_body, indent=4)); exit()
+    return api_body
+
+#=============================================================================
+# Function - Build api_body for Operating System Installation - Azure Stack
+#=============================================================================
+def installation_body_azure_stack(v, kwargs):
+    api_body = {
+        'AdditionalParameters': [],
+        'Answers': {'Source': 'Template'},
+        'ConfigurationFile': {'Moid': v.os_configuration, 'ObjectType': 'os.ConfigurationFile'},
+        'Description': '',
+        'Image': {'Moid': v.os_image, 'ObjectType': 'softwarerepository.OperatingSystemFile'},
+        'InstallMethod': 'vMedia',
+        'OperatingSystemParameters': {'Edition': 'DatacenterCore', 'ObjectType': 'os.WindowsParameters'},
+        'Organization': {'Moid': kwargs.org_moids[kwargs.org].moid, 'ObjectType': 'organization.Organization'},
+        'OsduImage': {'Moid': v.scu, 'ObjectType': 'firmware.ServerConfigurationUtilityDistributable'},
+        'OverrideSecureBoot': True,
+        'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
+    ad = kwargs.imm_dict.wizard.azure_stack[0].active_directory
+    answers_dict = {
+        '.azure_stack_ou': f'OU=Computers,OU={ad.azure_stack_ou},DC=' + ad.domain.replace('.', ',DC='),
+        '.domain': ad.domain,
+        '.azure_stack_lcm_user': ad.azure_stack_lcm_user,
+        '.hostname': v.name,
+        '.organization': kwargs.imm_dict.wizard.azure_stack[0].organization,
+        '.secure.azure_stack_lcm_password': kwargs.azure_stack_lcm_password,
+        '.secure.local_administrator_password': kwargs.local_administrator_password,
+        #'.macAddressNic1_dash_format': mac_a,
+        #'.macAddressNic2_dash_format': mac_b
+        # Language Pack/Localization
+        '.input_locale': kwargs.language.input_locale,
+        '.language_pack': kwargs.language.ui_language,
+        '.layered_driver': kwargs.language.layered_driver,
+        '.secondary_language': kwargs.language.secondary_language,
+        # Timezone Configuration
+        '.disable_daylight_savings': kwargs.disable_daylight,
+        '.timezone': kwargs.windows_timezone}
+    answers_dict = dict(sorted(answers_dict.items()))
+    for e in ['layered_driver', 'secondary_language']:
+        if kwargs.language[e] == '': answers_dict.pop(f'.{e}')
+    for key,value in answers_dict.items(): api_body['AdditionalParameters'].append(installation_body_os_placeholders(key, value))
     return api_body
 
 #=============================================================================
@@ -599,42 +636,42 @@ def installation_body_os_placeholders(key, value):
     if len(value) == 0: is_set = False
     else: is_set = True
     parameters = {
-        "ClassId": "os.PlaceHolder",
-        "IsValueSet": is_set,
-        "ObjectType": "os.PlaceHolder",
-        "Type": {
-            "ClassId": "workflow.PrimitiveDataType",
-            "Default": {
-                "ClassId": "workflow.DefaultValue",
-                "IsValueSet": False,
-                "ObjectType": "workflow.DefaultValue",
-                "Override": False,
-                "Value": None},
-            "Description": "",
-            "DisplayMeta": {
-                "ClassId": "workflow.DisplayMeta",
-                "InventorySelector": True,
-                "ObjectType": "workflow.DisplayMeta",
-                "WidgetType": "None"},
-            "InputParameters": None,
-            "Label": key,
-            "Name": key,
-            "ObjectType": "workflow.PrimitiveDataType",
-            "Properties": {
-                "ClassId": "workflow.PrimitiveDataProperty",
-                "Constraints": {
-                    "ClassId": "workflow.Constraints",
-                    "EnumList": [],
-                    "Max": 0,
-                    "Min": 0,
-                    "ObjectType": "workflow.Constraints",
-                    "Regex": ""},
-                "InventorySelector": [],
-                "ObjectType": "workflow.PrimitiveDataProperty",
-                "Secure": secure,
-                "Type": "string"},
-            "Required": False},
-        "Value": value}
+        'ClassId': 'os.PlaceHolder',
+        'IsValueSet': is_set,
+        'ObjectType': 'os.PlaceHolder',
+        'Type': {
+            'ClassId': 'workflow.PrimitiveDataType',
+            'Default': {
+                'ClassId': 'workflow.DefaultValue',
+                'IsValueSet': False,
+                'ObjectType': 'workflow.DefaultValue',
+                'Override': False,
+                'Value': None},
+            'Description': '',
+            'DisplayMeta': {
+                'ClassId': 'workflow.DisplayMeta',
+                'InventorySelector': True,
+                'ObjectType': 'workflow.DisplayMeta',
+                'WidgetType': 'None'},
+            'InputParameters': None,
+            'Label': key,
+            'Name': key,
+            'ObjectType': 'workflow.PrimitiveDataType',
+            'Properties': {
+                'ClassId': 'workflow.PrimitiveDataProperty',
+                'Constraints': {
+                    'ClassId': 'workflow.Constraints',
+                    'EnumList': [],
+                    'Max': 0,
+                    'Min': 0,
+                    'ObjectType': 'workflow.Constraints',
+                    'Regex': ''},
+                'InventorySelector': [],
+                'ObjectType': 'workflow.PrimitiveDataProperty',
+                'Secure': secure,
+                'Type': 'string'},
+            'Required': False},
+        'Value': value}
     return parameters
 
 #=============================================================================
@@ -644,7 +681,7 @@ def installation_body_vmware(v, kwargs):
     api_body = {
         'AdditionalParameters': None,
         'Answers': {
-            "AlternateNameServers": [],
+            'AlternateNameServers': [],
             'Hostname': f'{v.name}.{kwargs.dns_domains[0]}',
             'IpConfigType': 'static',
             'IpConfiguration': {
@@ -654,7 +691,7 @@ def installation_body_vmware(v, kwargs):
                     'Netmask': v.inband.netmask,
                     'ObjectType': 'comm.IpV4Interface'},
                 'ObjectType': 'os.Ipv4Configuration'},
-            "IsRootPasswordCrypted": False,
+            'IsRootPasswordCrypted': False,
             'Nameserver': kwargs.dns_servers[0],
             'NetworkDevice': kwargs.mac_a,
             'ObjectType': 'os.Answers',
@@ -671,63 +708,6 @@ def installation_body_vmware(v, kwargs):
         'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
     if len(kwargs.dns_servers) > 0:
         api_body['Answers']['AlternateNameServers'] = [kwargs.dns_servers[1]]
-    if v.boot_volume.lower() == 'san':
-        api_body['InstallTarget'] = {
-            'InitiatorWwpn': v.wwpns[kwargs.wwpn].wwpn,
-            'LunId': 0,
-            'ObjectType': 'os.FibreChannelTarget',
-            'TargetWwpn': kwargs.san_target}
-    elif v.boot_volume.lower() == 'm2':
-        api_body['InstallTarget'] = {
-            "Id": '0',
-            "Name": "MStorBootVd",
-            "ObjectType": "os.VirtualDrive",
-            "StorageControllerSlotId": "MSTOR-RAID"}
-    return api_body
-
-#=============================================================================
-# Function - Build api_body for Operating System Installation - Azure Stack
-#=============================================================================
-def installation_body_windows(v, kwargs):
-    if kwargs.args.deployment_type == 'azure_stack':
-        ou           = kwargs.imm_dict.wizard.azure_stack[0].active_directory.azure_stack_ou
-        org_unit     = f'OU=Computers,OU={ou},DC=' + kwargs.imm_dict.wizard.azure_stack[0].active_directory.domain.replace('.', ',DC=')
-        organization = kwargs.imm_dict.wizard.azure_stack[0].organization
-    else: ou = ''; org_unit = ''; organization = 'Example'
-    api_body = {
-        "AdditionalParameters": [],
-        "Answers": {"Source": "Template"},
-        "ConfigurationFile": {"Moid": kwargs.os_cfg_moid, "ObjectType": "os.ConfigurationFile"},
-        "Description": "",
-        "Image": {"Moid": kwargs.os_sw_moid, "ObjectType": "softwarerepository.OperatingSystemFile"},
-        "InstallMethod": "vMedia",
-        "OperatingSystemParameters": {"Edition": "DatacenterCore", "ObjectType": "os.WindowsParameters"},
-        "Organization": {"Moid": kwargs.org_moid, "ObjectType": "organization.Organization"},
-        "OsduImage": {"Moid": kwargs.scu_moid, "ObjectType": "firmware.ServerConfigurationUtilityDistributable"},
-        "OverrideSecureBoot": True,
-        "Server": {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
-    answers_dict = {
-        ".hostName": v.name,
-        ".domain": v.active_directory.domain,
-        ".organization": organization,
-        ".organizationalUnit": org_unit,
-        ".secure.administratorPassword": kwargs.windows_admin_password,
-        ".domainAdminUser": v.active_directory.administrator,
-        ".secure.domainAdminPassword": kwargs.windows_domain_password,
-        #".macAddressNic1_dash_format": mac_a,
-        #".macAddressNic2_dash_format": mac_b
-        # Language Pack/Localization
-        ".inputLocale": kwargs.language.input_local,
-        ".languagePack": kwargs.language.ui_language,
-        ".layeredDriver": kwargs.language.layered_driver,
-        ".secondaryLanguage": kwargs.language.secondary_language,
-        # Timezone Configuration
-        ".disableAutoDaylightTimeSet": kwargs.disable_daylight,
-        ".timeZone": kwargs.windows_timezone}
-    answers_dict = dict(sorted(answers_dict.items()))
-    for x in ['layeredDriver', 'secondaryLanguage']:
-        if kwargs.language[snakecase(x)] == '': answers_dict.pop(f".{x}")
-    for key,value in answers_dict.items(): api_body["AdditionalParameters"].append(installation_body_os_placeholders(key, value))
     return api_body
 
 #=============================================================================
@@ -751,8 +731,8 @@ def intersight_config(kwargs):
                 varName = 'intersight_secret_key'
                 pcolor.Cyan(f'\n{"-"*108}\n\n  The Script did not find {varName} as an `environment` variable.')
                 pcolor.Cyan(f'  To not be prompted for the value of {varName} each time\n  add the following to your local environemnt:')
-                pcolor.Cyan(f"    - Linux: export {varName}='{varName}_value'")
-                pcolor.Cyan(f"    - Windows: $env:{varName}='{varName}_value'")
+                pcolor.Cyan(f'    - Linux: export {varName}="{varName}_value"')
+                pcolor.Cyan(f'    - Windows: $env:{varName}="{varName}_value"')
                 secret_path = ''
             if '~' in secret_path: secret_path = os.path.expanduser(secret_path)
             if not secret_path == '':
@@ -772,7 +752,7 @@ def intersight_config(kwargs):
                     kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
             if not valid == True:
                 kwargs.jdata = DotMap(
-                    type = "string", minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
+                    type = 'string', minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
                     description = 'Intersight Secret Key File Location.',
                     default     = os.path.join(kwargs.home, 'Downloads', 'SecretKey.txt'))
                 secret_path = variable_prompt(kwargs)
@@ -830,7 +810,7 @@ def load_previous_configurations(kwargs):
                                         kwargs.imm_dict.orgs[key][k].update(deepcopy(v))
                                 elif type(value) == str or type(value) == bool or type(value) == list: kwargs.imm_dict.orgs[key] = value
                                 else:
-                                    print(f'failed to match type {type(value)}')
+                                    pcolor.Yellow(f'failed to match type {type(value)}')
                                     len(False); sys.exit(1)
     # Return kwargs
     return kwargs
@@ -884,7 +864,7 @@ def merge_easy_imm_repository(kwargs):
     # Download the Easy IMM Comprehensive Example Base Repo
     baseRepo= kwargs.args.dir
     tfe_dir = 'tfe_modules'
-    git_url = "https://github.com/terraform-cisco-modules/easy-imm-comprehensive-example"
+    git_url = 'https://github.com/terraform-cisco-modules/easy-imm-comprehensive-example'
     if not os.path.isdir(tfe_dir): os.mkdir(tfe_dir); Repo.clone_from(git_url, tfe_dir)
     if not os.path.isfile(os.path.join(tfe_dir, 'README.md')): Repo.clone_from(git_url, tfe_dir)
     else: g = cmd.Git(tfe_dir); g.pull()
@@ -1010,14 +990,14 @@ def naming_rule_fabric(loop_count, name_prefix, org):
 #=============================================================================
 def os_configuration_file(kwargs):
     api_body = {
-        "Catalog": kwargs.org_catalog_moid,
-        "Description": "",
-        "Distributions": [{"Moid": kwargs.distribution_moid, "ObjectType": "hcl.OperatingSystem"}],
-        "FileContent": kwargs.file_content,
-        "Internal": False,
-        "Name": kwargs.os_config_template,
-        "ObjectType": "os.ConfigurationFile",
-        "Tags": [kwargs.ez_tags.toDict()]}
+        'Catalog': kwargs.org_catalog_moid,
+        'Description': '',
+        'Distributions': [{'Moid': kwargs.distribution_moid, 'ObjectType': 'hcl.OperatingSystem'}],
+        'FileContent': kwargs.file_content,
+        'Internal': False,
+        'Name': kwargs.os_config_template,
+        'ObjectType': 'os.ConfigurationFile',
+        'Tags': [e.toDict() for e in kwargs.ez_tags]}
     return api_body
 
 #=============================================================================
@@ -1027,8 +1007,8 @@ def pci_slot(element):
     if element.PciSlot == 'SlotID:0-MLOM' or 'MLOM' in element.Model:  pci_slot = 'MLOM'
     elif not 'MEZZ' in element.PciSlot and 'SlotID' in element.PciSlot:
         pci_slot = re.search('SlotID:(\\d)', element.PciSlot).group(1)
-    elif re.search("\\d", str(element.PciSlot)): pci_slot = int(element.PciSlot)
-    elif re.search("L", str(element.PciSlot)): pci_slot = 'LOM'
+    elif re.search('\\d', str(element.PciSlot)): pci_slot = int(element.PciSlot)
+    elif re.search('L', str(element.PciSlot)): pci_slot = 'LOM'
     else: pci_slot = e.AdapterId
     return pci_slot
 
@@ -1097,7 +1077,7 @@ def process_kwargs(kwargs):
 def read_in(excel_workbook, kwargs):
     try:
         kwargs['wb'] = load_workbook(excel_workbook)
-        pcolor.Cyan("Workbook Loaded.")
+        pcolor.Cyan('Workbook Loaded.')
     except Exception as e:
         pcolor.Red(f'\n{"-"*108}\n\n  Something went wrong while opening the workbook - {excel_workbook}... ABORT!')
         pcolor.Red(f'\n{"-"*108}\n')
@@ -1124,19 +1104,6 @@ def remove_duplicates(orgs, plist, kwargs):
     return kwargs
 
 #=============================================================================
-# Validate File is in Repo URL
-#=============================================================================
-def repo_url_test(file, pargs):
-    repo_url = f'https://{pargs.repository_server}{pargs.repository_path}{file}'
-    try:
-        r = requests.head(repo_url, allow_redirects=True, verify=False, timeout=10)
-    except requests.RequestException as e:
-        pcolor.Red(f'\n{"-"*108}\n\n!!! ERROR !!!\n  Exception when calling {repo_url}:\n {e}')
-        pcolor.Red(f'\n{"-"*108}\n')
-        len(False); sys.exit(1)
-    return repo_url
-
-#=============================================================================
 # Function - Prompt User for Sensitive Values
 #=============================================================================
 def sensitive_var_value(kwargs):
@@ -1153,8 +1120,8 @@ def sensitive_var_value(kwargs):
         pcolor.Cyan(f'  The Script did not find {sensitive_var} as an `environment` variable.')
         pcolor.Cyan(f'  To not be prompted for the value of `{kwargs.sensitive_var}` each time')
         pcolor.Cyan(f'  add the following to your local environemnt:\n')
-        pcolor.Cyan(f"    - Linux: export {sensitive_var}='{kwargs.sensitive_var}_value'")
-        pcolor.Cyan(f"    - Windows: $env:{sensitive_var}='{kwargs.sensitive_var}_value'\n")
+        pcolor.Cyan(f'    - Linux: export {sensitive_var}="{kwargs.sensitive_var}_value"')
+        pcolor.Cyan(f'    - Windows: $env:{sensitive_var}="{kwargs.sensitive_var}_value"\n')
     if os.environ.get(sensitive_var) is None and kwargs.sensitive_var == 'ipmi_key':
         pcolor.Cyan(f'\n{"-"*108}\n\n  The ipmi_key Must be in Hexidecimal Format [a-fA-F0-9]')
         pcolor.Cyan(f'  and no longer than 40 characters.\n')
@@ -1166,7 +1133,7 @@ def sensitive_var_value(kwargs):
         valid = False
         while valid == False:
             if kwargs.get('multi_line_input'):
-                pcolor.LightGray(f"Enter the value for {kwargs.sensitive_var}:")
+                pcolor.LightGray(f'Enter the value for {kwargs.sensitive_var}:')
                 lines = []
                 while True:
                     line = stdiomask.getpass(prompt='')
@@ -1177,8 +1144,8 @@ def sensitive_var_value(kwargs):
             else:
                 valid_pass = False
                 while valid_pass == False:
-                    password1 = stdiomask.getpass(prompt=f"Enter the value for {kwargs.sensitive_var}: ")
-                    password2 = stdiomask.getpass(prompt=f"Re-Enter the value for {kwargs.sensitive_var}: ")
+                    password1 = stdiomask.getpass(prompt=f'Enter the value for {kwargs.sensitive_var}: ')
+                    password2 = stdiomask.getpass(prompt=f'Re-Enter the value for {kwargs.sensitive_var}: ')
                     if password1 == password2: secure_value = password1; valid_pass = True
                     else: pcolor.Red('!!! ERROR !!! Sensitive Values did not match.  Please re-enter...')
             #=========================================================================
@@ -1414,7 +1381,7 @@ def subnet_list(kwargs):
     if kwargs.ip_version == 'v4': prefix = kwargs.subnetMask
     else: prefix = kwargs.prefix
     gateway = kwargs.defaultGateway
-    return list(ipaddress.ip_network(f"{gateway}/{prefix}", strict=False).hosts())
+    return list(ipaddress.ip_network(f'{gateway}/{prefix}', strict=False).hosts())
 
 #=============================================================================
 # Function - Format Terraform Files
@@ -1428,7 +1395,7 @@ def terraform_fmt(folder):
     p = subprocess.Popen(['terraform', 'fmt', folder], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     pcolor.Cyan('Format updated for the following Files:')
     for line in iter(p.stdout.readline, b''):
-        line = line.decode("utf-8")
+        line = line.decode('utf-8')
         line = line.strip()
         pcolor.Cyan(f'- {line}')
 
@@ -1447,7 +1414,7 @@ def terraform_provider_config(kwargs):
         stringMatch = False
         while stringMatch == False:
             for line in r.iter_lines():
-                toString = line.decode("utf-8")
+                toString = line.decode('utf-8')
                 if re.search(r'/releases/tag/v(\d+\.\d+\.\d+)\"', toString):
                     repoVer = re.search('/releases/tag/v(\d+\.\d+\.\d+)', toString).group(1)
                     break
@@ -1478,14 +1445,14 @@ def test_repository_url(repo_url):
 #=============================================================================
 def tfc_sensitive_variables(var_value, kwargs):
     pol_vars = DotMap(Variable = var_value)
-    pol_vars.Description = ("".join(var_value.split('_'))).title()
+    pol_vars.Description = (''.join(var_value.split('_'))).title()
     pol_vars.Description = mod_pol_description(pol_vars.Description)
     kwargs = sensitive_var_value(kwargs)
     pol_vars.varValue = kwargs.var_value
     pol_vars.varId = var_value
     pol_vars.varKey = var_value
     pol_vars.Sensitive = True
-    pcolor.Cyan('* Adding "{}" to "{}"').format(pol_vars.description, kwargs.workspaceName)
+    pcolor.Cyan(f'  * Adding "{pol_vars.description}" to "{kwargs.workspaceName}"')
     return pol_vars
 
 #=============================================================================
@@ -1871,8 +1838,8 @@ def vlan_list_format(vlan_list_expanded):
     vlan_list = sorted(vlan_list_expanded)
     vgroups   = itertools.groupby(vlan_list, key=lambda item, c=itertools.count():item-next(c))
     tempvlans = [list(g) for k, g in vgroups]
-    vlanList  = [str(x[0]) if len(x) == 1 else "{}-{}".format(x[0],x[-1]) for x in tempvlans]
-    vlan_list = ",".join(vlanList)
+    vlanList  = [str(x[0]) if len(x) == 1 else f'{x[0]}-{x[-1]}' for x in tempvlans]
+    vlan_list = ','.join(vlanList)
     return vlan_list
 
 #=============================================================================
@@ -1947,7 +1914,7 @@ def vlan_pool(name):
 def windows_languages(windows_language, kwargs):
     kwargs.windows_languages = json.load(open(os.path.join(kwargs.script_path, 'variables', 'windowsLocals.json'), 'r'))
     language = [e for e in kwargs.windows_languages if (
-        (DotMap(e)).language.replace("(", "_")).replace(")", "_") == (windows_language.language_pack.replace("(", "_")).replace(")", "_")]
+        (DotMap(e)).language.replace('(', '_')).replace(')', '_') == (windows_language.language_pack.replace('(', '_')).replace(')', '_')]
     if len(language) == 1: language = DotMap(language[0])
     else:
         pcolor.Red(f'Failed to Map `{windows_language.language_pack}` to a Windows Language.')
@@ -1956,7 +1923,7 @@ def windows_languages(windows_language, kwargs):
         len(False); sys.exit(1)
     kwargs.language = DotMap(
         ui_language        = language.code,
-        input_local        = (re.search('\\((.*)\\)', language.local)).group(1),
+        input_locale       = (re.search('\\((.*)\\)', language.local)).group(1),
         layered_driver     = windows_language.layered_driver,
         secondary_language = '')
     if language.get('secondary_language'):

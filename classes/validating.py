@@ -83,9 +83,10 @@ def completed_item(ptype, kwargs):
         parents      = DotMap()
         for k,v in kwargs.isight[kwargs.org].policies[kwargs.parent_key].items(): parents[v] = k
         if 'an_connectivity' in kwargs.parent_key: kwargs.parent_name = parents[iresults[f'{pascalcase(kwargs.parent_key)}Policy'].Moid]
-        elif kwargs.parent_key == 'port': kwargs.parent_name = parents[iresults[f'PortPolicy'].Moid]
-        elif kwargs.parent_key == 'vlan': kwargs.parent_name = parents[iresults[f'EthNetworkPolicy'].Moid]
-        elif kwargs.parent_key == 'vsan': kwargs.parent_name = parents[iresults[f'FcNetworkPolicy'].Moid]
+        elif kwargs.parent_key == 'local_user': kwargs.parent_name = parents[iresults[f'EndPointUserPolicy'].Moid]
+        elif kwargs.parent_key == 'port':       kwargs.parent_name = parents[iresults[f'PortPolicy'].Moid]
+        elif kwargs.parent_key == 'vlan':       kwargs.parent_name = parents[iresults[f'EthNetworkPolicy'].Moid]
+        elif kwargs.parent_key == 'vsan':       kwargs.parent_name = parents[iresults[f'FcNetworkPolicy'].Moid]
         else: kwargs.parent_name = list(parents.values())[list(parents.keys()).index(iresults.Parent.Moid)]
         if method == 'post':
             pcolor.Green(f'{" "*6}* Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
@@ -183,13 +184,11 @@ def error_serial_number(name, serial):
     pcolor.LightGray(f'\n{"-"*108}\n')
     len(False); sys.exit(1)
 
-def error_subnet_check(kwargs):
-    ip_version = kwargs['ip_version']
-    if ip_version == 'v4': prefix = kwargs['subnetMask']
-    else: prefix = kwargs['prefix']
-    gateway = kwargs['defaultGateway']
-    pool_from = ipaddress.ip_address(kwargs['pool_from'])
-    pool_to = ipaddress.ip_address(kwargs['pool_to'])
+def error_subnet_check(args):
+    prefix    = args.subnetMask if args.ip_version == 'v4'else args.prefix
+    gateway   = args.defaultGateway
+    pool_from = ipaddress.ip_address(args.pool_from)
+    pool_to   = ipaddress.ip_address(args.pool_to)
     if not pool_from in ipaddress.ip_network(f"{gateway}/{prefix}", strict=False):
         print(f'\n{"-"*108}\n')
         print(f'   !!! ERROR !!!  {pool_from} is not in network {gateway}/{prefix}:')
@@ -203,7 +202,6 @@ def error_subnet_check(kwargs):
         print(f'\n{"-"*108}\n')
         len(False); sys.exit(1)
 
-
 def error_subnet_not_found(kwargs):
     poolFrom = kwargs['pool_from']
     print(f'\n{"-"*108}\n')
@@ -214,7 +212,6 @@ def error_subnet_not_found(kwargs):
         print(f'   Exiting....')
     print(f'\n{"-"*108}\n')
     len(False); sys.exit(1)
-
 
 def unmapped_keys(policy_type, name, key):
     print(f'\n{"-"*108}\n')

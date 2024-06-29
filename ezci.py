@@ -46,11 +46,11 @@ except ImportError as e:
 #=============================================================================
 def cli_arguments():
     kwargs = DotMap()
-    parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
+    parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module', conflict_handler='resolve')
     parser = ezfunctions.base_arguments(parser)
     parser = ezfunctions.base_arguments_ezimm_sensitive_variables(parser)
     parser.add_argument(
-        '-s', '--deployment-step', default ='initial', required=True,
+        '-s', '--deployment-step', choices=['initial', 'luns', 'operating_system', 'os_configuration', 'servers', ], default ='initial', required=True,
         help ='The steps in the proceedure to run. Options Are: '\
             '1. initial '
             '2. servers '\
@@ -58,13 +58,14 @@ def cli_arguments():
             '4. operating_system '\
             '5. os_configuration ')
     parser.add_argument(
-        '-t', '--deployment-type', default ='imm_domain', required=True,
+        '-t', '--deployment-type', choices=['azure_stack', 'flashstack', 'flexpod', 'imm_domain', 'imm_standalone', ], default ='imm_domain', required=True,
         help ='Infrastructure Deployment Type. Options Are: '\
             '1. azure_stack '
             '2. flashstack '\
             '3. flexpod '\
-            '3. imm_domain '\
-            '4. imm_standalone ')
+            '4. imm_domain '\
+            '5. imm_standalone ')
+    parser.add_argument('-y', '--yaml-file', default = None, required=True,  help = 'The input YAML File.')
     kwargs.args = parser.parse_args()
     return kwargs
 
@@ -77,12 +78,13 @@ def main():
     #=========================================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
     #=========================================================================
     # Send Notification Message
     #=========================================================================
-    kwargs.args.dir       = os.path.join(Path.home(), kwargs.args.yaml_file.split('/')[0])
-    kwargs.deployment_type= kwargs.args.deployment_type
+    if os.path.isfile(kwargs.args.yaml_file): pass
+    else: pcolor.Yellow(f'`{kwargs.args.yaml_file}` is not valid')
+    kwargs.args.dir        = os.path.dirname(os.path.abspath(kwargs.args.yaml_file))
+    kwargs.deployment_type = kwargs.args.deployment_type
     pcolor.Green(f'\n{"-"*108}\n\n  Begin Deployment for {kwargs.deployment_type}.')
     pcolor.Green(f'  * Deployment Step is {kwargs.args.deployment_step}.')
     pcolor.Green(f'\n{"-"*108}\n')
@@ -102,12 +104,11 @@ def main():
     kwargs = ci.wizard('dns_ntp').dns_ntp(kwargs)
     kwargs = ci.wizard('vlans').vlans(kwargs)
     kwargs = ci.wizard('imm').imm(kwargs)
-    kwargs = isight.api('organization').organizations(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
     if re.search('(flashstack|flexpod)', kwargs.args.deployment_type):
         if kwargs.args.deployment_type == 'flexpod':  run_type = 'netapp'
         elif kwargs.args.deployment_type == 'flashstack': run_type = 'pure_storage'
         kwargs = eval(f"ci.wizard(run_type).{run_type}(kwargs)")
-
     #=========================================================================
     # When Deployment Step is initial - Deploy NXOS|Storage|Domain
     #=========================================================================
@@ -228,18 +229,18 @@ def main():
     #=========================================================================
     elif kwargs.args.deployment_step == 'operating_system':
         #=====================================================================
-        # Loop Through the Orgs
+        # Load Server Profile Variables/Cleanup imm_dict
         #=====================================================================
-        orgs = list(kwargs.imm_dict.orgs.keys())
+        orgs   = list(kwargs.imm_dict.orgs.keys())
         kwargs = ezfunctions.remove_duplicates(orgs, ['wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
         #=====================================================================
-        # Load Server Profile Variables - Install OS
+        # Loop thru Orgs and Install OS
         #=====================================================================
+        #if kwargs.args.deployment_type == 'azure_stack': kwargs = ci.wizard('windows_prep').azure_stack_prep(kwargs)
         for org in orgs:
             kwargs.org = org
-            for i in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles: kwargs.server_profiles[i.name] = i
-            kwargs = ci.wizard('os_install').os_install(kwargs)
+            kwargs = isight.imm('os_install').os_install(kwargs)
         #=====================================================================
         # Create YAML Files
         #=====================================================================
@@ -262,12 +263,8 @@ def main():
             #=================================================================
             # Configure Virtualization Environment
             #=================================================================
-            vmware = False
-            for i in kwargs.virtualization:
-                if i.type == 'vmware': vmware = True
-            if vmware == True:
-                kwargs = vsphere.api('esx').esx(kwargs)
-                kwargs = vsphere.api('powercli').powercli(kwargs)
+            kwargs = vsphere.api('esx').esx(kwargs)
+            kwargs = vsphere.api('powercli').powercli(kwargs)
     pcolor.Green(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...')
     pcolor.Green(f'\n{"-"*108}\n')
     sys.exit(0)

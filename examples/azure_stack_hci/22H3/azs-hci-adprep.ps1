@@ -53,22 +53,8 @@ $log_dir = $homePath + $pathSep + "Logs"
 if (!( Test-Path -PathType Container $log_dir)) {
     New-Item -ItemType Directory $log_dir | Out-Null
 }
-$credential_path = $homePath + $pathSep + "powershell.Cred"
-If (Test-Path -PathType Leaf $credential_path) {
-    $credential = Import-CliXml -Path $credential_path
-} Else {
-    $credential = Get-Credential
-    $credential | Export-CliXml -Path $credential_path
-}
-if (!(Get-WindowsFeature -Name RSAT-AD-PowerShell)) {
-    Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
-}
-if (!(Get-WindowsFeature -Name GPMC)) {
-    Install-WindowsFeature -Name GPMC -IncludeAllSubFeature
-}
-Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
 #=============================================================================
-# Install PowerShell Modules
+# Install PowerShellGet and powershel-yaml
 #=============================================================================
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 $required_modules = @("PowerShellGet", "powershell-yaml")
@@ -82,6 +68,19 @@ foreach ($rm in $required_modules) {
         Import-Module $rm
     }
 }
+#Get-WindowsFeature -Name RSAT-AD-PowerShell|Install-Windowsfeature 
+# [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+if (!(Get-WindowsFeature -Name RSAT-AD-PowerShell)) {
+    Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
+}
+# Install-WindowsFeature GPMC
+if (!(Get-WindowsFeature -Name GPMC)) {
+    Install-WindowsFeature -Name GPMC -IncludeAllSubFeature
+}
+#Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
+#=============================================================================
+# Install AsHciADArtifactsPreCreationTool
+#=============================================================================
 $required_modules = @("AsHciADArtifactsPreCreationTool:10.2402")
 foreach ($rm in $required_modules) {
     $mod     = $rm.Split(":")[0]
@@ -113,8 +112,8 @@ $domain_ou = "DC=" + ($ydata.active_directory.domain.split(".") -join ",DC=")
 #=============================================================================
 $count = 1
 foreach($cluster in $ydata.clusters) {
-    $env_pass  = [Environment]::GetEnvironmentVariable("azure_stack_lcm_password_0$($count)")
-    $org_unit  = "ou=$($cluster.organizational_unit),$domain_ou"
+    $env_pass  = [Environment]::GetEnvironmentVariable("azure_stack_lcm_password")
+    $org_unit  = "ou=$($ydata.active_directory.azure_stack_ou),$domain_ou"
     $azs_pass  = ConvertTo-SecureString $env_pass -AsPlainText -Force
     $azs_user  = $cluster.life_cycle_management_user.split("@")[0]
     $azs_creds = New-Object System.Management.Automation.PSCredential ($azs_user, $azs_pass)

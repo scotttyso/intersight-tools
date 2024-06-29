@@ -22262,6 +22262,33 @@
                         ],
                         "title": "Deployment Type"
                     },
+                    "azure_stack_hci_languages": {
+                        "type": "string",
+                        "default": "English",
+                        "description": "",
+                        "enum": [
+                            "Chinese Simplified",
+                            "Chinese Traditional TW",
+                            "Czech",
+                            "Dutch",
+                            "English",
+                            "English VHDX",
+                            "French",
+                            "German",
+                            "Hungarian",
+                            "Italian",
+                            "Japanese",
+                            "Korean",
+                            "Polish",
+                            "Portuguese (Brazil)",
+                            "Portuguese (Portugal)",
+                            "Russian",
+                            "Spanish",
+                            "Swedish",
+                            "Turkish"
+                        ],
+                        "title": "Azure Stack HCI Languages"
+                    },
                     "build_type": {
                         "type": "string",
                         "default": "Machine",
@@ -22339,6 +22366,13 @@
                         "optional": true,
                         "pattern": "^[a-zA-Z0-9_\\. :-]{0,32}$",
                         "title": "Name Suffix"
+                    },
+                    "operating_system_language": {
+                        "type": "string",
+                        "default": "English - United States",
+                        "description": "Select the Language for the Operating System Installation.",
+                        "enum": [],
+                        "title": "Operating System Language"
                     },
                     "operating_system_vendor": {
                         "type": "string",
@@ -22424,10 +22458,35 @@
                     "sw_repo_os_cfg": {
                         "type": "string",
                         "default": "",
-                        "description": "Select the Operating System Configuration (AutoInstall) File for Installation.",
+                        "description": "Select the Operating System Configuration (aka AutoInstall) File for Installation.",
                         "enum": [],
                         "sort": false,
-                        "title": "Operating System Configuration"
+                        "title": "Operating System Configuration File"
+                    },
+                    "sw_repo_os_cfg_add": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Enter the Fully Qualified Path to the OS Configuration File (aka Auto Install File).",
+                        "minLength": 10,
+                        "maxLength": 1024,
+                        "pattern": ".*",
+                        "title": "Operating System Configuration File Path"
+                    },
+                    "sw_repo_os_cfg_add_confirm": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "",
+                        "title": "Confirm File"
+                    },
+                    "sw_repo_os_cfg_variable_type": {
+                        "type": "string",
+                        "default": "shared_variable",
+                        "description": "Select the input type for `REPLACE` below:\n\n  * shared_variable - The variable will be the same for all servers.\n  * unique_variable - The Variable will be unique for each server",
+                        "enum": [
+                            "shared_variable",
+                            "unique_variable"
+                        ],
+                        "title": "Variable Type"
                     },
                     "sw_repo_os_image_confirm": {
                         "type": "boolean",

@@ -185,7 +185,7 @@ class api(object):
                 if 'Distributions' in ikeys: api_dict[iname].distributions  = [e.Moid for e in i.Distributions]
                 if 'Source'   in ikeys and 'LocationLink' in ikeys: api_dict[iname].url = i.Source.LocationLink
                 if 'Vendor'   in ikeys and   type(i.Vendor) != str: api_dict[iname].vendor_moid = i.Vendor.Moid
-                if 'Profiles' in ikeys:
+                if 'Profiles' in ikeys and i.Profiles != None:
                     api_dict[iname].profiles = []
                     for x in i.Profiles:
                         xdict = DotMap(Moid=x.Moid,ObjectType=x.ObjectType)
@@ -1177,8 +1177,11 @@ class imm(object):
         if api_body.get('bios_template'):
             btemplate = kwargs.ezdata['bios.template'].properties
             if '-tpm' in (api_body['bios_template']).lower():
-                api_body = dict(api_body, **btemplate[(item.bios_template.replace('-tpm', '')).replace('-Tpm', '')].toDict(), **btemplate.tpm.toDict())
-            else: api_body = dict(api_body, **btemplate[item.bios_template].toDict(), **btemplate.tpm_disabled.toDict())
+                api_body = btemplate.tpm.toDict() | btemplate[(item.bios_template.replace('-tpm', '')).replace('-Tpm', '')].toDict() | api_body
+                #api_body = dict(api_body, **btemplate[(item.bios_template.replace('-tpm', '')).replace('-Tpm', '')].toDict(), **btemplate.tpm.toDict())
+            else:
+                api_body = btemplate.tpm_disabled.toDict() | btemplate[item.bios_template].toDict() | api_body
+                #api_body = dict(api_body, **btemplate[item.bios_template].toDict(), **btemplate.tpm_disabled.toDict())
             api_body.pop('bios_template')
         return api_body
 
@@ -2064,23 +2067,23 @@ class imm(object):
         # Load Variables and Send Begin Notification
         #=====================================================================
         validating.begin_section(self.type, 'Install')
+        server_profiles       = deepcopy(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)
+        install_flag          = False
+        kwargs.models         = sorted(list(numpy.unique(numpy.array([e.model for e in server_profiles]))))
         kwargs.org_moid       = kwargs.org_moids[kwargs.org].moid
         os_install_fail_count = 0
-        #==========================================
+        #=====================================================================
         # Get Physical Server Tags to Check for
         # Existing OS Install
-        #==========================================
-        kwargs.method   = 'get'
-        kwargs.names    = [e.serial for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles]
-        kwargs.uri      = 'compute/PhysicalSummaries'
-        kwargs          = api('serial_number').calls(kwargs)
-        compute_moids   = kwargs.pmoids
-        boot_names      = []
-        install_flag    = False
-        os_cfg_moids    = []
-        for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+        #=====================================================================
+        kwargs = kwargs | DotMap(method = 'get', names = [e.serial for e in server_profiles], uri = 'compute/PhysicalSummaries')
+        kwargs = api('serial_number').calls(kwargs)
+        compute_moids = kwargs.pmoids
+        boot_names    = []
+        os_cfg_moids  = []
+        for x in range(0,len(server_profiles)):
             v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
-            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].tags = compute_moids[v.serial].tags
+            kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].tags = compute_moids[server_profiles[x].serial].tags
             kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_installed  = False
             boot_names.append(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_order.name)
             os_cfg_moids.append(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration)
@@ -2089,35 +2092,62 @@ class imm(object):
                     kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_installed = True
                 else: install_flag = True
             if kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].boot_volume.lower() == 'm2':
-                match = False
+                m2_found = False
                 for k,v in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].storage_controllers.items():
-                    if v.model == 'UCS-M2-HWRAID': match = True
-                if match == False:
+                    if re.search('MSTOR-RAID', v.slot):
+                        m2_found = True
+                        kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].virtual_drive = v.virtual_drives['0'].name
+                if m2_found == False:
                     pcolor.Red(f'\n{"-"*108}\n')
                     pcolor.Red(f'  !!! ERROR !!!\n  Could not determine the Controller Slot for:')
-                    pcolor.Red(f'  * Profile: {kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].name}')
-                    pcolor.Red(f'  * Serial:  {kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].serial}')
+                    pcolor.Red(f'  * Profile: {server_profiles[x].name}')
+                    pcolor.Red(f'  * Serial:  {server_profiles[x].serial}')
                     pcolor.Red(f'  Exiting... (intersight-tools/classes/isight.py Line 1448)')
                     pcolor.Red(f'\n{"-"*108}\n')
                     len(False); sys.exit(1)
+        #=====================================================================
+        # Setup OS Settings for ezci
+        #=====================================================================
+        def sensitive_list_check(sensitive_list, kwargs):
+            for e in sensitive_list:
+                kwargs.sensitive_var = e
+                kwargs = ezfunctions.sensitive_var_value(kwargs)
+                kwargs[e] = kwargs.var_value
+            return kwargs
+        if install_flag == True and kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'azure_stack':
+            windows_language = DotMap(language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
+                                      layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver)
+            kwargs = ezfunctions.windows_languages(windows_language, kwargs)
+            kwargs = ezfunctions.windows_timezones(kwargs)
+            kwargs = sensitive_list_check(['azure_stack_lcm_password', 'local_administrator_password'], kwargs)
+        elif install_flag == True and kwargs.script_name == 'ezci':
+            kwargs = sensitive_list_check(['vmware_esxi_password'], kwargs)
+        #=====================================================================
+        # Get Software Repository Data - If os_install is True
+        #=====================================================================
         if install_flag == True:
-            #==========================================
-            # Get OS Configuration Files
-            #==========================================
-            kwargs.names  = list(numpy.unique(numpy.array(os_cfg_moids)))
-            kwargs.method = 'get'
-            kwargs.uri    = 'os/ConfigurationFiles'
-            kwargs        = api('moid_filter').calls(kwargs)
-            for e in kwargs.results: kwargs.os_cfg_moids[e.Moid] = e
-        #==========================================
+            kwargs = software_repository('os_cfg').os_configuration(kwargs)
+            kwargs = software_repository('scu').scu(kwargs)
+            for e in kwargs.os_cfg_results: kwargs.os_cfg_moids[e.Moid] = e
+            for e in kwargs.scu_results: kwargs.scu[e.Moid] = e
+        #=====================================================================
         # Install Operating System on Servers
-        #==========================================
+        #=====================================================================
         count = 1
         for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
             v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
             if v.os_installed == False:
-                for a,b in v.adapters.items():
-                    vnic = [DotMap(name = c, mac = d.mac_address) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface][0]
+                #=============================================================
+                # Test Intersight Transition URL
+                #=============================================================
+                url = kwargs.scu[v.scu].Source.LocationLink
+                if kwargs.args.repository_check_skip == False: ezfunctions.test_repository_url(url)
+                #=============================================================
+                # Get Installation Interface
+                #=============================================================
+                if type(v.install_interface) == str:
+                    for a,b in v.adapters.items():
+                        vnic = [DotMap(name = c, mac = d.mac_address) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface]
                 if v.boot_volume.lower() == 'san':
                     if count % 2 == 0: kwargs.wwpn_index = 0; kwargs.san_target = v.boot_order.wwpn_targets[0]
                     else:
@@ -2130,29 +2160,31 @@ class imm(object):
                     pcolor.Green(f'{" "*4}initiator: {v.wwpns[kwargs.wwpn_index].wwpn}\n{" "*7}lun: {starget.Lun}\n{" "*7}target: {starget.Wwpn}')
                     pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
                     pcolor.Green(f'{" "*4}vnic:\n{" "*7}name: {vnic.name}\n{" "*7}mac: {vnic.mac}\n')
-                elif v.boot_volume.lower() == 'm2':
+                elif v.boot_volume.lower() == 'm2' and type(v.install_interface) == str:
                     pcolor.Green(f'\n{"-"*52}\n')
-                    pcolor.Green(f'{" "*2}- boot_mode: M2')
+                    pcolor.Green(f'{" "*2}- boot_mode: {v.boot_volume}')
                     pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
-                    pcolor.Green(f'{" "*4}vnic:\n{" "*7}mac: {vnic.mac}\n{" "*7}name: {vnic.name}\n')
-                kwargs.api_body = ezfunctions.installation_body(v, kwargs)
-                kwargs.method   = 'post'
-                kwargs.uri      = 'os/Installs'
-                kwargs          = api(self.type).calls(kwargs)
+                    pcolor.Green(f'{" "*4}vnic:\n{" "*7}name: {vnic.name}\n{" "*7}mac: {vnic.mac}\n')
+                else:
+                    pcolor.Green(f'\n{"-"*52}\n')
+                    pcolor.Green(f'{" "*2}- boot_mode: {v.boot_volume}')
+                    pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
+                #=============================================================
+                # POST OS Install
+                #=============================================================
+                kwargs = kwargs | DotMap(api_body = ezfunctions.installation_body(v, kwargs), method = 'post', uri = 'os/Installs')
+                kwargs = api(self.type).calls(kwargs)
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_install = DotMap(moid=kwargs.pmoid,workflow='')
-        pcolor.Cyan(f'\n{"-" * 108}\n\nSleeping for 20 Minutes to pause for Workflow/Infos Lookup.')
-        pcolor.Cyan(f'\n{"-" * 108}\n')
-        time.sleep(1200)
-        #=================================================
+        if install_flag == True:
+            pcolor.Cyan(f'\n{"-" * 108}\n\nSleeping for 20 Minutes to pause for Workflow/Infos Lookup.')
+            pcolor.Cyan(f'\n{"-" * 108}\n')
+            time.sleep(1200)
+        #=====================================================================
         # Monitor OS Installation until Complete
-        #=================================================
-        kwargs.names = []
-        for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
-            v = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x]
-            if v.os_installed == False and len(v.os_install.moid) > 0: kwargs.names.append(v.os_install.moid)
-        kwargs.method    = 'get'
-        kwargs.uri       = 'os/Installs'
-        kwargs           = api('moid_filter').calls(kwargs)
+        #=====================================================================
+        names  = [e.os_install.moid for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles if v.os_installed == False and len(v.os_install.moid) > 0]
+        kwargs = kwargs | DotMap(method = 'get', names = names, uri = 'os/Installs')
+        kwargs = api('moid_filter').calls(kwargs)
         workflow_pmoids  = kwargs.pmoids
         workflow_results = kwargs.results
         for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
@@ -2163,9 +2195,7 @@ class imm(object):
                 v.os_install.workflow = workflow_results[indx].WorkflowInfo.Moid
                 install_complete = False
                 while install_complete == False:
-                    kwargs.method = 'get_by_moid'
-                    kwargs.pmoid  = v.os_install.workflow
-                    kwargs.uri    = 'workflow/WorkflowInfos'
+                    kwargs = kwargs | DotMap(method = 'get_by_moid', pmoid = v.os_install.workflow, uri = 'workflow/WorkflowInfos')
                     kwargs = api('workflow_info').calls(kwargs)
                     if kwargs.results.WorkflowStatus == 'Completed':
                         install_complete = True; v.install_success  = True
@@ -2180,9 +2210,9 @@ class imm(object):
                         pcolor.Cyan(f'{" "*6}* Operating System Installation for `{v.name}` still In Progress.'\
                                     f'  Status is: `{status}`, Progress is: {progress} Percent, Sleeping for 120 seconds.')
                         time.sleep(120)
-                #=================================================
+                #=============================================================
                 # Add os_installed Tag to Physical Server
-                #=================================================
+                #=============================================================
                 if v.install_success == True:
                     tags = deepcopy(v.tags)
                     tag_body = []
@@ -2195,13 +2225,9 @@ class imm(object):
                     if os_installed == False:
                         tag_body.append({'Key':'os_installed','Value':f'{v.os_vendor}: {v.os_version.name}'})
                     tags = list({d['Key']:d for d in tags}.values())
-                    kwargs.api_body = {'Tags':tag_body}
-                    kwargs.method   = 'patch'
-                    kwargs.pmoid    = v.hardware_moid
-                    kwargs.tag_server_profile = v.name
-                    if v.object_type == 'compute.Blade': kwargs.uri = 'compute/Blades'
-                    else: kwargs.uri = 'compute/RackUnits'
-                    kwargs        = api('update_tags').calls(kwargs)
+                    kwargs     = kwargs | DotMap(api_body = {'Tags':tag_body}, method = 'patch', pmoid = v.hardware_moid, tag_server_profile = v.name)
+                    kwargs.uri = f'{v.object_type}s'.replace('.', '/')
+                    kwargs     = api('update_tags').calls(kwargs)
             elif v.os_installed == False:
                 os_install_fail_count += 1
                 pcolor.Red(f'      * Something went wrong with the OS Install Request for {v.name}. Please Validate the Server.')
@@ -3085,7 +3111,7 @@ class imm(object):
             for p in e.PolicyBucket:
                 if not kwargs.lookup.get(kwargs.object_type_map[p.ObjectType].ezkey): kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey] = []
                 kwargs.lookup[kwargs.object_type_map[p.ObjectType].ezkey].append(p.Moid)
-            if 'UuidPool' in rkeys:
+            if 'UuidPool' in rkeys and e.UuidPool != None:
                 if not kwargs.lookup.get('uuid'): kwargs.lookup.uuid = []
                 kwargs.lookup.uuid.append(e.UuidPool.Moid)
         for k in list(kwargs.lookup.keys()):
@@ -3102,7 +3128,7 @@ class imm(object):
             tdict = DotMap()
             for p in e.Policy_Bucket:
                 tdict[f'{kwargs.object_type_map[p.ObjectType].ezkey}_policy'] = kwargs.policy_moids[p.Moid]
-            if 'UuidPool' in rkeys: tdict.uuid = kwargs.policy_moids[e.UuidPool.Moid]
+            if 'UuidPool' in rkeys and e.UuidPool != None: tdict.uuid = kwargs.policy_moids[e.UuidPool.Moid]
             kwargs.templates[f'{kwargs.org_names[e.Organization.Moid]}/{e.Name}'] = tdict
         #=====================================================================
         # Return kwargs
@@ -3582,7 +3608,7 @@ class imm(object):
         #=====================================================================
         for e in names:
             if not kwargs.user_moids.get(e):
-                api_body = {'Name':e.username,'ObjectType':ezdata.object_type}
+                api_body = {'Name':e,'ObjectType':ezdata.object_type}
                 api_body = imm(self.type).org_map(api_body, kwargs.org_moids[kwargs.org].moid)
                 kwargs.bulk_list.append(deepcopy(api_body))
             else: pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; User: `{e}`.  Intersight Matches Configuration.  Moid: {kwargs.user_moids[e].moid}")
@@ -4098,15 +4124,13 @@ class software_repository(object):
     # Function - OS Configuration Files
     #=========================================================================
     def os_configuration(self, kwargs):
-        org_moid          = kwargs.org_moids[kwargs.org].moid
-        kwargs.api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')"
-        kwargs.method     = 'get'
-        kwargs.uri        = 'os/Catalogs'
-        kwargs            = api('os_catalog').calls(kwargs)
-        catalog_moids     = kwargs.pmoids
+        org_moid = kwargs.org_moids[kwargs.org].moid
+        kwargs   = kwargs | DotMap(api_filter = f"Name in ('{org_moid}','shared')", method = 'get', uri = 'os/Catalogs')
+        kwargs   = api('os_catalog').calls(kwargs)
+        catalog_moids = kwargs.pmoids
         kwargs.api_filter = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
-        kwargs.uri        = 'os/ConfigurationFiles'
-        kwargs            = api('os_configuration').calls(kwargs)
+        kwargs = kwargs | DotMap(uri = 'os/ConfigurationFiles')
+        kwargs = api('os_configuration').calls(kwargs)
         kwargs.org_catalog_moid = catalog_moids[org_moid].moid
         kwargs.os_cfg_moids     = kwargs.pmoids
         kwargs.os_cfg_results   = kwargs.results
@@ -4117,18 +4141,13 @@ class software_repository(object):
     #=========================================================================
     def os_images(self, kwargs):
         # Get Organization Software Repository Catalog
-        kwargs.method       = 'get'
-        kwargs.names        = ['user-catalog']
-        kwargs.uri          = 'softwarerepository/Catalogs'
-        kwargs              = api('org_catalog').calls(kwargs)
-        catalog_moid        = kwargs.pmoids['user-catalog'].moid
+        kwargs = kwargs | DotMap(method = 'get', names = ['user-catalog'], uri = 'softwarerepository/Catalogs')
+        kwargs = api('org_catalog').calls(kwargs)
+        catalog_moid = kwargs.pmoids['user-catalog'].moid
         # Get Organization Operating System Images
-        kwargs.api_filter = f"Catalog.Moid eq '{catalog_moid}'"
-        kwargs.method     = 'get'
-        kwargs.names      = []
-        kwargs.uri        = 'softwarerepository/OperatingSystemFiles'
-        kwargs            = api('operating_system').calls(kwargs)
-        kwargs.osi_moids  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+        kwargs = kwargs | DotMap(api_filter = f"Catalog.Moid eq '{catalog_moid}'", names = [], uri = 'softwarerepository/OperatingSystemFiles')
+        kwargs = api('operating_system').calls(kwargs)
+        kwargs.os_image_results = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
         return kwargs
 
     #=========================================================================
@@ -4136,18 +4155,13 @@ class software_repository(object):
     #=========================================================================
     def scu(self, kwargs):
         # Get Organization Software Repository Catalog
-        kwargs.method       = 'get'
-        kwargs.names        = ['user-catalog']
-        kwargs.uri          = 'softwarerepository/Catalogs'
-        kwargs              = api('org_catalog').calls(kwargs)
-        catalog_moid        = kwargs.pmoids['user-catalog'].moid
+        kwargs = kwargs | DotMap(method = 'get', names = ['user-catalog'], uri = 'softwarerepository/Catalogs')
+        kwargs = api('org_catalog').calls(kwargs)
+        catalog_moid = kwargs.pmoids['user-catalog'].moid
         # Get Organization Software Configuration Utility Repositories
-        kwargs.api_filter = f"Catalog.Moid eq '{catalog_moid}'"
-        kwargs.method     = 'get'
-        kwargs.names      = []
-        kwargs.uri        = 'firmware/ServerConfigurationUtilityDistributables'
-        kwargs            = api('server_configuration_utility').calls(kwargs)
-        kwargs.scu_moids  = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+        kwargs = kwargs | DotMap(api_filter = f"Catalog.Moid eq '{catalog_moid}'", names = [], uri = 'firmware/ServerConfigurationUtilityDistributables')
+        kwargs = api('server_configuration_utility').calls(kwargs)
+        kwargs.scu_results = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
         return kwargs
 
 #=============================================================================

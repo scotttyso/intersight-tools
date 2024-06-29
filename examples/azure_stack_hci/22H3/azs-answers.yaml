@@ -1,17 +1,14 @@
 ---
 active_directory:
-  administrator: hciadmin@ucs-spaces.lab
-  azure_stack_admin: administrator@ucs-spaces.lab
-  azure_stack_prefix: AzS
+  azure_stack_lcm_user: svc_azs_admin@ucs-spaces.lab
+  azure_stack_ou: AzureStackHCI
   domain: ucs-spaces.lab
+  domain_administrator: hciadmin@ucs-spaces.lab
 clusters:
   - cluster_name: cluster01
-    life_cycle_management_user: admin_cluster01@ucs-spaces.lab
     members:
     - azs-cl01-host1.ucs-spaces.lab
     - azs-cl01-host2.ucs-spaces.lab
-    naming_prefix: cl01
-    organizational_unit: Azs-Cluster01
 file_share_witness:
   host: witness.ucs-spaces.lab
   share_name: \\witness.ucs-spaces.lab\file_share
