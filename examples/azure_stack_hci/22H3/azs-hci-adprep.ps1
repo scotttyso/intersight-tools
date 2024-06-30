@@ -23,24 +23,40 @@ or implied.
     azs-hci-adprep.ps1 -y azure.yaml
 #>
 
-#=============================================================================
+##=============================================================================
 # YAML File is a Required Parameter
 # Pull in YAML Content
 #=============================================================================
-param (
-    [string]$y=$(throw "-y <yaml_file.yaml> is required.")
-)
+param ([string]$y=$(throw "-y <yaml_file.yaml> is required."))
 #=============================================================================
 # Validate Running with Administrator Privileges
 #=============================================================================
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-    Write-Host "Script must run with elevated Administrator permissions...Exiting" -Foreground Red
+    Write-Host ""
+    Write-Host "Script must run with elevated Administrator permissions...Exiting" -Foreground Yellow
+    Write-Host "...Exiting"
+    Write-Host ""
     Exit 1
 }
-$computer_name = (Get-ComputerInfo).CsDNSHostName
+#=============================================================================
+# Check Environment for Required Variables
+#=============================================================================
+$environment_variables = @("azure_stack_lcm_password")
+foreach ($req_env in $environment_variables) {
+    if (!([Environment]::GetEnvironmentVariable($req_env))) {
+        Write-Host ""
+        Write-Host "You Must Set the Following Environment Variables before Running This Script" -ForegroundColor Yellow
+        Write-Host "  * `$env:azure_stack_lcm_password" -ForegroundColor Green
+        Write-Host "This is the Password for the User to be added to the Azure Stack OU for LifeCycle Management and Host AD Join." -ForegroundColor Green
+        Write-Host "...Exiting"
+        Write-Host ""
+        Exit 1
+    }
+}
 #=============================================================================
 # Setup Environment
 #=============================================================================
+$computer_name = ([System.Net.DNS]::GetHostByName('').HostName).Split(".")[0]
 ${env_vars} = Get-Childitem -Path Env:* | Sort-Object Name
 if ((${env_vars} | Where-Object {$_.Name -eq "OS"}).Value -eq "Windows_NT") {
     $homePath = (${env_vars} | Where-Object {$_.Name -eq "HOMEPATH"}).Value
@@ -60,24 +76,26 @@ Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 $required_modules = @("PowerShellGet", "powershell-yaml")
 foreach ($rm in $required_modules) {
     if (!(Get-Module -ListAvailable -Name $rm)) {
-        Write-Host " * $($computer_name) Installing $rm." -ForegroundColor Green
+        Write-Host " * $computer_name`: Installing $rm." -ForegroundColor Green
         Install-Module $rm -AllowClobber -Confirm:$False -Force
         Import-Module $rm
     } else {
-        Write-Host " * $($computer_name) $rm Already Installed." -ForegroundColor Cyan
+        Write-Host " * $computer_name`: $rm Already Installed." -ForegroundColor Cyan
         Import-Module $rm
     }
 }
 #Get-WindowsFeature -Name RSAT-AD-PowerShell|Install-Windowsfeature 
 # [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+# Install-WindowsFeature Active Directory RSAT PowerShell Module
 if (!(Get-WindowsFeature -Name RSAT-AD-PowerShell)) {
+    Write-Host " * $computer_name`: Installing 'RSAT-AD-PowerShell'." -ForegroundColor Green
     Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
-}
+} else { Write-Host " * $computer_name`: 'RSAT-AD-PowerShell' Already Installed." -ForegroundColor Cyan }
 # Install-WindowsFeature GPMC
 if (!(Get-WindowsFeature -Name GPMC)) {
+    Write-Host " * $computer_name`: Installing 'GPMC'." -ForegroundColor Green
     Install-WindowsFeature -Name GPMC -IncludeAllSubFeature
-}
-#Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
+} else { Write-Host " * $computer_name`: 'GPMC' Already Installed." -ForegroundColor Cyan }
 #=============================================================================
 # Install AsHciADArtifactsPreCreationTool
 #=============================================================================
@@ -87,15 +105,15 @@ foreach ($rm in $required_modules) {
     $version = $rm.Split(":")[1]
     $getmod  = Get-Module -ListAvailable -Name $mod
     if (!($getmod)) {
-        Write-Host " * $($computer_name) Installing $mod Version $version." -ForegroundColor Green
+        Write-Host " * $computer_name`: Installing $mod Version $version." -ForegroundColor Green
         Install-Module $mod -AllowClobber -Confirm:$False -MinimumVersion $version -Force
         Import-Module $mod
     } elseif (!([Decimal]("$($getmod.Version.Major).$($getmod.Version.Minor)") -ge $version )) {
-        Write-Host " * $($computer_name) Installing $mod Version $version." -ForegroundColor Green
+        Write-Host " * $computer_name`: Installing $mod Version $version." -ForegroundColor Green
         Install-Module $mod -AllowClobber -Confirm:$False -MinimumVersion $version -Force
         Import-Module $mod
     } else {
-        Write-Host " * $($computer_name) $mod Already Installed." -ForegroundColor Cyan
+        Write-Host " * $computer_name`: $mod Already Installed." -ForegroundColor Cyan
         Import-Module $mod
     }
 }

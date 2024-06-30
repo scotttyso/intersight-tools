@@ -4,6 +4,10 @@ active_directory:
   azure_stack_ou: {{ active_directory.azure_stack_ou }}
   domain: {{ active_directory.domain }}
   domain_administrator: {{ active_directory.domain_administrator }}
+azure_stack:
+  region: <your-azure-cloud-region>
+  resource_group: <your-azure-cloud-resource_group>
+  tenant: <your-azure-cloud-tenant>
 clusters:
 {%- for e in clusters %}
   - cluster_name: {{e.name}}
@@ -12,12 +16,6 @@ clusters:
      - {{i.hostname}}.{{active_directory.domain}}
   {%- endfor %}
 {%- endfor %}
-{%- if file_share_witness %}
-file_share_witness:
-  host: {{file_share_witness.host}}
-  share_name: {{file_share_witness.share_name}}
-  type: domain
-{%- endif %}
 {%- if install_server %}
 install_server:
   drivers_cd_mount: '{{install_server.drivers_cd_mount}}\'

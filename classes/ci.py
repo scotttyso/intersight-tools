@@ -1772,7 +1772,7 @@ class wizard(object):
         # Add PowerShell scripts to the AzureStack directory and create zip
         #=====================================================================
         fpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3')
-        win_files = ['azs-hci-adprep.ps1', 'azs-hci-arcprep.ps1', 'azs-hci-hostprep.ps1', 'azs-hci-witness.ps1']
+        win_files = ['azs-hci-adprep.ps1', 'azs-hci-arc-reg.ps1']
         for file in win_files: shutil.copyfile(os.path.join(fpath, file), os.path.join(cwd, 'AzureStack', file))
         azs_file_name = 'azure_stack_hci_files'
         shutil.make_archive(os.path.join(cwd, azs_file_name), 'zip', os.path.join(cwd, 'AzureStack'))
