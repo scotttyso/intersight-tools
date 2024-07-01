@@ -935,7 +935,7 @@ class api(object):
                 kwargs.server_profiles[k].boot_order.enable_secure_boot = boot_moids[v.boot_order.moid].EnforceUefiSecureBoot
                 org = kwargs.org_names[boot_moids[v.boot_order.moid].Organization.Moid]
                 kwargs.server_profiles[k].boot_order.name = f'{org}/{boot_moids[v.boot_order.moid].Name}'
-                for e in boot_moids[e.Moid].BootDevices:
+                for e in boot_moids[v.boot_order.moid].BootDevices:
                     if e.ObjectType == 'san.Boot': kwargs.server_profiles[k].boot_order.wwpn_targets.append(DotMap(lun=e.Lun,slot=e.Slot,wwpn=e.Wwpn))
         #=====================================================================
         # Get iSCSI | vHBA | vNIC Identifiers
