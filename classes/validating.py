@@ -36,6 +36,9 @@ def begin_loop(ptype1, ptype2):
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
 def begin_section(ptype1, ptype2):
+    print(ptype1)
+    print(ptype2)
+    exit()
     ptype1 = mod_pol_description((ptype1.split('_')).title())
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.\n")
