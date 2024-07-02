@@ -40,7 +40,7 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 #=============================================================================
 # Check Environment for Required Variables
 #=============================================================================
-$environment_variables = @("azure_stack_subscription", "azure_stack_tenant", "windows_administrator_password")
+$environment_variables = @("azure_stack_subscription", "azure_stack_tenant")
 foreach ($req_env in $environment_variables) {
     if (!([Environment]::GetEnvironmentVariable($req_env))) {
         Write-Host ""
@@ -48,7 +48,6 @@ foreach ($req_env in $environment_variables) {
         Write-Host "  * `$env:azure_stack_subscription - Subscription for Azure" -ForegroundColor Green
         Write-Host "  * `$env:azure_stack_tenant - Tenant for Azure" -ForegroundColor Green
         Write-Host "  * `$env:proxy_password - Only Required if Using a Proxy Server with Authentication" -ForegroundColor Green
-        Write-Host "  * `$env:windows_administrator_password - Local Administrator Password for Azure Stack Hosts" -ForegroundColor Green
         Write-Host "...Exiting"
         Write-Host ""
         Exit 1
@@ -78,13 +77,13 @@ Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER)
 # Import YAML Data
 #=============================================================================
 $ydata      = Get-Content -Path $y | ConvertFrom-Yaml
-$password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
-$credential = New-Object System.Management.Automation.PSCredential ("Administrator",$password);
+#$password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
+#$credential = New-Object System.Management.Automation.PSCredential ("Administrator",$password);
+$credential = Get-Credential -Message "Enter Login Credentials"
 $global_node_list = [object[]] @()
 foreach ($cluster in $ydata.clusters) {
     foreach ($node in $cluster.members) { $global_node_list += $node }
 }
-Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
 #=============================================================================
 # Install PowerShell Modules
 #=============================================================================
@@ -182,7 +181,7 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
     #=========================================================================
     # Install PowerShell Modules
     #=========================================================================
-    $required_modules = @("PowerShellGet", "AzsHCI.ARCinstaller")
+    $required_modules = @("PowerShellGet", "Az.Accounts", "Az.Resources", "Az.ConnectedMachine", "AzsHCI.ARCinstaller")
     foreach ($rm in $required_modules) {
         if (!(Get-Module -ListAvailable -Name $rm)) {
             Write-Host " * $computer_name`: Installing '$rm'." -ForegroundColor Green
