@@ -1,18 +1,15 @@
 ---
 active_directory:
-  azure_stack_lcm_user: svc_azs_admin@ucs-spaces.lab
+  azure_stack_lcm_user: svc_azs_admin
   azure_stack_ou: AzureStackHCI
   domain: ucs-spaces.lab
-  domain_administrator: hciadmin@ucs-spaces.lab
+  domain_administrator: hciadmin
+azure_stack:
+  region: <your-azure-cloud-region>
+  resource_group: <your-azure-cloud-resource_group>
+  tenant: <your-azure-cloud-tenant>
 clusters:
   - cluster_name: cluster01
     members:
     - azs-cl01-host1.ucs-spaces.lab
     - azs-cl01-host2.ucs-spaces.lab
-file_share_witness:
-  host: witness.ucs-spaces.lab
-  share_name: \\witness.ucs-spaces.lab\file_share
-  type: domain
-proxy:
-  host: http://proxy.example.com:81
-  username: administrator

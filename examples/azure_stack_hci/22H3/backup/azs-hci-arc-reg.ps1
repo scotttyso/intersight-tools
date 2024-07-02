@@ -20,7 +20,7 @@ or implied.
     YAML Input File containing Cluster Parameters.   
 
 .EXAMPLE
-    azs-hci-arcprep.ps1 -y azs-answers.yaml
+    azs-hci-arcprep.ps1 -y azure.yaml
 #>
 #=============================================================================
 # YAML File is a Required Parameter
@@ -46,7 +46,6 @@ foreach ($req_env in $environment_variables) {
         Write-Host ""
         Write-Host "You Must Set the Following Environment Variables before Running This Script" -ForegroundColor Yellow
         Write-Host "  * `$env:azure_stack_subscription - Subscription for Azure" -ForegroundColor Green
-        Write-Host "  * `$env:azure_stack_tenant - Tenant for Azure" -ForegroundColor Green
         Write-Host "  * `$env:proxy_password - Only Required if Using a Proxy Server with Authentication" -ForegroundColor Green
         Write-Host "  * `$env:windows_administrator_password - Local Administrator Password for Azure Stack Hosts" -ForegroundColor Green
         Write-Host "...Exiting"
@@ -80,10 +79,12 @@ Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER)
 $ydata      = Get-Content -Path $y | ConvertFrom-Yaml
 $password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
 $credential = New-Object System.Management.Automation.PSCredential ("Administrator",$password);
+$client_list = [object[]] @()
 $global_node_list = [object[]] @()
 foreach ($cluster in $ydata.clusters) {
     foreach ($node in $cluster.members) { $global_node_list += $node }
 }
+$gwsman = Get-WSManCredSSP
 Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
 #=============================================================================
 # Install PowerShell Modules
@@ -166,6 +167,124 @@ Function LoginNodeList {
 }
 Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
+# Enable WSManCredSSP Client on Local Machine
+#=============================================================================
+foreach ($node in $global_node_list) {
+    $reg = [regex] "The machine is configured to $($node)"
+    if ($gwsman -match $reg) { $client_list += $node }
+}
+if (!($global_node_list.Length -eq $client_list.Length)) {
+    Write-Host "Enabling WSManCredSSP for Client List: $($global_node_list)" -ForegroundColor Yellow
+    Enable-WSManCredSSP -Role "Client" -DelegateComputer $global_node_list -Force | Out-Null
+} else {
+    Write-Host "WSManCredSSP Already Enabled for Client List: $($global_node_list)" -ForegroundColor Yellow
+}
+##=============================================================================
+## AzureStackHCI - Install AzStackHCI.EnvironmentChecker on Node1
+##=============================================================================
+#LoginNodeList -credential $credential -cssp $False -node_list @($global_node_list[0])
+#$sessions = Get-PSSession
+#$sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
+#$session_results = Invoke-Command $sessions -ScriptBlock {
+#    $computer_name = ([System.Net.DNS]::GetHostByName('').HostName).Split(".")[0]
+#    $ydata         = $Using:ydata
+#    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+#    #=============================================================================
+#    # Validate NuGet is Running Minimum Version 2.8.5.201
+#    #=============================================================================
+#    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Confirm:$False -Force
+#    #=========================================================================
+#    # Install PowerShell Modules
+#    #=========================================================================
+#    $required_modules = @("PowerShellGet", "AzStackHci.EnvironmentChecker")
+#    foreach ($rm in $required_modules) {
+#        if (!(Get-Module -ListAvailable -Name $rm)) {
+#            Write-Host " * $computer_name`: Installing '$rm'." -ForegroundColor Green
+#            Install-Module $rm -AllowClobber -Confirm:$False -Force
+#        } else { Write-Host " * $computer_name`: '$rm' Already Installed." -ForegroundColor Cyan }
+#    }
+#    Return New-Object PsObject -property @{completed=$True}
+#}
+##=============================================================================
+## Setup Environment for Next Loop; Sleep 10 Minutes if reboot_count gt 0
+##=============================================================================
+#Get-PSSession | Remove-PSSession | Out-Null
+#$nrc = NodeAndRebootCheck -session_results $session_results -node_list @($global_node_list[0])
+##=============================================================================
+## AzureStackHCI - Connectivity Readiness Check
+##=============================================================================
+#LoginNodeList -credential $credential -cssp $False -node_list @($global_node_list[0])
+#$sessions = Get-PSSession
+#$sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
+#if (!($ydata.proxy)) { $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions
+#} else {
+#    if ($proxy_creds) {
+#        $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host -ProxyCredential $proxy_creds
+#    } else { $session_results = Invoke-AzStackHciConnectivityValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host }
+#}
+#$test_success = $True
+#foreach ($result in $session_results) {
+#    foreach($data in $result.AdditionalData) {
+#        if ($data.PSComputerName) { $cluster_host = $data.PSComputerName
+#        } else {$cluster_host = $data.Source }
+#        if ($result.Status -eq "Succeeded") {
+#            Write-Host "$cluster_host Result: $($result.Status) Test: $($result.Name)" -ForegroundColor Green
+#        } else {
+#            Write-Host "$cluster_host Result: $($result.Status) Test: $($result.Name)" -ForegroundColor Red
+#            Write-Host "Test Description: $($result.Description)" -ForegroundColor Cyan
+#            Write-Host "Test Additional Data: $($result.AdditionalData)" -ForegroundColor Cyan
+#            Write-Host "Recommended Steps to Remediate: $($result.Remediation)" -ForegroundColor Cyan
+#            Write-Host "For Further Assistance from Microsoft Refer to the following URL:" -ForegroundColor Yellow
+#            Write-Host "https://learn.microsoft.com/en-us/azure-stack/hci/manage/use-environment-checker?tabs=connectivity" -ForegroundColor Yellow
+#            $test_success = $False
+#        }
+#    }
+#}
+#if ($test_success -eq $False) {
+#    Write-Host "Closing Environment...Exiting Script." -ForegroundColor Yellow
+#    Stop-Transcript
+#    Exit 1
+#}
+##=============================================================================
+## AzureStackHCI - Hardware Readiness Check
+##=============================================================================
+#if (!($ydata.proxy)) { $session_results = Invoke-AzStackHciHardwareValidation -PassThru -PsSession $sessions
+#} else {
+#    if ($proxy_creds) {
+#        $session_results = Invoke-AzStackHciHardwareValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host -ProxyCredential $proxy_creds
+#    } else { $session_results = Invoke-AzStackHciHardwareValidation -PassThru -PsSession $sessions -Proxy $ydata.proxy.host }
+#}
+#$test_success = $True
+#foreach ($result in $session_results) {
+#    $cluster_host = $result.TargetResourceID
+#    if ($result.Status -eq "Succeeded") {
+#        Write-Host "$cluster_host Result: $($result.Status) Test: $($result.Name)" -ForegroundColor Green
+#    } elseif ($result.Severity -eq "Warning") {
+#        Write-Host "$cluster_host Result: $($result.Status) Test: $($result.Name)" -ForegroundColor Yellow
+#        Write-Host "Test Description: $($result.Description)" -ForegroundColor Cyan
+#        Write-Host "Test Additional Data: $($result.AdditionalData)" -ForegroundColor Cyan
+#        Write-Host "Recommended Steps to Remediate: $($result.Remediation)" -ForegroundColor Cyan
+#    } else {
+#        Write-Host "$cluster_host Result: $($result.Status) Test: $($result.Name)" -ForegroundColor Red
+#        Write-Host "Test Description: $($result.Description)" -ForegroundColor Cyan
+#        Write-Host "Test Additional Data: $($result.AdditionalData)" -ForegroundColor Cyan
+#        Write-Host "Recommended Steps to Remediate: $($result.Remediation)" -ForegroundColor Cyan
+#        Write-Host "For Further Assistance from Microsoft Refer to the following URL:" -ForegroundColor Yellow
+#        Write-Host "https://learn.microsoft.com/en-us/azure-stack/hci/manage/use-environment-checker?tabs=hardware"-ForegroundColor Yellow
+#        Write-Host ($result | Format-Table | Out-String)
+#        $test_success = $False
+#    }
+#}
+##=============================================================================
+## Setup Environment for Next Loop; Sleep 10 Minutes if reboot_count gt 0
+##=============================================================================
+#if ($test_success -eq $False) {
+#    Write-Host "Closing Environment...Exiting Script." -ForegroundColor Yellow
+#    Stop-Transcript
+#    Exit 1
+#}
+Get-PSSession | Remove-PSSession | Out-Null
+#=============================================================================
 # Install Modules and Register with Azure Arc
 #=============================================================================
 LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
@@ -182,7 +301,7 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
     #=========================================================================
     # Install PowerShell Modules
     #=========================================================================
-    $required_modules = @("PowerShellGet", "AzsHCI.ARCinstaller")
+    $required_modules = @("PowerShellGet")
     foreach ($rm in $required_modules) {
         if (!(Get-Module -ListAvailable -Name $rm)) {
             Write-Host " * $computer_name`: Installing '$rm'." -ForegroundColor Green
@@ -190,6 +309,27 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
             Import-Module $rm
         } else {
             Write-Host " * $computer_name`: '$rm' Already Installed." -ForegroundColor Cyan
+            Import-Module $rm
+        }
+    }
+    # Install-WindowsFeature Active Directory RSAT PowerShell Module
+    if (!(Get-WindowsFeature -Name RSAT-AD-PowerShell)) {
+        Write-Host " * $computer_name`: Installing 'RSAT-AD-PowerShell'." -ForegroundColor Green
+        Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
+    } else { Write-Host " * $computer_name`: 'RSAT-AD-PowerShell' Already Installed." -ForegroundColor Cyan }
+    # Install-WindowsFeature GPMC
+    if (!(Get-WindowsFeature -Name GPMC)) {
+        Write-Host " * $computer_name`: Installing 'GPMC'." -ForegroundColor Green
+        Install-WindowsFeature -Name GPMC -IncludeAllSubFeature
+    } else { Write-Host " * $computer_name`: 'GPMC' Already Installed." -ForegroundColor Cyan }
+    $required_modules = @("AzsHCI.ARCinstaller")
+    foreach ($rm in $required_modules) {
+        if (!(Get-Module -ListAvailable -Name $rm)) {
+            Write-Host " * $computer_name`: Installing $rm." -ForegroundColor Green
+            Install-Module $rm -AllowClobber -Confirm:$False -Force
+            Import-Module $rm
+        } else {
+            Write-Host " * $computer_name`: $rm Already Installed." -ForegroundColor Cyan
             Import-Module $rm
         }
     }
@@ -213,6 +353,27 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
     Get-Disk | Where-Object Number -Ne $Null | Where-Object IsBoot -Ne $True | Where-Object IsSystem -Ne $True | Where-Object PartitionStyle -Eq RAW | 
         Group-Object -NoElement -Property FriendlyName | Format-Table
     #=========================================================================
+    # Register Host with Azure Arc
+    #=========================================================================
+    $region = $ydata.azure_stack.region
+    $RG     = $ydata.azure_stack.resource_group
+    $SUB    = $Using:azure_subscription
+    $TNT    = $Using:azure_tenant
+    Connect-AzAccount -SubscriptionID $SUB -TenantId $TNT -DeviceCode
+    $ARMtoken  = (Get-AzAccessToken).Token
+    $id        = (Get-AzContext).Account.Id
+    if (!($ydata.proxy)) {
+        Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
+            -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id
+    } else {
+        if ($Using:proxy_creds) {
+            Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
+                -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id -Proxy $ydata.proxy.host -ProxyCredential $Using:proxy_creds
+        } else {
+            Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
+                -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id -Proxy $ydata.proxy.host }
+    }
+    #=========================================================================
     # Install Microsoft-Hyper-V
     #=========================================================================
     $reboot = $False
@@ -233,46 +394,63 @@ if ($nrc.reboot_count -gt 0) {
     Start-Sleep -Seconds 600
 }
 #=============================================================================
-# Install Modules and Register with Azure Arc
+# Disable CredSSP on Hosts
 #=============================================================================
 LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession
-$sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
-$session_results = Invoke-Command $sessions -ScriptBlock {
+$session_results = Invoke-Command $sessions -scriptblock {
     $computer_name = ([System.Net.DNS]::GetHostByName('').HostName).Split(".")[0]
-    $ydata = $Using:ydata
-    #=========================================================================
-    # Register Host with Azure Arc
-    #=========================================================================
-    $region = $ydata.azure_stack.region
-    $RG     = $ydata.azure_stack.resource_group
-    $SUB    = $Using:azure_subscription
-    $TNT    = $Using:azure_tenant
-    Update-AzConfig -EnableLoginByWam $false
-    Connect-AzAccount -SubscriptionID $SUB -TenantId $TNT -DeviceCode
-    $ARMtoken  = (Get-AzAccessToken).Token
-    $id        = (Get-AzContext).Account.Id
-    if (!($ydata.proxy)) {
-        Write-Host " * $computer_name`: Registering with Azure ARC." -ForegroundColor Cyan
-        Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
-            -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id
-    } else {
-        if ($Using:proxy_creds) {
-            Write-Host " * $computer_name`: Registering with Azure ARC." -ForegroundColor Cyan
-            Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
-                -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id -Proxy $ydata.proxy.host -ProxyCredential $Using:proxy_creds
-        } else {
-            Write-Host " * $computer_name`: Registering with Azure ARC." -ForegroundColor Cyan
-            Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
-                -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id -Proxy $ydata.proxy.host }
+    Write-Host "$computer_name`: Beginning Disable Check of CredSSP." -ForegroundColor Yellow
+    Disable-WSManCredSSP -Role Server | Out-Null
+    $gwsman = Get-WSManCredSSP
+    if (!($gwsman -match "This computer is not configured to receive credentials from a remote client computer")) {
+        Write-Host "$computer_name`: Failed to Disable WSMan Credentials." -ForegroundColor Red
+        Return New-Object PsObject -property @{completed=$False;reboot=$False}
     }
-    Return New-Object PsObject -property @{completed=$True;reboot=$reboot}
+    Write-Host "$computer_name`: Completed Disable Check of CredSSP." -ForegroundColor Yellow
+    Return New-Object PsObject -property @{completed=$True;reboot=$False}
 }
 #=============================================================================
 # Clean Up the Environment - Close Sessions and Exit
 #=============================================================================
 Get-PSSession | Remove-PSSession | Out-Null
 $nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
-Write-Host " * $computer_name`: Script Complete.  Closing Environment." -ForegroundColor Green
+#=============================================================================
+# Clean Up the Environment - Remove AzStackHci.EnvironmentChecker
+#=============================================================================
+Write-Host ""
+Write-Host "The Script is finished and you will no longer need 'AzStackHci.EnvironmentChecker'.  Do you want to remove the Module?" -ForegroundColor Yellow
+Write-Host ""
+$answer = Read-Host "Please enter 'Y' or 'N'"
+if ($answer -eq 'Y') {
+    LoginNodeList -credential $credential -cssp $False -node_list @($global_node_list[0])
+    $sessions = Get-PSSession
+    $sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
+    $session_results = Invoke-Command $sessions -ScriptBlock {
+        $computer_name = ([System.Net.DNS]::GetHostByName('').HostName).Split(".")[0]
+        Write-Host ""
+        Write-Host "$computer_name`: Removing 'AzStackHci.EnvironmentChecker' Module." -ForegroundColor Green
+        Write-Host ""
+        Remove-Module AzStackHci.EnvironmentChecker -Force
+        Get-Module AzStackHci.EnvironmentChecker -ListAvailable | Where-Object {$_.Path -like "*$($_.Version)*"} | Uninstall-Module -force
+        Return New-Object PsObject -property @{completed=$True;reboot=$False}
+    }
+    #=============================================================================
+    # Clean Up the Environment - Close Sessions and Exit
+    #=============================================================================
+    Get-PSSession | Remove-PSSession | Out-Null
+    $nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
+
+} else {
+    Write-Host ""
+    Write-Host "Skipping 'AzStackHci.EnvironmentChecker' Module Removal." -ForegroundColor Green
+    Write-Host ""
+}
+#=============================================================================
+# Clean Up the Environment - Close Sessions and Exit
+#=============================================================================
+Get-PSSession | Remove-PSSession | Out-Null
+$nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 Stop-Transcript
+Disable-WSManCredSSP -Role "Client" | Out-Null
 Exit 0
