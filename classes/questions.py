@@ -400,7 +400,7 @@ class os_install(object):
             valid_confirm = False
             while valid_confirm == False:
                 kwargs.jdata             = deepcopy(kwargs.ezwizard.setup.properties.sw_repo_os_cfg_add)
-                kwargs.jdata.default     = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3', 'AzureStackHCIIntersight.xml')
+                kwargs.jdata.default     = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '23H2', 'AzureStackHCIIntersight.xml')
                 answer                   = ezfunctions.variable_prompt(kwargs)
                 kwargs.jdata             = deepcopy(kwargs.ezwizard.setup.properties.sw_repo_os_cfg_add_confirm)
                 kwargs.jdata.description = f'"{answer}"\n-\n\n Please Confirm the Path above is Correct.'

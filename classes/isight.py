@@ -2088,7 +2088,7 @@ class imm(object):
                 #=============================================================
                 if type(v.install_interface) == str:
                     for a,b in v.adapters.items():
-                        vnic = [DotMap(name = c, mac = d.mac_address) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface]
+                        vnic = [DotMap(name = c, mac = d.mac_address, slot = d.pci_slot) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface]
                 if v.boot_volume.lower() == 'san':
                     if count % 2 == 0: kwargs.wwpn_index = 0; kwargs.san_target = v.boot_order.wwpn_targets[0]
                     else:

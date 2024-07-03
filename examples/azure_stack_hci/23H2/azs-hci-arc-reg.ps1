@@ -22,6 +22,7 @@ or implied.
 .EXAMPLE
     azs-hci-arcprep.ps1 -y azs-answers.yaml
 #>
+vim Intersight/wizard/setup.yaml
 #=============================================================================
 # YAML File is a Required Parameter
 # Pull in YAML Content
@@ -40,14 +41,15 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 #=============================================================================
 # Check Environment for Required Variables
 #=============================================================================
-$environment_variables = @("azure_stack_subscription", "azure_stack_tenant")
+$environment_variables = @("azure_stack_subscription", "azure_stack_tenant", "windows_administrator_password")
 foreach ($req_env in $environment_variables) {
     if (!([Environment]::GetEnvironmentVariable($req_env))) {
         Write-Host ""
         Write-Host "You Must Set the Following Environment Variables before Running This Script" -ForegroundColor Yellow
-        Write-Host "  * `$env:azure_stack_subscription - Subscription for Azure" -ForegroundColor Green
-        Write-Host "  * `$env:azure_stack_tenant - Tenant for Azure" -ForegroundColor Green
-        Write-Host "  * `$env:proxy_password - Only Required if Using a Proxy Server with Authentication" -ForegroundColor Green
+        Write-Host "  * `$env:azure_stack_subscription=`"<your_subscription>`" - Subscription for Azure" -ForegroundColor Green
+        Write-Host "  * `$env:azure_stack_tenant=`"<your_subscription>`" - Tenant for Azure" -ForegroundColor Green
+        Write-Host "  * `$env:proxy_password=`"<proxy_password>`" - Only Required if Using a Proxy Server with Authentication" -ForegroundColor Green
+        Write-Host "  * `$env:windows_administrator_password=`"<local_administrator_password>`" - Azure Stack Local Administrator Password" -ForegroundColor Green
         Write-Host "...Exiting"
         Write-Host ""
         Exit 1
@@ -76,14 +78,9 @@ Start-Transcript -Path ".\Logs\$(get-date -f "yyyy-MM-dd_HH-mm-ss")_$($env:USER)
 #=============================================================================
 # Import YAML Data
 #=============================================================================
-$ydata      = Get-Content -Path $y | ConvertFrom-Yaml
-#$password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
-#$credential = New-Object System.Management.Automation.PSCredential ("Administrator",$password);
-$credential = Get-Credential -Message "Enter Login Credentials"
 $global_node_list = [object[]] @()
-foreach ($cluster in $ydata.clusters) {
-    foreach ($node in $cluster.members) { $global_node_list += $node }
-}
+$ydata            = Get-Content -Path $y | ConvertFrom-Yaml
+foreach ($cluster in $ydata.clusters) { foreach ($node in $cluster.members) { $global_node_list += $node } }
 #=============================================================================
 # Install PowerShell Modules
 #=============================================================================
@@ -138,11 +135,15 @@ Function NodeAndRebootCheck {
 # Function: Login to AzureStack HCI Node List
 #=============================================================================
 Function LoginNodeList {
-    Param([pscredential]$credential, [string]$cssp, [array]$node_list)
+    Param([string]$cssp, [array]$node_list)
+    #Param([pscredential]$credential, [string]$cssp, [array]$node_list)
     if ($credssp -eq $True) {
         try {
             foreach ($node in $node_list) {
                 Write-Host "Logging into Host $($node)" -ForegroundColor Yellow
+                $hostname   = $node.split("@")[0]
+                $password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
+                $credential = New-Object System.Management.Automation.PSCredential ("$hostname\Administrator",$password);
                 New-PSSession -ComputerName $node -Credential $credential -Authentication Credssp | Out-Null
             }
         } catch {
@@ -154,6 +155,9 @@ Function LoginNodeList {
         try {
             foreach ($node in $node_list) {
                 Write-Host "Logging into Host $($node)" -ForegroundColor Yellow
+                $hostname   = $node.split("@")[0]
+                $password   = ConvertTo-SecureString $env:windows_administrator_password -AsPlainText -Force;
+                $credential = New-Object System.Management.Automation.PSCredential ("$hostname\Administrator",$password);
                 New-PSSession -ComputerName $node -Credential $credential | Out-Null
             }
         } catch {
@@ -167,7 +171,7 @@ Get-PSSession | Remove-PSSession | Out-Null
 #=============================================================================
 # Install Modules and Register with Azure Arc
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
+LoginNodeList -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession
 $sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
 $session_results = Invoke-Command $sessions -ScriptBlock {
@@ -234,12 +238,18 @@ if ($nrc.reboot_count -gt 0) {
 #=============================================================================
 # Install Modules and Register with Azure Arc
 #=============================================================================
-LoginNodeList -credential $credential -cssp $False -node_list $global_node_list
+LoginNodeList -cssp $False -node_list $global_node_list
 $sessions = Get-PSSession
 $sessions | Format-Table | Out-String|ForEach-Object {Write-Host $_}
 $session_results = Invoke-Command $sessions -ScriptBlock {
     $computer_name = ([System.Net.DNS]::GetHostByName('').HostName).Split(".")[0]
     $ydata = $Using:ydata
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    #=========================================================================
+    # Import PowerShell Modules
+    #=========================================================================
+    $required_modules = @("Az.Accounts", "Az.Resources", "Az.ConnectedMachine", "AzsHCI.ARCinstaller")
+    foreach ($rm in $required_modules) { Import-Module $rm }
     #=========================================================================
     # Register Host with Azure Arc
     #=========================================================================
@@ -247,7 +257,7 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
     $RG     = $ydata.azure_stack.resource_group
     $SUB    = $Using:azure_subscription
     $TNT    = $Using:azure_tenant
-    Update-AzConfig -EnableLoginByWam $false
+    Update-AzConfig -EnableLoginByWam $False
     Connect-AzAccount -SubscriptionID $SUB -TenantId $TNT -DeviceCode
     $ARMtoken  = (Get-AzAccessToken).Token
     $id        = (Get-AzContext).Account.Id
@@ -255,23 +265,25 @@ $session_results = Invoke-Command $sessions -ScriptBlock {
         Write-Host " * $computer_name`: Registering with Azure ARC." -ForegroundColor Cyan
         Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
             -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id
+        Write-Host " * $computer_name`: Completed Registration with Azure ARC.  Review Output to Confirm Successful Registration." -ForegroundColor Green
     } else {
         if ($Using:proxy_creds) {
             Write-Host " * $computer_name`: Registering with Azure ARC." -ForegroundColor Cyan
             Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
                 -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id -Proxy $ydata.proxy.host -ProxyCredential $Using:proxy_creds
+            Write-Host " * $computer_name`: Completed Registration with Azure ARC.  Review Output to Confirm Successful Registration." -ForegroundColor Green
         } else {
             Write-Host " * $computer_name`: Registering with Azure ARC." -ForegroundColor Cyan
             Invoke-AzStackHciArcInitialization -SubscriptionID $SUB -ResourceGroup $RG -TenantID $TNT -Region $region `
                 -Cloud "AzureCloud" -ArmAccessToken $ARMtoken -AccountID $id -Proxy $ydata.proxy.host }
-    }
+            Write-Host " * $computer_name`: Completed Registration with Azure ARC.  Review Output to Confirm Successful Registration." -ForegroundColor Green
+        }
+    Update-AzConfig -EnableLoginByWam $True
     Return New-Object PsObject -property @{completed=$True;reboot=$reboot}
 }
 #=============================================================================
-# Clean Up the Environment - Close Sessions and Exit
+# Cleanup the Script
 #=============================================================================
-Get-PSSession | Remove-PSSession | Out-Null
-$nrc = NodeAndRebootCheck -session_results $session_results -node_list $global_node_list
 Write-Host " * $computer_name`: Script Complete.  Closing Environment." -ForegroundColor Green
 Stop-Transcript
 Exit 0

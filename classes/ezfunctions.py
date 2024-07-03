@@ -589,6 +589,11 @@ def installation_body(v, kwargs):
 # Function - Build api_body for Operating System Installation - Azure Stack
 #=============================================================================
 def installation_body_azure_stack(v, kwargs):
+    vnics = []
+    for a,b in v.adapters.items():
+        bkeys = list(b.keys())
+        if 'eth_ifs' in bkeys: vnics.append(b.adapter_id)
+    vnics.sort()
     api_body = {
         'AdditionalParameters': [],
         'Answers': {'Source': 'Template'},
@@ -603,12 +608,15 @@ def installation_body_azure_stack(v, kwargs):
         'Server': {'Moid': v.hardware_moid, 'ObjectType': v.object_type}}
     ad = kwargs.imm_dict.wizard.azure_stack[0].active_directory
     answers_dict = {
-        '.azure_stack_ou': f'OU={ad.azure_stack_ou},DC=' + ad.domain.replace('.', ',DC='),
-        '.domain': ad.domain,
-        '.azure_stack_lcm_user': ad.azure_stack_lcm_user.split('@')[0],
+        #'.azure_stack_ou': f'OU={ad.azure_stack_ou},DC=' + ad.domain.replace('.', ',DC='),
+        #'.domain': ad.domain,
+        #'.azure_stack_lcm_user': ad.azure_stack_lcm_user.split('@')[0],
         '.hostname': v.name,
+        '.interface_1_identifier': f'SlotID {vnics[0]} Port 1',
+        '.interface_2_identifier': f'SlotID {vnics[0]} Port 2',
+        '.ntp_server': kwargs.ntp_servers[0],
         '.organization': kwargs.imm_dict.wizard.azure_stack[0].organization,
-        '.secure.azure_stack_lcm_password': kwargs.azure_stack_lcm_password,
+        #'.secure.azure_stack_lcm_password': kwargs.azure_stack_lcm_password,
         '.secure.local_administrator_password': kwargs.local_administrator_password,
         #'.macAddressNic1_dash_format': mac_a,
         #'.macAddressNic2_dash_format': mac_b
@@ -616,10 +624,10 @@ def installation_body_azure_stack(v, kwargs):
         '.input_locale': kwargs.language.input_locale,
         '.language_pack': kwargs.language.ui_language,
         '.layered_driver': kwargs.language.layered_driver,
-        '.secondary_language': kwargs.language.secondary_language,
+        '.secondary_language': kwargs.language.secondary_language}
         # Timezone Configuration
-        '.disable_daylight_savings': kwargs.disable_daylight,
-        '.timezone': kwargs.windows_timezone}
+        #'.disable_daylight_savings': kwargs.disable_daylight,
+        #'.timezone': kwargs.windows_timezone}
     answers_dict = dict(sorted(answers_dict.items()))
     for e in ['layered_driver', 'secondary_language']:
         if kwargs.language[e] == '': answers_dict.pop(f'.{e}')
@@ -941,7 +949,7 @@ def mod_pol_description(pol_description):
     pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
     pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
-    pdescr = ((pdescr.replace('Vnics', 'vNICs')).replace('Vhbas', 'vHBAs')).replace('Vlan', 'VLAN')
+    pdescr = (((pdescr.replace('Vnics', 'vNICs')).replace('Vhbas', 'vHBAs')).replace('Vlan', 'VLAN')).replace('Os Install', 'OS')
     return pdescr
 
 #=============================================================================

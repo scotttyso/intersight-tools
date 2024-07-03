@@ -1699,7 +1699,7 @@ class wizard(object):
         cwd = os.getcwd()
         if os.path.exists(os.path.join(cwd, 'azure_stack_hci_files.zip')): os.remove(os.path.join(cwd, 'azure_stack_hci_files.zip'))
         if not os.path.exists(os.path.join(cwd, 'AzureStack')): os.makedirs(os.path.join(cwd, 'AzureStack'))
-        tloader  = jinja2.FileSystemLoader(searchpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3'))
+        tloader  = jinja2.FileSystemLoader(searchpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '23H2'))
         tenviro  = jinja2.Environment(loader=tloader, autoescape=True)
         if kwargs.imm_dict.wizard.install_source == 'wds':
             for e in ['azure_stack_lcm_password', 'local_administrator_password', 'windows_domain_password']:
@@ -1771,7 +1771,7 @@ class wizard(object):
         #=====================================================================
         # Add PowerShell scripts to the AzureStack directory and create zip
         #=====================================================================
-        fpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '22H3')
+        fpath = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '23H2')
         win_files = ['azs-hci-adprep.ps1', 'azs-hci-arc-reg.ps1']
         for file in win_files: shutil.copyfile(os.path.join(fpath, file), os.path.join(cwd, 'AzureStack', file))
         azs_file_name = 'azure_stack_hci_files'
