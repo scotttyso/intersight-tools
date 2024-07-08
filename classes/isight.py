@@ -2003,6 +2003,47 @@ class imm(object):
     #=========================================================================
     # Function - Build Policies - BIOS
     #=========================================================================
+    def os_cfg_azure_stack(self, kwargs):
+        #=====================================================================
+        # Load Windows Languages and Timezone
+        #=====================================================================
+        #windows_language = DotMap(language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
+        #                          layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver)
+        windows_language = DotMap(language_pack = 'English - United States', layered_driver = 0)
+        kwargs = ezfunctions.windows_languages(windows_language, kwargs)
+        kwargs = ezfunctions.windows_timezones(kwargs)
+        #=====================================================================
+        # Upload the Operating System Configuration File
+        #=====================================================================
+        answer        = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '23H2', 'AzureStackHCIIntersight.xml')
+        vsplist       = (kwargs.os_version.name.split(' '))
+        version       = f'{vsplist[0]}{vsplist[2]}'
+        ctemplate     = answer.split(os.sep)[-1]
+        template_name = version + '-' + ctemplate.split('_')[0]
+        kwargs.os_config_template = template_name
+        if not kwargs.distributions.get(version):
+            kwargs = kwargs | DotMap(api_filter = f"Version eq '{kwargs.os_version.name}'", build_skip = True, method = 'get', uri = 'hcl/OperatingSystems')
+            kwargs = api('hcl_operating_system').calls(kwargs)
+            kwargs.distributions[version].moid = kwargs.results[0].Moid
+        kwargs.distribution_moid = kwargs.distributions[version].moid
+        file_content = (open(os.path.join(answer), 'r')).read()
+        for e in ['LayeredDriver:layered_driver', 'UILanguageFallback:secondary_language']:
+            elist = e.split(':')
+            rstring = '%s<%s>{{ .%s }}</%s>\n' % (" "*12, elist[0], elist[1], elist[0])
+            if kwargs.language[elist[1]] == '': file_content = file_content.replace(rstring, '')
+        kwargs.file_content = file_content
+        kwargs = kwargs | DotMap(api_body = ezfunctions.os_configuration_file(kwargs), method = 'post', uri = 'os/ConfigurationFiles')
+        kwargs = api('os_configuration').calls(kwargs)
+        kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
+        kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
+        #=====================================================================
+        # Return kwargs
+        #=====================================================================
+        return kwargs
+
+    #=========================================================================
+    # Function - Build Policies - BIOS
+    #=========================================================================
     def os_install(self, kwargs):
         #=====================================================================
         # Load Variables and Send Begin Notification
@@ -2056,11 +2097,12 @@ class imm(object):
                 kwargs[e] = kwargs.var_value
             return kwargs
         if install_flag == True and kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'azure_stack':
-            windows_language = DotMap(language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
-                                      layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver)
-            kwargs = ezfunctions.windows_languages(windows_language, kwargs)
-            kwargs = ezfunctions.windows_timezones(kwargs)
-            kwargs = sensitive_list_check(['azure_stack_lcm_password', 'local_administrator_password'], kwargs)
+            kwargs.os_version = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[0].os_version
+            # kwargs = sensitive_list_check(['azure_stack_lcm_password', 'local_administrator_password'], kwargs)
+            kwargs = sensitive_list_check(['local_administrator_password'], kwargs)
+            kwargs = imm('azure_stack').os_cfg_azure_stack(kwargs)
+            for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
+                kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration = kwargs.os_cfg_moid
         elif install_flag == True and kwargs.script_name == 'ezci':
             kwargs = sensitive_list_check(['vmware_esxi_password'], kwargs)
         #=====================================================================
