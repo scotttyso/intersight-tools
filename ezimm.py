@@ -346,7 +346,12 @@ def menu(kwargs):
     elif kwargs.deployment_type == 'Convert': kwargs = imm_transition(kwargs); return kwargs
     kwargs = questions.main_menu.previous_configuration(kwargs)
     if   kwargs.deployment_type == 'StateUpdate': kwargs = terraform.state('state_update').state_import(kwargs); return kwargs
-    elif kwargs.deployment_type == 'Deploy': kwargs = isight.imm.deploy(kwargs); return kwargs
+    elif kwargs.deployment_type == 'Deploy':
+        kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
+        kwargs = isight.api('organization').organizations(kwargs)
+        kwargs = isight.imm.deploy(kwargs); return kwargs
+    else:
+        kwargs = isight.api('organization').all_organizations(kwargs)
     kwargs.main_menu_list = []
     #=========================================================================
     # Prompt User with Questions
@@ -412,7 +417,6 @@ def main():
     #=========================================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
     #=========================================================================
     # Prompt User for Main Menu
     #=========================================================================

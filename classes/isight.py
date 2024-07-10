@@ -227,6 +227,7 @@ class api(object):
             #=================================================================
             # Perform the apiCall
             #=================================================================
+            if type(kwargs.api_body) == kwargs.type_dotmap: kwargs.api_body = kwargs.api_body.toDict()
             aargs   = kwargs.api_args
             aauth   = kwargs.api_auth
             method  = kwargs.method
@@ -289,10 +290,10 @@ class api(object):
             api_results = DotMap(response.json())
             if int(debug_level) >= 1: pcolor.Cyan(f'RESPONSE: {str(response)}')
             if int(debug_level)>= 5:
-                if   method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
-                elif method ==         'get': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}{aargs}')
-                elif method ==       'patch': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}/{moid}')
-                elif method ==        'post': pcolor.Cyan(f'URL:      {url}/api/v1/{uri}')
+                if   method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method ==         'get': pcolor.Cyan(f'URL:      {url}/{uri}{aargs}')
+                elif method ==       'patch': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method ==        'post': pcolor.Cyan(f'URL:      {url}/{uri}')
             if int(debug_level) >= 6:
                 pcolor.Cyan('HEADERS:')
                 pcolor.Cyan(json.dumps(dict(response.headers), indent=4))
@@ -1041,15 +1042,13 @@ class api(object):
     def organizations(self, kwargs):
         kwargs = kwargs | DotMap(method = 'get', names = kwargs.orgs, uri = 'resource/Groups')
         kwargs = api('resource_group').calls(kwargs)
-        kwargs.rsg_moids   = kwargs.pmoids
-        kwargs.rsg_results = kwargs.results
+        kwargs = kwargs | DotMap(rsg_moids = kwargs.pmoids, rsg_results = kwargs.results)
         #=====================================================================
         # Get Organization List from the API
         #=====================================================================
-        kwargs = kwargs | DotMap(method = 'get', names = kwargs.orgs, uri = 'resource/Groups')
+        kwargs = kwargs | DotMap(method = 'get', names = kwargs.orgs, uri = 'organization/Organizations')
         kwargs = api('organization').calls(kwargs)
-        kwargs.org_moids   = kwargs.pmoids
-        kwargs.org_results = kwargs.results
+        kwargs = kwargs | DotMap(org_moids = kwargs.pmoids, org_results = kwargs.results)
         org_keys = list(kwargs.org_moids.keys())
         for org in kwargs.orgs:
             create_rsg = False
@@ -2003,47 +2002,6 @@ class imm(object):
     #=========================================================================
     # Function - Build Policies - BIOS
     #=========================================================================
-    def os_cfg_azure_stack(self, kwargs):
-        #=====================================================================
-        # Load Windows Languages and Timezone
-        #=====================================================================
-        #windows_language = DotMap(language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
-        #                          layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver)
-        windows_language = DotMap(language_pack = 'English - United States', layered_driver = 0)
-        kwargs = ezfunctions.windows_languages(windows_language, kwargs)
-        kwargs = ezfunctions.windows_timezones(kwargs)
-        #=====================================================================
-        # Upload the Operating System Configuration File
-        #=====================================================================
-        answer        = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '23H2', 'AzureStackHCIIntersight.xml')
-        vsplist       = (kwargs.os_version.name.split(' '))
-        version       = f'{vsplist[0]}{vsplist[2]}'
-        ctemplate     = answer.split(os.sep)[-1]
-        template_name = version + '-' + ctemplate.split('_')[0]
-        kwargs.os_config_template = template_name
-        if not kwargs.distributions.get(version):
-            kwargs = kwargs | DotMap(api_filter = f"Version eq '{kwargs.os_version.name}'", build_skip = True, method = 'get', uri = 'hcl/OperatingSystems')
-            kwargs = api('hcl_operating_system').calls(kwargs)
-            kwargs.distributions[version].moid = kwargs.results[0].Moid
-        kwargs.distribution_moid = kwargs.distributions[version].moid
-        file_content = (open(os.path.join(answer), 'r')).read()
-        for e in ['LayeredDriver:layered_driver', 'UILanguageFallback:secondary_language']:
-            elist = e.split(':')
-            rstring = '%s<%s>{{ .%s }}</%s>\n' % (" "*12, elist[0], elist[1], elist[0])
-            if kwargs.language[elist[1]] == '': file_content = file_content.replace(rstring, '')
-        kwargs.file_content = file_content
-        kwargs = kwargs | DotMap(api_body = ezfunctions.os_configuration_file(kwargs), method = 'post', uri = 'os/ConfigurationFiles')
-        kwargs = api('os_configuration').calls(kwargs)
-        kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
-        kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
-        #=====================================================================
-        # Return kwargs
-        #=====================================================================
-        return kwargs
-
-    #=========================================================================
-    # Function - Build Policies - BIOS
-    #=========================================================================
     def os_install(self, kwargs):
         #=====================================================================
         # Load Variables and Send Begin Notification
@@ -2096,6 +2054,17 @@ class imm(object):
                 kwargs = ezfunctions.sensitive_var_value(kwargs)
                 kwargs[e] = kwargs.var_value
             return kwargs
+        #=====================================================================
+        # Get Software Repository Data - If os_install is True
+        #=====================================================================
+        if install_flag == True:
+            kwargs = software_repository('os_cfg').os_configuration(kwargs)
+            kwargs = software_repository('scu').scu(kwargs)
+            for e in kwargs.os_cfg_results: kwargs.os_cfg_moids[e.Moid] = e
+            for e in kwargs.scu_results: kwargs.scu[e.Moid] = e
+        #=====================================================================
+        # Deployment Type Customization
+        #=====================================================================
         if install_flag == True and kwargs.script_name == 'ezci' and kwargs.args.deployment_type == 'azure_stack':
             kwargs.os_version = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[0].os_version
             # kwargs = sensitive_list_check(['azure_stack_lcm_password', 'local_administrator_password'], kwargs)
@@ -2105,14 +2074,6 @@ class imm(object):
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration = kwargs.os_cfg_moid
         elif install_flag == True and kwargs.script_name == 'ezci':
             kwargs = sensitive_list_check(['vmware_esxi_password'], kwargs)
-        #=====================================================================
-        # Get Software Repository Data - If os_install is True
-        #=====================================================================
-        if install_flag == True:
-            kwargs = software_repository('os_cfg').os_configuration(kwargs)
-            kwargs = software_repository('scu').scu(kwargs)
-            for e in kwargs.os_cfg_results: kwargs.os_cfg_moids[e.Moid] = e
-            for e in kwargs.scu_results: kwargs.scu[e.Moid] = e
         #=====================================================================
         # Install Operating System on Servers
         #=====================================================================
@@ -4048,25 +4009,55 @@ class software_repository(object):
     def __init__(self, type): self.type = type
 
     #=========================================================================
-    # Function - Vendor Operating Systems
+    # Function - Build Azure Stack HCI Operating System Auto Install File
     #=========================================================================
-    def os_vendor_and_version(self, kwargs):
-        org_moid                = kwargs.org_moids[kwargs.org].moid
-        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'hcl/OperatingSystemVendors')
-        kwargs = api('os_vendors').calls(kwargs)
-        kwargs.os_vendors = kwargs.pmoids
-        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'hcl/OperatingSystems')
-        kwargs = api('os_vendors').calls(kwargs)
-        kwargs.os_versions = kwargs.pmoids
-        kwargs = kwargs | DotMap(api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')", method = 'get', uri = 'os/Catalogs')
-        kwargs = api('os_catalog').calls(kwargs)
-        catalog_moids = kwargs.pmoids
-        api_filter = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
-        kwargs     = kwargs | DotMap(api_filter = api_filter, method = 'get', uri = 'os/ConfigurationFiles')
-        kwargs     = api('os_configuration').calls(kwargs)
-        kwargs.org_catalog_moid = catalog_moids[org_moid].moid
-        kwargs.os_cfg_moids     = kwargs.pmoids
-        kwargs.os_cfg_results   = kwargs.results
+    def os_cfg_azure_stack(self, kwargs):
+        #=====================================================================
+        # Load Windows Languages and Timezone
+        #=====================================================================
+        #windows_language = DotMap(language_pack  = kwargs.imm_dict.wizard.windows_install.language_pack,
+        #                          layered_driver = kwargs.imm_dict.wizard.windows_install.layered_driver)
+        windows_language = DotMap(language_pack = 'English - United States', layered_driver = 0)
+        kwargs = ezfunctions.windows_languages(windows_language, kwargs)
+        kwargs = ezfunctions.windows_timezones(kwargs)
+        #=====================================================================
+        # Upload the Operating System Configuration File
+        #=====================================================================
+        answer        = os.path.join(kwargs.script_path, 'examples', 'azure_stack_hci', '23H2', 'AzureStackHCIIntersight.xml')
+        vsplist       = (kwargs.os_version.name.split(' '))
+        version       = f'{vsplist[0]}{vsplist[2]}'
+        ctemplate     = answer.split(os.sep)[-1]
+        template_name = version + '-' + ctemplate.split('_')[0]
+        kwargs.os_config_template = template_name
+        if not kwargs.distributions.get(version):
+            kwargs = kwargs | DotMap(api_filter = f"Version eq '{kwargs.os_version.name}'", build_skip = True, method = 'get', uri = 'hcl/OperatingSystems')
+            kwargs = api('hcl_operating_system').calls(kwargs)
+            kwargs.distributions[version].moid = kwargs.results[0].Moid
+        kwargs.distribution_moid = kwargs.distributions[version].moid
+        file_content = (open(os.path.join(answer), 'r')).read()
+        for e in ['LayeredDriver:layered_driver', 'UILanguageFallback:secondary_language']:
+            elist = e.split(':')
+            rstring = '%s<%s>{{ .%s }}</%s>\n' % (" "*12, elist[0], elist[1], elist[0])
+            if kwargs.language[elist[1]] == '': file_content = file_content.replace(rstring, '')
+        kwargs.file_content = file_content
+        api_body = ezfunctions.os_configuration_file(kwargs)
+        existing = False
+        for e in kwargs.os_cfg_results:
+            if e.Name == api_body.Name and e.Distributions[0].Moid == kwargs.distribution_moid:
+                existing = True; kwargs.pmoid = e.Moid; break
+        kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = 'os/ConfigurationFiles')
+        if existing == True: kwargs.method = 'patch'
+        kwargs = api('os_configuration').calls(kwargs)
+        kwargs.os_cfg_moids[template_name] = DotMap(moid = kwargs.pmoid)
+        kwargs.os_cfg_moid = kwargs.os_cfg_moids[template_name].moid
+        if existing == False:
+            kwargs.os_cfg_results.append(kwargs.results); kwargs.os_cfg_moids = kwargs.os_cfg_moids | kwargs.pmoids
+        else:
+            indx = next((index for (index, d) in enumerate(kwargs.os_cfg_results) if d.Moid == kwargs.pmoid), None)
+            kwargs.os_cfg_results[indx] = kwargs.results
+        #=====================================================================
+        # Return kwargs
+        #=====================================================================
         return kwargs
 
     #=========================================================================
@@ -4097,6 +4088,28 @@ class software_repository(object):
         kwargs = kwargs | DotMap(api_filter = f"Catalog.Moid eq '{catalog_moid}'", names = [], uri = 'softwarerepository/OperatingSystemFiles')
         kwargs = api('operating_system').calls(kwargs)
         kwargs.os_image_results = sorted(kwargs.results, key=itemgetter('CreateTime'), reverse=True)
+        return kwargs
+
+    #=========================================================================
+    # Function - Vendor Operating Systems
+    #=========================================================================
+    def os_vendor_and_version(self, kwargs):
+        org_moid                = kwargs.org_moids[kwargs.org].moid
+        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'hcl/OperatingSystemVendors')
+        kwargs = api('os_vendors').calls(kwargs)
+        kwargs.os_vendors = kwargs.pmoids
+        kwargs = kwargs | DotMap(api_filter = 'ignore', method = 'get', uri = 'hcl/OperatingSystems')
+        kwargs = api('os_vendors').calls(kwargs)
+        kwargs.os_versions = kwargs.pmoids
+        kwargs = kwargs | DotMap(api_filter = f"Name in ('{kwargs.org_moids[kwargs.org].moid}','shared')", method = 'get', uri = 'os/Catalogs')
+        kwargs = api('os_catalog').calls(kwargs)
+        catalog_moids = kwargs.pmoids
+        api_filter = f"Catalog.Moid in ('{catalog_moids[org_moid].moid}','{catalog_moids.shared.moid}')"
+        kwargs     = kwargs | DotMap(api_filter = api_filter, method = 'get', uri = 'os/ConfigurationFiles')
+        kwargs     = api('os_configuration').calls(kwargs)
+        kwargs.org_catalog_moid = catalog_moids[org_moid].moid
+        kwargs.os_cfg_moids     = kwargs.pmoids
+        kwargs.os_cfg_results   = kwargs.results
         return kwargs
 
     #=========================================================================
