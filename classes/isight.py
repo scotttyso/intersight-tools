@@ -4048,7 +4048,7 @@ class software_repository(object):
         api_body = ezfunctions.os_configuration_file(kwargs)
         existing = False
         for e in kwargs.os_cfg_results:
-            if e.Name == api_body.Name and e.Distributions[0].Moid == kwargs.distribution_moid:
+            if e.Name == api_body['Name'] and e.Distributions[0].Moid == kwargs.distribution_moid:
                 existing = True; kwargs.pmoid = e.Moid; break
         kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = 'os/ConfigurationFiles')
         if existing == True: kwargs.method = 'patch'
