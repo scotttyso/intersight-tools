@@ -1056,13 +1056,18 @@ class api(object):
                 indx = next((index for (index, d) in enumerate(kwargs.org_results) if d['Name'] == org), None)
                 if indx == None: create_rsg = True
                 else:
-                    if len(kwargs.org_results[indx].ResourceGroups) == 0 and len(kwargs.org_results[indx].SharedWithResources) == 0: create_rsg = True
-            else: create_rsg = True
+                    if len(kwargs.org_results[indx].ResourceGroups) == 0 and type(kwargs.org_results[indx].SharedWithResources) == kwargs.type_none:
+                        create_rsg = True
             if create_rsg == True:
-                kwargs = kwargs | DotMap(api_body = {'Description':f'{org} Resource Group', 'Name':org}, method = 'post', org = org, uri = 'resource/Groups')
-                kwargs = api(self.type).calls(kwargs)
-                kwargs.rsg_moids[org].moid      = kwargs.results.Moid
-                kwargs.rsg_moids[org].selectors = kwargs.results.Selectors
+                org_keys = list(kwargs.imm_dict.orgs[org].keys())
+                if 'resource_group' in org_keys and len(kwargs.imm_dict.orgs[org].resource_groups) > 0:
+                    for rg in kwargs.imm_dict.orgs[org].resource_groups:
+                        kwargs = kwargs | DotMap(api_body = {'Description':f'{rg} Resource Group', 'Name':rg}, method = 'post', org = org, uri = 'resource/Groups')
+                else:
+                    kwargs = kwargs | DotMap(api_body = {'Description':f'{org} Resource Group', 'Name':org}, method = 'post', org = org, uri = 'resource/Groups')
+                    kwargs = api(self.type).calls(kwargs)
+                    kwargs.rsg_moids[org].moid      = kwargs.results.Moid
+                    kwargs.rsg_moids[org].selectors = kwargs.results.Selectors
             if not org in org_keys:
                 api_body = {'Description':f'{org} Organization','Name':org,'ResourceGroups':[{'Moid':kwargs.rsg_moids[org].moid,'ObjectType':'resource.Group'}]}
                 kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = 'organization/Organizations')
@@ -2069,7 +2074,7 @@ class imm(object):
             kwargs.os_version = kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[0].os_version
             # kwargs = sensitive_list_check(['azure_stack_lcm_password', 'local_administrator_password'], kwargs)
             kwargs = sensitive_list_check(['local_administrator_password'], kwargs)
-            kwargs = imm('azure_stack').os_cfg_azure_stack(kwargs)
+            kwargs = software_repository('azure_stack').os_cfg_azure_stack(kwargs)
             for x in range(0,len(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)):
                 kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles[x].os_configuration = kwargs.os_cfg_moid
         elif install_flag == True and kwargs.script_name == 'ezci':
