@@ -583,13 +583,14 @@ class intersight(object):
             kwargs.org = e.name
             kwargs.imm_dict.orgs[e.name] = DotMap()
             for key, value in e.items():
-                if re.search('_(policies|pools|profiles)', key):
-                    p1 = re.search('_(policies|pools|profiles)', key).group(1)
+                print(key)
+                if re.search('_(policies|pools|profiles|templates)', key):
+                    p1 = re.search('_(policies|pools|profiles|templates)', key).group(1)
                     p2 = ((key.replace('_policies', '')).replace('_pools', '')).replace('_profiles', '')
                     if p2 == 'boot': p2 = 'boot_order'
                     elif p2 == 'ucs_server': p2 = 'server'
-                    elif p2 == 'ucs_server_template': p2 = 'server_template'
-                    elif p2 == 'ucs_server_profile_template': p2 = 'server_template'
+                    elif p2 == 'ucs_server_templates': p2 = 'server'
+                    elif p2 == 'ucs_server_profile_templates': p2 = 'server_template'
                     for item in value:
                         pvars = deepcopy(item)
                         if pvars.get('descr'):
@@ -620,6 +621,7 @@ class intersight(object):
                         elif p2 == 'vlan':                     pvars = intersight.modify_vlan(pvars)
                         elif p2 == 'vsan':                     pvars = intersight.modify_vsan(pvars)
                         elif re.search('ip|iqn|mac|uuid|wwnn|wwpn', p2): pvars = intersight.modify_pools(pvars)
+                        if p2 == 'server_template': p2 = 'server'
                         kwargs.class_path = f'{p1},{p2}'
                         kwargs = ezfunctions.ez_append(pvars, kwargs)
         # Return kwargs

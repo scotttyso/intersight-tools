@@ -45,9 +45,9 @@ foreach ($req_env in $environment_variables) {
     if (!([Environment]::GetEnvironmentVariable($req_env))) {
         Write-Host ""
         Write-Host "You Must Set the Following Environment Variables before Running This Script" -ForegroundColor Yellow
-        Write-Host "  * `$env:azure_stack_subscription - Subscription for Azure" -ForegroundColor Green
-        Write-Host "  * `$env:azure_stack_tenant - Tenant for Azure" -ForegroundColor Green
-        Write-Host "  * `$env:proxy_password - Only Required if Using a Proxy Server with Authentication" -ForegroundColor Green
+        Write-Host "  * `$env:azure_stack_subscription=`"<your_subscription>`" - Subscription for Azure" -ForegroundColor Green
+        Write-Host "  * `$env:azure_stack_tenant=`"<your_subscription>`" - Tenant for Azure" -ForegroundColor Green
+        Write-Host "  * `$env:proxy_password=`"<your_proxy_password>`" - Only Required if Using a Proxy Server with Authentication" -ForegroundColor Green
         Write-Host "...Exiting"
         Write-Host ""
         Exit 1

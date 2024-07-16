@@ -343,7 +343,10 @@ def menu(kwargs):
     pcolor.Cyan(f'\n{"-"*108}\n\n  Starting the Easy IMM Wizard!\n\n{"-"*108}\n')
     kwargs = questions.main_menu.deployment_type(kwargs)
     if   kwargs.deployment_type == 'Exit': return kwargs
-    elif kwargs.deployment_type == 'Convert': kwargs = imm_transition(kwargs); return kwargs
+    elif kwargs.deployment_type == 'Convert':
+        kwargs = imm_transition(kwargs)
+        build.intersight.create_yaml_files(kwargs)
+        return kwargs
     kwargs = questions.main_menu.previous_configuration(kwargs)
     if   kwargs.deployment_type == 'StateUpdate': kwargs = terraform.state('state_update').state_import(kwargs); return kwargs
     elif kwargs.deployment_type == 'Deploy':

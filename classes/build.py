@@ -97,7 +97,8 @@ class intersight(object):
     # Function: Create YAML Files
     #=========================================================================
     def create_yaml_files(kwargs):
-        orgs   = list(kwargs.org_moids.keys())
+        if kwargs.deployment_type == 'Convert': orgs = list(kwargs.imm_dict.orgs.keys())
+        else: orgs = list(kwargs.org_moids.keys())
         kwargs = ezfunctions.remove_duplicates(orgs, ['pools', 'policies', 'profiles', 'templates', 'wizard'], kwargs)
         ezfunctions.create_yaml(orgs, kwargs)
 
