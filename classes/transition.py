@@ -589,7 +589,7 @@ class intersight(object):
                     p2 = ((key.replace('_policies', '')).replace('_pools', '')).replace('_profiles', '')
                     if p2 == 'boot': p2 = 'boot_order'
                     elif p2 == 'ucs_server': p2 = 'server'
-                    elif p2 == 'ucs_server_templates': p2 = 'server'
+                    elif p2 == 'ucs_server_templates': p2 = 'server_template'
                     elif p2 == 'ucs_server_profile_templates': p2 = 'server_template'
                     for item in value:
                         pvars = deepcopy(item)
