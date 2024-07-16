@@ -24,8 +24,63 @@
                 <SkipUserOOBE>true</SkipUserOOBE>
                 <UnattendEnableRetailDemo>false</UnattendEnableRetailDemo>
             </OOBE>
-            <TimeZone>{{ .timezone }}</TimeZone>
-            <DisableAutoDaylightTimeSet>{{ .disable_daylight_savings }}</DisableAutoDaylightTimeSet>
+            <FirstLogonCommands>
+                <SynchronousCommand wcm:action="add">
+                   <CommandLine>CMD /c &quot;w32tm /config /manualpeerlist:{{ .ntp_server }} /syncfromflags:manual /update&quot;</CommandLine>
+                   <Description>Enable NTP</Description>
+                   <Order>1</Order>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;Del C:\*.ps1 /F /Q&quot;</CommandLine>
+                    <Description>Delete powershell scripts</Description>
+                    <Order>2</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;echo Start-Transcript;Write-Host &apos;Waiting 20 seconds for Network...&apos;;Start-Sleep -seconds 20 &gt;&gt; C:\n.ps1&quot;</CommandLine>
+                    <Description>Create n.ps1</Description>
+                    <Order>3</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;echo Enable-PSRemoting -SkipNetworkProfileCheck -Force &gt;&gt; C:\n.ps1&quot;</CommandLine>
+                    <Description>Enable Remote PowerShell</Description>
+                    <Order>4</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;echo Set-Item WSMan:\localhost\Client\TrustedHosts -Value &apos;*&apos; -Force &gt;&gt; C:\n.ps1&quot;</CommandLine>
+                    <Description>Setup FileShare</Description>
+                    <Order>5</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;echo Set-NetFirewallRule -Name &apos;WINRM-HTTP-In-TCP-PUBLIC&apos; -RemoteAddress Any &gt;&gt; C:\n.ps1&quot;</CommandLine>
+                    <Description>Setup FileShare</Description>
+                    <Order>6</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoLogo -Noninteractive -File &quot;C:\n.ps1&quot;</CommandLine>
+                    <Description>Execute the n.ps1 Script</Description>
+                    <Order>7</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;timeout 2&quot;</CommandLine>
+                    <Description>Sleep for 2 seconds</Description>
+                    <Order>8</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <CommandLine>CMD /c &quot;Del C:\*.ps1 /F /Q&quot;</CommandLine>
+                    <Description>Delete powershell script</Description>
+                    <Order>9</Order>
+                    <RequiresUserInput>false</RequiresUserInput>
+                </SynchronousCommand>
+            </FirstLogonCommands>
+            <TimeZone>UTC</TimeZone>
+            <DisableAutoDaylightTimeSet>true</DisableAutoDaylightTimeSet>
             <UserAccounts>
                 <AdministratorPassword>
                     <Value>{{ .secure.local_administrator_password }}</Value>
@@ -85,17 +140,6 @@
         </component>
         <component name="Microsoft-Windows-SQMApi" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <CEIPEnabled>0</CEIPEnabled>
-        </component>
-        <component name="Microsoft-Windows-UnattendedJoin" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <Identification>
-                <Credentials>
-                    <Domain>{{ .domain }}</Domain>
-                    <Password>{{ .secure.azure_stack_lcm_password }}</Password>
-                    <Username>{{ .azure_stack_lcm_user }}</Username>
-                </Credentials>
-                <JoinDomain>{{ .domain }}</JoinDomain>
-                <MachineObjectOU>{{ .azure_stack_ou }}</MachineObjectOU>
-            </Identification>
         </component>
     </settings>
     <settings pass="generalize">
