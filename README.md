@@ -118,9 +118,10 @@ pip install -r requirements.txt
 ### For Linux Environments - Create Symbolic Links for Simplicity
 
 ```bash
-sudo ln -s $(readlink -f ezday2tools.py) /usr/bin/ezday2tools.py
 sudo ln -s $(readlink -f ezazure.ps1) /usr/bin/ezazure.ps1
 sudo ln -s $(readlink -f ezci.py) /usr/bin/ezci.py
+sudo ln -s $(readlink -f ezclaim.py) /usr/bin/ezclaim.py
+sudo ln -s $(readlink -f ezday2tools.py) /usr/bin/ezday2tools.py
 sudo ln -s $(readlink -f ezimm.py) /usr/bin/ezimm.py
 sudo ln -s $(readlink -f ezpure_login.ps1) /usr/bin/ezpure_login.ps1
 sudo ln -s $(readlink -f ezvcenter.ps1) /usr/bin/ezvcenter.ps1
