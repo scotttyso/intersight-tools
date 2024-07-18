@@ -2,7 +2,7 @@
 
 The purpose of `ezclaim.py` is to register Standalone C-Series to Intersight.
 
-See example YAML File `examples/ezclaim/add_vlans.yaml`.
+See example YAML File `examples/ezclaim/ezclaim.yaml`.
 
 Examples:
 
