@@ -151,9 +151,29 @@ class intersight(object):
         return pvars
 
     #=============================================================================
+    # Function - Modify iSCSI Boot Policies
+    #=============================================================================
+    def modify_iscsi_boot(pvars):
+        key_list = ['initiator_ip_pool,ip_pool']
+        pvars = intersight.replace_keys(key_list, pvars)
+        pvars = DotMap(sorted(pvars.items()))
+        # Return pvars
+        return pvars
+
+    #=============================================================================
+    # Function - Modify iSCSI Static Target Policies
+    #=============================================================================
+    def modify_iscsi_static_target(pvars):
+        pkeys = list(pvars.keys())
+        if 'lun' in pkeys: pvars.lun_id = deepcopy(pvars.lun.lun_id); pvars.pop('lun')
+        pvars = DotMap(sorted(pvars.items()))
+        # Return pvars
+        return pvars
+
+    #=============================================================================
     # Function - Modify Pools
     #=============================================================================
-    def modify_pools(pvars):
+    def modify_pools(ptype, pvars):
         pkeys = list(pvars.keys())
         if 'reservations' in pkeys: pvars.pop('reservations')
         if 'wwnn_blocks' in pkeys:
@@ -162,6 +182,8 @@ class intersight(object):
         if 'wwpn_blocks' in pkeys:
             pvars.id_blocks = pvars.wwpn_blocks
             pvars.pop('wwpn_blocks')
+        if not 'mac_blocks' in pkeys and ptype == 'mac':
+            pvars.mac_blocks = [DotMap({'from':'00:25:B5:0A:00:00','size':255})]
         # Return pvars
         return pvars
 
@@ -170,10 +192,12 @@ class intersight(object):
     #=============================================================================
     def modify_lan_connectivity(pvars):
         pkeys = list(pvars.keys())
+        if 'iqn_allocation_type' in pkeys: pvars.iqn_allocation_type = (pvars.iqn_allocation_type).capitalize()
         if 'target_platform' in pkeys: pvars.target_platform = pvars.target_platform.replace('-', '')
         if 'vnics' in pkeys:
             key_list = [
                 'ethernet_network_group_policies,ethernet_network_group_policy',
+                'iscsi_boot_policies,iscsi_boot_policy',
                 'mac_address_pools,mac_address_pool',
                 'names,name',
                 'placement.pci_links,pci_link',
@@ -291,6 +315,16 @@ class intersight(object):
         return pvars
 
     #=============================================================================
+    # Function - Modify Power Policies
+    #=============================================================================
+    def modify_power(pvars):
+        pkeys = list(pvars.keys())
+        if not 'power_redundancy' in pkeys: pvars.power_redundancy = 'Grid'
+        pvars = DotMap(sorted(pvars.items()))
+        # Return pvars
+        return pvars
+
+    #=============================================================================
     # Function - Modify SAN Connectivity Policies
     #=============================================================================
     def modify_san_connectivity(pvars):
@@ -373,6 +407,23 @@ class intersight(object):
                     edict = deepcopy(e)
                     edict = intersight.replace_keys(key_list, edict)
                     pvars.targets[x].reservations.append(edict)
+        pvars = DotMap(sorted(pvars.items()))
+        ## Return pvars
+        return pvars
+
+    #=============================================================================
+    # Function - Modify Server Templates
+    #=============================================================================
+    def modify_server_template(pvars, kwargs):
+        key_list = ['boot_order_policy,boot_policy']
+        pvars = intersight.replace_keys(key_list, pvars)
+        pkeys = list(pvars.keys())
+        if 'uuid_allocation_type' in pkeys: pvars.pop('uuid_allocation_type')
+        pvars.create_template = True
+        for e in ['target_platform']:
+            if not e in pkeys: pvars[e] = kwargs.ezdata['templates.server'].allOf[0].properties[e].default
+        pkeys = list(pvars.keys())
+        if 'target_platform' in pkeys: pvars.target_platform = pvars.target_platform.replace('-', '')
         pvars = DotMap(sorted(pvars.items()))
         ## Return pvars
         return pvars
@@ -583,7 +634,6 @@ class intersight(object):
             kwargs.org = e.name
             kwargs.imm_dict.orgs[e.name] = DotMap()
             for key, value in e.items():
-                print(key)
                 if re.search('_(policies|pools|profiles|templates)', key):
                     p1 = re.search('_(policies|pools|profiles|templates)', key).group(1)
                     p2 = ((key.replace('_policies', '')).replace('_pools', '')).replace('_profiles', '')
@@ -604,13 +654,17 @@ class intersight(object):
                         elif p2 == 'fibre_channel_adapter':    pvars = intersight.modify_fibre_channel_adapter(pvars)
                         elif p2 == 'firmware':                 pvars = intersight.modify_firmware(pvars)
                         elif p2 == 'imc_access':               pvars = intersight.modify_imc_access(pvars)
+                        elif p2 == 'iscsi_boot':               pvars = intersight.modify_iscsi_boot(pvars)
+                        elif p2 == 'iscsi_static_target':      pvars = intersight.modify_iscsi_static_target(pvars)
                         elif p2 == 'lan_connectivity':         pvars = intersight.modify_lan_connectivity(pvars)
                         elif p2 == 'multicast':                pvars = intersight.modify_multicast(pvars)
                         elif p2 == 'network_connectivity':     pvars = intersight.modify_network_connectivity(pvars)
                         elif p2 == 'port':                     pvars = intersight.modify_port(pvars)
+                        elif p2 == 'power':                    pvars = intersight.modify_power(pvars)
                         elif p2 == 'san_connectivity':         pvars = intersight.modify_san_connectivity(pvars)
                         elif p2 == 'sd_card':                  pvars = intersight.modify_sd_card(pvars)
                         elif p2 == 'server':                   pvars = intersight.modify_server(pvars, kwargs)
+                        elif p2 == 'server_template':          pvars = intersight.modify_server_template(pvars, kwargs)
                         elif p2 == 'snmp':                     pvars = intersight.modify_snmp(pvars)
                         elif p2 == 'storage':                  pvars = intersight.modify_storage(pvars)
                         elif p2 == 'switch_control':           pvars = intersight.modify_switch_control(pvars)
@@ -620,7 +674,7 @@ class intersight(object):
                         elif p2 == 'virtual_media':            pvars = intersight.modify_virtual_media(pvars)
                         elif p2 == 'vlan':                     pvars = intersight.modify_vlan(pvars)
                         elif p2 == 'vsan':                     pvars = intersight.modify_vsan(pvars)
-                        elif re.search('ip|iqn|mac|uuid|wwnn|wwpn', p2): pvars = intersight.modify_pools(pvars)
+                        elif re.search('ip|iqn|mac|uuid|wwnn|wwpn', p2): pvars = intersight.modify_pools(p2, pvars)
                         if p2 == 'server_template': p2 = 'server'
                         kwargs.class_path = f'{p1},{p2}'
                         kwargs = ezfunctions.ez_append(pvars, kwargs)
@@ -637,8 +691,8 @@ class intersight(object):
             if imm_transition in pkeys:
                 if '.' in easy_imm:
                     key1,key2 = easy_imm.split('.')
-                    pvars[key1][key2] = pvars[imm_transition]
-                else: pvars[easy_imm] = pvars[imm_transition]
+                    pvars[key1][key2] = deepcopy(pvars[imm_transition])
+                else: pvars[easy_imm] = deepcopy(pvars[imm_transition])
                 pvars.pop(imm_transition)
         pvars = DotMap(sorted(pvars.items()))
         # return pvars

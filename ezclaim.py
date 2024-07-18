@@ -44,15 +44,15 @@ def main():
     # EZCLAIM Setup
     #=========================================================================
     return_code = 0
-    kwargs.args.dir    = os.path.join(Path.home(), kwargs.args.yaml_file.split('/')[0])
+    kwargs.args.dir    = os.path.abspath(kwargs.args.yaml_file.split('/')[0])
     kwargs.deployment_type ='claim_devices'
     #=========================================================================
     # Send Notification Message
     #=========================================================================
-    pcolor.LightGray(f'\n{"-"*91}\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightGray(f'  * Begin Device Claims.')
-    pcolor.LightGray(f'\n{"-"*91}\n')
-    yfile = open(os.path.join(kwargs.args.yaml_file), 'r')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    yfile = open(os.path.abspath(kwargs.args.yaml_file), 'r')
     kwargs.yaml = DotMap(yaml.safe_load(yfile))
     try:
         kwargs.sensitive_var  = 'local_user_password_1'
@@ -71,9 +71,9 @@ def main():
     #=========================================================================
     # Send Notification Message and Exit
     #=========================================================================
-    pcolor.LightGray(f'\n{"-"*91}\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightGray(f'  * Completed Device Claims.')
-    pcolor.LightGray(f'\n{"-"*91}\n')
+    pcolor.LightGray(f'\n{"-"*108}\n')
     sys.exit(1)
 if __name__ == '__main__':
     main()

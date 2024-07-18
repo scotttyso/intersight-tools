@@ -30,7 +30,14 @@ This code is provided as is.  No warranty, support, or guarantee is provided wit
 
 [README - *ezimm*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezimm.md)
 
-## day2tools.py
+## ezclaim.py
+
+### General Use Case
+   * Claim C-Series with Intersight.
+
+[README - *ezclaim*](https://github.com/scotttyso/intersight-tools/blob/master/README.ezclaim.md)
+
+## ezday2tools.py
 
 ### General Use Cases
    * `add_policies`: Update Policies attached to chassis, domain, server profiles/templates within the same organization or from a shared organization.

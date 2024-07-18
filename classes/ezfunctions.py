@@ -281,7 +281,6 @@ def create_yaml(orgs, kwargs):
         if re.search('policies|pools|profiles|templates', item):
             for i in ezdata[item].enum:
                 idict = {}
-                print(orgs)
                 for org in orgs:
                     org_keys = list(kwargs.imm_dict.orgs[org].keys())
                     if item in org_keys:

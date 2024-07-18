@@ -6397,17 +6397,20 @@
                         "IntelVtForDirectedIo": "disabled",
                         "MemoryRefreshRate": "1x Refresh",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
                     "AnalyticalDatabaseSystems-M7-Intel": {
                         "IntelVirtualizationTechnology": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
                     "AnalyticsDatabaseSystems-M5-Intel": {
                         "CpuPowerManagement": "custom",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled"
                     },
@@ -6585,6 +6588,7 @@
                         "LlcPrefetch": "disabled",
                         "MemoryRefreshRate": "1x Refresh",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "enabled",
                         "ProcessorC6report": "enabled",
                         "Snc": "enabled",
@@ -6599,6 +6603,7 @@
                         "LlcAlloc": "disabled",
                         "LlcPrefetch": "disabled",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled",
                         "SelectMemoryRasConfiguration": "maximum-performance",
                         "Snc": "SNC4",
@@ -6620,25 +6625,29 @@
                         "CbsDfCmnAcpiSratL3numa": "enabled",
                         "CbsDfCmnDramNps": "NPS4",
                         "CiscoXgmiMaxSpeed": "enabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
                     "DataAnalytics-M6-Intel": {
                         "CpuPerfEnhancement": "Auto",
                         "EnergyEfficientTurbo": "enabled",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "enabled",
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
                     "DataAnalytics-M7-Intel": {
                         "IntelVirtualizationTechnology": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled"
                     },
                     "EnergyEfficiency-M5-Intel": {
                         "AutoCcState": "enabled",
                         "CpuPowerManagement": "custom",
                         "IntelTurboBoostTech": "disabled",
-                        "PackageCstateLimit": "C6 Retention"
+                        "PackageCstateLimit": "C6 Retention",
+                        "PcieSlotsCdnEnable": "enabled"
                     },
                     "EnergyEfficiency-M6-AMD": {
                         "CbsCmnApbdis": "0",
@@ -6654,6 +6663,7 @@
                         "CbsDfCmnAcpiSratL3numa": "Auto",
                         "CbsDfCmnDramNps": "NPS1",
                         "CiscoXgmiMaxSpeed": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
                     "EnergyEfficiency-M6-Intel": {
@@ -6662,6 +6672,7 @@
                         "HardwarePrefetch": "disabled",
                         "IpPrefetch": "disabled",
                         "PackageCstateLimit": "C6 Non Retention",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "enabled",
                         "ProcessorC6report": "enabled",
                         "StreamerPrefetch": "disabled",
@@ -6670,6 +6681,7 @@
                     "EnergyEfficient-M7-Intel": {
                         "EnergyEfficientTurbo": "enabled",
                         "PackageCstateLimit": "C6 Non Retention",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "enabled",
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
@@ -6678,6 +6690,7 @@
                         "IntelHyperThreadingTech": "disabled",
                         "IntelVirtualizationTechnology": "disabled",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
                     "HighPerformanceComputing-M6-AMD": {
@@ -6694,6 +6707,7 @@
                         "CbsDfCmnAcpiSratL3numa": "Auto",
                         "CbsDfCmnDramNps": "NPS4",
                         "CiscoXgmiMaxSpeed": "enabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "disabled"
                     },
                     "HighPerformanceComputing-M6-Intel": {
@@ -6704,6 +6718,7 @@
                         "LlcPrefetch": "disabled",
                         "MemoryRefreshRate": "1x Refresh",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "Snc": "enabled",
                         "UpiPowerManagement": "enabled",
                         "WorkLoadConfig": "Balanced",
@@ -6713,6 +6728,7 @@
                         "IntelVirtualizationTechnology": "disabled",
                         "LlcAlloc": "disabled",
                         "LlcPrefetch": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
@@ -6730,18 +6746,21 @@
                         "CbsDfCmnAcpiSratL3numa": "Auto",
                         "CbsDfCmnDramNps": "NPS4",
                         "CiscoXgmiMaxSpeed": "enabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
                     "IOIntensive-M6-Intel": {
                         "AdjacentCacheLinePrefetch": "disabled",
                         "HardwarePrefetch": "disabled",
                         "LlcPrefetch": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "StreamerPrefetch": "disabled"
                     },
                     "JavaApplicationServer-M5-Intel": {
                         "CpuPowerManagement": "custom",
                         "IntelVirtualizationTechnology": "disabled",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled"
                     },
@@ -6750,6 +6769,7 @@
                         "IntelHyperThreadingTech": "disabled",
                         "IntelVirtualizationTechnology": "disabled",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled",
                         "WorkLoadConfig": "Balanced"
@@ -6768,6 +6788,7 @@
                         "CbsDfCmnAcpiSratL3numa": "Auto",
                         "CbsDfCmnDramNps": "Auto",
                         "CiscoXgmiMaxSpeed": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
                     "LowLatency-M6-Intel": {
@@ -6778,6 +6799,7 @@
                         "IntelVtForDirectedIo": "disabled",
                         "MemoryRefreshRate": "1x Refresh",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
                     "LowLatency-M7-Intel": {
@@ -6785,6 +6807,7 @@
                         "IntelTurboBoostTech": "disabled",
                         "IntelVirtualizationTechnology": "disabled",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
                     "M5-amd-virtual":{
@@ -6826,6 +6849,7 @@
                         "ImcInterleave": "1-way Interleave",
                         "IntelVirtualizationTechnology": "disabled",
                         "IntelVtForDirectedIo": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled",
                         "Snc": "enabled",
@@ -6833,6 +6857,7 @@
                     },
                     "OnlineTransactionProcessing-M5-Intel": {
                         "CpuPowerManagement": "custom",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled"
                     },
@@ -6842,6 +6867,7 @@
                         "LlcPrefetch": "disabled",
                         "MemoryRefreshRate": "1x Refresh",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled",
                         "Snc": "enabled",
                         "UpiPowerManagement": "enabled",
@@ -6851,6 +6877,7 @@
                         "LlcAlloc": "disabled",
                         "LlcPrefetch": "disabled",
                         "PatrolScrub": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "Snc": "Auto",
                         "XptPrefetch": "enabled"
                     },
@@ -6868,10 +6895,12 @@
                         "CbsDfCmnAcpiSratL3numa": "enabled",
                         "CbsDfCmnDramNps": "NPS4",
                         "CiscoXgmiMaxSpeed": "enabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
                     "Virtualization-M5-Intel": {
                         "CpuPowerManagement": "custom",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled"
                     },
@@ -6889,15 +6918,18 @@
                         "CbsDfCmnAcpiSratL3numa": "enabled",
                         "CbsDfCmnDramNps": "NPS4",
                         "CiscoXgmiMaxSpeed": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
                     "Virtualization-M6-Intel": {
                         "CpuPerfEnhancement": "Auto",
                         "EnergyEfficientTurbo": "enabled",
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC1e": "enabled",
                         "ProcessorC6report": "enabled"
                     },
                     "Virtualization-M7-Intel": {
+                        "PcieSlotsCdnEnable": "enabled",
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
