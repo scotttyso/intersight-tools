@@ -152,7 +152,7 @@ def base_script_settings(kwargs):
     #=========================================================================
     for folder in kwargs.args.dir.split(os.sep):
         if folder == '': pass
-        elif not re.search(r'^[\w\-\.\:\/\\]+$', folder):
+        elif not re.search(r'^[\w\@\-\.\:\/\\]+$', folder):
             pcolor.Red(f'\n{"-"*108}\n\n  !!ERROR!!')
             pcolor.Red(f'  The Directory structure can only contain the following characters:')
             pcolor.Red(f'  letters(a-z, A-Z), numbers(0-9), hyphen(-), period(.), colon(:), and underscore(-).')
