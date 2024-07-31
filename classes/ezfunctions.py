@@ -531,7 +531,9 @@ def installation_body(v, kwargs):
             x = name.split('.')
             if x[0] in answer_keys:
                 if type(v.answers[x[0]]) == str and 'sensitive_' in v.answers[x[0]]:
-                    password = os.environ[v.answers[x[0]].replace('sensitive_', '')]
+                    kwargs.sensitive_var = v.answers[x[0]].replace('sensitive_', '')
+                    kwargs   = sensitive_var_value(kwargs)
+                    password = kwargs.var_value
                     if v.os_vendor == 'Microsoft':
                         if 'LogonPassword' in x[0]:
                             answers[x[0]]   = base64.b64encode(f'{password}Password'.encode(encoding='utf-16-le')).decode()
@@ -548,6 +550,7 @@ def installation_body(v, kwargs):
             else: ip_config = DotMap({f'Ip{vx}Config': answers[f'Ip{vx}Config'].toDict(), 'ObjectType': f'os.Ip{vx.lower()}Configuration'}).toDict()
             answers.IpConfiguration = ip_config
             if f'Ip{vx}Config' in answer_keys: answers.pop(f'Ip{vx}Config')
+        if answers.get('FQDN') and v.os_vendor == 'VMware': answers.Hostname = answers.FQDN; answers.pop('FQDN')
         api_body = {
             'Answers': dict(sorted(dict(answers, **{'IsRootPasswordCrypted': False, 'Source': 'Template'}).items())),
             'AdditionalParameters': None,

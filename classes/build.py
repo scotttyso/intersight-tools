@@ -880,15 +880,15 @@ class intersight(object):
             answer            = questions.prompt_user(self.type).to_accept('profiles', DotMap(profiles=profiles), kwargs)
             if answer == True: accept_profiles = True
         physical_compute   = []
-        pregex             = re.compile(r'Server Profile: ([a-zA-Z0-9_\\. :-]{1,64}) \|\| Serial: ([A-Z0-9]{11}) \|\| Profile Moid: ([a-f0-9]{24}) ')
+        pregex             = re.compile(r'^Server Profile: ([a-zA-Z0-9_\.:-]{1,64}) \|\| Serial: ([A-Z0-9]{11}) \|\| Profile Moid: ([a-f0-9]{24}) $')
         registered_devices = []
         server_profiles    = []
         for e in profiles:
             pmatch = pregex.search(e)
             indx   = next((index for (index, d) in enumerate(physical_results) if d['Serial'] == pmatch.group(2)), None)
             physical_compute.append(physical_results[indx])
-            indx   = next((index for (index, d) in enumerate(profile_results) if d['Moid'] == pmatch.group(3)), None)
             registered_devices.append(physical_results[indx].RegisteredDevice.Moid)
+            indx = next((index for (index, d) in enumerate(profile_results) if d['Moid'] == pmatch.group(3)), None)
             server_profiles.append(profile_results[indx])
             kwargs.temp_sprofile[pmatch.group(2)].boot_volume   = kwargs.boot_volume
             kwargs.temp_sprofile[pmatch.group(2)].moid          = profile_results[indx].Moid

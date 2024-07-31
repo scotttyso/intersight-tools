@@ -1172,9 +1172,11 @@ class imm(object):
     #=========================================================================
     def build_api_body(self, api_body, idata, item, kwargs):
         np, ns = ezfunctions.name_prefix_suffix(self.type, kwargs)
+        #print(api_body)
+        #print(json.dumps(idata, indent=4))
         for k, v in item.items():
             # print(json.dumps(idata, indent=4))
-            # print(k, v)
+            #print(k, v)
             if re.search('boolean|string|integer', idata[k].type):
                 if '$ref:' in idata[k].intersight_api:
                     x = idata[k].intersight_api.split(':')
@@ -1581,10 +1583,10 @@ class imm(object):
             atemplate= kwargs.ezdata['ethernet_adapter.template'].properties
             api_body  = dict(api_body, **atemplate[item.adapter_template].toDict())
             api_body.pop('adapter_template')
-            if api_body.get('RssHashSettings'):
-                if api_body['RssHashSettings'].get('Enable'):
-                    api_body['RssSettings'] = api_body['RssHashSettings']['Enable']
-                    api_body['RssHashSettings'].pop('Enable')
+        if api_body.get('RssHashSettings'):
+            if api_body['RssHashSettings'].get('Enable'):
+                api_body['RssSettings'] = api_body['RssHashSettings']['Enable']
+                api_body['RssHashSettings'].pop('Enable')
         return api_body
 
     #=========================================================================
@@ -2096,7 +2098,7 @@ class imm(object):
                 #=============================================================
                 if type(v.install_interface) == str:
                     for a,b in v.adapters.items():
-                        vnic = [DotMap(name = c, mac = d.mac_address, slot = d.pci_slot) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface]
+                        vnic = [DotMap(name = c, mac = d.mac_address, slot = d.pci_slot) for c,d in b.eth_ifs.items() if d.mac_address == v.install_interface][0]
                 if v.boot_volume.lower() == 'san':
                     if count % 2 == 0: kwargs.wwpn_index = 0; kwargs.san_target = v.boot_order.wwpn_targets[0]
                     else:
@@ -3740,6 +3742,7 @@ class imm(object):
                 if 'template' in self.type and re.search('ids|inks|ports', p): p = p[:-1]
                 if p in pkeys:
                     if 'template' in self.type: pval = item[p]
+                    elif type(item['placement'][p]) == bool: pval = item['placement'][p]
                     elif len(item['placement'][p]) == 2: pval = item['placement'][p][x]
                     else: pval = item['placement'][p][0]
                     api_body['Placement'][kwargs.ezdata[self.type].properties.placement.properties[p].intersight_api] = pval
