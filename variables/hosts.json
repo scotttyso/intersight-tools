@@ -1,0 +1,623 @@
+{
+    "console_servers": {
+        "r142b-ts": {
+            "2003": {
+                "description": "r142b-core01 console",
+                "short_name": "c1c"
+            },
+            "2004": {
+                "description": "r142b-core02 console",
+                "short_name": "c2c"
+            },
+            "2005": {
+                "description": "r142b-mds-a console",
+                "short_name": "mac"
+            },
+            "2006": {
+                "description": "r142b-mds-b console",
+                "short_name": "mbc"
+            },
+            "2007": {
+                "description": "r142b-oob01 console",
+                "short_name": "o1c"
+            },
+            "2008": {
+                "description": "r142b-oob02 console",
+                "short_name": "o2c"
+            },
+            "2009": {
+                "description": "r142b-fp01 console",
+                "short_name": "f1c"
+            },
+            "2010": {
+                "description": "r142b-fp02 console",
+                "short_name": "f2c"
+            },
+            "2011": {
+                "description": "wakanda-spine101 console",
+                "short_name": "ws1c"
+            },
+            "2012": {
+                "description": "wakanda-spine102 console",
+                "short_name": "ws2c"
+            },
+            "2013": {
+                "description": "wakanda-leaf201 console",
+                "short_name": "wl1c"
+            },
+            "2014": {
+                "description": "wakanda-leaf202 console",
+                "short_name": "wl2c"
+            },
+            "2015": {
+                "description": "r142a-A console",
+                "short_name": "auac"
+            },
+            "2016": {
+                "description": "r142a-B console",
+                "short_name": "aubc"
+            },
+            "2017": {
+                "description": "asgard-spine101 console",
+                "short_name": "as1c"
+            },
+            "2018": {
+                "description": "asgard-spine102 console",
+                "short_name": "as2c"
+            },
+            "2019": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2020": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2021": {
+                "description": "r142c-A console",
+                "short_name": "cuac"
+            },
+            "2022": {
+                "description": "r142c-B console",
+                "short_name": "cubc"
+            },
+            "2023": {
+                "description": "asgard-leaf201 console",
+                "short_name": "al1c"
+            },
+            "2024": {
+                "description": "asgard-leaf202 console",
+                "short_name": "al2c"
+            },
+            "2025": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2026": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            }
+        },
+        "r143b-ts": {
+            "2002": {
+                "description": "r143d-ucs-B console",
+                "short_name": "dubc"
+            },
+            "2003": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2004": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2005": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2006": {
+                "description": "r143e-2-B console",
+                "short_name": "e2bc"
+            },
+            "2007": {
+                "description": "r143e-1-B console",
+                "short_name": "e1bc"
+            },
+            "2008": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2009": {
+                "description": "r143c-n7k1 console",
+                "short_name": "7k1c"
+            },
+            "2010": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2011": {
+                "description": "r143b-mds-c console",
+                "short_name": "mcc"
+            },
+            "2012": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2013": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2014": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2015": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2016": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2017": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2018": {
+                "description": "r143c-n5k1 console",
+                "short_name": "5k1c"
+            },
+            "2019": {
+                "description": "r143c-n5k2 console",
+                "short_name": "5k2c"
+            },
+            "2020": {
+                "description": "r143c-n5k3 console",
+                "short_name": "5k3c"
+            },
+            "2021": {
+                "description": "r143c-n5k4 console",
+                "short_name": "5k4c"
+            },
+            "2022": {
+                "description": "r143c-ucs-A console",
+                "short_name": "uac"
+            },
+            "2023": {
+                "description": "r143c-ucs-B console",
+                "short_name": "ubc"
+            },
+            "2024": {
+                "description": "r143c-leaf1 console",
+                "short_name": "l1c"
+            },
+            "2025": {
+                "description": "r143c-leaf2 console",
+                "short_name": "l2c"
+            },
+            "2026": {
+                "description": "r143c-leaf3 console",
+                "short_name": "l3c"
+            },
+            "2027": {
+                "description": "r143c-leaf4 console",
+                "short_name": "l4c"
+            },
+            "2028": {
+                "description": "r143c-spine1 console",
+                "short_name": "s1c"
+            },
+            "2029": {
+                "description": "r143c-spine2 console",
+                "short_name": "s2c"
+            },
+            "2030": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2031": {
+                "description": "r143c-n7k2 console",
+                "short_name": "7k2c"
+            },
+            "2032": {
+                "description": "r143b-oob console",
+                "short_name": "o3c"
+            },
+            "2033": {
+                "description": "r143b-sw1 console",
+                "short_name": "sw1c"
+            },
+            "2034": {
+                "description": "r143d-ucs-A console",
+                "short_name": "duac"
+            },
+            "2035": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2036": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2037": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2038": {
+                "description": "r143e-2-A console",
+                "short_name": "e2ac"
+            },
+            "2039": {
+                "description": "r143e-1-A console",
+                "short_name": "e1ac"
+            },
+            "2040": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2041": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2042": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2043": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2044": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2045": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2046": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2047": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2048": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            },
+            "2049": {
+                "description": "UNUSED console",
+                "short_name": "UNUSED"
+            }
+        }
+    },
+    "short_names": {
+        "5k1": {
+            "description": "r143c-n5k1 Nexus 5548UP",
+            "hostname": "r143c-n5k1.rich.ciscolabs.com",
+            "type": "nxos-lab"
+        },
+        "5k2": {
+            "description": "r143c-n5k2 Nexus 5548UP",
+            "hostname": "r143c-n5k2.rich.ciscolabs.com",
+            "type": "nxos-lab"
+        },
+        "5k3": {
+            "description": "r143c-n5k3 Nexus 5672UP",
+            "hostname": "r143c-n5k3.rich.ciscolabs.com",
+            "type": "nxos-lab"
+        },
+        "5k4": {
+            "description": "r143c-n5k4 Nexus 5672UP",
+            "hostname": "r143c-n5k4.rich.ciscolabs.com",
+            "type": "nxos-lab"
+        },
+        "7k1": {
+            "description": "r143c-n7k1 Nexus N7704",
+            "hostname": "r143c-n7k1.rich.ciscolabs.com",
+            "type": "nxos-lab"
+        },
+        "7k2": {
+            "description": "r143c-n7k2 Nexus N7710",
+            "hostname": "r143c-n7k2.rich.ciscolabs.com",
+            "type": "nxos-lab"
+        },
+        "aa1": {
+            "description": "Asgard APIC",
+            "hostname": "asgard-apic01.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "al1": {
+            "description": "Asgard Leaf 101",
+            "hostname": "asgard-leaf201.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "al2": {
+            "description": "Asgard Leaf 102",
+            "hostname": "asgard-leaf202.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "as1": {
+            "description": "Asgard Spine 101",
+            "hostname": "asgard-spine101.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "as2": {
+            "description": "Asgard Spine 102",
+            "hostname": "asgard-spine102.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "au": {
+            "description": "r142a UCS Domain VIP",
+            "hostname": "r142a.rich.ciscolabs.com",
+            "type": "ucs"
+        },
+        "aua": {
+            "description": "r142a UCS Fabric A",
+            "hostname": "r142a-a.rich.ciscolabs.com",
+            "type": "ucs"
+        },
+        "aub": {
+            "description": "r142a UCS Fabric B",
+            "hostname": "r142a-b.rich.ciscolabs.com",
+            "type": "ucs"
+        },
+        "c1": {
+            "description": "r142b-core01 Switch",
+            "hostname": "r142b-core01.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "c2": {
+            "description": "r142b-core02 Switch",
+            "hostname": "r142b-core02.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "cua": {
+            "description": "r142c-a IMM Fabric A",
+            "hostname": "r142c-a.rich.ciscolabs.com",
+            "type": "imm"
+        },
+        "cub": {
+            "description": "r142c-B IMM Fabric B",
+            "hostname": "r142c-b.rich.ciscolabs.com",
+            "type": "imm"
+        },
+        "du": {
+            "description": "r143d UCS Domain VIP",
+            "hostname": "r143d-ucs.rich.ciscolabs.com",
+            "type": "ucs"
+        },
+        "dua": {
+            "description": "r142d UCS Fabric A",
+            "hostname": "r143d-ucs-a.rich.ciscolabs.com",
+            "type": "ucs"
+        },
+        "dub": {
+            "description": "r143d UCS Fabric B",
+            "hostname": "r143d-ucs-b.rich.ciscolabs.com",
+            "type": "ucs"
+        },
+        "e1a": {
+            "description": "r143e-1-A IMM Fabric A",
+            "hostname": "r143e-1-a.rich.ciscolabs.com",
+            "type": "imm"
+        },
+        "e1b": {
+            "description": "r143e-1-B IMM Fabric B",
+            "hostname": "r143e-1-b.rich.ciscolabs.com",
+            "type": "imm"
+        },
+        "e2a": {
+            "description": "r143e-2-A IMM Fabric A",
+            "hostname": "r143e-2-a.rich.ciscolabs.com",
+            "type": "imm"
+        },
+        "e2b": {
+            "description": "r143e-2-B IMM Fabric B",
+            "hostname": "r143e-2-b.rich.ciscolabs.com",
+            "type": "imm"
+        },
+        "f1": {
+            "description": "r142b-fp01 console",
+            "hostname": "r142b-fp01.rich.ciscolabs.com",
+            "type": "firepower"
+        },
+        "f2": {
+            "description": "r142b-fp02 console",
+            "hostname": "r142b-fp02.rich.ciscolabs.com",
+            "type": "firepower"
+        },
+        "ftd1": {
+            "description": "r142b-ftd01 console",
+            "hostname": "r142b-ftd01.rich.ciscolabs.com",
+            "type": "firepower"
+        },
+        "ftd2": {
+            "description": "r142b-ftd02 console",
+            "hostname": "r142b-ftd02.rich.ciscolabs.com",
+            "type": "firepower"
+        },
+        "k": {
+            "description": "imm-toolkit Automation",
+            "hostname": "imm-toolkit.rich.ciscolabs.com",
+            "type": "toolkit"
+        },
+        "l1": {
+            "description": "r143c ACI Leaf1",
+            "hostname": "r143c-leaf1.rich.ciscolabs.com",
+            "type": "aci-lab"
+        },
+        "l2": {
+            "description": "r143c ACI Leaf2",
+            "hostname": "r143c-leaf2.rich.ciscolabs.com",
+            "type": "aci-lab"
+        },
+        "l3": {
+            "description": "r143c ACI Leaf3",
+            "hostname": "r143c-leaf3.rich.ciscolabs.com",
+            "type": "aci-lab"
+        },
+        "l4": {
+            "description": "r143c ACI Leaf4",
+            "hostname": "r143c-leaf4.rich.ciscolabs.com",
+            "type": "aci-lab"
+        },
+        "lk": {
+            "description": "loki HX Cluster IP",
+            "hostname": "loki.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "lk1": {
+            "description": "loki01-hx HX Node",
+            "hostname": "loki01-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "lk2": {
+            "description": "loki02-hx HX Node",
+            "hostname": "loki01-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "lk3": {
+            "description": "loki03-hx HX Node",
+            "hostname": "loki03-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "lk4": {
+            "description": "loki04-hx HX Node",
+            "hostname": "loki04-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "lnx2": {
+            "description": "lnx2 Linux Server",
+            "hostname": "lnx2.rich.ciscolabs.com",
+            "type": "lnx"
+        },
+        "ma": {
+            "description": "r142b-mds-a MDS",
+            "hostname": "r142b-mds-a.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "mb": {
+            "description": "r142b-mds-b MDS",
+            "hostname": "r142b-mds-b.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "mc": {
+            "description": "r143b-mds MDS",
+            "hostname": "r143b-mds.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "n1": {
+            "description": "r142b-netapp01 NetApp Appliance",
+            "hostname": "r142b-netapp01.rich.ciscolabs.com",
+            "type": "netapp"
+        },
+        "o1": {
+            "description": "r142b-oob01 OOB Switch",
+            "hostname": "r142b-oob01.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "o2": {
+            "description": "r142b-oob02 OOB Switch",
+            "hostname": "r142b-oob01.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "o3": {
+            "description": "r143b-oob OOB Switch",
+            "hostname": "r143b-oob.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "p1": {
+            "description": "r142b-pure01 Pure Array",
+            "hostname": "r142b-pure01.rich.ciscolabs.com",
+            "type": "pure"
+        },
+        "p2": {
+            "description": "r142b-pure02 Pure Array",
+            "hostname": "r142b-pure02.rich.ciscolabs.com",
+            "type": "pure"
+        },
+        "p3": {
+            "description": "r143b-pure03 Pure Array",
+            "hostname": "r143b-pure03.rich.ciscolabs.com",
+            "type": "pure"
+        },
+        "r": {
+            "description": "rich HX Cluster IP",
+            "hostname": "rich.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "r1": {
+            "description": "r142a-1-hx HX Node",
+            "hostname": "r142a-1-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "r2": {
+            "description": "r142a-2-hx HX Node",
+            "hostname": "r142a-2-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "r3": {
+            "description": "r142a-3-hx HX Node",
+            "hostname": "r142a-3-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "r4": {
+            "description": "r142a-4-hx HX Node",
+            "hostname": "r142a-4-hx.rich.ciscolabs.com",
+            "type": "hx"
+        },
+        "s1": {
+            "description": "r143c ACI Spine1",
+            "hostname": "r143c-spine1.rich.ciscolabs.com",
+            "type": "aci-lab"
+        },
+        "s2": {
+            "description": "r143c ACI Spine2",
+            "hostname": "r143c-spine2.rich.ciscolabs.com",
+            "type": "aci-lab"
+        },
+        "u": {
+            "description": "r143c UCS Domain VIP",
+            "hostname": "r143c-ucs.rich.ciscolabs.com",
+            "type": "ucs-lab"
+        },
+        "ua": {
+            "description": "r142c UCS Fabric A",
+            "hostname": "r143c-ucs-a.rich.ciscolabs.com",
+            "type": "ucs-lab"
+        },
+        "ub": {
+            "description": "r143c UCS Fabric B",
+            "hostname": "r143c-ucs-b.rich.ciscolabs.com",
+            "type": "ucs-lab"
+        },
+        "wa1": {
+            "description": "Wakanda APIC",
+            "hostname": "wakanda-apic01.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "wl1": {
+            "description": "Wakanda Leaf 101",
+            "hostname": "wakanda-leaf201.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "wl2": {
+            "description": "Wakanda Leaf 102",
+            "hostname": "wakanda-leaf202.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "ws1": {
+            "description": "Wakanda Spine 101",
+            "hostname": "wakanda-spine101.rich.ciscolabs.com",
+            "type": "aci"
+        },
+        "ws2": {
+            "description": "Wakanda Spine 102",
+            "hostname": "wakanda-spine102.rich.ciscolabs.com",
+            "type": "aci"
+        }
+    }
+}
