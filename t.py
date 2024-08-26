@@ -80,7 +80,7 @@ def child_login(kwargs):
             if len(v.hostname) > hlength: hlength = len(v.hostname)
             if len(v.type)     > tlength: tlength = len(v.type)
         for k,v in kwargs.ezdata.short_names.items():
-            pcolor.Cyan("  ShortName: %-*s Type: %-*s Hostname: %-*s Description: %s" % (slength,k,tlength,v.type,hlength,v.hostname,v.description))
+            pcolor.Cyan("  SN: %-*s Type: %-*s Host: %-*s Desc: %s" % (slength,k,tlength,v.type,hlength,v.hostname,v.description))
         pcolor.Cyan(f'\n{"-"*130}\n')
         sys.exit(0)
     x = sys.argv[1].split(',')
@@ -93,7 +93,7 @@ def child_login(kwargs):
         for e in list(kwargs.ezdata.console_servers.keys()):
             for k, v in kwargs.ezdata.console_servers[e].items():
                 if v.short_name == x[0]:
-                    kwargs = kwargs | DotMap(hostname = e, port = k, protocol = 'telnet')
+                    kwargs = kwargs | DotMap(hostname = e, port = k, protocol = 'telnet', type = 'terminal')
                     match = True; break
             if match == True: break
         if match == False:
@@ -104,17 +104,17 @@ def child_login(kwargs):
     #=========================================================================
     # Determine Username/Password
     #=========================================================================
-    if   'hx'   in kwargs.type: password = os.environ['hxpassword'];  username = 'admin'
-    elif 'imm'  in kwargs.type: password = os.environ['immpassword']; username = 'admin'
-    elif 'lab'  in kwargs.type: password = os.environ['labpassword']; username = 'admin'
+    if   'hx'   in kwargs.type: password = os.environ['hxpassword'];  kwargs.username = 'admin'
+    elif 'imm'  in kwargs.type: password = os.environ['immpassword']; kwargs.username = 'admin'
+    elif 'lab'  in kwargs.type: password = os.environ['labpassword']; kwargs.username = 'admin'
     elif re.search('^r14[2-3][a-z]-pdu', kwargs.hostname):
         kwargs.port = 23; kwargs.protocol = 'telnet'
-        if re.search('3[a-e]', kwargs.hostname): password = os.environ['pdupassword']; username = 'localadmin'; 
-        else:  password = os.environ['pdupassword']; username = 'admin'; kwargs.protocol = 'ssh'
-    else: password = os.environ['password']; username = os.environ['username']
-    if   'aci' == kwargs.type: username = f'apic#RICH\\\\{username}'
-    elif 'ucs' == kwargs.type: username = f'ucs-RICH\\\\{username}'
-    elif kwargs.hostname == 'lnx2.rich.ciscolabs.com': username = f'{username}@rich.ciscolabs.com'
+        if re.search('3[a-e]', kwargs.hostname): password = os.environ['pdupassword']; kwargs.username = 'localadmin'; 
+        else:  password = os.environ['pdupassword']; kwargs.username = 'admin'; kwargs.protocol = 'ssh'
+    else: password = os.environ['password']; kwargs.username = os.environ['username']
+    if   'aci' == kwargs.type: kwargs.username = f'apic#RICH\\\\{kwargs.username}'
+    elif 'ucs' == kwargs.type: kwargs.username = f'ucs-RICH\\\\{kwargs.username}'
+    elif kwargs.hostname == 'lnx2.rich.ciscolabs.com': kwargs.username = f'{kwargs.username}@rich.ciscolabs.com'
     #=========================================================================
     # Launch Local Shell
     #=========================================================================
@@ -146,7 +146,7 @@ def child_login(kwargs):
         while term_check == False:
             i = child.expect([
                 'closed', '[p|P]assword:', '[u|U]sername:', '(\\$ $|\>|%|[a-zA-Z0-9]#[ ]?$)', pexpect.EOF, pexpect.TIMEOUT])
-            if   i == 1: child.sendline(os.environ('password'))
+            if   i == 1: child.sendline(os.environ['password'])
             elif i == 2: child.sendline(kwargs.username)
             elif i == 3: term_check = True
             elif i == 0 or i == 4 or i == 5:
@@ -158,7 +158,7 @@ def child_login(kwargs):
                 pcolor.Red(f'\n{"-"*108}\n')
                 child.close()
                 sys.exit(1)
-        child.sendline(f'clear line tty {kwargs.port - 2000}')
+        child.sendline(f'clear line tty {int(kwargs.port) - 2000}')
         child.expect(f'clear line tty')
         term_check = False
         while term_check == False:
@@ -187,7 +187,7 @@ def child_login(kwargs):
         child.sendline(f'telnet {kwargs.hostname} {kwargs.port}')
         child.expect(f'telnet {kwargs.hostname} {kwargs.port}')
     else: 
-        child.sendline(f'ssh -p {kwargs.port} {username}@{kwargs.hostname} ')
+        child.sendline(f'ssh -p {kwargs.port} {kwargs.username}@{kwargs.hostname} ')
         child.expect(f'ssh -p {kwargs.port}')
         child.expect(kwargs.hostname)
     logged_in = False
@@ -202,6 +202,7 @@ def child_login(kwargs):
         elif i == 3: child.sendline(kwargs.username)
         elif i == 4: logged_in = True
         elif i == 5: logged_in = True
+        elif i == 9: clear_terminal_line(kwargs)
         elif i == 1 or i == 6 or i == 7 or i == 8:
             pcolor.Red(f'\n{"-"*108}\n')
             if i == 6 or i == 7: pcolor.Red(f'!!! FAILED !!!\n Could not open {kwargs.protocol.upper()} Connection to {kwargs.hostname}')
@@ -212,8 +213,6 @@ def child_login(kwargs):
             pcolor.Red(f'\n{"-"*108}\n')
             child.close()
             sys.exit(1)
-        elif i == 9:
-            clear_terminal_line(kwargs)
 
   
     child.logfile_read = None
@@ -226,17 +225,22 @@ def child_login(kwargs):
         if "sdf" in filter_buffer:
             child.logfile_read = sys.stdout
             child.sendcontrol('u')
-            child.sendline('exit')
-            child.expect('exit')
+            if kwargs.type == 'terminal':
+                child.sendcontrol(']')
+                child.expect('telnet>')
+                child.sendline('quit')
+                child.expect('quit')
+            else:
+                child.sendline('exit')
+                child.expect('exit')
             logged_out = False
             while logged_out == False:
-                i = child.expect(['closed', '\\)#[ ]?$', '(\\$ $|\>|%|[a-zA-Z0-9]#[ ]?$)', pexpect.EOF, pexpect.TIMEOUT])
-                if i == 0: logged_out = True
-                elif i == 3: logged_out = True
-                elif i == 1: 
-                    child.sendline('end'); child.expect('end')
-                elif i == 2: 
-                    child.sendline('exit'); child.expect('exit')
+                i = child.expect(['Connection closed', '\\)#[ ]?$', '(\\$ $|\\$ \x07$|\>|%|[a-zA-Z0-9]#[ ]?$)', pexpect.EOF, pexpect.TIMEOUT])
+                print(i)
+                if   i == 3: logged_out = True
+                elif i == 0: child.sendline('\r')
+                elif i == 1: child.sendline('end'); child.expect('end')
+                elif i == 2: child.sendline('exit'); child.expect('exit')
                 elif i == 4:
                     print(child.before)
                     print(child.after)
