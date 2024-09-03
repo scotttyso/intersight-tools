@@ -489,6 +489,7 @@ class os_install(object):
         elist         = []
         kwargs        = isight.software_repository('scu').scu(kwargs)
         kwargs.models = list(numpy.unique(numpy.array([e.model for e in kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles])))
+        kwargs.models = list(numpy.unique(numpy.array([(((((e.removesuffix('L')).removesuffix('D')).removesuffix('X')).removesuffix('N')).removesuffix('S')).removesuffix('M') for e in kwargs.models])))
         for e in kwargs.scu_results:
             elist.append(f'Location: {e.Source.LocationLink} || Version: {e.Version} || Name: {e.Name} || Supported Models: {", ".join(e.SupportedModels)} || Moid: {e.Moid}')
         def print_error(kwargs):

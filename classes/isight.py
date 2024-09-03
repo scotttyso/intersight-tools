@@ -178,7 +178,8 @@ class api(object):
                 if 'SwitchId'      in ikeys: api_dict[iname].switch_id = i.SwitchId
                 if 'Tags'          in ikeys: api_dict[iname].tags = i.Tags
                 if 'UpgradeStatus' in ikeys: api_dict[iname].upgrade_status = i.UpgradeStatus
-                if 'WorkflowInfo'  in ikeys: api_dict[iname].workflow_moid  = i.WorkflowInfo.Moid
+                if 'WorkflowInfo'  in ikeys:
+                    if type(i.WorkflowInfo) != kwargs.type_none: api_dict[iname].workflow_moid  = i.WorkflowInfo.Moid
                 if 'Distributions' in ikeys: api_dict[iname].distributions  = [e.Moid for e in i.Distributions]
                 if 'Source'   in ikeys and 'LocationLink' in ikeys: api_dict[iname].url = i.Source.LocationLink
                 if 'Vendor'   in ikeys and   type(i.Vendor) != str: api_dict[iname].vendor_moid = i.Vendor.Moid
@@ -909,7 +910,7 @@ class api(object):
             kwargs.server_profiles[e.hardware_moid] = e
             hardware_moids.append(e.hardware_moid)
         pcolor.Cyan(f'\n   - Pulling Server Identity Inventory for the following Server Profiles(s):')
-        for k,v in kwargs.server_profiles.items(): pcolor.Cyan(f'     * Serial: {e.serial} Name: {e.name}')
+        for k,v in kwargs.server_profiles.items(): pcolor.Cyan(f'     * Serial: {v.serial} Name: {v.name}')
         #=====================================================================
         # Get Server Profile Elements
         #=====================================================================
@@ -937,7 +938,11 @@ class api(object):
                 org = kwargs.org_names[boot_moids[v.boot_order.moid].Organization.Moid]
                 kwargs.server_profiles[k].boot_order.name = f'{org}/{boot_moids[v.boot_order.moid].Name}'
                 for e in boot_moids[v.boot_order.moid].BootDevices:
-                    if e.ObjectType == 'san.Boot': kwargs.server_profiles[k].boot_order.wwpn_targets.append(DotMap(lun=e.Lun,slot=e.Slot,wwpn=e.Wwpn))
+                    if e.ObjectType == 'boot.San':
+                        kwargs.server_profiles[k].boot_order.wwpn_targets.append(
+                            DotMap(interface_name=e.InterfaceName,lun=e.Lun,slot=e.Slot,wwpn=e.Wwpn))
+                    if len(kwargs.server_profiles[k].boot_order.wwpn_targets) > 0:
+                        kwargs.server_profiles[k].boot_order.wwpn_targets = sorted(kwargs.server_profiles[k].boot_order.wwpn_targets, key=lambda ele: ele.interface_name)
         #=====================================================================
         # Get iSCSI | vHBA | vNIC Identifiers
         #=====================================================================
@@ -2104,11 +2109,12 @@ class imm(object):
                     else:
                         if len(v.boot_order.wwpn_targets) > 1: kwargs.wwpn_index = 1; kwargs.san_target = v.boot_order.wwpn_targets[1]
                         else: kwargs.wwpn_index = 0; kwargs.san_target = v.boot_order.wwpn_targets[0]
-                    kwargs.fc_ifs = [b for a,b in v.adapters[kwargs.san_target.slot].fc_ifs.items()]
-                    starget = kwargs.san_target
+                    #kwargs.fc_ifs = [b for a,b in v.adapters[kwargs.san_target.slot].fc_ifs.items()]
+                    kwargs.fc_ifs = v.adapters[kwargs.san_target.slot].fc_ifs
+                    stgt = kwargs.san_target
                     pcolor.Green(f'\n{"-"*52}\n')
                     pcolor.Green(f'\n{" "*2}- boot_mode: SAN\n{" "*5}boot_target:')
-                    pcolor.Green(f'{" "*4}initiator: {v.wwpns[kwargs.wwpn_index].wwpn}\n{" "*7}lun: {starget.Lun}\n{" "*7}target: {starget.Wwpn}')
+                    pcolor.Green(f'{" "*4}initiator: {kwargs.fc_ifs[stgt.interface_name].wwpn}\n{" "*7}lun: {stgt.lun}\n{" "*7}target: {stgt.wwpn}')
                     pcolor.Green(f'{" "*4}profile: {v.name}\n{" "*5}serial: {v.serial}')
                     pcolor.Green(f'{" "*4}vnic:\n{" "*7}name: {vnic.name}\n{" "*7}mac: {vnic.mac}\n')
                 elif v.boot_volume.lower() == 'm2' and type(v.install_interface) == str:

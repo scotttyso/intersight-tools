@@ -583,7 +583,7 @@ def installation_body(v, kwargs):
                 break
         api_body['InstallTarget'] = {'Id': str(drive.id), 'Name': drive.name, 'ObjectType': 'os.VirtualDrive', 'StorageControllerSlotId': drive.slot}
     elif v.boot_volume.lower() == 'san':
-        api_body['InstallTarget'] = {'InitiatorWwpn': kwargs.fc_ifs[kwargs.wwpn_index].wwpn, 'LunId': kwargs.san_target.lun,
+        api_body['InstallTarget'] = {'InitiatorWwpn': kwargs.fc_ifs[kwargs.san_target.interface_name].wwpn, 'LunId': kwargs.san_target.lun,
                                      'ObjectType': 'os.FibreChannelTarget', 'TargetWwpn': kwargs.san_target.wwpn}
     api_body = dict(sorted(api_body.items()))
     return api_body
