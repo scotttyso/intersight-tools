@@ -8863,14 +8863,14 @@
                                 "maximum": 1000000,
                                 "title": "burst"
                             },
-                            "cos": {
+                            "class_of_service": {
                                 "type": "integer",
-                                "default": 1,
-                                "description": "Default is `1`.  Class of Service to be associated to the traffic on the virtual interface.",
+                                "default": 0,
+                                "description": "Default is `0`.  Class of Service to be associated to the traffic on the virtual interface.",
                                 "intersight_api": "Cos",
-                                "minimum": 1,
+                                "minimum": 0,
                                 "maximum": 6,
-                                "title": "cos"
+                                "title": "class_of_service"
                             },
                             "enable_trust_host_cos": {
                                 "type": "boolean",
@@ -9798,14 +9798,14 @@
                         ],
                         "title": "fibre_channel_network",
                         "properties": {
-                            "default_vlan_id": {
+                            "default_vlan": {
                                 "type": "integer",
                                 "default": 0,
                                 "description": "Default is `0`.  Default VLAN of the virtual interface in Standalone Rack server. Setting the value to 0 is equivalent to None and will not associate any Default VLAN to the traffic on the virtual interface (0-4094).",
                                 "intersight_api": "$ref:VsanSettings:vnic.VsanSettings:DefaultVlanId",
                                 "minimum": 0,
                                 "maximum": 4094,
-                                "title": "default_vlan_id"
+                                "title": "default_vlan"
                             },
                             "vsan_id": {
                                 "type": "integer",
@@ -9851,14 +9851,14 @@
                                 "maximum": 1000000,
                                 "title": "burst"
                             },
-                            "cos": {
+                            "class_of_service": {
                                 "type": "integer",
                                 "default": 3,
                                 "description": "Default is `3`.  Class of Service to be associated to the traffic on the virtual interface.",
                                 "intersight_api": "Cos",
                                 "minimum": 0,
                                 "maximum": 6,
-                                "title": "cos"
+                                "title": "class_of_service"
                             },
                             "max_data_field_size": {
                                 "type": "integer",
@@ -9937,7 +9937,7 @@
             "firmware.advanced_mode": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "The components to be excluded in the server upgrade via policy.\n\nOptional Attributes:\n  * exclude_drives: false\n  * exclude_drives_except_boot_drives: false\n  * exclude_storage_controllers: false\n  * exclude_storage_sas_expander: false\n  * exclude_storage_u2: false",
+                "description": "The components to be excluded in the server upgrade via policy.\n\nOptional Attributes:\n  * exclude_drives: false\n  * exclude_drives_except_boot_drives: false\n  * exclude_storage_controllers: false\n  * exclude_storage_sasexpander: false\n  * exclude_storage_u2: false",
                 "intersight_api": "ExcludeComponentList",
                 "object_type": "ExcludeComponentList",
                 "required": [],
@@ -9964,12 +9964,12 @@
                         "intersight_api": "storage-controller",
                         "title": "exclude_storage_controllers"
                     },
-                    "exclude_storage_sas_expander": {
+                    "exclude_storage_sasexpander": {
                         "type": "boolean",
                         "default": true,
                         "description": "Component to be excluded is storage sas-expander.",
                         "intersight_api": "storage-sasexpander",
-                        "title": "exclude_storage_sas_expander"
+                        "title": "exclude_storage_sasexpander"
                     },
                     "exclude_storage_u2": {
                         "type": "boolean",

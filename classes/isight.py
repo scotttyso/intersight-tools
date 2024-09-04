@@ -1630,8 +1630,7 @@ class imm(object):
     def firmware(self, api_body, item, kwargs):
         item = item; kwargs = kwargs
         if api_body.get('ExcludeComponentList'):
-            exclude_components = list(api_body['ExcludeComponentList'].keys())
-            api_body['ExcludeComponentList'] = exclude_components
+            api_body['ExcludeComponentList'] = [e for e in list(api_body['ExcludeComponentList'].keys()) if api_body['ExcludeComponentList'][e] == True]
         if api_body.get('ModelBundleCombo'):
             combos = deepcopy(api_body['ModelBundleCombo']); api_body['ModelBundleCombo'] = []
             for e in combos:
@@ -1639,6 +1638,7 @@ class imm(object):
                     idict = deepcopy(e); idict['ModelFamily'] = i
                     api_body['ModelBundleCombo'].append(idict)
             api_body['ModelBundleCombo'] = sorted(api_body['ModelBundleCombo'], key=lambda ele: ele['BundleVersion'])
+        api_body = dict(sorted(api_body.items()))
         return api_body
 
     #=========================================================================
@@ -3648,7 +3648,9 @@ class imm(object):
                     kwargs.sensitive_var = f"vmedia_password_{api_body['Mappings'][x]['Password']}"
                     kwargs = ezfunctions.sensitive_var_value(kwargs)
                     api_body['Mappings'][x]['Password'] = kwargs.var_value
-                if api_body['Mappings'][x].get('FileLocation') and api_body['Mappings'][x].get('MountProtocol') == 'nfs':
+                if   api_body['Mappings'][x].get('FileLocation') and api_body['Mappings'][x].get('MountProtocol') == 'cifs':
+                    api_body['Mappings'][x]['MountProtocol'] = (api_body['Mappings'][x]['MountProtocol']).replace('cifs://', '')
+                elif api_body['Mappings'][x].get('FileLocation') and api_body['Mappings'][x].get('MountProtocol') == 'nfs':
                     api_body['Mappings'][x]['MountProtocol'] = (api_body['Mappings'][x]['MountProtocol']).replace('nfs://', '')
         return api_body
 
