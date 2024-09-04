@@ -104,9 +104,10 @@ def child_login(kwargs):
     #=========================================================================
     # Determine Username/Password
     #=========================================================================
-    if   'hx'   in kwargs.type: password = os.environ['hxpassword'];  kwargs.username = 'admin'
-    elif 'imm'  in kwargs.type: password = os.environ['immpassword']; kwargs.username = 'admin'
-    elif 'lab'  in kwargs.type: password = os.environ['labpassword']; kwargs.username = 'admin'
+    if   'hx'  in kwargs.type: password = os.environ['hxpassword'];  kwargs.username = 'admin'
+    elif 'imm' in kwargs.type: password = os.environ['immpassword']; kwargs.username = 'admin'
+    elif 'lab' in kwargs.type: password = os.environ['labpassword']; kwargs.username = 'admin'
+    elif 'kit' in kwargs.type: password = os.environ['kitpassword']; kwargs.username = 'imm-toolkit'
     elif re.search('^r14[2-3][a-z]-pdu', kwargs.hostname):
         kwargs.port = 23; kwargs.protocol = 'telnet'
         if re.search('3[a-e]', kwargs.hostname): password = os.environ['pdupassword']; kwargs.username = 'localadmin'; 
