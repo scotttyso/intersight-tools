@@ -40,7 +40,6 @@ except ImportError as e:
 # Function: Parse Arguments
 #=============================================================================
 def cli_arguments():
-    kwargs = DotMap()
     parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
     parser = ezfunctions.base_arguments(parser)
     parser = ezfunctions.base_arguments_ezimm_sensitive_variables(parser)
@@ -60,8 +59,7 @@ def cli_arguments():
             6.  Server \
             7.  StateUpdate \
             8.  Exit')
-    kwargs.args = parser.parse_args()
-    return kwargs
+    return DotMap(args = parser.parse_args())
 
 #=============================================================================
 # Function: Create Terraform Workspaces
@@ -326,7 +324,7 @@ def imm_transition(kwargs):
     #=========================================================================
     # Run through the IMM Transition Wizard
     #=========================================================================
-    kwargs = transition.intersight('transition').policy_loop(kwargs)
+    kwargs = transition.intersight('transition').modify_keys_loop(kwargs)
     #=========================================================================
     # Create YAML Files and return kwargs
     #=========================================================================

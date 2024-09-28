@@ -18,11 +18,9 @@ except ImportError as e:
     sys.exit(1)
 
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description='UCS Central VLAN Push Module')
-    Parser.add_argument( '-y', '--yaml-file', help = 'The input YAML File.', required=True )
-    kwargs = DotMap()
-    kwargs.args = Parser.parse_args()
-    return kwargs
+    parser = argparse.ArgumentParser(description='UCS Central VLAN Push Module')
+    parser.add_argument( '-y', '--yaml-file', help = 'The input YAML File.', required=True )
+    return DotMap(args = parser.parse_args())
 
 def main():
     kwargs = cli_arguments()

@@ -7,7 +7,7 @@
       },
       "info": {
         "description": "Cisco Easy IMM Data Model JSON Schema.  See: https://github.com/terraform-cisco-modules/easy-imm",
-        "version": "4.2.11-17769",
+        "version": "4.2.11-18369",
         "title": "Cisco Intersight Managed Mode Schema",
         "license": {
           "name": "MIT",
@@ -20,6 +20,7 @@
                 "type": "object",
                 "additionalProperties": false,
                 "description": "",
+                "intersight_api": "Tags",
                 "object_type": "mo.Tag",
                 "required": [
                     "key",
@@ -287,32 +288,68 @@
             },
             "adapter_configuration.add_vic_adapter_configuration.dce_interface_settings": {
                 "type": "object",
-                "description": "Settings applicable for the Data Center Ethernet (DCE) interfaces on the adapter card.\n\nRequired Attributes:\n  * dce_interface_fec_modes",
+                "description": "Settings applicable for the Data Center Ethernet (DCE) interfaces on the adapter card.\n\nRequired Attributes:\n  * dce_interface_1_fec_mode\n  * dce_interface_2_fec_mode\n  * dce_interface_3_fec_mode\n  * dce_interface_4_fec_mode",
                 "intersight_api": "DceInterfaceSettings",
                 "object_type": "adapter.DceInterfaceSettings",
                 "required": [
-                    "dce_interface_fec_modes"
+                    "dce_interface_1_fec_mode",
+                    "dce_interface_2_fec_mode",
+                    "dce_interface_3_fec_mode",
+                    "dce_interface_4_fec_mode"
                 ],
                 "title": "dce_interface_settings",
                 "properties": {
-                    "dce_interface_fec_modes": {
-                        "type": "array",
-                        "description": "\n\nRequired Attributes:\n  * name\n\nOptional Attributes:",
-                        "intersight_api": "FecMode",
-                        "items": {
-                            "type": "string",
-                            "default": "cl91",
-                            "description": "Default is 'cl91'.  Forward Error Correction (FEC) mode setting for the DCE interfaces of the adapter. FEC mode setting is supported only for Cisco VIC 14xx adapters. FEC mode 'cl74' is unsupported for Cisco VIC 1495/1497. This setting will be ignored for unsupported adapters and for unavailable DCE interfaces.\n  * `cl74` - Use cl74 standard as FEC mode setting. 'Clause 74' aka FC-FEC ('FireCode' FEC) offers simple, low-latency protection against 1 burst/sparse bit error, but it is not good for random errors.\n  * `cl91` - Use cl91 standard as FEC mode setting. 'Clause 91' aka RS-FEC ('ReedSolomon' FEC) offers better error protection against bursty and random errors but adds latency.\n  * `Off` - Disable FEC mode on the DCE Interface.",
-                            "intersight_api": "FecMode",
-                            "enum": [
-                                "cl74",
-                                "cl91",
-                                "Off"
-                            ],
-                            "title": "dce_interface_fec_mode"
-                        },
+                    "dce_interface_1_fec_mode": {
+                        "type": "string",
+                        "default": "cl91",
+                        "description": "Default is 'cl91'.  Forward Error Correction (FEC) mode setting for the DCE interface of the adapter. FEC mode setting is supported only for Cisco VIC 14xx adapters. FEC mode 'cl74' is unsupported for Cisco VIC 1495/1497. This setting will be ignored for unsupported adapters and for unavailable DCE interfaces.\n  * `cl74` - Use cl74 standard as FEC mode setting. 'Clause 74' aka FC-FEC ('FireCode' FEC) offers simple, low-latency protection against 1 burst/sparse bit error, but it is not good for random errors.\n  * `cl91` - Use cl91 standard as FEC mode setting. 'Clause 91' aka RS-FEC ('ReedSolomon' FEC) offers better error protection against bursty and random errors but adds latency.\n  * `Off` - Disable FEC mode on the DCE Interface.",
+                        "intersight_api": "FecMode0",
+                        "enum": [
+                            "cl74",
+                            "cl91",
+                            "Off"
+                        ],
                         "object_type": "adapter.DceInterfaceSettings",
-                        "title": "dce_interface_fec_modes - Dce Interface Fec Modes - object_type: adapter.DceInterfaceSettings"
+                        "title": "dce_interface_1_fec_mode - Dce Interface 1 Fec Mode - object_type: adapter.DceInterfaceSettings"
+                    },
+                    "dce_interface_2_fec_mode": {
+                        "type": "string",
+                        "default": "cl91",
+                        "description": "Default is 'cl91'.  Forward Error Correction (FEC) mode setting for the DCE interface of the adapter. FEC mode setting is supported only for Cisco VIC 14xx adapters. FEC mode 'cl74' is unsupported for Cisco VIC 1495/1497. This setting will be ignored for unsupported adapters and for unavailable DCE interfaces.\n  * `cl74` - Use cl74 standard as FEC mode setting. 'Clause 74' aka FC-FEC ('FireCode' FEC) offers simple, low-latency protection against 1 burst/sparse bit error, but it is not good for random errors.\n  * `cl91` - Use cl91 standard as FEC mode setting. 'Clause 91' aka RS-FEC ('ReedSolomon' FEC) offers better error protection against bursty and random errors but adds latency.\n  * `Off` - Disable FEC mode on the DCE Interface.",
+                        "intersight_api": "FecMode1",
+                        "enum": [
+                            "cl74",
+                            "cl91",
+                            "Off"
+                        ],
+                        "object_type": "adapter.DceInterfaceSettings",
+                        "title": "dce_interface_2_fec_mode - Dce Interface 2 Fec Mode - object_type: adapter.DceInterfaceSettings"
+                    },
+                    "dce_interface_3_fec_mode": {
+                        "type": "string",
+                        "default": "cl91",
+                        "description": "Default is 'cl91'.  Forward Error Correction (FEC) mode setting for the DCE interface of the adapter. FEC mode setting is supported only for Cisco VIC 14xx adapters. FEC mode 'cl74' is unsupported for Cisco VIC 1495/1497. This setting will be ignored for unsupported adapters and for unavailable DCE interfaces.\n  * `cl74` - Use cl74 standard as FEC mode setting. 'Clause 74' aka FC-FEC ('FireCode' FEC) offers simple, low-latency protection against 1 burst/sparse bit error, but it is not good for random errors.\n  * `cl91` - Use cl91 standard as FEC mode setting. 'Clause 91' aka RS-FEC ('ReedSolomon' FEC) offers better error protection against bursty and random errors but adds latency.\n  * `Off` - Disable FEC mode on the DCE Interface.",
+                        "intersight_api": "FecMode2",
+                        "enum": [
+                            "cl74",
+                            "cl91",
+                            "Off"
+                        ],
+                        "object_type": "adapter.DceInterfaceSettings",
+                        "title": "dce_interface_3_fec_mode - Dce Interface 3 Fec Mode - object_type: adapter.DceInterfaceSettings"
+                    },
+                    "dce_interface_4_fec_mode": {
+                        "type": "string",
+                        "default": "cl91",
+                        "description": "Default is 'cl91'.  Forward Error Correction (FEC) mode setting for the DCE interface of the adapter. FEC mode setting is supported only for Cisco VIC 14xx adapters. FEC mode 'cl74' is unsupported for Cisco VIC 1495/1497. This setting will be ignored for unsupported adapters and for unavailable DCE interfaces.\n  * `cl74` - Use cl74 standard as FEC mode setting. 'Clause 74' aka FC-FEC ('FireCode' FEC) offers simple, low-latency protection against 1 burst/sparse bit error, but it is not good for random errors.\n  * `cl91` - Use cl91 standard as FEC mode setting. 'Clause 91' aka RS-FEC ('ReedSolomon' FEC) offers better error protection against bursty and random errors but adds latency.\n  * `Off` - Disable FEC mode on the DCE Interface.",
+                        "intersight_api": "FecMode3",
+                        "enum": [
+                            "cl74",
+                            "cl91",
+                            "Off"
+                        ],
+                        "object_type": "adapter.DceInterfaceSettings",
+                        "title": "dce_interface_4_fec_mode - Dce Interface 4 Fec Mode - object_type: adapter.DceInterfaceSettings"
                     }
                 }
             },
@@ -7312,8 +7349,8 @@
                 "properties": {
                     "dns_ip": {
                         "type": "string",
-                        "default": "208.67.220.220",
-                        "description": "IP address for the DNS server.  Example `208.67.220.220`.",
+                        "default": "2620:119:53::53",
+                        "description": "IP address for the DNS server.  Example `2620:119:53::53`.",
                         "intersight_api": "DnsIp",
                         "minLength": 7,
                         "maxLength": 15,
@@ -7322,8 +7359,8 @@
                     },
                     "gateway_ip": {
                         "type": "string",
-                        "default": "198.18.0.1",
-                        "description": "IP address of the default gateway.  Example `198.18.0.1`.",
+                        "default": "2001:db8::1",
+                        "description": "IP address of the default gateway.  Example `2001:db8::1`.",
                         "intersight_api": "GatewayIp",
                         "minLength": 7,
                         "maxLength": 15,
@@ -7545,16 +7582,16 @@
                         "type": "object",
                         "description": "Definition of the list of properties defined in 'deviceconnector.Policy', excluding properties defined in parent classes.",
                         "required": [
-                            "configuration_lockout"
+                            "configuration_from_intersight_only"
                         ],
                         "title": "device_connector",
                         "properties": {
-                            "configuration_lockout": {
+                            "configuration_from_intersight_only": {
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Default is `true`.  Enables configuration lockout on the endpoint.",
                                 "intersight_api": "LockoutEnabled",
-                                "title": "configuration_lockout"
+                                "title": "configuration_from_intersight_only"
                             }
                         }
                     }
@@ -7579,70 +7616,193 @@
                         "type": "object",
                         "additionalProperties": false,
                         "description": "The drive security policy models the KMIP server related configuration that can be applied on multiple servers. Storage controller encryption can be enabled through this policy using remote keys from a KMIP server.",
-                        "required": [
-                            "assigned_sensitive_data",
-                            "primary_kmip_server"
-                        ],
+                        "required": [],
                         "title": "drive_security",
                         "properties": {
-                            "assigned_sensitive_data": {
-                                "type": "boolean",
-                                "default": false,
-                                "description": "Default is `false`.  Flag to confirm that you have set the file location of the PEM Certificate File.  If false the Drive Security Policy will not run.",
-                                "intersight_api": "not_applicable",
-                                "title": "assigned_sensitive_data"
+                            "manual_key": {
+                                "$ref": "#/components/schemas/drive_security.manual_key"
                             },
-                            "password": {
-                                "type": "integer",
-                                "default": 1,
-                                "description": "Default is `1`.  The Password Sensitive Variable Identifier.  i.e. `var.drive_security_password`.",
-                                "intersight_api": "Password",
-                                "minimum": 1,
-                                "maximum": 64,
-                                "title": "password"
-                            },
-                            "primary_kmip_server": {
-                                "$ref": "#/components/schemas/drive_security.kmip_Server"
-                            },
-                            "secondary_kmip_server": {
-                                "optional": true,
-                                "$ref": "#/components/schemas/drive_security.kmip_Server"
-                            },
-                            "server_public_root_ca_certificate": {
-                                "type": "integer",
-                                "default": 1,
-                                "description": "Default is `1`.  The Password Sensitive Variable Identifier.  i.e. `var.drive_security_server_ca_certificate`.",
-                                "intersight_api": "not_applicable",
-                                "minimum": 1,
-                                "maximum": 64,
-                                "title": "server_public_root_ca_certificate"
+                            "remote_key_management": {
+                                "$ref": "#/components/schemas/drive_security.remote_key_management"
                             }
                         }
                     }
                 ]
             },
-            "drive_security.kmip_Server": {
+            "drive_security.manual_key": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Definition of the list of properties defined in 'storage.LocalKeySetting', excluding properties defined in parent classes.\n\nRequired Attributes:\n  * new_security_key_passphrase\n\nOptional Attributes:\n  * current_security_key_passphrase",
+                "intersight_api": "ManualKey",
+                "object_type": "storage.LocalKeySetting",
+                "required": [
+                    "new_security_key_passphrase"
+                ],
+                "title": "manual_key - Drive Security -> Manual Key - object_type: storage.LocalKeySetting",
+                "properties": {
+                    "current_security_key_passphrase": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Default is `0`.  Current Security Key Passphrase which is already configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  i.e. `var.drive_security_current_security_key_passphrase_1`.",
+                        "intersight_api": "ExistingKey",
+                        "minimum": 0,
+                        "maximum": 64,
+                        "title": "current_security_key_passphrase"
+                    },
+                    "new_security_key_passphrase": {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Default is `1`.  New Security Key Passphrase to be configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  i.e. `var.drive_security_new_security_key_passphrase_1`.",
+                        "intersight_api": "NewKey",
+                        "minimum": 1,
+                        "maximum": 64,
+                        "title": "new_security_key_passphrase"
+                    }
+                }
+            },
+            "drive_security.remote_key_management": {
                 "type": "object",
                 "additionalProperties": false,
                 "description": "Models the KMIP Server configuration used to fetch the encryption key.Required Attributes:\n  * ip_address_hostname\n\nOptional Attributes:\n  * description\n  * port\n  * tags\n  * timeout",
+                "intersight_api": "RemoteKey",
+                "object_type": "storage.RemoteKeySettings",
+                "required": [
+                    "assigned_sensitive_data",
+                    "primary_kmip_server",
+                    "server_public_root_ca_certificate"
+                ],
+                "title": "remote_key_management - Drive Security -> Remote Key Management - object_type: storage.RemoteKeySettings",
+                "properties": {
+                    "assigned_sensitive_data": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Default is `false`.  Flag to confirm that you have set the file location of the PEM Certificate File.  If false the Drive Security Policy will not run.",
+                        "intersight_api": "assigned_sensitive_data",
+                        "title": "assigned_sensitive_data"
+                    },
+                    "current_security_key_passphrase": {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Default is `0`.  Current Security Key Passphrase which is already configured on the server. From the security context, the passphrase should be at least 8 characters long and should include at least one uppercase letter, one lowercase letter, one number, and one special character.  i.e. `var.drive_security_current_security_key_passphrase_1`.",
+                        "intersight_api": "ExistingKey",
+                        "minimum": 0,
+                        "maximum": 64,
+                        "title": "current_security_key_passphrase"
+                    },
+                    "enable_authentication": {
+                        "$ref": "#/components/schemas/drive_security.remote_key_management.enable_authentication"
+                    },
+                    "primary_server": {
+                        "$ref": "#/components/schemas/drive_security.remote_key_management.primary_server"
+                    },
+                    "secondary_server": {
+                        "$ref": "#/components/schemas/drive_security.remote_key_management.secondary_server"
+                    },
+                    "server_public_root_ca_certificate": {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Default is `1`.  The Password Sensitive Variable Identifier.  i.e. `var.drive_security_server_ca_certificate`.",
+                        "intersight_api": "ServerCertificate",
+                        "minimum": 1,
+                        "maximum": 64,
+                        "title": "server_public_root_ca_certificate"
+                    }
+                }
+            },
+            "drive_security.remote_key_management.enable_authentication": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Models the KMIP Server configuration used to fetch the encryption key.Required Attributes:\n  * hostname_ip_address\n\nOptional Attributes:\n  * port\n  * timeout",
+                "intersight_api": "AuthCredentials",
+                "object_type": "storage.KmipAuthCredentials",
+                "required": [
+                    "password",
+                    "username"
+                ],
+                "title": "enable_authentication - Drive Security -> Remote Key Management -> Enable Authentication - object_type: storage.KmipAuthCredentials",
+                "properties": {
+                    "password": {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Default is `1`.  The Password Sensitive Variable Identifier.  i.e. `var.drive_security_authentication_password`.",
+                        "intersight_api": "Password",
+                        "minimum": 1,
+                        "maximum": 64,
+                        "title": "password"
+                    },
+                    "username": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The user name for the KMIP server login.",
+                        "intersight_api": "Username",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_.-]{0,31}$",
+                        "title": "username"
+                    }
+                }
+            },
+            "drive_security.remote_key_management.primary_server": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Models the KMIP Server configuration used to fetch the encryption key.Required Attributes:\n  * hostname_ip_address\n\nOptional Attributes:\n  * port\n  * timeout",
+                "intersight_api": "PrimaryServer",
                 "object_type": "storage.KmipServer",
                 "required": [
-                    "name"
+                    "hostname_ip_address"
                 ],
-                "title": "kmip_servers - Primary/Secondary KMIP Servers - object_type: storage.KmipServer",
+                "title": "primary_server - Drive Security -> Remote Key Management -> Primary Server - object_type: storage.KmipServer",
                 "properties": {
-                    "description": {
-                        "$ref": "#/components/schemas/abstract_policy/properties/description"
-                    },
-                    "ip_address_hostname": {
+                    "hostname_ip_address": {
                         "type": "string",
-                        "default": "syslog.example.com",
+                        "default": "kmip-primary.example.com",
                         "description": "The IP address of the KMIP server. It could be an IPv4 address, an IPv6 address, or a hostname. Hostnames are valid only when Inband is configured for the CIMC address.",
                         "intersight_api": "IpAddress",
                         "minLength": 1,
                         "maxLength": 255,
                         "pattern": "^((([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\\.?$|^(([a-fA-F]|[a-fA-F][a-fA-F0-9\\-]*[a-fA-F0-9])\\.)*([A-Fa-f]|[A-Fa-f][A-Fa-f0-9\\-]*[A-Fa-f0-9])$|^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::)))))$",
-                        "title": "ip_address_hostname"
+                        "title": "hostname_ip_address"
+                    },
+                    "port": {
+                        "type": "integer",
+                        "default": 5696,
+                        "description": "The port to which the KMIP client should connect.",
+                        "intersight_api": "Port",
+                        "minLength": 1024,
+                        "maxLength": 65535,
+                        "title": "port"
+                    },
+                    "timeout": {
+                        "type": "integer",
+                        "default": 60,
+                        "description": "The timeout before which the KMIP client should connect.",
+                        "intersight_api": "Timeout",
+                        "minLength": 1,
+                        "maxLength": 250,
+                        "title": "timeout"
+                    }
+                }
+            },
+            "drive_security.remote_key_management.secondary_server": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Models the KMIP Server configuration used to fetch the encryption key.Required Attributes:\n  * hostname_ip_address\n\nOptional Attributes:\n  * port\n  * timeout",
+                "intersight_api": "SecondaryServer",
+                "object_type": "storage.KmipServer",
+                "required": [
+                    "hostname_ip_address"
+                ],
+                "title": "secondary_server - Drive Security -> Remote Key Management -> Secondary Server - object_type: storage.KmipServer",
+                "properties": {
+                    "hostname_ip_address": {
+                        "type": "string",
+                        "default": "kmip-secondary.example.com",
+                        "description": "The IP address of the KMIP server. It could be an IPv4 address, an IPv6 address, or a hostname. Hostnames are valid only when Inband is configured for the CIMC address.",
+                        "intersight_api": "IpAddress",
+                        "minLength": 1,
+                        "maxLength": 255,
+                        "pattern": "^((([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\\.?$|^(([a-fA-F]|[a-fA-F][a-fA-F0-9\\-]*[a-fA-F0-9])\\.)*([A-Fa-f]|[A-Fa-f][A-Fa-f0-9\\-]*[A-Fa-f0-9])$|^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::)))))$",
+                        "title": "hostname_ip_address"
                     },
                     "port": {
                         "type": "integer",
@@ -9297,7 +9457,7 @@
                             "fc_target_zoning_type": {
                                 "type": "string",
                                 "default": "SIMT",
-                                "description": "Default is `SIMT`.  Type of FC zoning. Allowed values are SIST, SIMT and None.\n  * `SIST` - The system automatically creates one zone for each vHBA and storage port pair. Each zone has two members.\n  * `SIMT` - The system automatically creates one zone for each vHBA. Configure this type of zoning if the number of zones created is likely to exceed the maximum supported number of zones.\n  * `None` - FC zoning is not configured.",
+                                "description": "Default is `SIMT`.  Type of FC zoning. Allowed values are SIST, SIMT and None.\n  * `SIST` - `a.k.a - Single Initiator Single Target` The system automatically creates one zone for each vHBA and storage port pair. Each zone has two members.\n  * `SIMT` - `a.k.a - Single Initiator Multiple Target` The system automatically creates one zone for each vHBA. Configure this type of zoning if the number of zones created is likely to exceed the maximum supported number of zones.\n  * `None` - FC zoning is not configured.",
                                 "intersight_api": "FcTargetZoningType",
                                 "enum": [
                                     "SIST",
@@ -10618,7 +10778,7 @@
                                 "type": "array",
                                 "description": "A block of IQN addresses.\n\nRequired Attributes:\n  * from\n  * suffix\n\nOptional Attributes:\n  * size\n  * to\nNote: Only assign either size or to, not both.",
                                 "items": {
-                                    "$ref": "#/components/schemas/iqn.iqn_blocks"
+                                    "$ref": "#/components/schemas/iqn.iqn_suffix_blocks"
                                 },
                                 "title": "iqn_blocks"
                             },
@@ -10636,11 +10796,12 @@
                     }
                 ]
             },
-            "iqn.iqn_blocks": {
+            "iqn.iqn_suffix_blocks": {
                 "type": "object",
                 "additionalProperties": false,
+                "description": "The suffix block of iSCSI Qualified Names (IQNs).",
                 "intersight_api": "IqnSuffixBlocks",
-                "object_type": "iqnpool.Block",
+                "object_type": "iqnpool.IqnSuffixBlock",
                 "required": [
                     "from",
                     "suffix"
@@ -11105,7 +11266,7 @@
                             },
                             "vnics": {
                                 "type": "array",
-                                "description": "List of VNICs to add to the LAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * placement\n\nRequired for FIAttached:\n  * ethernet_adapter_policy\n  * ethernet_network_control_policy\n  * ethernet_network_group_policies\n  * ethernet_qos_policy\n\nRequired for Standalone:\n  * ethernet_network_policy\n  * ethernet_qos_policy\n\nOptional Attributes:\n  * enable_failover\n  * cdn_source\n  * cdn_values\n  * iscsi_boot_policies\n  * mac_address_pools\n  * mac_addresses_static\n  * sriov\n  * usnic\n  * vmq",
+                                "description": "List of VNICs to add to the LAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * placement\n\nRequired for FIAttached:\n  * ethernet_adapter_policy\n  * ethernet_network_control_policy\n  * ethernet_network_group_policies\n  * ethernet_qos_policy\n\nRequired for Standalone:\n  * ethernet_network_policy\n  * ethernet_qos_policy\n\nOptional Attributes:\n  * enable_failover\n  * cdn_source\n  * cdn_values\n  * iscsi_boot_policies\n  * mac_address_pools\n  * mac_addresses_static\n  * pin_group_names\n  * sriov\n  * usnic\n  * vmq",
                                 "intersight_uri": "vnic/EthIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/lan_connectivity.vnics"
@@ -11115,7 +11276,7 @@
                             },
                             "vnics_from_template": {
                                 "type": "array",
-                                "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vnic_template\n\nOptional Attributes:\n  * ethernet_adapter_policy - If Allow Override Enabled on the template\n  * cdn_value - Only if Consistency Device Naming has been configured as User at the Template Level. \n  * iscsi_boot_policy - If Allow Override Enabled on the template\n  * mac_address_pool - If Allow Override Enabled on the template\n  * sriov\n  * usnic\n  * vmq",
+                                "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vnic_template\n\nOptional Attributes:\n  * ethernet_adapter_policy - If Allow Override Enabled on the template\n  * cdn_value - Only if Consistency Device Naming has been configured as User at the Template Level. \n  * iscsi_boot_policy - If Allow Override Enabled on the template\n  * mac_address_pool - If Allow Override Enabled on the template\n  * pin_group_name - If Allow Override Enabled on the template\n  * sriov\n  * usnic\n  * vmq",
                                 "intersight_uri": "vnic/EthIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/lan_connectivity.vnics"
@@ -11165,7 +11326,7 @@
                             "intersight_api": "$ref:Cdn:vnic.Cdn:Value",
                             "minLength": 1,
                             "maxLength": 31,
-                            "pattern": "^[a-zA-Z0-9\\-\\._:]*${1,31}",
+                            "pattern": "^[a-zA-Z0-9\\-\\._:]{1,31}$",
                             "title": "cdn_value"
                         },
                         "object_type": "vnic.Cdn",
@@ -12000,8 +12161,8 @@
                     },
                     "search_forest": {
                         "type": "string",
-                        "default": "",
-                        "description": "Forest name that acts as a source for a DNS query.",
+                        "default": "example.com",
+                        "description": "Forest name that acts as a source for a DNS query.  An example would be `example.com`.",
                         "intersight_api": "SearchForest",
                         "minLength": 1,
                         "maxLength": 72,
@@ -12029,10 +12190,21 @@
                 "intersight_uri": "iam/LdapGroups",
                 "object_type": "iam.LdapGroup",
                 "required": [
+                    "name",
                     "role"
                 ],
                 "title": "ldap_groups - LDAP Groups - Intersight Uri: iam/LdapGroups",
                 "properties": {
+                    "domain": {
+                        "type": "string",
+                        "default": "example.com",
+                        "description": "LDAP server domain the Group resides in.  If this is not defined the base domain from `base_settings` will be used.",
+                        "intersight_api": "Domain",
+                        "minLength": 1,
+                        "maxLength": 72,
+                        "pattern": "^(([a-zA-Z0-9])|([a-zA-Z0-9][a-zA-Z0-9\\.\\-]*[a-zA-Z0-9]))$",
+                        "title": "switch_id"
+                    },
                     "name": {
                         "type": "string",
                         "default": "admin",
@@ -14255,7 +14427,7 @@
                             },
                             "port_channel_appliances": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * ethernet_network_control_policy\n  * ethernet_network_group_policy\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * mode\n  * priority",
+                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * ethernet_network_control_policy\n  * ethernet_network_group_policy\n  * fec\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * mode\n  * priority",
                                 "intersight_uri": "fabric/AppliancePcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_appliances"
@@ -14265,7 +14437,7 @@
                             },
                             "port_channel_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * ethernet_network_group_policy\n  * flow_control_policy\n  * link_aggregation_policy\n  * link_control_policy",
+                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * ethernet_network_group_policy\n  * fec\n  * flow_control_policy\n  * link_aggregation_policy\n  * link_control_policy",
                                 "intersight_uri": "fabric/UplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_ethernet_uplinks"
@@ -14285,7 +14457,7 @@
                             },
                             "port_channel_fcoe_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * link_aggregation_policy\n  * link_control_policy",
+                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * fec\n  * link_aggregation_policy\n  * link_control_policy",
                                 "intersight_uri": "fabric/FcoeUplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_fcoe_uplinks"
@@ -14488,6 +14660,18 @@
                         "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "ethernet_network_group_policy"
                     },
+                    "fec": {
+                        "type": "string",
+                        "default": "Auto",
+                        "description": "Default is `Auto`.  Forward error correction configuration for the port.\n  * `Auto` - Forward error correction option 'Auto'.\n  * `Cl91` - Forward error correction option 'cl91'.\n  * `Cl74` - Forward error correction option 'cl74'.",
+                        "intersight_api": "Fec",
+                        "enum": [
+                            "Auto",
+                            "Cl91",
+                            "Cl74"
+                        ],
+                        "title": "fec"
+                    },
                     "interfaces": {
                         "type": "array",
                         "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * port_id\n\nOptional Attributes:\n  * breakout_port_id\n  * slot_id",
@@ -14588,6 +14772,18 @@
                         "maxLength": 129,
                         "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "ethernet_network_group_policy"
+                    },
+                    "fec": {
+                        "type": "string",
+                        "default": "Auto",
+                        "description": "Default is `Auto`.  Forward error correction configuration for the port.\n  * `Auto` - Forward error correction option 'Auto'.\n  * `Cl91` - Forward error correction option 'cl91'.\n  * `Cl74` - Forward error correction option 'cl74'.",
+                        "intersight_api": "Fec",
+                        "enum": [
+                            "Auto",
+                            "Cl91",
+                            "Cl74"
+                        ],
+                        "title": "fec"
                     },
                     "interfaces": {
                         "type": "array",
@@ -14741,6 +14937,18 @@
                         ],
                         "sort": false,
                         "title": "admin_speed"
+                    },
+                    "fec": {
+                        "type": "string",
+                        "default": "Auto",
+                        "description": "Default is `Auto`.  Forward error correction configuration for the port.\n  * `Auto` - Forward error correction option 'Auto'.\n  * `Cl91` - Forward error correction option 'cl91'.\n  * `Cl74` - Forward error correction option 'cl74'.",
+                        "intersight_api": "Fec",
+                        "enum": [
+                            "Auto",
+                            "Cl91",
+                            "Cl74"
+                        ],
+                        "title": "fec"
                     },
                     "interfaces": {
                         "type": "array",
@@ -16399,7 +16607,7 @@
                     },
                     "serial_number": {
                         "type": "string",
-                        "default": "default",
+                        "default": "",
                         "description": "Serial Number of the Device.  You can assign unknown if you want to generate the Profile without assigning hardware.",
                         "intersight_api": "SerialNumber",
                         "minLength": 7,
@@ -16575,13 +16783,23 @@
                             },
                             "vhbas": {
                                 "type": "array",
-                                "description": "List of vHBAs to add to the SAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * fibre_channel_adapter_policy\n  * fibre_channel_network_policies\n  * fibre_channel_qos_policy\n  * placement\n\nOptional Attributes:\n  * fc_zone_policies\n  * persistent_lun_bindings\n  * vhba_type\n  * wwpn_pools\n  * wwpn_static_addresses",
+                                "description": "List of vHBAs to add to the SAN Connectivity Policy.\n\nRequired Attributes:\n  * names\n  * fibre_channel_adapter_policy\n  * fibre_channel_network_policies\n  * fibre_channel_qos_policy\n  * placement\n\nOptional Attributes:\n  * fc_zone_policies\n  * persistent_lun_bindings\n  * pin_group_names\n  * vhba_type\n  * wwpn_pools\n  * wwpn_static_addresses",
                                 "intersight_uri": "vnic/FcIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/san_connectivity.vhbas"
                                 },
                                 "object_type": "vnic.FcIf",
                                 "title": "vhbas - Vhbas - Intersight Uri: vnic/FcIfs"
+                            },
+                            "vhbas_from_template": {
+                                "type": "array",
+                                "description": "List of vHBAs to add to the SAN Connectivity Policy that will use a vHBA template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vhba_template\n\nOptional Attributes:\n  * fc_zone_policies - If Allow Override Enabled on the template\n  * fibre_channel_adapter_policy - If Allow Override Enabled on the template\n  * fibre_channel_network_policy - If Allow Override Enabled on the template\n  * pin_group_name - If Allow Override Enabled on the template\n  * wwpn_pool - If Allow Override Enabled on the template\n  * wwpn_static_address",
+                                "intersight_uri": "vnic/FcIfs",
+                                "items": {
+                                    "$ref": "#/components/schemas/san_connectivity.vhbas"
+                                },
+                                "object_type": "vnic.FcIf",
+                                "title": "vhbas_from_template - Vhbas with a Source Template - Intersight Uri: vnic/FcIfs"
                             },
                             "wwnn_pool": {
                                 "type": "string",
@@ -17132,14 +17350,32 @@
                 "title": "Sensitive Variables",
                 "required": [ ],
                 "properties": {
+                    "drive_security_passphrase": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Drive Security Current/New Security Key Passphrase for Manual or Remote Key Management.",
+                        "pattern": "^$|^((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[=!&#$%+^@_*-])[a-zA-Z0-9=!&#$%+^@_*-]{8,32})$",
+                        "minLength": 8,
+                        "maxLength": 32,
+                        "title": "drive_security_passphrase"
+                    },
+                    "drive_security_authentication_password": {
+                        "type": "string",
+                        "default": "",
+                        "description": "Drive Security Authentication Password",
+                        "pattern": "^$|^[!\"#%&\\'\\(\\)\\*\\+,\\-\\./:;<>@\\[\\\\\\]\\^_`\\{\\|\\}~a-zA-Z0-9]{0,80}$",
+                        "minLength": 8,
+                        "maxLength": 80,
+                        "title": "drive_security_authentication_password"
+                    },
                     "cco_password": {
                         "type": "string",
                         "default": "",
-                        "description": "LDAP Binding Password.",
-                        "pattern": "^[\\S+]{0,254}$",
-                        "minLength": 3,
-                        "maxLength": 254,
-                        "title": "intersight_api_key_id"
+                        "description": "Cisco.com Authentication Password.  It must meet the following criteria:\n * One Uppercase Letter\n * One Lowercase Letter\n * One Number\n * One Special Character: `!`, `@`, `#`, `$`, `%`, `^`, `&`, `*`, `+`, `_`, `=`, `-`\n * Be between 12 and 60 Characters in Length.",
+                        "pattern": "^$|^((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[=!&#$%+^@_*-])[a-zA-Z0-9=!&#$%+^@_*-]{12,60})$",
+                        "minLength": 12,
+                        "maxLength": 60,
+                        "title": "cco_password"
                     },
                     "intersight_api_key_id": {
                         "type": "string",
@@ -17150,11 +17386,20 @@
                         "maxLength": 74,
                         "title": "intersight_api_key_id"
                     },
+                    "ipmi_key": {
+                        "type": "string",
+                        "default": "",
+                        "description": "IMPI Key for an IPMI Policy.",
+                        "pattern": "^[\\da-fA-F]{2,40}",
+                        "minLength": 2,
+                        "maxLength": 40,
+                        "title": "ipmi_key"
+                    },
                     "iscsi_boot_password": {
                         "type": "string",
                         "default": "",
                         "description": "iSCSI Boot Password.",
-                        "pattern": "^[\\S+]{12,16}$",
+                        "pattern": "^[\\S]{12,16}$",
                         "minLength": 12,
                         "maxLength": 16,
                         "title": "iscsi_boot_password"
@@ -17163,7 +17408,7 @@
                         "type": "string",
                         "default": "",
                         "description": "LDAP Binding Password.",
-                        "pattern": "^[\\S+]{8,254}$",
+                        "pattern": "^[\\S]{8,254}$",
                         "minLength": 8,
                         "maxLength": 254,
                         "title": "ldap_binding_password"
@@ -17172,16 +17417,16 @@
                         "type": "string",
                         "default": "",
                         "description": "Local User Password.",
-                        "pattern": "^[a-zA-Z0-9!@#$%^&\\*+-_=]+$",
+                        "pattern": "^[a-zA-Z0-9!@#$%^&\\*+_=-]{8,127}$",
                         "minLength": 8,
-                        "maxLength": 254,
+                        "maxLength": 127,
                         "title": "local_user_password"
                     },
                     "persistent_passphrase": {
                         "type": "string",
                         "default": "",
                         "description": "Persistent Memory Passphrase.",
-                        "pattern": "^[a-zA-Z0-9!@#$%^&\\*+-_=]+$",
+                        "pattern": "^$|^[a-zA-Z0-9=!&#$%+^@_*-]+$",
                         "minLength": 8,
                         "maxLength": 32,
                         "title": "persistent_passphrase"
@@ -17190,7 +17435,7 @@
                         "type": "string",
                         "default": "",
                         "description": "REPLACE Root Password in plain text.  The Script will convert to an encrypted password.",
-                        "pattern": "^[\\S+]{8,254}$",
+                        "pattern": "^[\\S]{8,254}$",
                         "minLength": 8,
                         "maxLength": 254,
                         "title": "Root Password"
@@ -17199,7 +17444,7 @@
                         "type": "string",
                         "default": "",
                         "description": "SNMP Community String.",
-                        "pattern": "^([a-zA-Z]+[a-zA-Z\\d\\-_\\.\\@]+)$",
+                        "pattern": "^([a-zA-Z]+[a-zA-Z\\d\\.=!&#$%+^_*-)$",
                         "minLength": 8,
                         "maxLength": 32,
                         "title": "snmp_community_string"
@@ -17208,7 +17453,7 @@
                         "type": "string",
                         "default": "",
                         "description": "SNMP Auth/Privacy Password.",
-                        "pattern": "^([a-zA-Z\\d\\-_\\.\\@]+)$",
+                        "pattern": "^([a-zA-Z\\d_\\.\\@]+-)$",
                         "minLength": 8,
                         "maxLength": 32,
                         "title": "snmp_password"
@@ -17217,8 +17462,8 @@
                         "type": "string",
                         "default": "",
                         "description": "Virtual Media Mapping User Password.",
-                        "pattern": "^[\\S+]{8,254}$",
-                        "minLength": 8,
+                        "pattern": "^[\\S]{6,255}$",
+                        "minLength": 6,
                         "maxLength": 255,
                         "title": "vmedia_password"
                     },
@@ -17226,18 +17471,18 @@
                         "type": "string",
                         "default": "",
                         "description": "VMware ESXi Password.",
-                        "pattern": "^[\\S+]{8,254}$",
+                        "pattern": "^[\\S]{8,255}$",
                         "minLength": 8,
-                        "maxLength": 254,
+                        "maxLength": 255,
                         "title": "vmware_esxi_password"
                     },
                     "windows_admin_password": {
                         "type": "string",
                         "default": "",
                         "description": "Windows Administrator Password.",
-                        "pattern": "^[\\S+]{8,254}$",
+                        "pattern": "^[\\S]{8,255}$",
                         "minLength": 8,
-                        "maxLength": 254,
+                        "maxLength": 255,
                         "title": "windows_admin_password"
                     }
                 }
@@ -17883,6 +18128,13 @@
                         ],
                         "title": "raid_level"
                     },
+                    "secure_drive_group": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Default is `false`.  Enables/disables the drive encryption on all the drives used in this policy. This flag just enables the drive security and only after remote key setting configured, the actual encryption will be done.",
+                        "intersight_api": "SecureDriveGroup",
+                        "title": "secure_drive_group"
+                    },
                     "virtual_drives": {
                         "type": "array",
                         "description": "The list of virtual drives and the disk groups that need to be created through this policy.\n\nRequired Attributes:\n  * name\n\nOptional Attributes:\n  * boot_drive\n  * expand_to_available\n  * size\n  * virtual_drive_policy",
@@ -18057,10 +18309,10 @@
                     },
                     "size": {
                         "type": "integer",
-                        "default": 1,
-                        "description": "Default is `1`.  Virtual drive size in MebiBytes. Size is mandatory field except when the Expand to Available option is enabled.",
+                        "default": 0,
+                        "description": "Default is `0`.  Virtual drive size in MebiBytes. Size is mandatory field except when the Expand to Available option is enabled.",
                         "intersight_api": "Size",
-                        "minimum": 1,
+                        "minimum": 0,
                         "maximum": 40000000000,
                         "title": "size"
                     },
@@ -18083,7 +18335,7 @@
                     "name": {
                         "type": "string",
                         "default": "MStorBootVd",
-                        "description": "The name of the virtual drive. The name can be between 1 and 15 alphanumeric characters. Spaces or any special characters other than - (hyphen), _ (underscore), : (colon), and . (period) are not allowed. This field will be pre-populated with the default or user configured value which can be edited.",
+                        "description": "Default value is `MStorBootVd`.  The name of the virtual drive. The name can be between 1 and 15 alphanumeric characters. Spaces or any special characters other than - (hyphen), _ (underscore), : (colon), and . (period) are not allowed. This field will be pre-populated with the default or user configured value which can be edited.",
                         "intersight_api": "Name",
                         "minLength": 1,
                         "maxLength": 15,
@@ -18107,7 +18359,7 @@
             "storage.single_drive_raid0_configuration": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "This models a Single Drive RAID Configuration for creation of on RAID0 virtual drive per physical drive and occupying the full disk space on the same.",
+                "description": "This models a Single Drive RAID Configuration for creation of on RAID0 virtual drive per physical drive and occupying the full disk space on the same.\n\nRequired Attributes:\n  * drive_slots\n  * virtual_drive_policy",
                 "intersight_api": "Raid0Drive",
                 "object_type": "storage.R0Drive",
                 "required": [

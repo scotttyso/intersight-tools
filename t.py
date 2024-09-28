@@ -261,8 +261,7 @@ def main():
     #=========================================================================
     # Configure Base Module Setup
     #=========================================================================
-    kwargs = DotMap()
-    kwargs = base_script_settings(kwargs)
+    kwargs = base_script_settings(DotMap())
     kwargs = child_login(kwargs)
     #=========================================================================
     # Prompt User for Main Menu

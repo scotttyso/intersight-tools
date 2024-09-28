@@ -17,7 +17,7 @@ try:
     from pathlib import Path
     from stringcase import snakecase
     import argparse, base64, crypt, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform
-    import pytz, re, requests, shutil, subprocess, stdiomask, string, textwrap, validators, yaml
+    import pytz, re, requests, shutil, subprocess, stdiomask, string, textwrap, time, validators, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f' Module {e.name} is required to run this script')
@@ -292,6 +292,13 @@ def create_yaml(orgs, kwargs):
                         for x in pkeys:
                             if not x in ikeys: idict[org][item].pop(x)
                             elif not len(idict[org][item][x]) > 0: idict[org][item].pop(x)
+                            else:
+                                # Sort the List of Dictionaries
+                                xkeys = list(idict[org][item][x][0].keys())
+                                if  'names'    in xkeys: idict[org][item][x] = sorted(idict[org][item][x], key=lambda ele: ele['names'][0])
+                                elif 'name'    in xkeys: idict[org][item][x] = sorted(idict[org][item][x], key=lambda ele: ele['name'])
+                                elif 'targets' in xkeys: idict[org][item][x] = sorted(idict[org][item][x], key=lambda ele: ele['targets'][0]['name'])
+                                else: pcolor.Red(xkeys); pcolor.Red('missing_sort_type, ezfunctions.py line 303'); sys.exit(1)
                         if len(idict[org][item]) == 0: idict.pop(org)
                 if len(idict) > 0:
                     title     = mod_pol_description(f"{str.title(item.replace('_', ' '))} -> {str.title((ezdata[i].title).replace('_', ' '))}")
@@ -723,49 +730,64 @@ def installation_body_vmware(v, kwargs):
 #=============================================================================
 # Function - Prompt User for the Intersight Configurtion
 #=============================================================================
+def key_file_check(sensitive_var, var_value, kwargs):
+    #=========================================================================
+    # Prompt User for Intersight SecretKey File
+    #=========================================================================
+    key_loop  = False
+    var_title = (sensitive_var.replace('_', ' ')).title()
+    while key_loop == False:
+        valid = False
+        def key_error(sensitive_var):
+            pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Variable: {sensitive_var}\n   does not seem to be a Valid Certificate/Private Key.')
+            pcolor.Red(f'\n{"-"*108}\n')
+            len(False); sys.exit(1)
+        if os.path.isfile(var_value): key_value = open(var_value).read()
+        else: key_value = var_value
+        if 'BEGIN CERTIFICATE' in key_value:
+            try:
+                pem = crypto.load_certificate(crypto.FILETYPE_PEM, key_value)
+                expiration_date = pem.get_notAfter().decode('utf-8')
+                formatted_date  = datetime.strptime(expiration_date, '%Y%m%d%H%M%SZ')
+                pcolor.Cyan(f'{var_title} Certficate Expiration is {formatted_date}')
+                time.sleep(2)
+                valid = True
+            except Exception as e: pcolor.Red(e); key_error(sensitive_var)
+        elif 'EC PRIVATE KEY' in key_value:
+            try: SigningKey.from_pem(key_value); valid = True
+            except Exception as e: pcolor.Red(e); key_error(sensitive_var)
+        elif 'RSA PRIVATE KEY' in key_value:
+            try:
+                RSA.RsaKey.has_private(RSA.import_key(key_value)); valid = True
+            except Exception as e: pcolor.Red(e); key_error(sensitive_var)
+        key_loop = True; valid = True
+        if not valid == True:
+            kwargs.jdata = DotMap(
+                type = 'string', minLength = 2, maxLength = 1024, pattern = '.*', title = sensitive_var,
+                description = f'{var_title} Location.',
+                default     = os.path.join(kwargs.home, 'Downloads', f'SecretKey.txt'))
+            var_value = variable_prompt(kwargs)
+    # Return kwargs
+    return key_value
+
 def intersight_config(kwargs):
+    #=========================================================================
+    # Prompt User for Intersight API Key
+    #=========================================================================
     kwargs.jdata = DotMap()
     if kwargs.args.intersight_api_key_id == None:
         kwargs.sensitive_var = 'intersight_api_key_id'
         kwargs = sensitive_var_value(kwargs)
         kwargs.args.intersight_api_key_id = kwargs.var_value
     #=========================================================================
-    # Prompt User for Intersight SecretKey File
+    # Prompt User for Intersight Secret Key
     #=========================================================================
-    secret_path = kwargs.args.intersight_secret_key
-    if not re.search('BEGIN RSA PRIVATE KEY.*END RSA PRIVATE KEY', secret_path):
-        secret_loop = False
-        while secret_loop == False:
-            valid = False
-            if secret_path == None:
-                varName = 'intersight_secret_key'
-                pcolor.Cyan(f'\n{"-"*108}\n\n  The Script did not find {varName} as an `environment` variable.')
-                pcolor.Cyan(f'  To not be prompted for the value of {varName} each time\n  add the following to your local environemnt:')
-                pcolor.Cyan(f'    - Linux: export {varName}="{varName}_value"')
-                pcolor.Cyan(f'    - Windows: $env:{varName}="{varName}_value"')
-                secret_path = ''
-            if '~' in secret_path: secret_path = os.path.expanduser(secret_path)
-            if not secret_path == '':
-                if not os.path.isfile(secret_path): pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!! intersight_secret_key not found.')
-                else:
-                    def key_error(secret_path):
-                        pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {secret_path}\n   does not seem to contain a Valid PEM Secret Key.')
-                        pcolor.Red(f'\n{"-"*108}\n')
-                        len(False); sys.exit(1)
-                    if 'EC PRIVATE KEY' in open(secret_path).read():
-                        try: SigningKey.from_pem(open(secret_path).read())
-                        except Exception as e: pcolor.Red(e); key_error(secret_path)
-                    elif 'RSA PRIVATE KEY' in open(secret_path).read():
-                        try: RSA.RsaKey.has_private(RSA.import_key(open(secret_path).read()))
-                        except Exception as e: pcolor.Red(e); key_error(secret_path)
-                    else: key_error(secret_path)
-                    kwargs.args.intersight_secret_key = secret_path; secret_loop = True; valid = True
-            if not valid == True:
-                kwargs.jdata = DotMap(
-                    type = 'string', minLength = 2, maxLength = 1024, pattern = '.*', title = 'Intersight',
-                    description = 'Intersight Secret Key File Location.',
-                    default     = os.path.join(kwargs.home, 'Downloads', 'SecretKey.txt'))
-                secret_path = variable_prompt(kwargs)
+    if kwargs.args.intersight_secret_key == None:
+        kwargs.sensitive_var = 'intersight_secret_key'
+        kwargs = sensitive_var_value(kwargs)
+        kwargs.args.intersight_secret_key = kwargs.var_value
+    if '~' in kwargs.args.intersight_secret_key: kwargs.args.intersight_secret_key = os.path.expanduser(kwargs.args.intersight_secret_key)
+    key_file_check('intersight_secret_key', kwargs.args.intersight_secret_key, kwargs)
     #=========================================================================
     # Prompt User for Intersight FQDN
     #=========================================================================
@@ -1163,15 +1185,16 @@ def sensitive_var_value(kwargs):
             #=========================================================================
             #cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
             if re.search('(certificate|private_key)', sensitive_var):
+                if os.path.isfile(secure_value): secure_value = open(secure_value, 'r').read()
                 try:
+                    if os.path.isfile(secure_value): sensitive_value = open(secure_value).read()
                     if re.search('certficate', sensitive_var):
-                        pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(secure_value).read())
+                        pem = crypto.load_certificate(crypto.FILETYPE_PEM, sensitive_value)
                         expiration_date = pem.get_notAfter().decode('utf-8')
                         formatted_date  = datetime.strptime(expiration_date, '%Y%m%d%H%M%SZ')
                         pcolor.Cyan(f'{sensitive_var} Certficate Expiration is {formatted_date}')
                         pem = True
-                    else:
-                        pem = RSA.RsaKey.has_private(RSA.import_key(open(secure_value).read()))
+                    else: pem = RSA.RsaKey.has_private(RSA.import_key(sensitive_value))
                 except Exception as e:
                     pcolor.Red(e)
                     pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')

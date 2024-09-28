@@ -21,11 +21,9 @@ except ImportError as e:
 # Function: Parse Arguments
 #=================================================================
 def cli_arguments():
-    kwargs      = DotMap()
-    parser      = argparse.ArgumentParser(description ='Intersight BIOS Key Check Module')
-    parser      = ezfunctions.base_arguments(parser)
-    kwargs.args = parser.parse_args()
-    return kwargs
+    parser = argparse.ArgumentParser(description ='Intersight BIOS Key Check Module')
+    parser = ezfunctions.base_arguments(parser)
+    return DotMap(args = parser.parse_args())
 #=================================================================
 # Function: Main Script
 #=================================================================

@@ -45,7 +45,6 @@ except ImportError as e:
 # Function: Parse Arguments
 #=============================================================================
 def cli_arguments():
-    kwargs = DotMap()
     parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module', conflict_handler='resolve')
     parser = ezfunctions.base_arguments(parser)
     parser = ezfunctions.base_arguments_ezimm_sensitive_variables(parser)
@@ -66,8 +65,7 @@ def cli_arguments():
             '4. imm_domain '\
             '5. imm_standalone ')
     parser.add_argument('-y', '--yaml-file', default = None, required=True,  help = 'The input YAML File.')
-    kwargs.args = parser.parse_args()
-    return kwargs
+    return DotMap(args = parser.parse_args())
 
 #=============================================================================
 # Function: Main Script

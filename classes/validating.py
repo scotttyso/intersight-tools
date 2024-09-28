@@ -411,6 +411,22 @@ def iqn_address(varName, varValue):
         return False
     else: return True
 
+def ipmi_key_check(ipmi_key):
+    invalid_count = 0
+    if not len(ipmi_key) % 2 == 0: invalid_count += 1
+    if not validators.length(ipmi_key, min=2, max=40): invalid_count += 1
+    if not re.fullmatch(r'^[0-9a-fA-F]{2,40}$', ipmi_key): invalid_count += 1
+    if not invalid_count == 0:
+        print(f'{"-"*108}')
+        print(f'   Error with IPMI Key! It should have an even number of hexadecimal characters and not exceed 40 characters.'\
+            ' Use “00” to disable encryption key use. This configuration is supported by all Standalone C-Series servers.'\
+            ' FI-attached C-Series servers with firmware at minimum of 4.2.3a support this configuration.'\
+            ' B/X-Series servers with firmware at minimum of 5.1.0.x support this configuration.'\
+            ' IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.')
+        print(f'{"-"*108}')
+        return False
+    else: return True
+   
 def length_and_regex(answer, minLength, maxLength, pattern, title):
     invalid_count = 0
     if minLength == 0 and maxLength == 0: invalid_count = 0

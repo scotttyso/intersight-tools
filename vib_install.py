@@ -25,11 +25,9 @@ except ImportError as e:
 # Function: Parse Arguments
 #=================================================================
 def cli_arguments():
-    Parser = argparse.ArgumentParser(description='ESXi VIB Deployment Module')
-    Parser.add_argument( '-y', '--yaml-file',                       help = 'The input YAML File.' )
-    kwargs = DotMap()
-    kwargs.args = Parser.parse_args()
-    return kwargs
+    parser = argparse.ArgumentParser(description='ESXi VIB Deployment Module')
+    parser.add_argument( '-y', '--yaml-file', help = 'The input YAML File.' )
+    return DotMap(args = parser.parse_args())
 
 #=================================================================
 # The Main Module

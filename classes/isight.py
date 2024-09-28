@@ -11,7 +11,7 @@ try:
     from intersight_auth import IntersightAuth, repair_pem
     from operator import itemgetter
     from stringcase import pascalcase, snakecase
-    import json, numpy, os, re, requests, time, urllib3
+    import base64, json, numpy, os, re, requests, time, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -19,8 +19,8 @@ except ImportError as e:
     sys.exit(1)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 serial_regex = re.compile('^[A-Z]{3}[2-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$')
-part1 = 'adapter_configuration|bios|boot_order|(ethernet|fibre_channel)_adapter|ethernet_network(_group)?|firmware|imc_access|ipmi_over_lan|iscsi_(boot|static_target)'
-part2 = '(l|s)an_connectivity|local_user|network_connectivity|snmp|storage|syslog|system_qos|(vhba|vnic)_template'
+part1 = 'adapter_configuration|bios|boot_order|(ethernet|fibre_channel)_adapter|drive_security|ethernet_network(_group)?|firmware|imc_access'
+part2 = 'ipmi_over_lan|iscsi_(boot|static_target)|(l|s)an_connectivity|local_user|network_connectivity|snmp|storage|syslog|system_qos|(vhba|vnic)_template'
 policy_specific_regex = re.compile(f'^{part1}|{part2}$')
 
 #=============================================================================
@@ -1087,26 +1087,35 @@ class imm(object):
     def __init__(self, type): self.type = type
 
     #=========================================================================
-    # Function - BIOS Policy Modification
+    # Function - Adapter Configuration Policy Modification
     #=========================================================================
     def adapter_configuration(self, api_body, item, kwargs):
-        item = item; kwargs = kwargs
-        if api_body.get('Settings'):
+        item  = item; kwargs = kwargs
+        akeys = list(api_body.keys())
+        edata = kwargs.ezdata.adapter_configuration.allOf[1].properties.add_vic_adapter_configuration['items'].properties
+        if 'Settings' in akeys:
             for xx in range(0, len(api_body['Settings'])):
-                fec_mode = api_body['Settings'][xx]['DceInterfaceSettings']['FecMode']
-                api_body['Settings'][xx]['DceInterfaceSettings'] = []
-                for x in range(0,4):
-                    idict = {'FecMode': '', 'InterfaceId': x, 'ObjectType': 'adapter.DceInterfaceSettings'}
-                    if len(fec_mode) - 1 >= x: idict['FecMode'] = fec_mode[x]
-                    else: idict['FecMode'] = fec_mode[0]
-                    api_body['Settings'][xx]['DceInterfaceSettings'].append(idict)
-                if api_body['Settings'][xx].get('PhysicalNicModeSettings'):
-                    if api_body['Settings'][xx]['PhysicalNicModeSettings']['PhyNicEnabled'] == True:
-                        pcheck = True
-                        for e in ['EthSettings:LldpEnabled', 'FcSettings:FipEnabled', 'PortChannelSettings:Enabled']:
-                            k,v = e.split(':')
-                            if api_body['Settings'][xx].get(k) and api_body['Settings'][xx][k].get(v) and api_body['Settings'][xx][k][v] == True: pcheck = False
-                        api_body['Settings']['PhysicalNicModeSettings']['PhyNicEnabled'] = pcheck
+                skeys = list(api_body['Settings'][xx].keys())
+                if 'DceInterfaceSettings' in skeys:
+                    temp_dict = deepcopy(api_body['Settings'][xx]['DceInterfaceSettings'])
+                    api_body['Settings'][xx]['DceInterfaceSettings'] = []
+                    for x in range(0,4):
+                        api_body['Settings'][xx]['DceInterfaceSettings'].append(
+                            {'FecMode': temp_dict[f'FecMode{x}'], 'InterfaceId': x, 'ObjectType': 'adapter.DceInterfaceSettings'})
+                else:
+                    api_body['Settings'][xx]['DceInterfaceSettings'] = []
+                    for x in range(0,4): api_body['Settings'][xx]['DceInterfaceSettings'].append(
+                        {'FecMode': 'cl91', 'InterfaceId': x, 'ObjectType': 'adapter.DceInterfaceSettings'})
+                for k,v in edata.items():
+                    if 'enable' in k:
+                        x = v.intersight_api.split(':')
+                        if not x[1] in skeys: api_body['Settings'][xx][x[1]] = dict(sorted({'ObjectType':x[2],x[3]:v.default}.items()))
+                skeys = list(api_body['Settings'][xx].keys())
+                if api_body['Settings'][xx]['PhysicalNicModeSettings']['PhyNicEnabled'] == True:
+                    for k,v in edata.items():
+                        if re.search('enable_(fip|lldp|port_channel)', k):
+                            x = v.intersight_api.split(':')
+                            api_body['Settings'][xx][x[1]][x[3]] = False
         return api_body
 
     #=========================================================================
@@ -1177,25 +1186,25 @@ class imm(object):
     #=========================================================================
     def build_api_body(self, api_body, idata, item, kwargs):
         np, ns = ezfunctions.name_prefix_suffix(self.type, kwargs)
-        #print(api_body)
-        #print(json.dumps(idata, indent=4))
         for k, v in item.items():
+            kkey = idata[k].intersight_api
             # print(json.dumps(idata, indent=4))
             #print(k, v)
             if re.search('boolean|string|integer', idata[k].type):
-                if '$ref:' in idata[k].intersight_api:
-                    x = idata[k].intersight_api.split(':')
+                if '$ref:' in kkey:
+                    x = kkey.split(':')
                     if not api_body.get(x[1]): api_body.update({x[1]:{x[3]:v, 'ObjectType':x[2]}})
                     elif not api_body[x[1]].get(x[3]): api_body[x[1]].update({x[3]:v})
-                elif '$pbucket:' in idata[k].intersight_api:
+                elif '$pbucket:' in kkey:
                     if not api_body.get('PolicyBucket'): api_body['PolicyBucket'] = []
-                    x = idata[k].intersight_api.split(':')
+                    x = kkey.split(':')
                     api_body['PolicyBucket'].append({x[2]:v,'policy':k,'ObjectType':x[1]})
-                else: api_body.update({idata[k].intersight_api:v})
+                else: api_body.update({kkey:v})
             elif idata[k].type == 'array':
+                item_key = idata[k]['items'].intersight_api
                 if re.search('boolean|string|integer',  idata[k]['items'].type):
-                    if '$ref:' in idata[k]['items'].intersight_api:
-                        x = idata[k]['items'].intersight_api.split(':')
+                    if '$ref:' in item_key:
+                        x = item_key.split(':')
                         if not api_body.get(x[1]): api_body.update({x[1]:{'ObjectType':x[2]}})
                         api_body[x[1]].update({x[3]:v})
                     elif '$pbucket:' in idata[k].intersight_api:
@@ -1203,12 +1212,12 @@ class imm(object):
                         x = idata[k].intersight_api.split(':')
                         api_body['PolicyBucket'].append({x[2]:v,'policy':k,'ObjectType':x[1]})
                     else:
-                        api_body[idata[k]['items'].intersight_api] = []
-                        for e in v: api_body[idata[k]['items'].intersight_api].append(e)
+                        api_body[item_key] = []
+                        for e in v: api_body[item_key].append(e)
                 else:
-                    api_body[idata[k]['items'].intersight_api] = []
+                    api_body[item_key] = []
                     for e in v:
-                        if type(e) == str: api_body[idata[k]['items'].intersight_api].append(e)
+                        if type(e) == str: api_body[item_key].append(e)
                         else:
                             idict = {'ObjectType':idata[k]['items'].object_type}
                             for a, b in idata[k]['items'].properties.items():
@@ -1229,37 +1238,58 @@ class imm(object):
                                         len(False); sys.exit(1)
                                     idict[b.intersight_api] = e[a]
                             idict = dict(sorted(idict.items()))
-                            api_body[idata[k]['items'].intersight_api].append(idict)
+                            api_body[item_key].append(idict)
             elif idata[k].type == 'object':
-                if not api_body.get(idata[k].intersight_api):
-                    api_body[idata[k].intersight_api] = {'ObjectType':idata[k].object_type}
-                for a, b in idata[k].properties.items():
-                    if b.type == 'array':
+                vkeys = list(v.keys())
+                if not api_body.get(kkey):
+                    api_body[kkey] = {'ObjectType':idata[k].object_type}
+                for a, b in v.items():
+                    bdata = idata[k].properties[a]
+                    if a in vkeys and bdata.type == 'array':
                         if re.search('pci_(links|order)|slot_ids|switch_ids|uplink_ports', a):
-                            if v.get(a): api_body[idata[k].intersight_api].update({b.intersight_api:v[a]})
-                        elif v.get(a):
-                            api_body[idata[k].intersight_api].update({b.intersight_api:[]})
-                            idict = {'ObjectType':b['items'].object_type}
-                            for e in v[a]:
-                                for c,d in b['items'].properties.items():
+                            api_body[kkey].update({bdata.intersight_api:b})
+                        else:
+                            api_body[kkey].update({bdata.intersight_api:[]})
+                            idict = {'ObjectType':bdata.object_type}
+                            for e in b:
+                                for c,d in bdata['items'].properties.items():
                                     if d.type == 'string' and e.get(c):
                                         idict.update({d.intersight_api:e[c]})
-                                        api_body[idata[k].intersight_api][b.intersight_api].append(idict)
+                                        api_body[kkey][b.intersight_api].append(idict)
                                     else:
                                         pcolor.Cyan(f'\n{"-"*108}\n\n')
+                                        pcolor.Cyan(f'---\n{c}\n---\n{d}\n---\n{e}\n---\n{e[c]}')
                                         pcolor.Cyan(f'{c}\n{d}\n{e}\n{e[c]}')
-                                        pcolor.Red(f'!!! ERROR !!! undefined mapping for array in object: `{d.type}`')
+                                        pcolor.Red(f'!!! ERROR !!! undefined mapping for array in object: `{d.type}`.   isight.py line 1261')
                                         pcolor.Cyan(f'\n{"-"*108}\n\n')
                                         len(False); sys.exit(1)
-                    elif idata[k].type == 'object':
-                        if v.get(a): api_body[idata[k].intersight_api].update({idata[k].properties[a].intersight_api:v[a]})
-                    elif b.type == 'object':
+                    elif a in vkeys and bdata.type == 'object':
+                        akeys = list(api_body[kkey].keys())
+                        if idata[k].properties[a].type == 'object':
+                            if not idata[k].properties[a].intersight_api in akeys:
+                                api_body[kkey][bdata.intersight_api] = {'ObjectType':bdata.object_type}
+                            okeys2 = list(b.keys())
+                            for c,d in bdata.properties.items():
+                                if re.search('boolean|integer|string', d.type) and c in okeys2:
+                                    api_body[kkey][bdata.intersight_api].update({bdata.properties[c].intersight_api:b[c]})
+                                elif re.search('boolean|integer|string', d.type):
+                                    api_body[kkey][bdata.intersight_api].update(
+                                        {bdata.properties[c].intersight_api:bdata.properties[c].default})
+                                else:
+                                    pcolor.Cyan(f'\n{"-"*108}\n\n')
+                                    pcolor.Cyan(f'---\n{c}\n---\n{d}\n---\n{b[c]}')
+                                    pcolor.Red(f'!!! ERROR !!! undefined mapping for array in object: `{d.type}`.   isight.py line 1282')
+                                    pcolor.Cyan(f'\n{"-"*108}\n\n')
+                                    len(False); sys.exit(1)
+                        else: api_body[kkey].update({bdata.intersight_api:b})
+                    elif a in vkeys: api_body[kkey].update({bdata.intersight_api:b})
+                    elif re.search('boolean|integer|string', b.type): api_body[kkey][bdata.intersight_api] = bdata.default
+                    else:
                         pcolor.Cyan(f'\n{"-"*108}\n\n')
-                        pcolor.Cyan(f'---\n{k}---\n{a}---\n{b}---\n{v}')
-                        pcolor.Red('!!! ERROR !!! undefined mapping for object in object')
+                        pcolor.Cyan(f'---\n{k}\n---\n{a}\n---\n{b}\n---\n{v}')
+                        pcolor.Red('!!! ERROR !!! undefined mapping for object in object.   isight.py line 1291')
                         pcolor.Cyan(f'\n{"-"*108}\n\n')
                         len(False); sys.exit(1)
-                    elif v.get(a): api_body[idata[k].intersight_api].update({b.intersight_api:v[a]})
                 api_body[idata[k].intersight_api] = dict(sorted(api_body[idata[k].intersight_api].items()))
         #=====================================================================
         # Validate all Parameters are String if BIOS
@@ -1579,6 +1609,46 @@ class imm(object):
             kwargs.uri = kwargs.ezdata[self.type].intersight_uri
             kwargs     = imm(self.type).bulk_request(kwargs)
         return kwargs
+
+    #=========================================================================
+    # Function - Drive Security Policy Modification
+    #=========================================================================
+    def drive_security(self, api_body, item, kwargs):
+        api_body['RemoteKey']['ServerCertificate'] = base64.b64encode(str.encode(kwargs.var_value)).decode()
+        akeys = list(api_body.keys())
+        item  = item; kwargs = kwargs
+        api_body['KeySettings'] = {}
+        if 'ManualKey' in akeys:
+            ekeys = list(api_body['ManualKey'].keys())
+            for e in ['ExistingKey', 'NewKey']:
+                if e in ekeys:
+                    if 'New' in e: kwargs.sensitive_var = f"drive_security_new_security_key_passphrase"
+                    else: kwargs.sensitive_var = f"drive_security_current_security_key_passphrase"
+                    kwargs = ezfunctions.sensitive_var_value(kwargs)
+                    api_body['ManualKey'][e] = kwargs.var_value
+            api_body['KeySettings']['ManualKey'] = api_body['ManualKey']
+            api_body.pop('ManualKey')
+        elif 'RemoteKey' in akeys:
+            ekeys = list(api_body['RemoteKey'].keys())
+            if 'AuthCredentials' in ekeys:
+                if len(api_body['RemoteKey']['AuthCredentials']['Username']) > 0:
+                    kwargs.sensitive_var = f"drive_security_current_security_key_passphrase"
+                    kwargs = ezfunctions.sensitive_var_value(kwargs)
+                    api_body['RemoteKey']['AuthCredentials']['Password'] = kwargs.var_value
+            kwargs.sensitive_var = f"drive_security_server_ca_certificate"
+            kwargs    = ezfunctions.sensitive_var_value(kwargs)
+            var_value = ezfunctions.key_file_check('drive_security_server_ca_certificate', kwargs.var_value, kwargs)
+            api_body['RemoteKey']['ServerCertificate'] = base64.b64encode(str.encode(var_value)).decode()
+            for e in ['AuthCredentials', 'NewKey']:
+                if e in ekeys:
+                    if 'New' in e: kwargs.sensitive_var = f"drive_security_new_security_key_passphrase"
+                    else: kwargs.sensitive_var = f"drive_security_current_security_key_passphrase"
+                    kwargs = ezfunctions.sensitive_var_value(kwargs)
+                    api_body['RemoteKey'][e] = kwargs.var_value
+            api_body['KeySettings']['RemoteKey'] = api_body['RemoteKey']
+            api_body.pop('RemoteKey')
+        print(json.dumps(api_body, indent=4)); exit()
+        return api_body
 
     #=========================================================================
     # Function - Ethernet Adapter Policy Modification
@@ -2245,7 +2315,7 @@ class imm(object):
                     kwargs = api_get(False, names, e, kwargs)
                     kwargs.pchildren[e] = kwargs.results
         #=====================================================================
-        # If Modified Patch the Policy via the Intersight API
+        # If Modified, Patch the Policy via the Intersight API
         #=====================================================================
         def policies_to_api(api_body, kwargs):
             kwargs.uri   = kwargs.ezdata[self.type].intersight_uri

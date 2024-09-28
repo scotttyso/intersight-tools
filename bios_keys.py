@@ -21,11 +21,9 @@ except ImportError as e:
 # Function: Parse Arguments
 #=================================================================
 def cli_arguments():
-    kwargs      = DotMap()
-    parser      = argparse.ArgumentParser(description ='Intersight BIOS Key Check Module')
-    parser      = ezfunctions.base_arguments(parser)
-    kwargs.args = parser.parse_args()
-    return kwargs
+    parser = argparse.ArgumentParser(description ='Intersight BIOS Key Check Module')
+    parser = ezfunctions.base_arguments(parser)
+    return DotMap(args = parser.parse_args())
 #=================================================================
 # Function: Main Script
 #=================================================================
@@ -43,7 +41,7 @@ def main():
     bios_keys = []
     for e in keys: bios_keys.append(kwargs.ezdata.bios.allOf[1].properties[e].intersight_api)
     bios_keys.extend([
-        'AccountMoid', 'Ancestors', 'ClassId', 'CreateTime', 'Description', 'DomainGroupMoid', 'ModTime', 'Moid', 'Name', 'ObjectType', 'Organization',
+        'AccountMoid', 'Ancestors', 'ClassId', 'CreateTime', 'Description', 'DomainGroupMoid', 'ModTime', 'Moid', 'Name', 'ObjectType',
         'Organization', 'Owners', 'PermissionResources', 'Profiles', 'SharedScope', 'Tags'])
     kwargs.method   = 'get'
     kwargs.names    = list(kwargs.org_names.keys())
@@ -61,17 +59,20 @@ def main():
                 intersight_api = k, enum = intersight_bios[k].enum, title = snakecase(k))
             defaults[snakecase(k)] = intersight_bios[k].default
     pcolor.LightGray(f'{"-"*54}')
-    pcolor.Yellow('New Keys')
-    pcolor.Yellow(json.dumps(bios, indent=4))
-    pcolor.Yellow(yaml.dump(defaults.toDict(), Dumper=ezfunctions.yaml_dumper, default_flow_style=False))
+    pcolor.Yellow('New Keys:\n')
+    if len(bios) > 0:
+        pcolor.Yellow(json.dumps(bios, indent=4))
+        pcolor.Yellow(yaml.dump(defaults.toDict(), Dumper=ezfunctions.yaml_dumper, default_flow_style=False))
+    else: pcolor.Yellow('None')
     bkeys = list(kwargs.results[0].keys())
-    pcolor.LightGray(f'{"-"*54}')
-    pcolor.Yellow('Removed Keys\n')
-    for k in bios_keys:
-        if not k in bkeys and k != 'bios_template': pcolor.Yellow(k)
-
     pcolor.LightGray(f'\n{"-"*54}')
-    pcolor.Yellow('Description Keys\n')
+    pcolor.Yellow('Removed Keys:\n')
+    rcount = 0
+    for k in bios_keys:
+        if not k in bkeys and k != 'bios_template': pcolor.Yellow(k); rcount += 1
+    if rcount == 0: pcolor.Yellow('None')
+    pcolor.LightGray(f'\n{"-"*54}')
+    pcolor.Yellow('Description Keys:\n')
     descr = kwargs.ezdata.bios.allOf[1].description
     dsplit = descr.split('\n')
     dkeys = []

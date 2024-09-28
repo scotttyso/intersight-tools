@@ -48,7 +48,6 @@ except ImportError as e:
 # Parse Arguments
 #=============================================================================
 def cli_arguments():
-    kwargs = DotMap()
     parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
     parser = ezfunctions.base_arguments(parser)
     parser.add_argument(
@@ -64,10 +63,8 @@ def cli_arguments():
             '5. hcl_inventory '\
             '6. inventory '\
             '7. server_identities.')
-    parser.add_argument(
-        '-wb', '--workbook', default = 'Settings.xlsx', help = 'The source Workbook.')
-    kwargs.args = parser.parse_args()
-    return kwargs
+    parser.add_argument('-wb', '--workbook', default = 'Settings.xlsx', help = 'The source Workbook.')
+    return DotMap(args = parser.parse_args())
 
 #=============================================================================
 # Function: Main Script

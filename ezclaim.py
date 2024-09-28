@@ -22,13 +22,11 @@ except ImportError as e:
 # Parse Arguments
 #=============================================================================
 def cli_arguments():
-    kwargs = DotMap()
     parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
     parser = ezfunctions.base_arguments(parser)
     parser.add_argument( '-ilp', '--local-user-password-1',   help='Password used to login to the device for claiming.' )
     parser.add_argument( '-pxp', '--proxy-password',   help='Proxy password when using proxy and authentication is required.' )
-    kwargs.args = parser.parse_args()
-    return kwargs
+    return DotMap(args = parser.parse_args())
 
 #=============================================================================
 # Function: Main Script
