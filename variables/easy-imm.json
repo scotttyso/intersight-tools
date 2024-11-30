@@ -7849,7 +7849,7 @@
                             "adapter_template": {
                                 "type": "string",
                                 "default": "VMware",
-                                "description": "Name of a Pre-Configured Adapter Template.  Options are:\n  * 16RxQs-4G\n  * 16RxQs-5G\n  * Linux\n  * Linux-NVMe-RoCE\n  * Linux-v2\n  * MQ\n  * MQ-SMBd\n  * SMBClient\n  * SMBServer\n  * Solaris\n  * SRIOV-HPN\n  * usNIC\n  * usNICOracleRAC\n  * VMware\n  * VMware-High-Trf\n  * VMware-v2\n  * VMwareNVMeRoCEv2\n  * VMwarePassThru\n  * Win-AzureStack\n  * Win-HPN\n  * Win-HPN-SMBd\n  * Win-HPN-v2\n  * Windows",
+                                "description": "Name of a Pre-Configured Adapter Template.  Options are:\n  * 16RxQs-4G\n  * 16RxQs-5G\n  * Linux\n  * Linux-NVMe-RoCE\n  * Linux-v2\n  * MQ\n  * MQ-SMBd\n  * MQ-SMBd-v2\n  * MQ-v2\n  * SMBClient\n  * SMBServer\n  * Solaris\n  * SRIOV-HPN\n  * usNIC\n  * usNICOracleRAC\n  * VMware\n  * VMwareNVMeRoCEv2\n  * VMwarePassThru\n  * VMware-High-Trf\n  * VMware-v2\n  * Win-AzureStack\n  * Win-HPN\n  * Win-HPN-SMBd\n  * Win-HPN-SMBd-v2\n  * Win-HPN-v2\n  * Windows",
                                 "intersight_api": "adapter_template",
                                 "enum": [
                                     "16RxQs-4G",
@@ -7859,6 +7859,8 @@
                                     "Linux-v2",
                                     "MQ",
                                     "MQ-SMBd",
+                                    "MQ-SMBd-v2",
+                                    "MQ-v2",
                                     "SMBClient",
                                     "SMBServer",
                                     "Solaris",
@@ -7866,13 +7868,14 @@
                                     "usNIC",
                                     "usNICOracleRAC",
                                     "VMware",
-                                    "VMware-High-Trf",
-                                    "VMware-v2",
                                     "VMwareNVMeRoCEv2",
                                     "VMwarePassThru",
+                                    "VMware-High-Trf",
+                                    "VMware-v2",
                                     "Win-AzureStack",
                                     "Win-HPN",
                                     "Win-HPN-SMBd",
+                                    "Win-HPN-SMBd-v2",
                                     "Win-HPN-v2",
                                     "Windows"
                                 ],
@@ -7894,6 +7897,13 @@
                                 "description": "Default is `false`.  Enables advanced filtering on the interface.",
                                 "intersight_api": "AdvancedFilter",
                                 "title": "enable_advanced_filter"
+                            },
+                            "enable_ether_channel_pinning": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  Enables Ether Channel Pinning to combine multiple physical links between two network switches into a single logical link. Transmit Queue Count should be at least 2 to enable ether channel pinning.",
+                                "intersight_api": "EtherChannelPinningEnabled",
+                                "title": "enable_ether_channel_pinning"
                             },
                             "enable_geneve_offload": {
                                 "type": "boolean",
@@ -8225,7 +8235,6 @@
                 "properties": {
                     "16RxQs-4G":{
                         "Description": "Recommended adapter settings for 16RxQs 4th Gen VIC.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8237,6 +8246,7 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8250,7 +8260,6 @@
                     },
                     "16RxQs-5G":{
                         "Description": "Recommended adapter settings for 16RxQs 5th Gen VIC.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8262,6 +8271,7 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 16,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8275,7 +8285,6 @@
                     },
                     "Linux":{
                         "Description": "Recommended adapter settings for Linux.",
-                        "RssSettings": false,
                         "CompletionQueueSettings":{
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8287,6 +8296,7 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": false,
                         "RxQueueSettings":{
                             "Count": 1,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8295,7 +8305,6 @@
                     },
                     "Linux-NVMe-RoCE":{
                         "Description": "Recommended adapter settings for Linux NVMe with RoCEv2.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8316,6 +8325,7 @@
                             "ResourceGroups": 8,
                             "Version": 2
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 1,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8324,7 +8334,6 @@
                     },
                     "Linux-v2":{
                         "Description": "Recommended adapter settings for Linux Version 2.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8345,6 +8354,7 @@
                             "ResourceGroups": 8,
                             "Version": 2
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8358,7 +8368,6 @@
                     },
                     "MQ":{
                         "Description": "Recommended adapter settings for MQ.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 576,
                             "ObjectType": "vnic.CompletionQueueSettings",
@@ -8371,6 +8380,7 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 512,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8384,7 +8394,6 @@
                     },
                     "MQ-SMBd":{
                         "Description": "Recommended adapter settings for MQ-SMBd.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 576,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8405,6 +8414,7 @@
                             "ResourceGroups": 2,
                             "Version": 2
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 512,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8416,9 +8426,68 @@
                             "RingSize": 256
                         }
                     },
+                    "MQ-SMBd-v2":{
+                        "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Multi Queue SMBd high performance networking.",
+                        "CompletionQueueSettings":{
+                            "Count": 576,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings":{
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 512,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RoceSettings":{
+                            "ClassOfService": 5,
+                            "Enabled": true,
+                            "MemoryRegions": 131072,
+                            "ObjectType": "vnic.RoceSettings",
+                            "QueuePairs": 2048,
+                            "ResourceGroups": 32,
+                            "Version": 2
+                        },
+                        "RssSettings": true,
+                        "RxQueueSettings":{
+                            "Count": 512,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "TxQueueSettings":{
+                            "Count": 64,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        }
+                    },
+                    "MQ-v2":{
+                        "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Multi Queue high performance networking.",
+                        "CompletionQueueSettings":{
+                            "Count": 576,
+                            "ObjectType": "vnic.CompletionQueueSettings",
+                            "RingSize": 4
+                        },
+                        "InterruptSettings":{
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 256,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RssSettings": true,
+                        "RxQueueSettings":{
+                            "Count": 512,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "TxQueueSettings":{
+                            "Count": 64,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        }
+                    },
                     "SMBClient":{
                         "Description": "Recommended adapter settings for SMBClient.",
-                        "RssSettings": true,
                         "RoceSettings":{
                             "ClassOfService": 0,
                             "Enabled": true,
@@ -8427,11 +8496,11 @@
                             "QueuePairs": 2048,
                             "ResourceGroups": 32,
                             "Version": 1
-                        }
+                        },
+                        "RssSettings": true
                     },
                     "SMBServer":{
                         "Description": "Recommended adapter settings for SMBServer.",
-                        "RssSettings": true,
                         "RoceSettings":{
                             "ClassOfService": 0,
                             "Enabled": true,
@@ -8440,11 +8509,11 @@
                             "QueuePairs": 2048,
                             "ResourceGroups": 32,
                             "Version": 1
-                        }
+                        },
+                        "RssSettings": true
                     },
                     "Solaris":{
                         "Description": "Recommended adapter settings for Solaris.",
-                        "RssSettings": false,
                         "CompletionQueueSettings":{
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8455,7 +8524,8 @@
                             "Count": 4,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
-                        }
+                        },
+                        "RssSettings": false
                     },
                     "SRIOV-HPN":{
                         "Description": "Recommended adapter settings for SRIOV high performance and networking.",
@@ -8469,11 +8539,11 @@
                     },
                     "usNIC":{
                         "Description": "Recommended adapter settings for usNIC.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 12,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 6,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8488,7 +8558,6 @@
                     },
                     "usNICOracleRAC":{
                         "Description": "Recommended adapter settings for usNICOracleRAC.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 2000,
                             "ObjectType": "vnic.CompletionQueueSettings",
@@ -8502,6 +8571,7 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 1000,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8516,7 +8586,6 @@
                     },
                     "VMware":{
                         "Description": "Recommended adapter settings for VMware.",
-                        "RssSettings":false,
                         "CompletionQueueSettings":{
                             "Count":2,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8528,74 +8597,15 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings":false,
                         "RxQueueSettings":{
                             "Count":4,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize":512
                         }
                     },
-                    "VMware-High-Trf":{
-                        "Description": "Recommended adapter settings for VMware High Traffic.",
-                        "RssSettings": true,
-                        "CompletionQueueSettings":{
-                            "Count": 9,
-                            "ObjectType": "vnic.CompletionQueueSettings"
-                        },
-                        "InterruptSettings":{
-                            "CoalescingTime": 125,
-                            "CoalescingType": "MIN",
-                            "Count": 11,
-                            "Mode": "MSIx",
-                            "ObjectType": "vnic.EthInterruptSettings"
-                        },
-                        "RxQueueSettings":{
-                            "Count": 8,
-                            "ObjectType": "vnic.EthRxQueueSettings",
-                            "RingSize": 4096
-                        },
-                        "TxQueueSettings":{
-                            "Count": 1,
-                            "ObjectType": "vnic.EthTxQueueSettings",
-                            "RingSize": 4096
-                        }
-                    },
-                    "VMware-v2":{
-                        "Description": "Recommended adapter settings for VMware Version 2.",
-                        "RssSettings": true,
-                        "CompletionQueueSettings":{
-                            "Count": 9,
-                            "ObjectType": "vnic.CompletionQueueSettings"
-                        },
-                        "InterruptSettings":{
-                            "CoalescingTime": 125,
-                            "CoalescingType": "MIN",
-                            "Count": 11,
-                            "Mode": "MSIx",
-                            "ObjectType": "vnic.EthInterruptSettings"
-                        },
-                        "RoceSettings":{
-                            "ClassOfService": 5,
-                            "Enabled": true,
-                            "MemoryRegions": 131072,
-                            "ObjectType": "vnic.RoceSettings",
-                            "QueuePairs": 1024,
-                            "ResourceGroups": 8,
-                            "Version": 2
-                        },
-                        "RxQueueSettings":{
-                            "Count": 8,
-                            "ObjectType": "vnic.EthRxQueueSettings",
-                            "RingSize": 4096
-                        },
-                        "TxQueueSettings":{
-                            "Count": 1,
-                            "ObjectType": "vnic.EthTxQueueSettings",
-                            "RingSize": 4096
-                        }
-                    },
                     "VMWareNVMeRoCEv2":{
                         "Description": "Recommended adapter settings for VMware NVMe ROCEv2.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8616,6 +8626,7 @@
                             "ResourceGroups": 8,
                             "Version": 2
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 1,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8629,7 +8640,6 @@
                     },
                     "VMwarePassThru":{
                         "Description": "Recommended adapter settings for VMwarePassThru.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 8,
                             "ObjectType": "vnic.CompletionQueueSettings"
@@ -8641,15 +8651,74 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": true,
                         "TxQueueSettings":{
                             "Count": 4,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
+                    "VMware-High-Trf":{
+                        "Description": "Recommended adapter settings for VMware High Traffic.",
+                        "CompletionQueueSettings":{
+                            "Count": 9,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings":{
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 11,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RxQueueSettings":{
+                            "Count": 8,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "RssSettings": true,
+                        "TxQueueSettings":{
+                            "Count": 1,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        }
+                    },
+                    "VMware-v2":{
+                        "Description": "Recommended adapter settings for VMware Version 2.",
+                        "CompletionQueueSettings":{
+                            "Count": 9,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings":{
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 11,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RoceSettings":{
+                            "ClassOfService": 5,
+                            "Enabled": true,
+                            "MemoryRegions": 131072,
+                            "ObjectType": "vnic.RoceSettings",
+                            "QueuePairs": 1024,
+                            "ResourceGroups": 8,
+                            "Version": 2
+                        },
+                        "RssSettings": true,
+                        "RxQueueSettings":{
+                            "Count": 8,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "TxQueueSettings":{
+                            "Count": 1,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        }
+                    },
                     "Win-AzureStack":{
                         "Description": "Recommended adapter settings for Win-AzureStack.",
-                        "RssSettings": true,
                         "CompletionQueueSettings":{
                             "Count": 11,
                             "ObjectType": "vnic.CompletionQueueSettings",
@@ -8671,6 +8740,7 @@
                             "ResourceGroups": 2,
                             "Version": 2
                         },
+                        "RssSettings": true,
                         "RxQueueSettings":{
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
@@ -8689,7 +8759,6 @@
                     },
                     "Win-HPN":{
                         "Description": "Recommended adapter settings for Windows High Performance Networking.",
-                        "RssSettings": true,
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
@@ -8697,6 +8766,7 @@
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
+                        "RssSettings": true,
                         "VxlanSettings": {
                             "ClassId": "vnic.VxlanSettings",
                             "Enabled": true,
@@ -8705,7 +8775,6 @@
                     },
                     "Win-HPN-SMBd":{
                         "Description": "Recommended adapter settings for Windows High Performance Networking SMBd.",
-                        "RssSettings": true,
                         "InterruptSettings":{
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
@@ -8722,10 +8791,80 @@
                             "ResourceGroups": 2,
                             "Version": 2
                         },
+                        "RssSettings": true,
                         "VxlanSettings": {
                           "ClassId": "vnic.VxlanSettings",
                           "Enabled": true,
                           "ObjectType": "vnic.VxlanSettings"
+                        }
+                    },
+                    "Win-HPN-SMBd-v2":{
+                        "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows SMBd high performance networking.",
+                        "CompletionQueueSettings":{
+                            "Count": 9,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings":{
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 512,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RoceSettings":{
+                            "ClassOfService": 5,
+                            "Enabled": true,
+                            "MemoryRegions": 131072,
+                            "ObjectType": "vnic.RoceSettings",
+                            "QueuePairs": 256,
+                            "ResourceGroups": 2,
+                            "Version": 2
+                        },
+                        "RssSettings": true,
+                        "RxQueueSettings":{
+                            "Count": 8,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "TxQueueSettings":{
+                            "Count": 1,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "VxlanSettings": {
+                          "ClassId": "vnic.VxlanSettings",
+                          "Enabled": true,
+                          "ObjectType": "vnic.VxlanSettings"
+                        }
+                    },
+                    "Win-HPN-v2":{
+                        "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows high performance networking.",
+                        "CompletionQueueSettings":{
+                            "Count": 9,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings":{
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 512,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RssSettings": true,
+                        "RxQueueSettings":{
+                            "Count": 8,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "TxQueueSettings":{
+                            "Count": 1,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "VxlanSettings": {
+                            "ClassId": "vnic.VxlanSettings",
+                            "Enabled": true,
+                            "ObjectType": "vnic.VxlanSettings"
                         }
                     },
                     "Windows":{
@@ -9554,7 +9693,7 @@
                             "adapter_template": {
                                 "type": "string",
                                 "default": "VMware",
-                                "description": "Name of Pre-Configured Adapter Templates.  Options are:\n  * FCNVMeInitiator\n  * FCNVMeTarget\n  * Initiator\n  * Linux\n  * Solaris\n  * Target\n  * VMware\n  * WindowsBoot\n  * Windows",
+                                "description": "Name of Pre-Configured Adapter Templates.  Options are:\n  * FCNVMeInitiator\n  * FCNVMeTarget\n  * Initiator\n  * Linux\n  * Solaris\n  * Target\n  * VMware\n  * Windows\n  * WindowsBoot",
                                 "intersight_api": "adapter_template",
                                 "enum": [
                                     "FCNVMeInitiator",
@@ -9564,8 +9703,8 @@
                                     "Solaris",
                                     "Target",
                                     "VMware",
-                                    "WindowsBoot",
-                                    "Windows"
+                                    "Windows",
+                                    "WindowsBoot"
                                 ],
                                 "title": "adapter_template"
                             },
@@ -11361,7 +11500,7 @@
                     },
                     "ethernet_network_group_policies": {
                         "type": "array",
-                        "description": "The Name(s) of the Ethernet Network Control Policy to Assign.  Can be a list of 1 or 2.",
+                        "description": "The Name(s) of the Ethernet Network Group Policy to Assign.  If it is a list of 1 then the policy will be used by all vNICs.  If the list is greater than 1, then the list must be an even number, and it will be split between the vNICs.",
                         "intersight_api": "$ref:FabricEthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
                         "items": {
                             "type": "string",
@@ -12006,7 +12145,7 @@
                             },
                             "ldap_groups": {
                                 "type": "array",
-                                "description": "A List of LDAP Group resources.\n\nRequired Attributes:\n  * group\n  * role",
+                                "description": "A List of LDAP Groups.\n\nRequired Attributes:\n  * end_point_role\n  * group_dn\n  * name\n\nOptional Attributes:\n  * domain",
                                 "intersight_uri": "iam/LdapGroups",
                                 "items": {
                                     "$ref": "#/components/schemas/ldap.ldap_groups"
@@ -12016,7 +12155,7 @@
                             },
                             "ldap_servers": {
                                 "type": "array",
-                                "description": "A List of LDAP Provider Servers.\n\nRequired Attributes:\n  * server\n\nOptional Attributes:\n  * port",
+                                "description": "A List of LDAP Provider Servers.\n\nRequired Attributes:\n  * server\n\nOptional Attributes:\n  * port\n  * vendor",
                                 "intersight_uri": "iam/LdapProviders",
                                 "items": {
                                     "$ref": "#/components/schemas/ldap.ldap_servers"
@@ -12070,7 +12209,7 @@
                         "minLength": 1,
                         "maxLength": 254,
                         "pattern": "^((CN=([^,]*)),)?((((?:CN|OU)=[^,]+,?)+),)?((DC=[^,]+,?)+)$",
-                        "title": "switch_id"
+                        "title": "base_dn"
                     },
                     "domain": {
                         "type": "string",
@@ -12080,7 +12219,7 @@
                         "minLength": 1,
                         "maxLength": 72,
                         "pattern": "^(([a-zA-Z0-9])|([a-zA-Z0-9][a-zA-Z0-9\\.\\-]*[a-zA-Z0-9]))$",
-                        "title": "switch_id"
+                        "title": "domain"
                     },
                     "timeout": {
                         "type": "integer",
@@ -12190,8 +12329,9 @@
                 "intersight_uri": "iam/LdapGroups",
                 "object_type": "iam.LdapGroup",
                 "required": [
-                    "name",
-                    "role"
+                    "end_point_role",
+                    "group_dn",
+                    "name"
                 ],
                 "title": "ldap_groups - LDAP Groups - Intersight Uri: iam/LdapGroups",
                 "properties": {
@@ -12203,7 +12343,29 @@
                         "minLength": 1,
                         "maxLength": 72,
                         "pattern": "^(([a-zA-Z0-9])|([a-zA-Z0-9][a-zA-Z0-9\\.\\-]*[a-zA-Z0-9]))$",
-                        "title": "switch_id"
+                        "title": "domain"
+                    },
+                    "end_point_role": {
+                        "type": "string",
+                        "default": "readonly",
+                        "description": "Default is `readonly`.  The name of the end point role.\n  * admin\n  * readonly\n  * user",
+                        "intersight_api": "$ref:EndPointRole:iam.EndPointRole:Moid",
+                        "enum": [
+                            "admin",
+                            "readonly",
+                            "user"
+                        ],
+                        "title": "end_point_role"
+                    },
+                    "group_dn": {
+                        "type": "string",
+                        "default": "",
+                        "description": "LDAP Group DN in the LDAP server database..  An example would be `CN=admin,OU=Users,DC=example,DC=com`",
+                        "intersight_api": "GroupDn",
+                        "minLength": 1,
+                        "maxLength": 300,
+                        "pattern": "^((CN=([^,]*)),)?((((?:CN|OU)=[^,]+,?)+),)?((DC=[^,]+,?)+)$",
+                        "title": "group_dn"
                     },
                     "name": {
                         "type": "string",
@@ -12214,18 +12376,6 @@
                         "maxLength": 127,
                         "pattern": "^([^+\\-][a-zA-Z0-9=!#$%()*+,-.:;@ _{|}~?&]*)$",
                         "title": "name"
-                    },
-                    "role": {
-                        "type": "string",
-                        "default": "readonly",
-                        "description": "Default is `readonly`.  The name of the end point role.\n  * admin\n  * readonly\n  * user",
-                        "intersight_api": "$ref:EndPointRole:iam.EndPointRole:Moid",
-                        "enum": [
-                            "admin",
-                            "readonly",
-                            "user"
-                        ],
-                        "title": "role"
                     }
                 }
             },
@@ -12259,6 +12409,17 @@
                         "maxLength": 255,
                         "pattern": "^((([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\\.?$|^(([a-fA-F]|[a-fA-F][a-fA-F0-9\\-]*[a-fA-F0-9])\\.)*([A-Fa-f]|[A-Fa-f][A-Fa-f0-9\\-]*[A-Fa-f0-9])$|^(?:(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){6})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:::(?:(?:(?:[0-9a-fA-F]{1,4})):){5})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){4})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,1}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){3})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,2}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:(?:[0-9a-fA-F]{1,4})):){2})(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,3}(?:(?:[0-9a-fA-F]{1,4})))?::(?:(?:[0-9a-fA-F]{1,4})):)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,4}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9]))\\.){3}(?:(?:25[0-5]|(?:[1-9]|1[0-9]|2[0-4])?[0-9])))))))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,5}(?:(?:[0-9a-fA-F]{1,4})))?::)(?:(?:[0-9a-fA-F]{1,4})))|(?:(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4})):){0,6}(?:(?:[0-9a-fA-F]{1,4})))?::)))))$",
                         "title": "server"
+                    },
+                    "vendor": {
+                        "type": "string",
+                        "default": "OpenLDAP",
+                        "description": "Default is `OpenLDAP`.  LDAP server vendor type used for authentication.\n  * `OpenLDAP` - Open source LDAP server for remote authentication.\n  * `MSAD` - Microsoft active directory for remote authentication.",
+                        "intersight_api": "Vendor",
+                        "enum": [
+                            "MSAD",
+                            "OpenLDAP"
+                        ],
+                        "title": "vendor"
                     }
                 }
             },
@@ -12649,6 +12810,39 @@
                     "identities"
                 ],
                 "title": "MAC Identity Reservations"
+            },
+            "memory": {
+                "description": "Memory Management policy models a configuration that can be applied to servers to manage memory features.",
+                "intersight_type": "policies",
+                "intersight_uri": "memory/Policies",
+                "object_type": "memory.Policy",
+                "target_platforms": [
+                    "FIAttached",
+                    "Standalone"
+                ],
+                "title": "memory - Memory - Intersight Uri: memory/Policies",
+                "x-allOf-name": "memory.Policy",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_policy"
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "Definition of the list of properties defined in 'memory.Policy', excluding properties defined in parent classes.",
+                        "required": [],
+                        "title": "memory",
+                        "properties": {
+                            "dimm_blocklisting": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  Enable DIMM Blocklisting on the server.",
+                                "intersight_api": "EnableDimmBlocklisting",
+                                "title": "dimm_blocklisting"
+                            }
+                        }
+                    }
+                ]
             },
             "multicast": {
                 "description": "A policy to configure Multicast settings for all the Virtual LAN networks.",
@@ -13764,7 +13958,7 @@
                     "adapter_configuration": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Adapter Configuration policy names.",
+                        "description": "A value to add to the Adapter Configuration Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13774,7 +13968,7 @@
                     "bios": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the BIOS policy names.",
+                        "description": "A value to add to the BIOS Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13784,7 +13978,7 @@
                     "boot_order": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Boot Order policy names.",
+                        "description": "A value to add to the Boot Order Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13794,7 +13988,7 @@
                     "certificate_management": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Certificate Management policy names.",
+                        "description": "A value to add to the Certificate Management Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13814,7 +14008,7 @@
                     "device_connector": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Device Connector policy names.",
+                        "description": "A value to add to the Device Connector Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13824,7 +14018,7 @@
                     "drive_security": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Drive Security policy names.",
+                        "description": "A value to add to the Drive Security Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13834,7 +14028,7 @@
                     "ethernet_adapter": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Ethernet Adapter policy names.",
+                        "description": "A value to add to the Ethernet Adapter Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13844,7 +14038,7 @@
                     "ethernet_network": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Ethernet Network policy names.",
+                        "description": "A value to add to the Ethernet Network Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13854,7 +14048,7 @@
                     "ethernet_network_control": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Ethernet Network Control policy names.",
+                        "description": "A value to add to the Ethernet Network Control Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13864,7 +14058,7 @@
                     "ethernet_network_group": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Ethernet Network Group policy names.",
+                        "description": "A value to add to the Ethernet Network Group Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13874,7 +14068,7 @@
                     "ethernet_qos": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Ethernet QoS policy names.",
+                        "description": "A value to add to the Ethernet QoS Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13884,7 +14078,7 @@
                     "fc_zone": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the FC Zone policy names.",
+                        "description": "A value to add to the FC Zone Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13894,7 +14088,7 @@
                     "fibre_channel_adapter": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Fibre-Channel Adapter policy names.",
+                        "description": "A value to add to the Fibre-Channel Adapter Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13904,7 +14098,7 @@
                     "fibre_channel_network": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Fibre-Channel Network policy names.",
+                        "description": "A value to add to the Fibre-Channel Network Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13914,7 +14108,7 @@
                     "fibre_channel_qos": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Fibre-Channel QoS policy names.",
+                        "description": "A value to add to the Fibre-Channel QoS Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13924,7 +14118,7 @@
                     "firmware": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Firmware policy names.",
+                        "description": "A value to add to the Firmware Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13934,7 +14128,7 @@
                     "flow_control": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Flow Control policy names.",
+                        "description": "A value to add to the Flow Control Policy names.",
                         "intersight_api": "FlowControl",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13944,7 +14138,7 @@
                     "imc_access": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the IMC Access policy names.",
+                        "description": "A value to add to the IMC Access Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13954,7 +14148,7 @@
                     "ipmi_over_lan": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the IPMI over LAN policy names.",
+                        "description": "A value to add to the IPMI over LAN Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13964,7 +14158,7 @@
                     "iscsi_adapter": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the iSCSI Adapter policy names.",
+                        "description": "A value to add to the iSCSI Adapter Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13974,7 +14168,7 @@
                     "iscsi_boot": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the iSCSI Boot policy names.",
+                        "description": "A value to add to the iSCSI Boot Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13984,7 +14178,7 @@
                     "iscsi_static_target": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the iSCSI Static Target policy names.",
+                        "description": "A value to add to the iSCSI Static Target Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -13994,7 +14188,7 @@
                     "lan_connectivity": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the LAN Connectivity policy names.",
+                        "description": "A value to add to the LAN Connectivity Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14004,7 +14198,7 @@
                     "ldap": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the LDAP policy names.",
+                        "description": "A value to add to the LDAP Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14014,7 +14208,7 @@
                     "link_aggregation": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Link Aggregation policy names.",
+                        "description": "A value to add to the Link Aggregation Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14024,7 +14218,7 @@
                     "link_control": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Link Control policy names.",
+                        "description": "A value to add to the Link Control Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14034,17 +14228,27 @@
                     "local_user": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Local User policy names.",
+                        "description": "A value to add to the Local User Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "local_user"
                     },
+                    "memory": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to Memory Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "memory"
+                    },
                     "multicast": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to Multicast the policy names.",
+                        "description": "A value to add to Multicast Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14054,7 +14258,7 @@
                     "network_connectivity": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Network Connectivity policy names.",
+                        "description": "A value to add to the Network Connectivity Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14064,7 +14268,7 @@
                     "ntp": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the NTP policy names.",
+                        "description": "A value to add to the NTP Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14074,7 +14278,7 @@
                     "persistent_memory": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Persistent Memory policy names.",
+                        "description": "A value to add to the Persistent Memory Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14084,7 +14288,7 @@
                     "port": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Port policy names.",
+                        "description": "A value to add to the Port Policy names.",
                         "intersight_api": "Port",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14094,7 +14298,7 @@
                     "power": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Power policy names.",
+                        "description": "A value to add to the Power Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14104,17 +14308,27 @@
                     "san_connectivity": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the SAN Connectivity policy names.",
+                        "description": "A value to add to the SAN Connectivity Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "san_connectivity"
                     },
+                    "scrub": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to Scrub Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "scrub"
+                    },
                     "sd_card": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the SD Card policy names.",
+                        "description": "A value to add to the SD Card Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14124,7 +14338,7 @@
                     "serial_over_lan": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Serial over LAN policy names.",
+                        "description": "A value to add to the Serial over LAN Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14134,7 +14348,7 @@
                     "smtp": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the SMTP policy names.",
+                        "description": "A value to add to the SMTP Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14144,7 +14358,7 @@
                     "snmp": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the SNMP policy names.",
+                        "description": "A value to add to the SNMP Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14154,7 +14368,7 @@
                     "ssh": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the SSH policy names.",
+                        "description": "A value to add to the SSH Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14164,7 +14378,7 @@
                     "storage": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Storage policy names.",
+                        "description": "A value to add to the Storage Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14174,7 +14388,7 @@
                     "switch_control": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Switch Control policy names.",
+                        "description": "A value to add to the Switch Control Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14184,7 +14398,7 @@
                     "syslog": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Syslog policy names.",
+                        "description": "A value to add to the Syslog Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14194,7 +14408,7 @@
                     "system_qos": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the System QoS policy names.",
+                        "description": "A value to add to the System QoS Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14204,7 +14418,7 @@
                     "thermal": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Thermal policy names.",
+                        "description": "A value to add to the Thermal Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14224,7 +14438,7 @@
                     "virtual_kvm": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Virtual KVM policy names.",
+                        "description": "A value to add to the Virtual KVM Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14234,7 +14448,7 @@
                     "virtual_media": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the Virtual Media policy names.",
+                        "description": "A value to add to the Virtual Media Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14244,7 +14458,7 @@
                     "vlan": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the VLAN policy names.",
+                        "description": "A value to add to the VLAN Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14264,7 +14478,7 @@
                     "vsan": {
                         "type": "string",
                         "default": "",
-                        "description": "A value to add to the VSAN policy names.",
+                        "description": "A value to add to the VSAN Policy names.",
                         "intersight_api": "not_applicable",
                         "minLength": 0,
                         "maxLength": 12,
@@ -14763,15 +14977,22 @@
                         "sort": false,
                         "title": "admin_speed"
                     },
-                    "ethernet_network_group_policy": {
-                        "type": "string",
-                        "default": "",
-                        "description": "The Name of the Ethernet Network Group Policy to Assign.",
+                    "ethernet_network_group_policies": {
+                        "type": "array",
+                        "description": "The Name(s) of the Ethernet Network Group Policies to Assign.",
                         "intersight_api": "$ref:EthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
-                        "minLength": 1,
-                        "maxLength": 129,
-                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                        "title": "ethernet_network_group_policy"
+                        "items": {
+                            "type": "string",
+                            "default": "default",
+                            "description": "The Name of the Ethernet Network Group Policy to Assign.",
+                            "intersight_api": "$ref:EthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
+                            "minLength": 1,
+                            "maxLength": 129,
+                            "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                            "title": "ethernet_network_group_policy"
+                        },
+                        "objectType": "fabric.EthNetworkGroupPolicy",
+                        "title": "ethernet_network_group_policies - Ethernet Network Group Policies"
                     },
                     "fec": {
                         "type": "string",
@@ -15244,6 +15465,23 @@
                         "minimum": 0,
                         "maximum": 108,
                         "title": "breakout_port_id"
+                    },
+                    "ethernet_network_group_policies": {
+                        "type": "array",
+                        "description": "The Name(s) of the Ethernet Network Group Policies to Assign.",
+                        "intersight_api": "$ref:EthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
+                        "items": {
+                            "type": "string",
+                            "default": "default",
+                            "description": "The Name of the Ethernet Network Group Policy to Assign.",
+                            "intersight_api": "$ref:EthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
+                            "minLength": 1,
+                            "maxLength": 129,
+                            "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                            "title": "ethernet_network_group_policy"
+                        },
+                        "objectType": "fabric.EthNetworkGroupPolicy",
+                        "title": "ethernet_network_group_policies - Ethernet Network Group Policies"
                     },
                     "ethernet_network_group_policy": {
                         "type": "string",
@@ -15736,6 +15974,18 @@
                                     "Disabled"
                                 ],
                                 "title": "power_save_mode"
+                            },
+                            "processor_package_power_limit": {
+                                "type": "string",
+                                "default": "Default",
+                                "description": "Default is `Default`.  Sets the Processor Package Power Limit (PPL) of a server. PPL refers to the amount of power that a CPU can draw from the power supply. The Processor Package Power Limit (PPL) feature is currently available exclusively on Cisco UCS C225/C245 M8 servers.\n  * `Default` - Set the Package Power Limit to the platform defined default value.\n  * `Maximum` - Set the Package Power Limit to the platform defined maximum value.\n  * `Minimum` - Set the Package Power Limit to the platform defined minimum value.",
+                                "intersight_api": "ProcessorPackagePowerLimit",
+                                "enum": [
+                                    "Default",
+                                    "Maximum",
+                                    "Minimum"
+                                ],
+                                "title": "processor_package_power_limit"
                             }
                         }
                     }
@@ -15897,6 +16147,26 @@
                                 "description": "Flag to determine if these Domain Profiles should be associated to the template after creating the domain profile.",
                                 "intersight_api": "attach_template",
                                 "title": "attach_template"
+                            },
+                            "certificate_management_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Certificate Management Policy to Assign to the Domain Profile.",
+                                "intersight_api": "$pbucket:certificatemanagement.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "certificate_management_policy"
+                            },
+                            "ldap_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the LDAP Policy to Assign to the Domain Profile.",
+                                "intersight_api": "$pbucket:iam.LdapPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ldap_policy"
                             },
                             "network_connectivity_policy": {
                                 "type": "string",
@@ -16158,6 +16428,13 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "certificate_management_policy"
                             },
+                            "detach_template": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Flag to detach the Server Profile Template.  Use before assigning a new template or to detach existing template.",
+                                "intersight_api": "not_applicable",
+                                "title": "detach_template"
+                            },
                             "device_connector_policy": {
                                 "type": "string",
                                 "default": "default",
@@ -16255,6 +16532,16 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "local_user_policy"
                             },
+                            "memory_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Memory Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:memory.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "memory_policy"
+                            },
                             "network_connectivity_policy": {
                                 "type": "string",
                                 "default": "default",
@@ -16324,6 +16611,16 @@
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "serial_over_lan_policy"
+                            },
+                            "scrub_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Scrub Policy to Assign to the Profile(s).",
+                                "intersight_api": "$ref:compute.ScrubPolicy.Relationship:compute.ScrubPolicy",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "scrub_policy"
                             },
                             "sd_card_policy": {
                                 "type": "string",
@@ -17276,6 +17573,46 @@
                         "title": "pci_link"
                     }
                 }
+            },
+            "scrub": {
+                "description": "Definition of the list of properties defined in 'compute.ScrubPolicy', excluding properties defined in parent classes.",
+                "intersight_type": "policies",
+                "intersight_uri": "compute/ScrubPolicies",
+                "object_type": "compute.ScrubPolicy",
+                "target_platforms": [
+                    "FIAttached",
+                    "Standalone"
+                ],
+                "title": "scrub_policy - Scrub Policy - Intersight Uri: compute/ScrubPolicies",
+                "x-allOf-name": "ssh.Policy",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_policy"
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "Definition of the list of properties defined in 'compute.ScrubPolicy', excluding properties defined in parent classes.",
+                        "required": [],
+                        "title": "scrub_policy - Scrub Policy - Intersight Uri: compute/ScrubPolicies",
+                        "properties": {
+                            "bios": {
+                                "type": "boolean",
+                                "default": "false",
+                                "description": "BIOS will be reset to factory defaults, if speficied in the scrub policy.",
+                                "intersight_api": "$ref:scrub.Targets.ScrubTargets:BIOS",
+                                "title": "bios"
+                            },
+                            "disk": {
+                                "type": "boolean",
+                                "default": "false",
+                                "description": "Data is erased from all the local stroages, if specified in the scrub policy.",
+                                "intersight_api": "$ref:scrub.Targets.ScrubTargets:Disk",
+                                "title": "disk"
+                            }
+                        }
+                    }
+                ]
             },
             "sd_card": {
                 "description": "Policy for configuring SD Card settings on endpoint.",
@@ -19084,12 +19421,32 @@
                         ],
                         "title": "server_profile_template",
                         "properties": {
+                            "certificate_management_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Certificate Management Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:certificatemanagement.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "certificate_management_policy"
+                            },
                             "create_template": {
                                 "type": "boolean",
                                 "default": false,
                                 "description": "Flag to determine if these Template Should be created or just used as a Policy Reference.",
                                 "intersight_api": "create_template",
                                 "title": "create_template"
+                            },
+                            "ldap_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the LDAP Policy to Assign to the Domain Profile Template.",
+                                "intersight_api": "$pbucket:iam.LdapPolicy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "ldap_policy"
                             },
                             "network_connectivity_policy": {
                                 "type": "string",
@@ -19352,6 +19709,16 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "local_user_policy"
                             },
+                            "memory_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Memory Policy to Assign to the Profile(s).",
+                                "intersight_api": "$pbucket:memory.Policy:Moid",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "memory_policy"
+                            },
                             "network_connectivity_policy": {
                                 "type": "string",
                                 "default": "default",
@@ -19401,6 +19768,16 @@
                                 "maxLength": 129,
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "san_connectivity_policy"
+                            },
+                            "scrub_policy": {
+                                "type": "string",
+                                "default": "default",
+                                "description": "The Name of the Scrub Policy to Assign to the Profile(s).",
+                                "intersight_api": "$ref:compute.ScrubPolicy.Relationship:compute.ScrubPolicy",
+                                "minLength": 1,
+                                "maxLength": 129,
+                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                "title": "scrub_policy"
                             },
                             "serial_over_lan_policy": {
                                 "type": "string",
@@ -20171,7 +20548,7 @@
                         "description": "",
                         "required": [
                             "ethernet_network_control_policy",
-                            "ethernet_network_group_policy",
+                            "ethernet_network_group_policies",
                             "ethernet_qos_policy"
                         ],
                         "title": "vnic_template",
@@ -20231,15 +20608,22 @@
                                 "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                 "title": "ethernet_network_control_policy"
                             },
-                            "ethernet_network_group_policy": {
-                                "type": "string",
-                                "default": "default",
-                                "description": "The Name of the Ethernet Network Group Policy to Assign to the vNIC Template.",
+                            "ethernet_network_group_policies": {
+                                "type": "array",
+                                "description": "The Name(s) of the Ethernet Network Group Policies to Assign.",
                                 "intersight_api": "$ref:FabricEthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
-                                "minLength": 1,
-                                "maxLength": 129,
-                                "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                                "title": "ethernet_network_group_policy"
+                                "items": {
+                                    "type": "string",
+                                    "default": "default",
+                                    "description": "The Name of the Ethernet Network Group Policy to Assign.",
+                                    "intersight_api": "$ref:FabricEthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
+                                    "minLength": 1,
+                                    "maxLength": 129,
+                                    "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                                    "title": "ethernet_network_group_policy"
+                                },
+                                "object_type": "fabric.EthNetworkGroupPolicy",
+                                "title": "ethernet_network_group_policies - Ethernet Network Group Policies"
                             },
                             "ethernet_qos_policy": {
                                 "type": "string",
