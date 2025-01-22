@@ -31,7 +31,6 @@ class intersight(object):
         if 'add_vic_adapter_configuration' in pkeys:
             temp_list = deepcopy(pvars.add_vic_adapter_configuration)
             pvars.add_vic_adapter_configuration = []
-            print(temp_list)
             for e in temp_list:
                 edict = deepcopy(e)
                 ekeys = list(edict.keys())
@@ -369,6 +368,14 @@ class intersight(object):
             for e in ['search_domain', 'search_forest']:
                 if not e in dkeys: pvars.ldap_from_dns[e] = 'example.com'
             pvars.ldap_from_dns = DotMap(sorted(pvars.ldap_from_dns.items()))
+        if 'ldap_groups' in pkeys:
+            glist = deepcopy(pvars.ldap_groups)
+            pvars.ldap_groups = []
+            for e in glist:
+                gdict = intersight.replace_keys(['end_point_role,role'], e)
+                glist = list(gdict.keys())
+                if not 'group_dn' in glist: gdict.group_dn = '#MISSING'
+                pvars.ldap_groups.append(gdict)
         if 'ldap_servers' in pkeys:
             slist = deepcopy(pvars.ldap_servers)
             pvars.ldap_servers = []
@@ -519,6 +526,12 @@ class intersight(object):
                         if 'vsan_id' in xkeys:
                             pvars[port_type][x].vsan_ids = [pvars[port_type][x].vsan_id]
                             pvars[port_type][x].pop('vsan_id')
+                if re.search('port_role|port_channel', port_type):
+                    for x in range(0, len(pvars[port_type])):
+                        plist = list(pvars[port_type][x].keys())
+                        if 'ethernet_network_group_policy' in plist:
+                            pvars[port_type][x].ethernet_network_group_policies = [pvars[port_type][x].ethernet_network_group_policy]
+                            pvars[port_type][x].pop('ethernet_network_group_policy')
         if 'lan_pin_groups' in pkeys or 'san_pin_groups' in pkeys: pvars.pin_groups = []
         for p in ['lan_pin_groups', 'san_pin_groups']:
             if p == 'lan_pin_groups': ptype = 'lan'
