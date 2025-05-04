@@ -370,10 +370,22 @@
                     },
                     {
                         "type": "object",
-                        "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * name\n\nRecommended Attribute: bios_template\n\nOptional Attributes:\n  * description\n  * tags\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * boot_option_num_retry\n  * boot_option_re_cool_down\n  * boot_option_retry\n  * ipv4http\n  * ipv4pxe\n  * ipv6http\n  * ipv6pxe\n  * network_stack\n  * onboard_scu_storage_support\n  * onboard_scu_storage_sw_stack\n  * pop_support\n  * psata\n  * sata_mode_select\n  * vmd_enable\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * intel_vt_for_directed_io\n  * intel_vtd_coherency_support\n  * intel_vtd_interrupt_remapping\n  * intel_vtd_pass_through_dma_support\n  * intel_vtdats_support\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * acs_control_gpu1state\n  * acs_control_gpu2state\n  * acs_control_gpu3state\n  * acs_control_gpu4state\n  * acs_control_gpu5state\n  * acs_control_gpu6state\n  * acs_control_gpu7state\n  * acs_control_gpu8state\n  * acs_control_slot11state\n  * acs_control_slot12state\n  * acs_control_slot13state\n  * acs_control_slot14state\n  * cdn_support\n  * edpc_en\n  * enable_clock_spread_spec\n  * lom_port0state\n  * lom_port1state\n  * lom_port2state\n  * lom_port3state\n  * lom_ports_all_state\n  * pch_pcie_pll_ssc\n  * pci_option_ro_ms\n  * pci_rom_clp\n  * pcie_ari_support\n  * pcie_pll_ssc\n  * pcie_slot_mraid1link_speed\n  * pcie_slot_mraid1option_rom\n  * pcie_slot_mraid2link_speed\n  * pcie_slot_mraid2option_rom\n  * pcie_slot_mstorraid_link_speed\n  * pcie_slot_mstorraid_option_rom\n  * pcie_slot_nvme1link_speed\n  * pcie_slot_nvme1option_rom\n  * pcie_slot_nvme2link_speed\n  * pcie_slot_nvme2option_rom\n  * pcie_slot_nvme3link_speed\n  * pcie_slot_nvme3option_rom\n  * pcie_slot_nvme4link_speed\n  * pcie_slot_nvme4option_rom\n  * pcie_slot_nvme5link_speed\n  * pcie_slot_nvme5option_rom\n  * pcie_slot_nvme6link_speed\n  * pcie_slot_nvme6option_rom\n  * slot10link_speed\n  * slot10state\n  * slot11link_speed\n  * slot11state\n  * slot12link_speed\n  * slot12state\n  * slot13state\n  * slot14state\n  * slot1link_speed\n  * slot1state\n  * slot2link_speed\n  * slot2state\n  * slot3link_speed\n  * slot3state\n  * slot4link_speed\n  * slot4state\n  * slot5link_speed\n  * slot5state\n  * slot6link_speed\n  * slot6state\n  * slot7link_speed\n  * slot7state\n  * slot8link_speed\n  * slot8state\n  * slot9link_speed\n  * slot9state\n  * slot_flom_link_speed\n  * slot_front_nvme10link_speed\n  * slot_front_nvme10option_rom\n  * slot_front_nvme11link_speed\n  * slot_front_nvme11option_rom\n  * slot_front_nvme12link_speed\n  * slot_front_nvme12option_rom\n  * slot_front_nvme13link_speed\n  * slot_front_nvme13option_rom\n  * slot_front_nvme14link_speed\n  * slot_front_nvme14option_rom\n  * slot_front_nvme15link_speed\n  * slot_front_nvme15option_rom\n  * slot_front_nvme16link_speed\n  * slot_front_nvme16option_rom\n  * slot_front_nvme17link_speed\n  * slot_front_nvme17option_rom\n  * slot_front_nvme18link_speed\n  * slot_front_nvme18option_rom\n  * slot_front_nvme19link_speed\n  * slot_front_nvme19option_rom\n  * slot_front_nvme1link_speed\n  * slot_front_nvme1option_rom\n  * slot_front_nvme20link_speed\n  * slot_front_nvme20option_rom\n  * slot_front_nvme21link_speed\n  * slot_front_nvme21option_rom\n  * slot_front_nvme22link_speed\n  * slot_front_nvme22option_rom\n  * slot_front_nvme23link_speed\n  * slot_front_nvme23option_rom\n  * slot_front_nvme24link_speed\n  * slot_front_nvme24option_rom\n  * slot_front_nvme2link_speed\n  * slot_front_nvme2option_rom\n  * slot_front_nvme3link_speed\n  * slot_front_nvme3option_rom\n  * slot_front_nvme4link_speed\n  * slot_front_nvme4option_rom\n  * slot_front_nvme5link_speed\n  * slot_front_nvme5option_rom\n  * slot_front_nvme6link_speed\n  * slot_front_nvme6option_rom\n  * slot_front_nvme7link_speed\n  * slot_front_nvme7option_rom\n  * slot_front_nvme8link_speed\n  * slot_front_nvme8option_rom\n  * slot_front_nvme9link_speed\n  * slot_front_nvme9option_rom\n  * slot_front_slot5link_speed\n  * slot_front_slot6link_speed\n  * slot_gpu1state\n  * slot_gpu2state\n  * slot_gpu3state\n  * slot_gpu4state\n  * slot_gpu5state\n  * slot_gpu6state\n  * slot_gpu7state\n  * slot_gpu8state\n  * slot_hba_link_speed\n  * slot_hba_state\n  * slot_lom1link\n  * slot_lom2link\n  * slot_mezz_state\n  * slot_mlom_link_speed\n  * slot_mlom_state\n  * slot_mraid_link_speed\n  * slot_mraid_state\n  * slot_n10state\n  * slot_n11state\n  * slot_n12state\n  * slot_n13state\n  * slot_n14state\n  * slot_n15state\n  * slot_n16state\n  * slot_n17state\n  * slot_n18state\n  * slot_n19state\n  * slot_n1state\n  * slot_n20state\n  * slot_n21state\n  * slot_n22state\n  * slot_n23state\n  * slot_n24state\n  * slot_n2state\n  * slot_n3state\n  * slot_n4state\n  * slot_n5state\n  * slot_n6state\n  * slot_n7state\n  * slot_n8state\n  * slot_n9state\n  * slot_raid_link_speed\n  * slot_raid_state\n  * slot_rear_nvme1link_speed\n  * slot_rear_nvme1state\n  * slot_rear_nvme2link_speed\n  * slot_rear_nvme2state\n  * slot_rear_nvme3link_speed\n  * slot_rear_nvme3state\n  * slot_rear_nvme4link_speed\n  * slot_rear_nvme4state\n  * slot_rear_nvme5state\n  * slot_rear_nvme6state\n  * slot_rear_nvme7state\n  * slot_rear_nvme8state\n  * slot_riser1link_speed\n  * slot_riser1slot1link_speed\n  * slot_riser1slot2link_speed\n  * slot_riser1slot3link_speed\n  * slot_riser2link_speed\n  * slot_riser2slot4link_speed\n  * slot_riser2slot5link_speed\n  * slot_riser2slot6link_speed\n  * slot_sas_state\n  * slot_ssd_slot1link_speed\n  * slot_ssd_slot2link_speed\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * pcie_slots_cdn_enable\n  * post_error_pause\n  * tpm_support\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * adaptive_refresh_mgmt_level\n  * advanced_mem_test\n  * bme_dma_mitigation\n  * burst_and_postponed_refresh\n  * cbs_cmn_cpu_sev_asid_space_limit\n  * cbs_cmn_cpu_smee\n  * cbs_cmn_gnb_nb_iommu\n  * cbs_cmn_mem_ctrl_bank_group_swap_ddr4\n  * cbs_cmn_mem_map_bank_interleave_ddr4\n  * cbs_cmn_mem_speed_ddr47xx2\n  * cbs_cmn_mem_speed_ddr47xx3\n  * cbs_dbg_cpu_snp_mem_cover\n  * cbs_dbg_cpu_snp_mem_size_cover\n  * cbs_df_cmn4link_max_xgmi_speed\n  * cbs_df_cmn_dram_nps\n  * cbs_df_cmn_dram_scrub_time\n  * cbs_df_cmn_mem_intlv\n  * cbs_df_cmn_mem_intlv_control\n  * cbs_df_cmn_mem_intlv_size\n  * cbs_gnb_dbg_pcie_tbt_support\n  * cbs_sev_snp_support\n  * cke_low_policy\n  * cr_qos\n  * crfastgo_config\n  * dcpmm_firmware_downgrade\n  * dram_refresh_rate\n  * dram_sw_thermal_throttling\n  * eadr_support\n  * enable_rmt\n  * error_check_scrub\n  * lv_ddr_mode\n  * memory_bandwidth_boost\n  * memory_refresh_rate\n  * memory_size_limit\n  * memory_thermal_throttling\n  * mirroring_mode\n  * mmioh_base\n  * mmioh_size\n  * numa_optimized\n  * nvmdimm_perform_config\n  * operation_mode\n  * panic_high_watermark\n  * partial_cache_line_sparing\n  * partial_mirror_mode_config\n  * partial_mirror_percent\n  * partial_mirror_value1\n  * partial_mirror_value2\n  * partial_mirror_value3\n  * partial_mirror_value4\n  * pc_ie_ras_support\n  * post_package_repair\n  * runtime_post_package_repair\n  * select_memory_ras_configuration\n  * select_ppr_type\n  * sev\n  * smee\n  * snoopy_mode_for2lm\n  * snoopy_mode_for_ad\n  * sparing_mode\n  * tsme\n  * uma_based_clustering\n  * vol_memory_mode\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * aspm_support\n  * ioh_resource\n  * memory_mapped_io_above4gb\n  * mmcfg_base\n  * onboard10gbit_lom\n  * onboard_gbit_lom\n  * pc_ie_ssd_hot_plug_support\n  * resize_bar_support\n  * sr_iov\n  * vga_priority\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * c1auto_demotion\n  * c1auto_un_demotion\n  * cbs_cmn_cpu_cpb\n  * cbs_cmn_cpu_global_cstate_ctrl\n  * cbs_cmn_cpu_l1stream_hw_prefetcher\n  * cbs_cmn_cpu_l2stream_hw_prefetcher\n  * cbs_cmn_determinism_slider\n  * cbs_cmn_efficiency_mode_en\n  * cbs_cmn_efficiency_mode_en_rs\n  * cbs_cmn_gnb_smucppc\n  * cbs_cmnc_tdp_ctl\n  * cpu_perf_enhancement\n  * llc_alloc\n  * optimized_power_mode\n  * upi_link_enablement\n  * upi_power_management\n  * virtual_numa\n  * x2apic_opt_out\n  * xpt_remote_prefetch\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * adjacent_cache_line_prefetch\n  * altitude\n  * auto_cc_state\n  * autonumous_cstate_enable\n  * boot_performance_mode\n  * cbs_cmn_apbdis\n  * cbs_cmn_apbdis_df_pstate_rs\n  * cbs_cmn_cpu_avx512\n  * cbs_cmn_cpu_gen_downcore_ctrl\n  * cbs_cmn_cpu_streaming_stores_ctrl\n  * cbs_cmn_edc_control_throttle\n  * cbs_cmn_fixed_soc_pstate\n  * cbs_cmn_gnb_smu_df_cstates\n  * cbs_cmn_gnb_smu_dffo_rs\n  * cbs_cmn_gnb_smu_dlwm_support\n  * cbs_cmn_mem_ctrller_pwr_dn_en_ddr\n  * cbs_cmn_preferred_io7xx2\n  * cbs_cmn_preferred_io7xx3\n  * cbs_cmnx_gmi_force_link_width_rs\n  * cbs_cpu_ccd_ctrl_ssp\n  * cbs_cpu_core_ctrl\n  * cbs_cpu_down_core_ctrl_bergamo\n  * cbs_cpu_down_core_ctrl_genoa\n  * cbs_cpu_smt_ctrl\n  * cbs_dbg_cpu_gen_cpu_wdt\n  * cbs_dbg_cpu_lapic_mode\n  * cbs_df_cmn_acpi_srat_l3numa\n  * cbs_df_dbg_xgmi_link_cfg\n  * channel_inter_leave\n  * cisco_xgmi_max_speed\n  * closed_loop_therm_throtl\n  * cmci_enable\n  * config_tdp\n  * config_tdp_level\n  * core_multi_processing\n  * cpu_energy_performance\n  * cpu_frequency_floor\n  * cpu_performance\n  * cpu_power_management\n  * demand_scrub\n  * dfx_osb_en\n  * direct_cache_access\n  * dram_clock_throttling\n  * energy_efficient_turbo\n  * eng_perf_tuning\n  * enhanced_intel_speed_step_tech\n  * epp_enable\n  * epp_profile\n  * execute_disable_bit\n  * extended_apic\n  * hardware_prefetch\n  * hwpm_enable\n  * imc_interleave\n  * intel_dynamic_speed_select\n  * intel_hyper_threading_tech\n  * intel_speed_select\n  * intel_turbo_boost_tech\n  * intel_virtualization_technology\n  * ioat_config_cpm\n  * ioh_error_enable\n  * ip_prefetch\n  * kti_prefetch\n  * llc_prefetch\n  * memory_inter_leave\n  * package_cstate_limit\n  * patrol_scrub\n  * patrol_scrub_duration\n  * prmrr_size\n  * processor_c1e\n  * processor_c3report\n  * processor_c6report\n  * processor_cstate\n  * pstate_coord_type\n  * pwr_perf_tuning\n  * qpi_link_speed\n  * rank_inter_leave\n  * single_pctl_enable\n  * smt_mode\n  * snc\n  * streamer_prefetch\n  * svm_mode\n  * ufs_disable\n  * work_load_config\n  * xpt_prefetch\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * qpi_link_frequency\n  * qpi_snoop_mode\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * enable_tdx\n  * enable_tdx_seamldr\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * serial_port_aenable\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * assert_nmi_on_perr\n  * assert_nmi_on_serr\n  * baud_rate\n  * cdn_enable\n  * cisco_adaptive_mem_training\n  * cisco_debug_level\n  * cisco_oprom_launch_optimization\n  * console_redirection\n  * flow_control\n  * frb2enable\n  * legacy_os_redirection\n  * os_boot_watchdog_timer\n  * os_boot_watchdog_timer_policy\n  * os_boot_watchdog_timer_timeout\n  * out_of_band_mgmt_port\n  * putty_key_pad\n  * redirection_after_post\n  * serial_mux\n  * terminal_type\n  * ucsm_boot_order_rule\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * cpu_pa_limit\n  * enable_mktme\n  * dma_ctrl_opt_in\n  * enable_sgx\n  * enable_tme\n  * epoch_update\n  * sgx_auto_registration_agent\n  * sgx_epoch0\n  * sgx_epoch1\n  * sgx_factory_reset\n  * sgx_le_pub_key_hash0\n  * sgx_le_pub_key_hash1\n  * sgx_le_pub_key_hash2\n  * sgx_le_pub_key_hash3\n  * sgx_le_wr\n  * sgx_package_info_in_band_access\n  * sgx_qos\n  * sha1pcr_bank\n  * sha256pcr_bank\n  * sha384pcr_bank\n  * tpm_control\n  * tpm_pending_operation\n  * tpm_ppi_required\n  * txt_support\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * all_usb_devices\n  * legacy_usb_support\n  * make_device_non_bootable\n  * pch_usb30mode\n  * usb_emul6064\n  * usb_port_front\n  * usb_port_internal\n  * usb_port_kvm\n  * usb_port_rear\n  * usb_port_sd_card\n  * usb_port_vmedia\n  * usb_xhci_support",
+                        "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * name\n\nRecommended Attribute: bios_template\n\nOptional Attributes:\n  * description\n  * tags\n#+++++++++++++++++++++++++++++++\n# Advanced Section\n#+++++++++++++++++++++++++++++++\n  * latency_optimized_mode\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * boot_option_num_retry\n  * boot_option_re_cool_down\n  * boot_option_retry\n  * ipv4http\n  * ipv4pxe\n  * ipv6http\n  * ipv6pxe\n  * network_stack\n  * onboard_scu_storage_support\n  * onboard_scu_storage_sw_stack\n  * pop_support\n  * psata\n  * sata_mode_select\n  * vmd_enable\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * intel_vt_for_directed_io\n  * intel_vtd_coherency_support\n  * intel_vtd_interrupt_remapping\n  * intel_vtd_pass_through_dma_support\n  * intel_vtdats_support\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * acs_control_gpu1state\n  * acs_control_gpu2state\n  * acs_control_gpu3state\n  * acs_control_gpu4state\n  * acs_control_gpu5state\n  * acs_control_gpu6state\n  * acs_control_gpu7state\n  * acs_control_gpu8state\n  * acs_control_slot11state\n  * acs_control_slot12state\n  * acs_control_slot13state\n  * acs_control_slot14state\n  * cdn_support\n  * edpc_en\n  * enable_clock_spread_spec\n  * lom_port0state\n  * lom_port1state\n  * lom_port2state\n  * lom_port3state\n  * lom_ports_all_state\n  * pch_pcie_pll_ssc\n  * pci_option_ro_ms\n  * pci_rom_clp\n  * pcie_ari_support\n  * pcie_pll_ssc\n  * pcie_slot_mraid1link_speed\n  * pcie_slot_mraid1option_rom\n  * pcie_slot_mraid2link_speed\n  * pcie_slot_mraid2option_rom\n  * pcie_slot_mstorraid_link_speed\n  * pcie_slot_mstorraid_option_rom\n  * pcie_slot_nvme1link_speed\n  * pcie_slot_nvme1option_rom\n  * pcie_slot_nvme2link_speed\n  * pcie_slot_nvme2option_rom\n  * pcie_slot_nvme3link_speed\n  * pcie_slot_nvme3option_rom\n  * pcie_slot_nvme4link_speed\n  * pcie_slot_nvme4option_rom\n  * pcie_slot_nvme5link_speed\n  * pcie_slot_nvme5option_rom\n  * pcie_slot_nvme6link_speed\n  * pcie_slot_nvme6option_rom\n  * slot10link_speed\n  * slot10state\n  * slot11link_speed\n  * slot11state\n  * slot12link_speed\n  * slot12state\n  * slot13state\n  * slot14state\n  * slot1link_speed\n  * slot1state\n  * slot2link_speed\n  * slot2state\n  * slot3link_speed\n  * slot3state\n  * slot4link_speed\n  * slot4state\n  * slot5link_speed\n  * slot5state\n  * slot6link_speed\n  * slot6state\n  * slot7link_speed\n  * slot7state\n  * slot8link_speed\n  * slot8state\n  * slot9link_speed\n  * slot9state\n  * slot_flom_link_speed\n  * slot_front_nvme1link_speed\n  * slot_front_nvme2link_speed\n  * slot_front_nvme2option_rom\n  * slot_front_nvme3link_speed\n  * slot_front_nvme3option_rom\n  * slot_front_nvme4link_speed\n  * slot_front_nvme4option_rom\n  * slot_front_nvme5link_speed\n  * slot_front_nvme5option_rom\n  * slot_front_nvme6link_speed\n  * slot_front_nvme6option_rom\n  * slot_front_nvme7link_speed\n  * slot_front_nvme7option_rom\n  * slot_front_nvme8link_speed\n  * slot_front_nvme8option_rom\n  * slot_front_nvme9link_speed\n  * slot_front_nvme9option_rom\n  * slot_front_nvme1option_rom\n  * slot_front_nvme10link_speed\n  * slot_front_nvme10option_rom\n  * slot_front_nvme11link_speed\n  * slot_front_nvme11option_rom\n  * slot_front_nvme12link_speed\n  * slot_front_nvme12option_rom\n  * slot_front_nvme13link_speed\n  * slot_front_nvme13option_rom\n  * slot_front_nvme14link_speed\n  * slot_front_nvme14option_rom\n  * slot_front_nvme15link_speed\n  * slot_front_nvme15option_rom\n  * slot_front_nvme16link_speed\n  * slot_front_nvme16option_rom\n  * slot_front_nvme17link_speed\n  * slot_front_nvme17option_rom\n  * slot_front_nvme18link_speed\n  * slot_front_nvme18option_rom\n  * slot_front_nvme19link_speed\n  * slot_front_nvme19option_rom\n  * slot_front_nvme20link_speed\n  * slot_front_nvme20option_rom\n  * slot_front_nvme21link_speed\n  * slot_front_nvme21option_rom\n  * slot_front_nvme22link_speed\n  * slot_front_nvme22option_rom\n  * slot_front_nvme23link_speed\n  * slot_front_nvme23option_rom\n  * slot_front_nvme24link_speed\n  * slot_front_nvme24option_rom\n  * slot_front_nvme25link_speed\n  * slot_front_nvme25option_rom\n  * slot_front_nvme26link_speed\n  * slot_front_nvme26option_rom\n  * slot_front_nvme27link_speed\n  * slot_front_nvme27option_rom\n  * slot_front_nvme28link_speed\n  * slot_front_nvme28option_rom\n  * slot_front_nvme29link_speed\n  * slot_front_nvme29option_rom\n  * slot_front_nvme30link_speed\n  * slot_front_nvme30option_rom\n  * slot_front_nvme31link_speed\n  * slot_front_nvme31option_rom\n  * slot_front_nvme32link_speed\n  * slot_front_nvme32option_rom\n  * slot_front_slot5link_speed\n  * slot_front_slot6link_speed\n  * slot_gpu1state\n  * slot_gpu2state\n  * slot_gpu3state\n  * slot_gpu4state\n  * slot_gpu5state\n  * slot_gpu6state\n  * slot_gpu7state\n  * slot_gpu8state\n  * slot_hba_link_speed\n  * slot_hba_state\n  * slot_lom1link\n  * slot_lom2link\n  * slot_mezz_state\n  * slot_mlom_link_speed\n  * slot_mlom_state\n  * slot_mraid_link_speed\n  * slot_mraid_state\n  * slot_n10state\n  * slot_n11state\n  * slot_n12state\n  * slot_n13state\n  * slot_n14state\n  * slot_n15state\n  * slot_n16state\n  * slot_n17state\n  * slot_n18state\n  * slot_n19state\n  * slot_n1state\n  * slot_n20state\n  * slot_n21state\n  * slot_n22state\n  * slot_n23state\n  * slot_n24state\n  * slot_n2state\n  * slot_n3state\n  * slot_n4state\n  * slot_n5state\n  * slot_n6state\n  * slot_n7state\n  * slot_n8state\n  * slot_n9state\n  * slot_raid_link_speed\n  * slot_raid_state\n  * slot_rear_nvme1link_speed\n  * slot_rear_nvme1state\n  * slot_rear_nvme2link_speed\n  * slot_rear_nvme2state\n  * slot_rear_nvme3link_speed\n  * slot_rear_nvme3state\n  * slot_rear_nvme4link_speed\n  * slot_rear_nvme4state\n  * slot_rear_nvme5state\n  * slot_rear_nvme6state\n  * slot_rear_nvme7state\n  * slot_rear_nvme8state\n  * slot_riser1link_speed\n  * slot_riser1slot1link_speed\n  * slot_riser1slot2link_speed\n  * slot_riser1slot3link_speed\n  * slot_riser2link_speed\n  * slot_riser2slot4link_speed\n  * slot_riser2slot5link_speed\n  * slot_riser2slot6link_speed\n  * slot_sas_state\n  * slot_ssd_slot1link_speed\n  * slot_ssd_slot2link_speed\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * pcie_slots_cdn_enable\n  * post_error_pause\n  * tpm_support\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * acpi_srat_sp_flag_en\n  * adaptive_refresh_mgmt_level\n  * advanced_mem_test\n  * bme_dma_mitigation\n  * burst_and_postponed_refresh\n  * cbs_cmn_cpu_sev_asid_space_limit\n  * cbs_cmn_cpu_smee\n  * cbs_cmn_gnb_nb_iommu\n  * cbs_cmn_mem_ctrl_bank_group_swap_ddr4\n  * cbs_cmn_mem_map_bank_interleave_ddr4\n  * cbs_cmn_mem_speed_ddr47xx2\n  * cbs_cmn_mem_speed_ddr47xx3\n  * cbs_dbg_cpu_snp_mem_cover\n  * cbs_dbg_cpu_snp_mem_size_cover\n  * cbs_df_cmn4link_max_xgmi_speed\n  * cbs_df_cmn_dram_nps\n  * cbs_df_cmn_dram_scrub_time\n  * cbs_df_cmn_mem_intlv\n  * cbs_df_cmn_mem_intlv_control\n  * cbs_df_cmn_mem_intlv_size\n  * cbs_gnb_dbg_pcie_tbt_support\n  * cbs_sev_snp_support\n  * cke_low_policy\n  * cr_qos\n  * crfastgo_config\n  * dcpmm_firmware_downgrade\n  * dram_refresh_rate\n  * dram_sw_thermal_throttling\n  * eadr_support\n  * enable_rmt\n  * error_check_scrub\n  * lv_ddr_mode\n  * memory_bandwidth_boost\n  * memory_refresh_rate\n  * memory_size_limit\n  * memory_thermal_throttling\n  * mirroring_mode\n  * mmioh_base\n  * mmioh_size\n  * numa_optimized\n  * nvmdimm_perform_config\n  * operation_mode\n  * panic_high_watermark\n  * partial_cache_line_sparing\n  * partial_mirror_mode_config\n  * partial_mirror_percent\n  * partial_mirror_value1\n  * partial_mirror_value2\n  * partial_mirror_value3\n  * partial_mirror_value4\n  * pc_ie_ras_support\n  * pre_boot_dma_protection\n  * post_package_repair\n  * runtime_post_package_repair\n  * select_memory_ras_configuration\n  * select_ppr_type\n  * sev\n  * smee\n  * snoopy_mode_for2lm\n  * snoopy_mode_for_ad\n  * sparing_mode\n  * tsme\n  * uefi_mem_map_sp_flag_en\n  * uma_based_clustering\n  * vol_memory_mode\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * aspm_support\n  * ioh_resource\n  * memory_mapped_io_above4gb\n  * mmcfg_base\n  * onboard10gbit_lom\n  * onboard_gbit_lom\n  * pc_ie_ssd_hot_plug_support\n  * resize_bar_support\n  * sr_iov\n  * vga_priority\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * c1auto_demotion\n  * c1auto_un_demotion\n  * cbs_cmn_cpu_cpb\n  * cbs_cmn_cpu_global_cstate_ctrl\n  * cbs_cmn_cpu_l1stream_hw_prefetcher\n  * cbs_cmn_cpu_l2stream_hw_prefetcher\n  * cbs_cmn_determinism_slider\n  * cbs_cmn_efficiency_mode_en\n  * cbs_cmn_efficiency_mode_en_rs\n  * cbs_cmn_gnb_smucppc\n  * cbs_cmnc_tdp_ctl\n  * cpu_perf_enhancement\n  * llc_alloc\n  * optimized_power_mode\n  * upi_link_enablement\n  * upi_power_management\n  * virtual_numa\n  * x2apic_opt_out\n  * xpt_remote_prefetch\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * adjacent_cache_line_prefetch\n  * altitude\n  * auto_cc_state\n  * autonumous_cstate_enable\n  * boot_performance_mode\n  * cbs_cmn_apbdis\n  * cbs_cmn_apbdis_df_pstate_rs\n  * cbs_cmn_cpu_avx512\n  * cbs_cmn_cpu_gen_downcore_ctrl\n  * cbs_cmn_cpu_streaming_stores_ctrl\n  * cbs_cmn_edc_control_throttle\n  * cbs_cmn_fixed_soc_pstate\n  * cbs_cmn_gnb_smu_df_cstates\n  * cbs_cmn_gnb_smu_dffo_rs\n  * cbs_cmn_gnb_smu_dlwm_support\n  * cbs_cmn_mem_ctrller_pwr_dn_en_ddr\n  * cbs_cmn_preferred_io7xx2\n  * cbs_cmn_preferred_io7xx3\n  * cbs_cmnx_gmi_force_link_width_rs\n  * cbs_cpu_ccd_ctrl_ssp\n  * cbs_cpu_core_ctrl\n  * cbs_cpu_down_core_ctrl_bergamo\n  * cbs_cpu_down_core_ctrl_genoa\n  * cbs_cpu_smt_ctrl\n  * cbs_dbg_cpu_gen_cpu_wdt\n  * cbs_dbg_cpu_lapic_mode\n  * cbs_df_cmn_acpi_srat_l3numa\n  * cbs_df_dbg_xgmi_link_cfg\n  * channel_inter_leave\n  * cisco_xgmi_max_speed\n  * closed_loop_therm_throtl\n  * cmci_enable\n  * config_tdp\n  * config_tdp_level\n  * core_multi_processing\n  * cpu_energy_performance\n  * cpu_frequency_floor\n  * cpu_performance\n  * cpu_power_management\n  * demand_scrub\n  * dfx_osb_en\n  * direct_cache_access\n  * dram_clock_throttling\n  * energy_efficient_turbo\n  * eng_perf_tuning\n  * enhanced_intel_speed_step_tech\n  * epp_enable\n  * epp_profile\n  * execute_disable_bit\n  * extended_apic\n  * hardware_prefetch\n  * hwpm_enable\n  * imc_interleave\n  * intel_dynamic_speed_select\n  * intel_hyper_threading_tech\n  * intel_speed_select\n  * intel_turbo_boost_tech\n  * intel_virtualization_technology\n  * ioat_config_cpm\n  * ioh_error_enable\n  * ip_prefetch\n  * kti_prefetch\n  * llc_prefetch\n  * memory_inter_leave\n  * package_cstate_limit\n  * patrol_scrub\n  * patrol_scrub_duration\n  * prmrr_size\n  * processor_c1e\n  * processor_c3report\n  * processor_c6report\n  * processor_cstate\n  * pstate_coord_type\n  * pwr_perf_tuning\n  * qpi_link_speed\n  * rank_inter_leave\n  * single_pctl_enable\n  * smt_mode\n  * snc\n  * streamer_prefetch\n  * svm_mode\n  * ufs_disable\n  * work_load_config\n  * xpt_prefetch\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * qpi_link_frequency\n  * qpi_snoop_mode\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * enable_tdx\n  * enable_tdx_seamldr\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * serial_port_aenable\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * assert_nmi_on_perr\n  * assert_nmi_on_serr\n  * baud_rate\n  * cdn_enable\n  * cisco_adaptive_mem_training\n  * cisco_debug_level\n  * cisco_oprom_launch_optimization\n  * console_redirection\n  * flow_control\n  * frb2enable\n  * legacy_os_redirection\n  * os_boot_watchdog_timer\n  * os_boot_watchdog_timer_policy\n  * os_boot_watchdog_timer_timeout\n  * out_of_band_mgmt_port\n  * putty_key_pad\n  * redirection_after_post\n  * serial_mux\n  * terminal_type\n  * ucsm_boot_order_rule\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * cpu_pa_limit\n  * enable_mktme\n  * dma_ctrl_opt_in\n  * enable_sgx\n  * enable_tme\n  * epoch_update\n  * sgx_auto_registration_agent\n  * sgx_epoch0\n  * sgx_epoch1\n  * sgx_factory_reset\n  * sgx_le_pub_key_hash0\n  * sgx_le_pub_key_hash1\n  * sgx_le_pub_key_hash2\n  * sgx_le_pub_key_hash3\n  * sgx_le_wr\n  * sgx_package_info_in_band_access\n  * sgx_qos\n  * sha1pcr_bank\n  * sha256pcr_bank\n  * sha384pcr_bank\n  * tpm_control\n  * tpm_pending_operation\n  * tpm_ppi_required\n  * txt_support\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * all_usb_devices\n  * legacy_usb_support\n  * make_device_non_bootable\n  * pch_usb30mode\n  * usb_emul6064\n  * usb_port_front\n  * usb_port_internal\n  * usb_port_kvm\n  * usb_port_rear\n  * usb_port_sd_card\n  * usb_port_vmedia\n  * usb_xhci_support",
                         "required": [],
                         "title": "bios",
                         "properties": {
+                            "acpi_srat_sp_flag_en": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting ACPI SRAT Special Purpose Memory Flag configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "AcpiSratSpFlagEn",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "acpi_srat_sp_flag_en"
+                            },
                             "acs_control_gpu1state": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -664,7 +676,7 @@
                             "bios_template": {
                                 "type": "string",
                                 "default": "",
-                                "description": "Name of a BIOS Template to Configure.\n\nImportant Note: Add `-tpm/Tpm` to enable TPM.  Without `-tpm/Tpm`, TPM is disabled.\n\nOptions are:\n\n  * AnalyticalDatabaseSystems-M6-Intel(-Tpm) - BIOS Policy for Analytical Database Systems on Cisco UCS M6 Servers with Intel processors\n  * AnalyticalDatabaseSystems-M7-Intel(-Tpm) - BIOS Policy for Analytical Database Systems on Cisco UCS M7 Servers with Intel processors\n  * AnalyticsDatabaseSystems-M5-Intel(-Tpm) - BIOS Policy for Analytics Database Decision-Support System on Cisco UCS M5 Servers with Intel processors\n  * CPUIntensive-M6-Intel(-Tpm) - BIOS Policy for CPU Intensive on Cisco UCS M6 Servers with Intel processors\n  * CPUIntensive-M7-Intel(-Tpm) - BIOS Policy for CPU Intensive on Cisco UCS M7 Servers with Intel processors\n  * ComputationIntensive-M6-AMD(-Tpm) - BIOS Policy for CPU Intensive on Cisco UCS M6 Servers with AMD processors\n  * DataAnalytics-M6-Intel(-Tpm) - BIOS Policy for Data Analytics on Cisco UCS M6 Servers with Intel processors\n  * DataAnalytics-M7-Intel(-Tpm) - BIOS Policy for Data Analytics on Cisco UCS M7 Servers with Intel processors\n  * EnergyEfficiency-M5-Intel(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M5 Servers with Intel processors\n  * EnergyEfficiency-M6-AMD(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M6 Servers with AMD processors\n  * EnergyEfficiency-M6-Intel(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M6 Servers with Intel processors\n  * EnergyEfficient-M7-Intel(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M7 Servers with Intel processors\n  * HighPerformanceComputing-M5-Intel(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M5 Servers with Intel processors\n  * HighPerformanceComputing-M6-AMD(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M6 Servers with AMD processors\n  * HighPerformanceComputing-M6-Intel(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M6 Servers with Intel processors\n  * HighPerformanceComputing-M7-Intel(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M7 Servers with Intel processors\n  * IOIntensive-M6-AMD(-Tpm) - BIOS Policy for IO Intensive on Cisco UCS M6 Servers with AMD processors\n  * IOIntensive-M6-Intel(-Tpm) - BIOS Policy for IO Intensive on Cisco UCS M6 Servers with Intel processors\n  * JavaApplicationServer-M5-Intel(-Tpm) - BIOS Policy for Java Application Server on Cisco UCS M5 Servers with Intel processors\n  * LowLatency-M5-Intel(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M5 Servers with Intel processors\n  * LowLatency-M6-AMD(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M6 Servers with AMD processors\n  * LowLatency-M6-Intel(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M6 Servers with Intel processors\n  * LowLatency-M7-Intel(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M7 Servers with Intel processors\n  * M5-amd-virtual(-tpm) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with AMD processors\n  * M5-intel-virtual(-tpm) - (Depricated - Use Virtualization-M5-Intel(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with Intel processors\n  * M6-amd-virtual(-tpm) - (Depricated - Use Virtualization-M6-AMD(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with AMD processors\n  * M6-intel-virtual(-tpm) - (Depricated - Use Virtualization-M6-Intel(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with Intel processors\n  * MaximumPerformance-M5-Intel(-Tpm) - BIOS Policy for Maximum Performance on Cisco UCS M5 Servers with Intel processors\n  * OnlineTransactionProcessing-M5-Intel(-Tpm) - BIOS Policy for Online Transaction Processing on Cisco UCS M5 Servers with Intel processors\n  * RelationalDatabaseSystems-M6-Intel(-Tpm) - BIOS Policy for Relational Database Systems on Cisco UCS M6 Servers with Intel processors\n  * RelationalDatabaseSystems-M7-Intel(-Tpm) - BIOS Policy for Relational Database Systems on Cisco UCS M7 Servers with Intel processors\n  * VDI-M6-AMD(-Tpm) - BIOS Policy for VDI on Cisco UCS M6 Servers with AMD processors\n  * Virtualization-M5-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with Intel processors\n  * Virtualization-M6-AMD(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with AMD processors\n  * Virtualization-M6-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with Intel processors\n  * Virtualization-M7-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M7 Servers with Intel processors",
+                                "description": "Name of a BIOS Template to Configure.\n\nImportant Note: Add `-tpm/Tpm` to enable TPM.  Without `-tpm/Tpm`, TPM is disabled.\n\nOptions are:\n\n  * AnalyticalDatabaseSystems-M6-Intel(-Tpm) - BIOS Policy for Analytical Database Systems on Cisco UCS M6 Servers with Intel processors\n  * AnalyticalDatabaseSystems-M7-Intel(-Tpm) - BIOS Policy for Analytical Database Systems on Cisco UCS M7 Servers with Intel processors\n  * AnalyticsDatabaseSystems-M5-Intel(-Tpm) - BIOS Policy for Analytics Database Decision-Support System on Cisco UCS M5 Servers with Intel processors\n  * CPUIntensive-M6-Intel(-Tpm) - BIOS Policy for CPU Intensive on Cisco UCS M6 Servers with Intel processors\n  * CPUIntensive-M7-Intel(-Tpm) - BIOS Policy for CPU Intensive on Cisco UCS M7 Servers with Intel processors\n  * ComputationIntensive-M6-AMD(-Tpm) - BIOS Policy for CPU Intensive on Cisco UCS M6 Servers with AMD processors\n  * DataAnalytics-M6-Intel(-Tpm) - BIOS Policy for Data Analytics on Cisco UCS M6 Servers with Intel processors\n  * DataAnalytics-M7-Intel(-Tpm) - BIOS Policy for Data Analytics on Cisco UCS M7 Servers with Intel processors\n  * EnergyEfficiency-M5-Intel(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M5 Servers with Intel processors\n  * EnergyEfficiency-M6-AMD(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M6 Servers with AMD processors\n  * EnergyEfficiency-M6-Intel(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M6 Servers with Intel processors\n  * EnergyEfficient-M7-Intel(-Tpm) - BIOS Policy for Energy Efficiency on Cisco UCS M7 Servers with Intel processors\n  * HighPerformanceComputing-M5-Intel(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M5 Servers with Intel processors\n  * HighPerformanceComputing-M6-AMD(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M6 Servers with AMD processors\n  * HighPerformanceComputing-M6-Intel(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M6 Servers with Intel processors\n  * HighPerformanceComputing-M7-Intel(-Tpm) - BIOS Policy for High-Performance Computing on Cisco UCS M7 Servers with Intel processors\n  * IOIntensive-M6-AMD(-Tpm) - BIOS Policy for IO Intensive on Cisco UCS M6 Servers with AMD processors\n  * IOIntensive-M6-Intel(-Tpm) - BIOS Policy for IO Intensive on Cisco UCS M6 Servers with Intel processors\n  * JavaApplicationServer-M5-Intel(-Tpm) - BIOS Policy for Java Application Server on Cisco UCS M5 Servers with Intel processors\n  * LowLatency-M5-Intel(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M5 Servers with Intel processors\n  * LowLatency-M6-AMD(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M6 Servers with AMD processors\n  * LowLatency-M6-Intel(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M6 Servers with Intel processors\n  * LowLatency-M7-Intel(-Tpm) - BIOS Policy for Low Latency on Cisco UCS M7 Servers with Intel processors\n  * M5-amd-virtual(-tpm) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with AMD processors\n  * M5-intel-virtual(-tpm) - (Depricated - Use Virtualization-M5-Intel(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with Intel processors\n  * M6-amd-virtual(-tpm) - (Depricated - Use Virtualization-M6-AMD(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with AMD processors\n  * M6-intel-virtual(-tpm) - (Depricated - Use Virtualization-M6-Intel(-Tpm)) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with Intel processors\n  * MaximumPerformance-M5-Intel(-Tpm) - BIOS Policy for Maximum Performance on Cisco UCS M5 Servers with Intel processors\n  * OnlineTransactionProcessing-M5-Intel(-Tpm) - BIOS Policy for Online Transaction Processing on Cisco UCS M5 Servers with Intel processors\n  * RelationalDatabaseSystems-M6-Intel(-Tpm) - BIOS Policy for Relational Database Systems on Cisco UCS M6 Servers with Intel processors\n  * RelationalDatabaseSystems-M7-Intel(-Tpm) - BIOS Policy for Relational Database Systems on Cisco UCS M7 Servers with Intel processors\n  * VDI-M6-AMD(-Tpm) - BIOS Policy for VDI on Cisco UCS M6 Servers with AMD processors\n  * Virtualization-M5-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M5 Servers with Intel processors\n  * Virtualization-M6-AMD(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with AMD processors\n  * Virtualization-M6-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M6 Servers with Intel processors\n  * Virtualization-M7-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M7 Servers with Intel processors\n  * Virtualization-M8-AMD(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M8 Servers with AMD processors\n  * Virtualization-M8-Intel(-Tpm) - BIOS Policy for Virtualization on Cisco UCS M8 Servers with AMD processors",
                                 "intersight_api": "bios_template",
                                 "enum": [
                                     "AnalyticalDatabaseSystems-M5-Intel",
@@ -742,7 +754,11 @@
                                     "Virtualization-M6-Intel",
                                     "Virtualization-M6-Intel-Tpm",
                                     "Virtualization-M7-Intel",
-                                    "Virtualization-M7-Intel-Tpm"
+                                    "Virtualization-M7-Intel-Tpm",
+                                    "Virtualization-M8-AMD",
+                                    "Virtualization-M8-AMD-Tpm",
+                                    "Virtualization-M8-Intel",
+                                    "Virtualization-M8-Intel-Tpm"
                                 ],
                                 "title": "bios_template"
                             },
@@ -1032,6 +1048,9 @@
                                 "intersight_api": "CbsCmnEfficiencyModeEnRs",
                                 "enum": [
                                     "platform-default",
+                                    "Auto",
+                                    "Balanced Core Memory Performance Mode",
+                                    "Balanced Core Performance Mode",
                                     "Balanced Memory Performance Mode",
                                     "Efficiency Mode",
                                     "High Performance Mode",
@@ -1265,6 +1284,8 @@
                                     "6 CCDs",
                                     "8 CCDs",
                                     "10 CCDs",
+                                    "12 CCDs",
+                                    "14 CCDs",
                                     "Auto"
                                 ],
                                 "title": "cbs_cpu_ccd_ctrl_ssp"
@@ -1277,13 +1298,13 @@
                                 "enum": [
                                     "platform-default",
                                     "Auto",
-                                    "FIVE (5 + 0)",
-                                    "FOUR (4 + 0)",
                                     "ONE (1 + 0)",
-                                    "SEVEN (7 + 0)",
-                                    "SIX (6 + 0)",
+                                    "TWO (2 + 0)",
                                     "THREE (3 + 0)",
-                                    "TWO (2 + 0)"
+                                    "FOUR (4 + 0)",
+                                    "FIVE (5 + 0)",
+                                    "SIX (6 + 0)",
+                                    "SEVEN (7 + 0)"
                                 ],
                                 "title": "cbs_cpu_core_ctrl"
                             },
@@ -1295,13 +1316,13 @@
                                 "enum": [
                                     "platform-default",
                                     "Auto",
-                                    "EIGHT (4 + 4)",
+                                    "TWO (1 + 1)",
                                     "FOUR (2 + 2)",
-                                    "FOURTEEN (7 + 7)",
                                     "SIX (3 + 3)",
+                                    "EIGHT (4 + 4)",
                                     "TEN (5 + 5)",
                                     "TWELVE (6 + 6)",
-                                    "TWO (1 + 1)"
+                                    "FOURTEEN (7 + 7)"
                                 ],
                                 "title": "cbs_cpu_down_core_ctrl_bergamo"
                             },
@@ -1313,13 +1334,21 @@
                                 "enum": [
                                     "platform-default",
                                     "Auto",
-                                    "FIVE (5 + 0)",
-                                    "FOUR (4 + 0)",
                                     "ONE (1 + 0)",
-                                    "SEVEN (7 + 0)",
-                                    "SIX (6 + 0)",
+                                    "TWO (2 + 0)",
                                     "THREE (3 + 0)",
-                                    "TWO (2 + 0)"
+                                    "FOUR (4 + 0)",
+                                    "FIVE (5 + 0)",
+                                    "SIX (6 + 0)",
+                                    "SEVEN (7 + 0)",
+                                    "EIGHT (8 + 0)",
+                                    "NINE (9 + 0)",
+                                    "TEN (10 + 0)",
+                                    "ELEVEN (11 + 0)",
+                                    "TWELVE (12 + 0)",
+                                    "THIRTEEN (13 + 0)",
+                                    "FOURTEEN (14 + 0)",
+                                    "FIFTEEN (15 + 0)"
                                 ],
                                 "title": "cbs_cpu_down_core_ctrl_genoa"
                             },
@@ -1771,6 +1800,28 @@
                                     "62",
                                     "63",
                                     "64",
+                                    "65",
+                                    "66",
+                                    "67",
+                                    "68",
+                                    "69",
+                                    "70",
+                                    "71",
+                                    "72",
+                                    "73",
+                                    "74",
+                                    "75",
+                                    "76",
+                                    "77",
+                                    "78",
+                                    "79",
+                                    "80",
+                                    "81",
+                                    "82",
+                                    "83",
+                                    "84",
+                                    "85",
+                                    "86",
                                     "all"
                                 ],
                                 "title": "core_multi_processing"
@@ -2154,7 +2205,8 @@
                                     "platform-default",
                                     "Change to New Random Owner EPOCHs",
                                     "Manual User Defined Owner EPOCHs",
-                                    "SGX Owner EPOCH activated"
+                                    "SGX Owner EPOCH activated",
+                                    "SGX Owner EPOCH deactivated"
                                 ],
                                 "title": "epoch_update"
                             },
@@ -2324,7 +2376,12 @@
                                     "Config 1",
                                     "Config 2",
                                     "Config 3",
-                                    "Config 4"
+                                    "Config 4",
+                                    "Level 0",
+                                    "Level 1",
+                                    "Level 2",
+                                    "Level 3",
+                                    "Level 4"
                                 ],
                                 "title": "intel_speed_select"
                             },
@@ -2523,6 +2580,18 @@
                                     "enabled"
                                 ],
                                 "title": "kti_prefetch"
+                            },
+                            "latency_optimized_mode": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Latency Optimized Mode configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "LatencyOptimizedMode",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "latency_optimized_mode"
                             },
                             "legacy_os_redirection": {
                                 "type": "string",
@@ -2783,7 +2852,8 @@
                                     "24T",
                                     "32T",
                                     "40T",
-                                    "56T"
+                                    "56T",
+                                    "Auto"
                                 ],
                                 "title": "mmioh_base"
                             },
@@ -2797,9 +2867,11 @@
                                     "1G",
                                     "4G",
                                     "16G",
+                                    "32G",
                                     "64G",
                                     "256G",
-                                    "1024G"
+                                    "1024G",
+                                    "Auto"
                                 ],
                                 "title": "mmioh_size"
                             },
@@ -3485,6 +3557,18 @@
                                 ],
                                 "title": "post_package_repair"
                             },
+                            "pre_boot_dma_protection": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PreBoot DMA Protection configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "PreBootDmaProtection",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "pre_boot_dma_protection"
+                            },
                             "prmrr_size": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -3541,6 +3625,7 @@
                                 "intersight_api": "ProcessorC6report",
                                 "enum": [
                                     "platform-default",
+                                    "Auto",
                                     "enabled",
                                     "disabled"
                                 ],
@@ -3635,14 +3720,16 @@
                                 "intersight_api": "QpiLinkSpeed",
                                 "enum": [
                                     "platform-default",
+                                    "9.6GT/s",
                                     "10.4GT/s",
                                     "11.2GT/s",
                                     "12.8GT/s",
                                     "14.4GT/s",
                                     "16.0GT/s",
                                     "20.0GT/s",
-                                    "9.6GT/s",
-                                    "Auto"
+                                    "24.0GT/s",
+                                    "Auto",
+                                    "Use Per Link Setting"
                                 ],
                                 "title": "qpi_link_speed"
                             },
@@ -4361,6 +4448,267 @@
                                 ],
                                 "title": "slot_flom_link_speed"
                             },
+                            "slot_front_nvme1link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 1 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme1linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme1linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme1linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme1link_speed"
+                            },
+                            "slot_front_nvme1option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 1 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme1optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme1option_rom"
+                            },
+                            "slot_front_nvme2link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 2 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme2linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme2linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme2linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme2link_speed"
+                            },
+                            "slot_front_nvme2option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 2 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme2optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme2option_rom"
+                            },
+                            "slot_front_nvme3link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 3 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme3linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme3linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme3linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme3link_speed"
+                            },
+                            "slot_front_nvme3option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 3 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme3optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme3option_rom"
+                            },
+                            "slot_front_nvme4link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 4 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme4linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme4linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme4linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme4link_speed"
+                            },
+                            "slot_front_nvme4option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 4 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme4optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme4option_rom"
+                            },
+                            "slot_front_nvme5link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 5 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme5linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme5linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme5linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme5link_speed"
+                            },
+                            "slot_front_nvme5option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 5 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme5optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme5option_rom"
+                            },
+                            "slot_front_nvme6link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 6 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme6linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme6linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme6linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme6link_speed"
+                            },
+                            "slot_front_nvme6option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 6 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme6optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme6option_rom"
+                            },
+                            "slot_front_nvme7link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 7 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme7linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme7linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme7linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme7link_speed"
+                            },
+                            "slot_front_nvme7option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 7 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme7optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme7option_rom"
+                            },
+                            "slot_front_nvme8link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 8 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme8linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme8linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme8linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme8link_speed"
+                            },
+                            "slot_front_nvme8option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 8 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme8optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme8option_rom"
+                            },
+                            "slot_front_nvme9link_speed": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 9 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme9linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme9linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme9linkSpeed",
+                                "enum": [
+                                    "platform-default",
+                                    "Auto",
+                                    "Disabled",
+                                    "GEN1",
+                                    "GEN2",
+                                    "GEN3",
+                                    "GEN4",
+                                    "GEN5"
+                                ],
+                                "title": "slot_front_nvme9link_speed"
+                            },
+                            "slot_front_nvme9option_rom": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 9 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme9optionRom",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "slot_front_nvme9option_rom"
+                            },
                             "slot_front_nvme10link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -4651,35 +4999,6 @@
                                 ],
                                 "title": "slot_front_nvme19option_rom"
                             },
-                            "slot_front_nvme1link_speed": {
-                                "type": "string",
-                                "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 1 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme1linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme1linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme1linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme1linkSpeed",
-                                "enum": [
-                                    "platform-default",
-                                    "Auto",
-                                    "Disabled",
-                                    "GEN1",
-                                    "GEN2",
-                                    "GEN3",
-                                    "GEN4",
-                                    "GEN5"
-                                ],
-                                "title": "slot_front_nvme1link_speed"
-                            },
-                            "slot_front_nvme1option_rom": {
-                                "type": "string",
-                                "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 1 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme1optionRom",
-                                "enum": [
-                                    "platform-default",
-                                    "enabled",
-                                    "disabled"
-                                ],
-                                "title": "slot_front_nvme1option_rom"
-                            },
                             "slot_front_nvme20link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -4825,11 +5144,11 @@
                                 ],
                                 "title": "slot_front_nvme24option_rom"
                             },
-                            "slot_front_nvme2link_speed": {
+                            "slot_front_nvme25link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 2 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme2linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme2linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme2linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme2linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 25 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme25linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme25linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme25linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme25linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme25linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme25linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme25linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme25linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -4840,25 +5159,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme2link_speed"
+                                "title": "slot_front_nvme25link_speed"
                             },
-                            "slot_front_nvme2option_rom": {
+                            "slot_front_nvme25option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 2 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme2optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 25 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme25optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme2option_rom"
+                                "title": "slot_front_nvme25option_rom"
                             },
-                            "slot_front_nvme3link_speed": {
+                            "slot_front_nvme26link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 3 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme3linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme3linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme3linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme3linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 26 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme26linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme26linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme26linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme26linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme26linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme26linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme26linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme26linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -4869,25 +5188,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme3link_speed"
+                                "title": "slot_front_nvme26link_speed"
                             },
-                            "slot_front_nvme3option_rom": {
+                            "slot_front_nvme26option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 3 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme3optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 26 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme26optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme3option_rom"
+                                "title": "slot_front_nvme26option_rom"
                             },
-                            "slot_front_nvme4link_speed": {
+                            "slot_front_nvme27link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 4 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme4linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme4linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme4linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme4linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 27 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme27linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme27linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme27linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme27linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme27linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme27linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme27linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme27linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -4898,25 +5217,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme4link_speed"
+                                "title": "slot_front_nvme27link_speed"
                             },
-                            "slot_front_nvme4option_rom": {
+                            "slot_front_nvme27option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 4 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme4optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 27 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme27optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme4option_rom"
+                                "title": "slot_front_nvme27option_rom"
                             },
-                            "slot_front_nvme5link_speed": {
+                            "slot_front_nvme28link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 5 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme5linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme5linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme5linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme5linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 28 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme28linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme28linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme28linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme28linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme28linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme28linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme28linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme28linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -4927,25 +5246,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme5link_speed"
+                                "title": "slot_front_nvme28link_speed"
                             },
-                            "slot_front_nvme5option_rom": {
+                            "slot_front_nvme28option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 5 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme5optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 28 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme28optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme5option_rom"
+                                "title": "slot_front_nvme28option_rom"
                             },
-                            "slot_front_nvme6link_speed": {
+                            "slot_front_nvme29link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 6 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme6linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme6linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme6linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme6linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 29 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme29linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme29linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme29linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme29linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme29linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme29linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme29linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme29linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -4956,25 +5275,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme6link_speed"
+                                "title": "slot_front_nvme29link_speed"
                             },
-                            "slot_front_nvme6option_rom": {
+                            "slot_front_nvme29option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 6 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme6optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 29 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme29optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme6option_rom"
+                                "title": "slot_front_nvme29option_rom"
                             },
-                            "slot_front_nvme7link_speed": {
+                            "slot_front_nvme30link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 7 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme7linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme7linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme7linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme7linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 30 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme30linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme30linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme30linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme30linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme30linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme30linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme30linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme30linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -4985,25 +5304,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme7link_speed"
+                                "title": "slot_front_nvme30link_speed"
                             },
-                            "slot_front_nvme7option_rom": {
+                            "slot_front_nvme30option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 7 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme7optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 30 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme30optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme7option_rom"
+                                "title": "slot_front_nvme30option_rom"
                             },
-                            "slot_front_nvme8link_speed": {
+                            "slot_front_nvme31link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 8 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme8linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme8linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme8linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme8linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 31 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme31linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme31linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme31linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme31linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme31linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme31linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme31linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme31linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -5014,25 +5333,25 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme8link_speed"
+                                "title": "slot_front_nvme31link_speed"
                             },
-                            "slot_front_nvme8option_rom": {
+                            "slot_front_nvme31option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 8 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme8optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 31 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme31optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme8option_rom"
+                                "title": "slot_front_nvme31option_rom"
                             },
-                            "slot_front_nvme9link_speed": {
+                            "slot_front_nvme32link_speed": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 9 Link Speed configuration.\n   *  platform-default - Default value used by the platform for the BIOS setting.\n   *  Auto - Value - Auto for configuring SlotFrontNvme9linkSpeed token.\n   *  disabled - Value - Disabled for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN1 - Value - GEN1 for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN2 - Value - GEN2 for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN3 - Value - GEN3 for configuring SlotFrontNvme9linkSpeed token.\n   *  GEN4 - Value - GEN4 for configuring SlotFrontNvme9linkSpeed token.",
-                                "intersight_api": "SlotFrontNvme9linkSpeed",
+                                "description": "Default is `platform-default`.  BIOS Token for setting PCIe Slot:Front NVME 32 Link Speed configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring SlotFrontNvme32linkSpeed token.\n  * `Disabled` - Value - Disabled for configuring SlotFrontNvme32linkSpeed token.\n  * `GEN1` - Value - GEN1 for configuring SlotFrontNvme32linkSpeed token.\n  * `GEN2` - Value - GEN2 for configuring SlotFrontNvme32linkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring SlotFrontNvme32linkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring SlotFrontNvme32linkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring SlotFrontNvme32linkSpeed token.",
+                                "intersight_api": "SlotFrontNvme32linkSpeed",
                                 "enum": [
                                     "platform-default",
                                     "Auto",
@@ -5043,19 +5362,19 @@
                                     "GEN4",
                                     "GEN5"
                                 ],
-                                "title": "slot_front_nvme9link_speed"
+                                "title": "slot_front_nvme32link_speed"
                             },
-                            "slot_front_nvme9option_rom": {
+                            "slot_front_nvme32option_rom": {
                                 "type": "string",
                                 "default": "platform-default",
-                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 9 OptionROM configuration.\n  * platform-default - Default value used by the platform for the BIOS setting.\n  * enabled - Enables the BIOS setting.\n  * disabled - Disables the BIOS setting.",
-                                "intersight_api": "SlotFrontNvme9optionRom",
+                                "description": "Default is `platform-default`.  BIOS Token for setting Front NVME 32 OptionROM configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "SlotFrontNvme32optionRom",
                                 "enum": [
                                     "platform-default",
                                     "enabled",
                                     "disabled"
                                 ],
-                                "title": "slot_front_nvme9option_rom"
+                                "title": "slot_front_nvme32option_rom"
                             },
                             "slot_front_slot5link_speed": {
                                 "type": "string",
@@ -6051,6 +6370,7 @@
                                 "intersight_api": "StreamerPrefetch",
                                 "enum": [
                                     "platform-default",
+                                    "Auto",
                                     "enabled",
                                     "disabled"
                                 ],
@@ -6167,6 +6487,18 @@
                                 ],
                                 "title": "ucsm_boot_order_rule"
                             },
+                            "uefi_mem_map_sp_flag_en": {
+                                "type": "string",
+                                "default": "platform-default",
+                                "description": "Default is `platform-default`.  BIOS Token for setting UEFI Memory Map Special Purpose Memory Flag configuration.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `enabled` - Enables the BIOS setting.\n  * `disabled` - Disables the BIOS setting.",
+                                "intersight_api": "UefiMemMapSpFlagEn",
+                                "enum": [
+                                    "platform-default",
+                                    "enabled",
+                                    "disabled"
+                                ],
+                                "title": "uefi_mem_map_sp_flag_en"
+                            },
                             "ufs_disable": {
                                 "type": "string",
                                 "default": "platform-default",
@@ -6175,7 +6507,9 @@
                                 "enum": [
                                     "platform-default",
                                     "enabled",
-                                    "disabled"
+                                    "disabled",
+                                    "Mode 0",
+                                    "Mode 1"
                                 ],
                                 "title": "ufs_disable"
                             },
@@ -6970,6 +7304,27 @@
                         "ProcessorC6report": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
+                    "Virtualization-M8-AMD": {
+                        "CbsCmnApbdis": "Auto",
+                        "CbsCmnCpuCpb": "Auto",
+                        "CbsCmnCpuGlobalCstateCtrl": "Auto",
+                        "CbsCmnCpuL1streamHwPrefetcher": "Auto",
+                        "CbsCmnCpuL2streamHwPrefetcher": "Auto",
+                        "CbsCmnDeterminismSlider": "Auto",
+                        "CbsCmnEfficiencyModeEnEs": "High Performance Mode",
+                        "CbsCmnFixedSocPstate": "Auto",
+                        "CbsCmnGnbNbIommu": "Auto",
+                        "CbsCmnGnbSmucppc": "enabled",
+                        "CbsCmnGnbSmuDfCstates": "Auto",
+                        "CbsCpuSmtCtrl": "enabled",
+                        "CbsDfCmnAcpiSratL3numa": "Auto",
+                        "CbsDfCmnDramNps": "Auto",
+                        "CbsDfCmnMemIntlvControl": "disabled",
+                        "CiscoXgmiMaxSpeed": "disabled",
+                        "CpuPerfEnhancement": "disabled",
+                        "PcieSlotsCdnEnable": "enabled",
+                        "SvmMode": "enabled"
+                    },
                     "tpm":{
                         "Sha1pcrBank": "disabled",
                         "Sha256pcrBank": "enabled",
@@ -7188,9 +7543,9 @@
                         "default": "MSTOR-RAID",
                         "description": "Options for `iscsi_boot`, `pxe_boot` and `san_boot` are 1-255, MLOM, L1, L2.  `scsi_boot` and `pxe_boot` also support L and OCP.  For `local_disk` values can be 1-205, FMEZZ1-SAS, HBA, M, MRAID, MRAID1, MRAID2, MSTOR-RAID, SAS, RAID.",
                         "intersight_api": "Slot",
-                        "minLength": 1,
+                        "minLength": 0,
                         "maxLength": 10,
-                        "pattern": "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]|FMEZZ1-SAS|HBA|L1|L2|M|MLOM|MRAID|MRAID[1-2]?|MSTOR-RAID|SAS|RAID)$",
+                        "pattern": "^$|^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]|FMEZZ1-SAS|HBA|L1|L2|M|MLOM|MRAID|MRAID[1-2]?|MSTOR-RAID|SAS|RAID)$",
                         "title": "slot"
                     },
                     "subtype": {
@@ -7266,7 +7621,7 @@
                         "intersight_api": "Name",
                         "minLength": 1,
                         "maxLength": 128,
-                        "pattern": "^[a-zA-Z0-9_\\.:-]+$",
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\. :-]{0,126})?[a-zA-Z0-9]$",
                         "title": "name"
                     },
                     "path": {
@@ -7425,7 +7780,7 @@
                             "certificates": {
                                 "type": "array",
                                 "additionalProperties": false,
-                                "description": "List of Certificates and their Properties.\nRequired Attributes are:\n  * cert_type\n  * type\n  * variable_id\n\nOptional Attributes:\n  * enabled",
+                                "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:\n  * type\n  * variable_id\n\nNote: The variable_id must be equal to `var.cert_mgmt_certificate_<variable_id>` and `var.cert_mgmt_private_key_<variable_id>`\n\nIMC Certificate Optional Attributes:\n  * cert_type: KMIPClient - Set KMIP certificate on the selected end point\n  * enabled\n\nRootCA Certificate Required Attributes are:\n  * type\n  * name\n  * variable_id\n\nNote: The variable_id must be equal to `var.cert_mgmt_certificate_<variable_id>`\n\nRootCA Certificate Optional Attributes:\n  * enabled",
                                 "items": {
                                     "$ref": "#/components/schemas/certificate_management.certificates"
                                 },
@@ -7443,7 +7798,6 @@
                 "description": "",
                 "object_type": "not_applicable",
                 "required": [
-                    "cert_type",
                     "type",
                     "variable_id"
                 ],
@@ -7467,13 +7821,23 @@
                         "intersight_api": "$ref:certificatemanagement.CertificateBase:Enabled",
                         "title": "enabled"
                     },
+                    "name": {
+                        "type": "string",
+                        "default": true,
+                        "description": "Default is `true`.  Enable/Disable the certificate in Certificate Management policy.",
+                        "intersight_api": "$ref:certificatemanagement.CertificateBase:CertificateName",
+                        "maxLength": 60,
+                        "minLength": 1,
+                        "pattern": "((^[a-zA-Z0-9]$){1,30}|(^(([a-zA-Z0-9])([a-zA-Z0-9_\\-]{0,28})([a-zA-Z0-9]))$))",
+                        "title": "name"
+                    },
                     "type": {
                         "type": "string",
-                        "default": "None",
-                        "description": "Default is `IMC`.  Certificate Object Type to Assign.\n  * `IMC` - Set the object_type to `certificatemanagement.Imc`.\n  * `RootCa` -  Set the object_type to `certificatemanagement.RootCaCertificate`.",
+                        "default": "IMC",
+                        "description": "Default is `IMC`.  Certificate Object Type to Assign.\n  * `IMC` - Set the object_type to `certificatemanagement.Imc`.\n  * `RootCA` -  Set the object_type to `certificatemanagement.RootCaCertificate`.",
                         "enum": [
                             "IMC",
-                            "RootCa"
+                            "RootCA"
                         ],
                         "intersight_api": "not_applicable",
                         "title": "type"
@@ -9979,7 +10343,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "FCNVMeTarget":{
                         "Description": "Recommended adapter settings for FC NVMe Target.",
@@ -9987,7 +10352,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "Initiator":{
                         "Description": "Recommended adapter settings for SCSI Initiator.",
@@ -9995,7 +10361,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 10000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "Linux":{
                         "Description": "Recommended adapter settings for Linux.",
@@ -10003,7 +10370,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "Solaris":{
                         "Description": "Recommended adapter settings for Solaris.",
@@ -10016,7 +10384,8 @@
                             "ObjectType": "vnic.FlogiSettings",
                             "Retries": 8,
                             "Timeout": 20000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "Target":{
                         "Description": "Recommended adapter settings for Target.",
@@ -10024,7 +10393,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "VMware":{
                         "Description": "Recommended adapter settings for VMware.",
@@ -10032,7 +10402,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 10000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "WindowsBoot":{
                         "Description": "Recommended adapter settings for Windows Boot.",
@@ -10045,7 +10416,8 @@
                             "ObjectType": "vnic.PlogiSettings",
                             "Retries": 8,
                             "Timeout": 4000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     },
                     "Windows":{
                         "Description": "Recommended adapter settings for Windows.",
@@ -10053,7 +10425,8 @@
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
-                        }
+                        },
+                        "IoThrottleCount": 256
                     }
                 }
             },
@@ -12816,6 +13189,391 @@
                 ],
                 "title": "MAC Identity Reservations"
             },
+            "mac_sec": {
+                "description": "A placeholder for MACSec (Media Access Control Security) configuration parameters, Primary/Fallback key chain and EAPol (Extensible Authentication Protocol over LAN) configurations.",
+                "intersight_type": "policies",
+                "intersight_uri": "fabric/MacSecPolicies",
+                "object_type": "fabric.MacSecPolicy",
+                "target_platforms": [
+                    "domain"
+                ],
+                "title": "mac_sec - MacSec - Intersight Uri: fabric/MacSecPolicies",
+                "x-allOf-name": "fabric.MacSecPolicy",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/abstract_policy"
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "A placeholder for MACSec (Media Access Control Security) configuration parameters, Primary/Fallback key chain and EAPol (Extensible Authentication Protocol over LAN) configurations.",
+                        "required": [
+                            "eapol_configurations",
+                            "mac_sec_primary_key_chain"
+                        ],
+                        "title": "mac_sec - MacSec - Intersight Uri: fabric/MacSecPoliciess",
+                        "properties": {
+                            "chipher_suite": {
+                                "type": "string",
+                                "default": "GCM-AES-XPN-256",
+                                "description": "Default is `GCM-AES-XPN-256`.  Cipher suite to be used for MacSec encryption.\n  * `GCM-AES-128` - This Cipher Suite employs the Advanced Encryption Standard (AES) with a 128-bit key in Galois/Counter Mode, offering both encryption and authentication.\n  * `GCM-AES-256` - This Cipher Suite utilizes Advanced Encryption Standard (AES) with a 256-bit key in Galois/Counter Mode, offering a higher level of security compared to GCM-AES-128 due to the larger key size.\n  * `GCM-AES-XPN-128` - An extended Cipher Suite of GCM-AES-128  used in MacSec (Media Access Control Security) that incorporates Extended Packet Numbering (XPN) to enhance security and scalability.\n  * `GCM-AES-XPN-256` - An extended Cipher Suite of GCM-AES-256 used in MacSec (Media Access Control Security) that incorporates Extended Packet Numbering (XPN) for enhanced security and scalability.",
+                                "intersight_api": "CipherSuite",
+                                "enum": [
+                                    "GCM-AES-128",
+                                    "GCM-AES-256",
+                                    "GCM-AES-XPN-128",
+                                    "GCM-AES-XPN-256"
+                                ],
+                                "title": "chipher_suite"
+                            },
+                            "confidentiality_offset": {
+                                "type": "string",
+                                "default": "CONF-OFFSET-0",
+                                "description": "Default is `CONF-OFFSET-0`.  The MacSec confidentiality offset specifies the number of bytes starting from the frame header. MacSec encrypts only the bytes after the offset in a frame.\n  * `CONF-OFFSET-0` - A value of 0 means the entire ethernet frame is encrypted.\n  * `CONF-OFFSET-30` - The first 30 bytes of the ethernet frame are not encrypted, and the rest of the frame is encrypted.\n  * `CONF-OFFSET-50` - The first 50 bytes of the ethernet frame are not encrypted, and the rest of the frame is encrypted.",
+                                "intersight_api": "ConfidentialityOffset",
+                                "enum": [
+                                    "CONF-OFFSET-0",
+                                    "CONF-OFFSET-30",
+                                    "CONF-OFFSET-50"
+                                ],
+                                "title": "chipher_suite"
+                            },
+                            "eapol_configurations": {
+                                "$ref": "#/components/schemas/mac_sec.eapol_configurations"
+                            },
+                            "include_icv_indicator": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "Default is `false`.  Configures inclusion of the optional integrity check value (ICV) indicator as part of the transmitted MacSec key agreement protocol data unit (PDU).",
+                                "intersight_api": "IncludeIcvIndicator",
+                                "title": "include_icv_indicator"
+                            },
+                            "key_server_priority": {
+                                "type": "integer",
+                                "default": 16,
+                                "description": "Default is `16`.  The key server is selected by comparing key-server priority values during MacSec key agreement (MKA) message exchange between peer devices. Valid values range from 0 to 255. The lower the value, the higher the chance it will be selected as the key server.",
+                                "intersight_api": "KeyServerPriority",
+                                "minimum": 0,
+                                "maximum": 255,
+                                "title": "key_server_priority"
+                            },
+                            "mac_sec_fallback_key_chain": {
+                                "$ref": "#/components/schemas/mac_sec.mac_sec_fallback_key_chain"
+                            },
+                            "mac_sec_primary_key_chain": {
+                                "$ref": "#/components/schemas/mac_sec.mac_sec_primary_key_chain"
+                            },
+                            "replay_window_size": {
+                                "type": "integer",
+                                "default": 148809600,
+                                "description": "Default is `148809600`.  Defines the size of the replay protection window. It determines the number of packets that can be received out of order without being considered replay attacks.",
+                                "intersight_api": "ReplayWindowSize",
+                                "minimum": 0,
+                                "maximum": 596000000,
+                                "title": "replay_window_size"
+                            },
+                            "sak_expiry_time": {
+                                "type": "integer",
+                                "description": "Default value is undefined.  The key server is selected by comparing key-server priority values during MacSec key agreement (MKA) message exchange between peer devices. Valid values range from 0 to 255. The lower the value, the higher the chance it will be selected as the key server.",
+                                "intersight_api": "SakExpiryTime",
+                                "minimum": 60,
+                                "maximum": 2592000,
+                                "title": "sak_expiry_time"
+                            },
+                            "security_policy": {
+                                "type": "string",
+                                "default": "Should-secure",
+                                "description": "Default is `Should-secure`.  The security policy specifies the level of MacSec enforcement on network traffic passing through a given interface.\nShould secure allows unencrypted traffic to flow until the MacSec key agreement (MKA) session is secured. After the MKA session is secured, the policy switches to only allow encrypted traffic to flow. Must secure imposes only MacSec encrypted traffic to flow. Traffic will be dropped, until the MKA session is not secured.\n  * `Should-secure` - Should secure allows unencrypted traffic to flow until the MacSec key agreement (MKA) session is secured. After the MKA session is secured, the policy switches to only allow encrypted traffic to flow.\n  * `Must-secure` - Must secure imposes only MacSec encrypted traffic to flow. Traffic will be dropped, until the MKA session is not secured.",
+                                "intersight_api": "SecurityPolicy",
+                                "enum": [
+                                    "Must-secure",
+                                    "Should-secure"
+                                ],
+                                "title": "security_policy"
+                            }
+                        }
+                    }
+                ]
+            },
+            "mac_sec.eapol_configurations": {
+                "type": "object",
+                "description": "Extensible authentication protocol over LAN (EAPoL). MacSec transmits MacSec key agreement (MKA) protocol data units (PDUs) using EAPoL packets to establish a secure session.\n\nRequired Attributes:\n  * ether_type\n  * mac_address",
+                "intersight_api": "MacSecEaPol",
+                "object_type": "fabric.MacSecEaPol",
+                "required": [
+                    "ether_type",
+                    "mac_address"
+                ],
+                "title": "EAPoL Configurations",
+                "properties": {
+                    "ether_type": {
+                        "type": "string",
+                        "default": "0x888e",
+                        "description": "Default is `0x888e`.  Ethertype to use in extensible authentication protocol over LAN (EAPoL) frames for MacSec key agreement (MKA) protocol data units (PDUs). The range is between 0x600 - 0xffff.",
+                        "intersight_api": "EaPolEthertype",
+                        "minLength": 5,
+                        "maxLength": 6,
+                        "pattern": "^0x([6-9A-Fa-f][0-9A-Fa-f]{2}|[A-Fa-f0-9][0-9A-Fa-f]{3})$",
+                        "title": "ether_type"
+                    },
+                    "mac_address": {
+                        "type": "string",
+                        "default": "0180.C200.0003",
+                        "description": "Default is `0180.C200.0003`.  MAC address to use in extensible authentication protocol over LAN (EAPoL) for MacSec key agreement (MKA) protocol data units (PDUs). EAPol mac address should not be equal to all-zero (0000.0000.0000).",
+                        "intersight_api": "EaPolMacAddress",
+                        "minLength": 14,
+                        "maxLength": 14,
+                        "pattern": "^(?!0000.0000.0000)[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}$",
+                        "title": "mac_address"
+                    }
+                }
+            },
+            "mac_sec.mac_sec_fallback_key_chain": {
+                "type": "object",
+                "description": "Fallback key chain for managing an alternative set of security keys to be used when a secure session cannot be established using the primary key chain.\n\nRequired Attributes:\n  * fallback_key_chain_name\n\nOptional Attributes:\n  * add_key",
+                "intersight_api": "FallbackKeyChain",
+                "object_type": "fabric.SecKeyChain",
+                "required": [
+                    "fallback_key_chain_name"
+                ],
+                "title": "mac_sec_fallback_key_chain - Fallback Keychain",
+                "properties": {
+                    "add_key": {
+                        "type": "array",
+                        "description": "A collection of security keys used for encrypting and decrypting data frames to ensure secure communication between devices.\n\nRequired Attributes:\n  * cryptographic_algorithm\n  * id\n  * secret\n\nOptional Attributes:\n  * key_lifetime",
+                        "intersight_uri": "fabric.SecKey",
+                        "items": {
+                            "$ref": "#/components/schemas/mac_sec.mac_sec_fallback_key_chain.add_key"
+                        },
+                        "object_type": "fabric.SecKey",
+                        "title": "add_key - Add Key - Intersight Uri: fabric.SecKey"
+                    },
+                    "fallback_key_chain_name": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the Policy.",
+                        "intersight_api": "Name",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "fallback_key_chain_name"
+                    }
+                }
+            },
+            "mac_sec.mac_sec_fallback_key_chain.add_key": {
+                "type": "object",
+                "additionalProperties": false,
+                "intersight_api": "SecKeys",
+                "object_type": "fabric.SecKey",
+                "required": [
+                    "cryptographic_algorithm",
+                    "id",
+                    "secret"
+                ],
+                "title": "Security Keys",
+                "properties": {
+                    "cryptographic_algorithm": {
+                        "type": "string",
+                        "default": "AES_256_CMAC",
+                        "description": "Default is `AES_256_CMAC`.  The cryptographic algorithm that employs the cipher-based message authentication code (CMAC) mode of operation with advanced encryption standard (AES).\n  * `AES_256_CMAC` - Uses the AES (Advanced Encryption Standard) algorithm with a 256-bit key to generate a CMAC.\n  * `AES_128_CMAC` - Uses the AES (Advanced Encryption Standard) algorithm with a 128-bit key to generate a CMAC.",
+                        "intersight_api": "CryptographicAlgorithm",
+                        "enum": [
+                            "AES_128_CMAC",
+                            "AES_256_CMAC"
+                        ],
+                        "title": "cryptographic_algorithm"
+                    },
+                    "id": {
+                        "type": "string",
+                        "default": "ABCD1234",
+                        "description": "Must have an even number of hexadecimal characters (including 0-9 and A-F, only) with a length between 2 and 64 characters. For example, \"10\", \"2000\", \"ABCD1234\".",
+                        "intersight_api": "From",
+                        "minLength": 2,
+                        "maxLength": 64,
+                        "pattern": "^[0-9A-Fa-f]{2}([0-9A-Fa-f]{2}){0,31}$",
+                        "title": "id"
+                    },
+                    "key_lifetime": {
+                        "$ref": "#/components/schemas/mac_sec.mac_sec_fallback_key_chain.add_key.key_lifetime"
+                    },
+                    "secret": {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Default is `1`.  The MacSec Key Secret Sensitive Variable Identifier.  i.e. `var.mac_sec_fallback_key_chain_secret_1`.",
+                        "intersight_api": "OctetString",
+                        "minimum": 1,
+                        "maximum": 64,
+                        "title": "secret"
+                    }
+                }
+            },
+            "mac_sec.mac_sec_fallback_key_chain.add_key.key_lifetime": {
+                "type": "object",
+                "description": "Key Lifetime attributes for the fallback key.\n\nRequired Attributes:\n  * always_active\n\nOptional Attributes:\n  * end_time\n  * start_time\n  * timezone\n\nNote:  If `always_active` is true the rest of the attributes are ignored.  If `always_active` is false, start_time is required.  If end_time is not defined when always_active is true the lifetime is set to infinite.",
+                "intersight_api": "key_lifetime",
+                "object_type": "fabric.SecKeyChain",
+                "required": [
+                    "always_active"
+                ],
+                "title": "Key Lifetime",
+                "properties": {
+                    "always_active": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true`.  Indicates that the key is always active. When this parameter is set, all other key lifetime configurations are ignored.",
+                        "intersight_api": "SendLifetimeUnlimited",
+                        "title": "always_active"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The time of day and date when the key becomes inactive.",
+                        "intersight_api": "SendLifetimeEndTime",
+                        "title": "end_time"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The time of day and date when the key becomes active.",
+                        "intersight_api": "SendLifetimeStartTime",
+                        "title": "start_time"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "default": "UTC",
+                        "description": "Default is `UTC`.  The time zone used for key lifetime configurations.\n* `Local` - The local time zone of the device for key lifetime configurations.\n  * `UTC` - The Universal Time (UTC) for key lifetime configurations.",
+                        "intersight_api": "SendLifetimeTimeZone",
+                        "enum": [
+                            "Local",
+                            "UTC"
+                        ],
+                        "title": "timezone"
+                    }
+                }
+            },
+            "mac_sec.mac_sec_primary_key_chain": {
+                "type": "object",
+                "description": "Primary key chain for managing the default set of security keys for encryption and decryption.\n\nRequired Attributes:\n  * primary_key_chain_name\n\nOptional Attributes:\n  * add_key",
+                "intersight_api": "PrimaryKeyChain",
+                "object_type": "fabric.SecKeyChain",
+                "required": [
+                    "primary_key_chain_name"
+                ],
+                "title": "mac_sec_primary_key_chain - Primary Keychain",
+                "properties": {
+                    "add_key": {
+                        "type": "array",
+                        "description": "A collection of security keys used for encrypting and decrypting data frames to ensure secure communication between devices.\n\nRequired Attributes:\n  * cryptographic_algorithm\n  * id\n  * secret\n\nOptional Attributes:\n  * key_lifetime",
+                        "intersight_uri": "fabric.SecKey",
+                        "items": {
+                            "$ref": "#/components/schemas/mac_sec.mac_sec_primary_key_chain.add_key"
+                        },
+                        "object_type": "fabric.SecKey",
+                        "title": "add_key - Add Key - Intersight Uri: fabric.SecKey"
+                    },
+                    "primary_key_chain_name": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the Policy.",
+                        "intersight_api": "Name",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "primary_key_chain_name"
+                    }
+                }
+            },
+            "mac_sec.mac_sec_primary_key_chain.add_key": {
+                "type": "object",
+                "additionalProperties": false,
+                "intersight_api": "SecKeys",
+                "object_type": "fabric.SecKey",
+                "required": [
+                    "cryptographic_algorithm",
+                    "id",
+                    "secret"
+                ],
+                "title": "Security Keys",
+                "properties": {
+                    "cryptographic_algorithm": {
+                        "type": "string",
+                        "default": "AES_256_CMAC",
+                        "description": "Default is `AES_256_CMAC`.  The cryptographic algorithm that employs the cipher-based message authentication code (CMAC) mode of operation with advanced encryption standard (AES).\n  * `AES_256_CMAC` - Uses the AES (Advanced Encryption Standard) algorithm with a 256-bit key to generate a CMAC.\n  * `AES_128_CMAC` - Uses the AES (Advanced Encryption Standard) algorithm with a 128-bit key to generate a CMAC.",
+                        "intersight_api": "CryptographicAlgorithm",
+                        "enum": [
+                            "AES_128_CMAC",
+                            "AES_256_CMAC"
+                        ],
+                        "title": "cryptographic_algorithm"
+                    },
+                    "id": {
+                        "type": "string",
+                        "default": "ABCD1234",
+                        "description": "Must have an even number of hexadecimal characters (including 0-9 and A-F, only) with a length between 2 and 64 characters. For example, \"10\", \"2000\", \"ABCD1234\".",
+                        "intersight_api": "From",
+                        "minLength": 2,
+                        "maxLength": 64,
+                        "pattern": "^[0-9A-Fa-f]{2}([0-9A-Fa-f]{2}){0,31}$",
+                        "title": "id"
+                    },
+                    "key_lifetime": {
+                        "$ref": "#/components/schemas/mac_sec.mac_sec_primary_key_chain.add_key.key_lifetime"
+                    },
+                    "secret": {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Default is `1`.  The MacSec Key Secret Sensitive Variable Identifier.  i.e. `var.mac_sec_primary_key_chain_secret_1`.",
+                        "intersight_api": "OctetString",
+                        "minimum": 1,
+                        "maximum": 64,
+                        "title": "secret"
+                    }
+                }
+            },
+            "mac_sec.mac_sec_primary_key_chain.add_key.key_lifetime": {
+                "type": "object",
+                "description": "Key Lifetime attributes for the primary key.\n\nRequired Attributes:\n  * always_active\n\nOptional Attributes:\n  * end_time\n  * start_time\n  * timezone\n\nNote:  If `always_active` is true the rest of the attributes are ignored.  If `always_active` is false, start_time is required.  If end_time is not defined when always_active is true the lifetime is set to infinite.",
+                "intersight_api": "key_lifetime",
+                "object_type": "fabric.SecKeyChain",
+                "required": [
+                    "always_active"
+                ],
+                "title": "Key Lifetime",
+                "properties": {
+                    "always_active": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Default is `true`.  Indicates that the key is always active. When this parameter is set, all other key lifetime configurations are ignored.",
+                        "intersight_api": "SendLifetimeUnlimited",
+                        "title": "always_active"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The time of day and date when the key becomes inactive.",
+                        "intersight_api": "SendLifetimeEndTime",
+                        "title": "end_time"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The time of day and date when the key becomes active.",
+                        "intersight_api": "SendLifetimeStartTime",
+                        "title": "start_time"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "default": "UTC",
+                        "description": "Default is `UTC`.  The time zone used for key lifetime configurations.\n* `Local` - The local time zone of the device for key lifetime configurations.\n  * `UTC` - The Universal Time (UTC) for key lifetime configurations.",
+                        "intersight_api": "SendLifetimeTimeZone",
+                        "enum": [
+                            "Local",
+                            "UTC"
+                        ],
+                        "title": "timezone"
+                    }
+                }
+            },
             "memory": {
                 "description": "Memory Management policy models a configuration that can be applied to servers to manage memory features.",
                 "intersight_type": "policies",
@@ -14242,6 +15000,16 @@
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "local_user"
                     },
+                    "mac_sec": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to MacSec Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "mac_sec"
+                    },
                     "memory": {
                         "type": "string",
                         "default": "",
@@ -14609,12 +15377,13 @@
                             "device_model": {
                                 "type": "string",
                                 "default": "UCS-FI-6454",
-                                "description": "Default is `UCS-FI-6454`.  This field specifies the device model that this Port Policy is being configured for.\n  * `UCS-FI-6454` - The standard 4th generation UCS Fabric Interconnect with 54 ports.\n  * `UCS-FI-64108` - The expanded 4th generation UCS Fabric Interconnect with 108 ports.\n  * `UCS-FI-6536` - The standard 5th generation UCS Fabric Interconnect with 36 ports.\n  * `UCSX-S9108-100G` - Cisco UCS Fabric Interconnect 9108 100G with 8 ports.\n  * `unknown` - Unknown device type, usage is TBD.",
+                                "description": "Default is `UCS-FI-6454`.  This field specifies the device model that this Port Policy is being configured for.\n  * `UCS-FI-6454` - The standard 4th generation UCS Fabric Interconnect with 54 ports.\n  * `UCS-FI-64108` - The expanded 4th generation UCS Fabric Interconnect with 108 ports.\n  * `UCS-FI-6536` - The standard 5th generation UCS Fabric Interconnect with 36 ports.\n  * `UCS-FI-6664` - The standard 6th generation UCS Fabric Interconnect with 64 ports.\n  * `UCSX-S9108-100G` - Cisco UCS Fabric Interconnect 9108 100G with 8 ports.\n  * `unknown` - Unknown device type, usage is TBD.",
                                 "intersight_api": "DeviceModel",
                                 "enum": [
                                     "UCS-FI-6454",
                                     "UCS-FI-64108",
                                     "UCS-FI-6536",
+                                    "UCS-FI-6664",
                                     "UCSX-S9108-100G",
                                     "unknown"
                                 ],
@@ -14658,7 +15427,7 @@
                             },
                             "port_channel_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * ethernet_network_group_policy\n  * fec\n  * flow_control_policy\n  * link_aggregation_policy\n  * link_control_policy",
+                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * interfaces\n  * pc_ids\n\nOptional Attributes:\n  * admin_speed\n  * ethernet_network_group_policy\n  * fec\n  * flow_control_policy\n  * link_aggregation_policy\n  * link_control_policy\n  * mac_sec_policy",
                                 "intersight_uri": "fabric/UplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_ethernet_uplinks"
@@ -14708,7 +15477,7 @@
                             },
                             "port_role_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Uplinks.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * ethernet_network_group_policy\n  * flow_control_policy\n  * link_control_policy\n  * fec\n  * slot_id",
+                                "description": "Use this Map to Configure Ports for Ethernet Uplinks.\n\nRequired Attributes:\n  * port_list\n\nOptional Attributes:\n  * admin_speed\n  * breakout_port_id\n  * ethernet_network_group_policy\n  * fec\n  * flow_control_policy\n  * link_control_policy\n  * mac_sec_policy\n  * slot_id",
                                 "intersight_uri": "fabric/UplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_ethernet_uplinks"
@@ -15052,6 +15821,16 @@
                         "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "link_control_policy"
                     },
+                    "mac_sec_policy": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the MacSec policy.",
+                        "intersight_api": "$ref:fabric.MacSecPolicy.Relationship:MacSecPolicy",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "mac_sec_policy"
+                    },
                     "pc_ids": {
                         "type": "array",
                         "description": "The Port-Channel Identifiers to assign to the Port-Channel.  If one is defined both switches will be assigned the same pc_id.  If two are defined, they will be different.",
@@ -15085,12 +15864,13 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "32Gbps",
-                        "description": "Default is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
+                        "description": "Default is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `64Gbps` - Admin configurable speed 64Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "8Gbps",
                             "16Gbps",
-                            "32Gbps"
+                            "32Gbps",
+                            "64Gbps"
                         ],
                         "sort": false,
                         "title": "admin_speed"
@@ -15532,6 +16312,16 @@
                         "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "link_control_policy"
                     },
+                    "mac_sec_policy": {
+                        "type": "string",
+                        "default": "default",
+                        "description": "Name of the MacSec policy.",
+                        "intersight_api": "$ref:fabric.MacSecPolicy.Relationship:MacSecPolicy",
+                        "minLength": 1,
+                        "maxLength": 129,
+                        "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
+                        "title": "mac_sec_policy"
+                    },
                     "port_list": {
                         "type": "string",
                         "default": "5-10",
@@ -15569,12 +16359,13 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "32Gbps",
-                        "description": "Default is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
+                        "description": "Default is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `64Gbps` - Admin configurable speed 64Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "8Gbps",
                             "16Gbps",
-                            "32Gbps"
+                            "32Gbps",
+                            "64Gbps"
                         ],
                         "sort": false,
                         "title": "admin_speed"
@@ -15640,12 +16431,13 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "32Gbps",
-                        "description": "Default is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
+                        "description": "Default is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `64Gbps` - Admin configurable speed 64Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "8Gbps",
                             "16Gbps",
-                            "32Gbps"
+                            "32Gbps",
+                            "64Gbps"
                         ],
                         "sort": false,
                         "title": "admin_speed"
@@ -20302,6 +21094,15 @@
                         "required": [],
                         "title": "switch_control",
                         "properties": {
+                            "aes_primary_key": {
+                                "type": "integer",
+                                "default": 1,
+                                "description": "Default is `1`.  Encrypts MacSec keys in type-6 format. If a MacSec key is already provided in a type-6 format, the primary key decrypts it.  i.e. `var.switch_control_aes_primary_key_1`.",
+                                "intersight_api": "AesPrimaryKey",
+                                "minimum": 1,
+                                "maximum": 64,
+                                "title": "aes_primary_key"
+                            },
                             "fabric_port_channel_vhba_reset": {
                                 "type": "string",
                                 "default": "Disabled",

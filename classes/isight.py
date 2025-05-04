@@ -3824,8 +3824,9 @@ class imm(object):
                     elif len(item['placement'][p]) == 2: pval = item['placement'][p][x]
                     else: pval = item['placement'][p][0]
                     api_body['Placement'][kwargs.ezdata[self.type].properties.placement.properties[p].intersight_api] = pval
-        if not api_body['Placement'].get('Id'): api_body['Placement'].update({'AutoSlotId':True,'Id':''})
-        if not api_body['Placement'].get('PciLink'): api_body['Placement'].update({'AutoPciLink':True,'PciLink':0})
+        plkeys = list(api_body['Placement'].keys())
+        if not 'Id' in plkeys: api_body['Placement'].update({'AutoSlotId':True,'Id':''})
+        if not 'PciLink' in plkeys: api_body['Placement'].update({'AutoPciLink':True,'PciLink':0})
         return api_body
 
     #=========================================================================

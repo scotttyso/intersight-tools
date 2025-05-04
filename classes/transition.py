@@ -172,6 +172,8 @@ class intersight(object):
         vlan_list = ezfunctions.vlan_list_format(vlans)
         if type(vlan_list) == int: vlan_list = str(vlan_list)
         pvars.allowed_vlans = vlan_list
+        if 'native_vlan' in pkeys:
+            if pvars.native_vlan == 0: pvars.pop('native_vlan')
         if 'enable_q_in_q_tunneling' in pkeys: pvars.pop('enable_q_in_q_tunneling')
         # Return pvars
         return pvars
@@ -196,7 +198,7 @@ class intersight(object):
     #=============================================================================
     def modify_fibre_channel_adapter(pvars):
         key_list = [
-            'error_recovery_settings,error_recovery_settings',
+            'error_recovery,error_recovery_settings',
             'flogi.retries,flogi_retries',
             'flogi.timeout,flogi_timeout',
             'maximum_luns_per_target,max_luns_per_target',
@@ -335,8 +337,26 @@ class intersight(object):
                 ekeys = list(edict.keys())
                 for i in ['pci_link_assignment_mode', 'mac_address_allocation_type']:
                     if i in ekeys: edict.pop(i)
-                if not 'vnic_template' in ekeys: pvars.vnics.append(edict)
-                else: pvars.vnics_from_template.append(edict)
+                if not 'vnic_template' in ekeys:
+                    if 'placement' in ekeys:
+                        plkeys = list(edict.placement.keys())
+                        if not 'pci_links' in plkeys: edict.placement.automatic_pci_link_assignment = True
+                        if 'slot_ids' in plkeys:
+                            if edict.placement.slot_ids[0] == '':
+                                edict.placement.pop('slot_ids')
+                                edict.placement.automatic_slot_id_assignment = True
+                        else: edict.placement.automatic_slot_id_assignment = True
+                    pvars.vnics.append(edict)
+                else:
+                    if 'placement' in ekeys:
+                        plkeys = list(edict.placement.keys())
+                        if not 'pci_link' in plkeys: edict.placement.automatic_pci_link_assignment = True
+                        if 'slot_id' in plkeys:
+                            if edict.placement.slot_id == '':
+                                edict.placement.pop('slot_id')
+                                edict.placement.automatic_slot_id_assignment = True
+                        else: edict.placement.automatic_slot_id_assignment = True
+                    pvars.vnics_from_template.append(edict)
             if len(pvars.vnics) > 0: pvars.vnics = sorted(pvars.vnics, key = lambda ele: ele.placement.pci_order[0])
             else: pvars.pop('vnics')
             if len(pvars.vnics_from_template) > 0:
@@ -374,6 +394,7 @@ class intersight(object):
             for e in glist:
                 gdict = intersight.replace_keys(['end_point_role,role'], e)
                 glist = list(gdict.keys())
+                if not 'end_point_role' in glist: gdict.end_point_role = '#MISSING'
                 if not 'group_dn' in glist: gdict.group_dn = '#MISSING'
                 pvars.ldap_groups.append(gdict)
         if 'ldap_servers' in pkeys:
@@ -407,6 +428,7 @@ class intersight(object):
                 idict = intersight.replace_keys(key_list, deepcopy(e))
                 ikeys = list(idict.keys())
                 if not 'password' in ikeys: idict.password = 1
+                if not 'role' in ikeys: idict.role = '#MISSING'
                 idict = DotMap(sorted(idict.items()))
                 pvars.users.append(idict)
         pvars = DotMap(sorted(pvars.items()))
@@ -457,6 +479,26 @@ class intersight(object):
     def modify_pools(ptype, pvars):
         pkeys = list(pvars.keys())
         if 'configure_subnet_at_block_level' in pkeys: pvars.pop('configure_subnet_at_block_level')
+        if 'ipv4_blocks' in pkeys:
+            temp_dict = deepcopy(pvars.ipv4_blocks)
+            pvars.ipv4_blocks = []
+            for e in temp_dict:
+                edict = deepcopy(e)
+                ekeys = list(edict.keys())
+                if 'ipv4_configuration' in ekeys:
+                    for k,v in edict.ipv4_configuration.items(): edict[k] = v
+                    edict.pop('ipv4_configuration')
+                pvars.ipv4_blocks.append(edict)
+        if 'ipv6_blocks' in pkeys:
+            temp_dict = deepcopy(pvars.ipv6_blocks)
+            pvars.ipv6_blocks = []
+            for e in temp_dict:
+                edict = deepcopy(e)
+                ekeys = list(edict.keys())
+                if 'ipv6_configuration' in ekeys:
+                    for k,v in edict.ipv6_configuration.items(): edict[k] = v
+                    edict.pop('ipv6_configuration')
+                pvars.ipv6_blocks.append(edict)
         if 'reservations' in pkeys: pvars.pop('reservations')
         if 'wwnn_blocks' in pkeys:
             pvars.id_blocks = pvars.wwnn_blocks
@@ -554,6 +596,8 @@ class intersight(object):
     def modify_power(pvars):
         pkeys = list(pvars.keys())
         if not 'power_redundancy' in pkeys: pvars.power_redundancy = 'Grid'
+        if 'power_restore' in pkeys:
+            if ' ' in pvars.power_restore: pvars.power_restore = pvars.power_restore.replace(' ', '')
         pvars = DotMap(sorted(pvars.items()))
         # Return pvars
         return pvars
@@ -571,7 +615,8 @@ class intersight(object):
                 'placement.pci_order,pci_order',
                 'placement.slot_id,slot_id',
                 'placement.switch_id,switch_id',
-                'placement.uplink_port,uplink_port']
+                'placement.uplink_port,uplink_port',
+                'wwpn_static_address,wwpn_static']
             key_list2 = [
                 'fibre_channel_network_policies,fibre_channel_network_policy',
                 'names,name',
@@ -581,7 +626,8 @@ class intersight(object):
                 'placement.slot_ids,slot_id',
                 'placement.switch_ids,switch_id',
                 'placement.uplink_ports,uplink_port',
-                'wwpn_pools,wwpn_pool']
+                'wwpn_pools,wwpn_pool',
+                'wwpn_static_addresses,wwpn_static']
             key_list3 = [
                 'placement.automatic_pci_link_assignment,automatic_pci_link_assignment',
                 'placement.automatic_slot_id_assignment,automatic_slot_id_assignment']
@@ -651,7 +697,7 @@ class intersight(object):
         pkeys = list(pvars.keys())
         if 'target_platform' in pkeys: pvars.target_platform = pvars.target_platform.replace('-', '')
         tdict = DotMap()
-        for e in ['description', 'name', 'reservations', 'static_uuid_address', 'serial_number']:
+        for e in ['description', 'name', 'reservations', 'static_uuid_address', 'serial_number', 'user_label']:
             if e in pkeys: tdict[e] = pvars[e]; pvars.pop(e)
         if 'server_pre_assign_by_slot' in pkeys:
             akeys = list(pvars.server_pre_assign_by_slot.keys())
