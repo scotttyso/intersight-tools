@@ -129,11 +129,20 @@ def base_script_settings(kwargs):
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
-    ezdata          = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), 'r', encoding='utf8'))
-    script_tag      = script_name.replace('ez', 'easy-')
-    kwargs.ez_tags  = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['info']['version']}]
-    kwargs.ezdata   = DotMap(ezdata['components']['schemas'])
-    kwargs.ezwizard = DotMap(ezdata['components']['wizard'])
+    ezdata          = json.load(open(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json')))
+    ezdata.pop('$ref')
+    with open(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'w') as f:
+        json.dump(ezdata, f, indent=4)
+    ezdata              = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'r', encoding='utf8'))
+    script_tag          = script_name.replace('ez', 'easy-')
+    kwargs.ez_tags      = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['version']}]
+    kwargs.ezdata       = DotMap(ezdata['components']['schemas'])
+    kwargs.ez_scripts   = DotMap(ezdata['components']['scripts'])
+    kwargs.ez_templates = DotMap(ezdata['components']['templates'])
+    kwargs.ezwizard     = DotMap(ezdata['components']['wizard'])
+    kwargs.ez_wizard    = DotMap(ezdata['components']['wizard'])
+    if os.path.exists(os.path.join(kwargs.script_path, 'variables', 'temp.json')):
+        os.remove(os.path.join(kwargs.script_path, 'variables', 'temp.json'))
     #=========================================================================
     # Get Intersight Configuration
     # - apikey

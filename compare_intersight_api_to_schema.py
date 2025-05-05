@@ -4,10 +4,11 @@
 #=============================================================================
 def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
 import os, sys
-script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
+script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
     from classes import ezfunctions, isight, pcolor
+    from copy import deepcopy
     from dotmap import DotMap
     from stringcase import snakecase
     import argparse, json, os, re, urllib3, yaml
@@ -18,6 +19,12 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 #=================================================================
+# Function: YAML Dumper
+#=================================================================
+class yaml_dumper(yaml.Dumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(yaml_dumper, self).increase_indent(flow, False)
+#=================================================================
 # Function: Parse Arguments
 #=================================================================
 def cli_arguments():
@@ -25,9 +32,9 @@ def cli_arguments():
     parser = ezfunctions.base_arguments(parser)
     return DotMap(args = parser.parse_args())
 #=================================================================
-# Function: Main Script
+# Function: BOIS Keys
 #=================================================================
-def main():
+def bios_keys():
     #=============================================================
     # Configure Base Module Setup
     #=============================================================
@@ -99,6 +106,66 @@ def main():
                 pcolor.Yellow(intersight_bios[v.intersight_api].default)
                 pcolor.Yellow(f'easy-imm default is:')
                 pcolor.Yellow(v.default)
+#=================================================================
+# Function: BIOS Templates
+#=================================================================
+def bios_templates():
+    #=============================================================
+    # Configure Base Module Setup
+    #=============================================================
+    kwargs = cli_arguments()
+    kwargs = ezfunctions.base_script_settings(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
+    #=============================================================
+    # Sorting BIOS Tokens from easy-imm.json
+    #=============================================================
+    keys      = list(kwargs.ezdata.bios.allOf[1].properties.keys())
+    bios_keys = DotMap()
+    bios_json = DotMap()
+    bios_yaml = DotMap()
+    for e in keys: bios_keys[kwargs.ezdata.bios.allOf[1].properties[e].intersight_api] = e
+    bkeys         = list(bios_keys.keys())
+    kwargs.method = 'get'
+    kwargs.names  = list(kwargs.org_names.keys()) + ['5ddfd9ff6972652d31ee6582']
+    kwargs.org    = 'default'
+    kwargs.uri    = kwargs.ezdata.bios.intersight_uri
+    kwargs        = isight.api('multi_org').calls(kwargs)
+    templates     = list(kwargs.ez_templates.bios.properties.keys())
+    for e in list(kwargs.results):
+        if e.Organization.Moid == '5ddfd9ff6972652d31ee6582':
+            jdict = DotMap(); ydict = DotMap()
+            for k,v in e.items():
+               if k in bkeys and v != 'platform-default':
+                   jdict[k] = v
+                   ydict[bios_keys[k]] = v
+            if not e.Name in templates:
+                bios_json[e.Name] = jdict
+                bios_yaml[e.Name] = ydict
+            elif e.Name in templates:
+                tkeys = list(kwargs.ez_templates.bios.properties[e.Name])
+                tdict = deepcopy(jdict)
+                match_false = False
+                for a,b in jdict.items():
+                    if not a in tkeys: match_false = True
+                    else: tdict.pop(a)
+                if match_false == True or len(tdict) > 0:
+                    bios_json[e.Name] = jdict
+                    bios_yaml[e.Name] = ydict
+    bios_json = DotMap(sorted(bios_json.items()))
+    bios_yaml = DotMap(sorted(bios_yaml.items()))
+    pcolor.LightGray(f'{"-"*54}')
+    pcolor.Yellow('New BIOS Templates:\n')
+    if len(bios_json) > 0:
+        pcolor.Yellow(json.dumps(bios_json, indent=4))
+        pcolor.Yellow(yaml.dump(bios_yaml.toDict(), Dumper = yaml_dumper, default_flow_style=False))
+    else: pcolor.Yellow('None\n')
+
+#=================================================================
+# Function: Main Script
+#=================================================================
+def main():
+    bios_templates()
+    bios_keys()
 
 if __name__ == '__main__':
     main()
