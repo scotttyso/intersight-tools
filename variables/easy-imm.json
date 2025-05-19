@@ -33,7 +33,7 @@
                         "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "name"
                     },
-                    "tags" : {
+                    "tags": {
                         "$ref": "#/components/schemas/tags"
                     }
                 }
@@ -77,7 +77,7 @@
                         "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "name"
                     },
-                    "tags" : {
+                    "tags": {
                         "$ref": "#/components/schemas/tags"
                     }
                 }
@@ -111,7 +111,7 @@
                         "pattern": "^([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "name"
                     },
-                    "tags" : {
+                    "tags": {
                         "$ref": "#/components/schemas/tags"
                     },
                     "user_label": {
@@ -7925,7 +7925,7 @@
                 "description": "Ethernet Adapter Policy - Transmit Queue Settings.  Options are:\n  * queue_count\n  * ring_size",
                 "intersight_api": "TxQueueSettings",
                 "object_type": "vnic.EthTxQueueSettings",
-                "required":[],
+                "required": [],
                 "title": "transmit - Transmit Queue Settings - object_type: vnic.EthTxQueueSettings",
                 "properties": {
                     "queue_count": {
@@ -7965,7 +7965,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "An Ethernet Network policy determines if the port can carry single VLAN (Access) or multiple VLANs (Trunk) traffic. You can specify the VLAN to be associated with an Ethernet packet if no tag is found.",
+                        "description": "An Ethernet Network policy determines if the port can carry single VLAN (Access) or multiple VLANs (Trunk) traffic. You can specify the VLAN to be associated with an Ethernet packet if no tag is found.",
                         "required": [
                             "vlan_mode"
                         ],
@@ -8159,7 +8159,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "An Ethernet Quality of Service (QoS) policy assigns a system class to the outgoing traffic for a vNIC. This system class determines the quality of service for the outgoing traffic. For certain adapters additional controls can be specified like burst and rate on the outgoing traffic.",
+                        "description": "An Ethernet Quality of Service (QoS) policy assigns a system class to the outgoing traffic for a vNIC. This system class determines the quality of service for the outgoing traffic. For certain adapters additional controls can be specified like burst and rate on the outgoing traffic.",
                         "required": [],
                         "title": "ethernet_qos",
                         "properties": {
@@ -8340,7 +8340,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "A Fibre Channel Adapter policy governs the host-side behavior of the adapter, including how the adapter handles traffic. You can enable FCP Error Recovery, change the default settings of Queues and Interrupt handling for performance enhancement.",
+                        "description": "A Fibre Channel Adapter policy governs the host-side behavior of the adapter, including how the adapter handles traffic. You can enable FCP Error Recovery, change the default settings of Queues and Interrupt handling for performance enhancement.",
                         "required": [],
                         "title": "fibre_channel_adapter",
                         "properties": {
@@ -8646,7 +8646,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "A Fibre Channel Network policy governs the vSAN configuration for the virtual interfaces.",
+                        "description": "A Fibre Channel Network policy governs the vSAN configuration for the virtual interfaces.",
                         "required": [
                             "vsan_id"
                         ],
@@ -8692,7 +8692,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "A Fibre Channel Quality of Service (QoS) policy assigns a system class to the outgoing traffic for a vHBA. This system class determines the quality of service for the outgoing traffic. For certain adapters additional controls can also be specified like burst and rate on the outgoing traffic.",
+                        "description": "A Fibre Channel Quality of Service (QoS) policy assigns a system class to the outgoing traffic for a vHBA. This system class determines the quality of service for the outgoing traffic. For certain adapters additional controls can also be specified like burst and rate on the outgoing traffic.",
                         "required": [],
                         "title": "fibre_channel_qos",
                         "properties": {
@@ -8756,7 +8756,6 @@
                         "type": "object",
                         "description": "Firmware policy on the endpoint.",
                         "required": [
-                            "description",
                             "model_bundle_version",
                             "target_platform"
                         ],
@@ -8856,8 +8855,8 @@
                         "title": "firmware_version"
                     },
                     "server_models": {
-                        "type":"array",
-                                "description": "List of Server Models to Assign",
+                        "type": "array",
+                        "description": "List of Server Models to Assign",
                         "intersight_api": "ModelFamily",
                         "items": {
                             "type": "string",
@@ -9099,7 +9098,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Pool represents a collection of IPv4 and/or IPv6 addresses that can be allocated to other configuration entities like server profiles.",
+                        "description": "Pool represents a collection of IPv4 and/or IPv6 addresses that can be allocated to other configuration entities like server profiles.",
                         "required": [],
                         "title": "ip",
                         "properties": {
@@ -9417,7 +9416,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Intelligent Platform Management Interface Over LAN Policy.",
+                        "description": "Intelligent Platform Management Interface Over LAN Policy.",
                         "required": [
                             "privilege"
                         ],
@@ -9566,7 +9565,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Set of iSCSI properties that govern the host-side behavior of the adapter.",
+                        "description": "Set of iSCSI properties that govern the host-side behavior of the adapter.",
                         "required": [],
                         "title": "iscsi_adapter",
                         "properties": {
@@ -9618,7 +9617,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Configuration parameters to enable a server to boot its operating system from an iSCSI target machine located remotely over a network.",
+                        "description": "Configuration parameters to enable a server to boot its operating system from an iSCSI target machine located remotely over a network.",
                         "required": [
                             "name",
                             "target_source_type"
@@ -9819,7 +9818,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Configuration parameters that defines the reachability of iSCSI Target portal.",
+                        "description": "Configuration parameters that defines the reachability of iSCSI Target portal.",
                         "required": [
                             "ip_address",
                             "target_name"
@@ -9886,9 +9885,8 @@
                     },
                     {
                         "type": "object",
-                                "description": "A LAN Connectivity Policy determines the network resources and the connections between the server and the LAN on the network. This policy uses Consistent Device Naming to configure the vNIC. You can configure a usNIC or VMQ connection for the vNIC to improve network performance.",
-                        "required": [
-                        ],
+                        "description": "A LAN Connectivity Policy determines the network resources and the connections between the server and the LAN on the network. This policy uses Consistent Device Naming to configure the vNIC. You can configure a usNIC or VMQ connection for the vNIC to improve network performance.",
+                        "required": [],
                         "title": "lan_connectivity - LAN Connectivity - Intersight Uri: vnic/LanConnectivityPolicies",
                         "properties": {
                             "enable_azure_stack_host_qos": {
@@ -10650,7 +10648,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "LDAP Policy configurations.",
+                        "description": "LDAP Policy configurations.",
                         "required": [
                             "base_settings",
                             "binding_parameters",
@@ -11112,9 +11110,8 @@
                     },
                     {
                         "type": "object",
-                                "description": "Enables creation of local users on endpoints.",
-                        "required": [
-                        ],
+                        "description": "Enables creation of local users on endpoints.",
+                        "required": [],
                         "title": "local_user - Local User - Intersight Uri: iam/EndPointUserPolicies",
                         "properties": {
                             "password_properties": {
@@ -11355,7 +11352,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "A placeholder for MACSec (Media Access Control Security) configuration parameters, Primary/Fallback key chain and EAPol (Extensible Authentication Protocol over LAN) configurations.",
+                        "description": "A placeholder for MACSec (Media Access Control Security) configuration parameters, Primary/Fallback key chain and EAPol (Extensible Authentication Protocol over LAN) configurations.",
                         "required": [
                             "eapol_configurations",
                             "mac_sec_primary_key_chain"
@@ -11739,7 +11736,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Definition of the list of properties defined in 'memory.Policy', excluding properties defined in parent classes.",
+                        "description": "Definition of the list of properties defined in 'memory.Policy', excluding properties defined in parent classes.",
                         "required": [],
                         "title": "memory",
                         "properties": {
@@ -11852,7 +11849,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Enable or disable Dynamic DNS, add or update DNS settings for IPv4 and IPv6 on Cisco IMC.",
+                        "description": "Enable or disable Dynamic DNS, add or update DNS settings for IPv4 and IPv6 on Cisco IMC.",
                         "required": [],
                         "title": "network_connectivity - Network Connectivity - Intersight Uri: networkconfig/Policies",
                         "properties": {
@@ -11943,7 +11940,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Policy to configure the NTP Servers.",
+                        "description": "Policy to configure the NTP Servers.",
                         "intersight_uri": "ntp/Policies",
                         "object_type": "ntp.Policy",
                         "required": [
@@ -11979,269 +11976,440 @@
                                 "title": "ntp_servers - Ntp Servers"
                             },
                             "timezone": {
-                                "type": "string",
-                                "default": "Etc/GMT",
-                                "description": "Timezone of services on the endpoint.\n  * `Pacific/Niue` - \n  * `Pacific/Pago_Pago` - \n  * `Pacific/Honolulu` - \n  * `Pacific/Rarotonga` - \n  * `Pacific/Tahiti` - \n  * `Pacific/Marquesas` - \n  * `America/Anchorage` - \n  * `Pacific/Gambier` - \n  * `America/Los_Angeles` - \n  * `America/Tijuana` - \n  * `America/Vancouver` - \n  * `America/Whitehorse` - \n  * `Pacific/Pitcairn` - \n  * `America/Dawson_Creek` - \n  * `America/Denver` - \n  * `America/Edmonton` - \n  * `America/Hermosillo` - \n  * `America/Mazatlan` - \n  * `America/Phoenix` - \n  * `America/Yellowknife` - \n  * `America/Belize` - \n  * `America/Chicago` - \n  * `America/Costa_Rica` - \n  * `America/El_Salvador` - \n  * `America/Guatemala` - \n  * `America/Managua` - \n  * `America/Mexico_City` - \n  * `America/Regina` - \n  * `America/Tegucigalpa` - \n  * `America/Winnipeg` - \n  * `Pacific/Galapagos` - \n  * `America/Bogota` - \n  * `America/Cancun` - \n  * `America/Cayman` - \n  * `America/Guayaquil` - \n  * `America/Havana` - \n  * `America/Iqaluit` - \n  * `America/Jamaica` - \n  * `America/Lima` - \n  * `America/Nassau` - \n  * `America/New_York` - \n  * `America/Nuuk` - \n  * `America/Panama` - \n  * `America/Port-au-Prince` - \n  * `America/Rio_Branco` - \n  * `America/Toronto` - \n  * `Pacific/Easter` - \n  * `America/Caracas` - \n  * `America/Asuncion` - \n  * `America/Barbados` - \n  * `America/Boa_Vista` - \n  * `America/Campo_Grande` - \n  * `America/Cuiaba` - \n  * `America/Curacao` - \n  * `America/Grand_Turk` - \n  * `America/Guyana` - \n  * `America/Halifax` - \n  * `America/La_Paz` - \n  * `America/Manaus` - \n  * `America/Martinique` - \n  * `America/Port_of_Spain` - \n  * `America/Porto_Velho` - \n  * `America/Puerto_Rico` - \n  * `America/Santo_Domingo` - \n  * `America/Thule` - \n  * `Atlantic/Bermuda` - \n  * `America/St_Johns` - \n  * `America/Araguaina` - \n  * `America/Argentina/Buenos_Aires` - \n  * `America/Bahia` - \n  * `America/Belem` - \n  * `America/Cayenne` - \n  * `America/Fortaleza` - \n  * `America/Godthab` - \n  * `America/Maceio` - \n  * `America/Miquelon` - \n  * `America/Montevideo` - \n  * `America/Paramaribo` - \n  * `America/Recife` - \n  * `America/Santiago` - \n  * `America/Sao_Paulo` - \n  * `Antarctica/Palmer` - \n  * `Antarctica/Rothera` - \n  * `Atlantic/Stanley` - \n  * `America/Noronha` - \n  * `Atlantic/South_Georgia` - \n  * `America/Scoresbysund` - \n  * `Atlantic/Azores` - \n  * `Atlantic/Cape_Verde` - \n  * `Africa/Abidjan` - \n  * `Africa/Accra` - \n  * `Africa/Bissau` - \n  * `Africa/Casablanca` - \n  * `Africa/El_Aaiun` - \n  * `Africa/Monrovia` - \n  * `America/Danmarkshavn` - \n  * `Atlantic/Canary` - \n  * `Atlantic/Faroe` - \n  * `Atlantic/Reykjavik` - \n  * `Etc/GMT` - \n  * `Europe/Dublin` - \n  * `Europe/Lisbon` - \n  * `Europe/London` - \n  * `Africa/Algiers` - \n  * `Africa/Ceuta` - \n  * `Africa/Lagos` - \n  * `Africa/Ndjamena` - \n  * `Africa/Tunis` - \n  * `Africa/Windhoek` - \n  * `Europe/Amsterdam` - \n  * `Europe/Andorra` - \n  * `Europe/Belgrade` - \n  * `Europe/Berlin` - \n  * `Europe/Brussels` - \n  * `Europe/Budapest` - \n  * `Europe/Copenhagen` - \n  * `Europe/Gibraltar` - \n  * `Europe/Luxembourg` - \n  * `Europe/Madrid` - \n  * `Europe/Malta` - \n  * `Europe/Monaco` - \n  * `Europe/Oslo` - \n  * `Europe/Paris` - \n  * `Europe/Prague` - \n  * `Europe/Rome` - \n  * `Europe/Stockholm` - \n  * `Europe/Tirane` - \n  * `Europe/Vienna` - \n  * `Europe/Warsaw` - \n  * `Europe/Zurich` - \n  * `Africa/Cairo` - \n  * `Africa/Johannesburg` - \n  * `Africa/Maputo` - \n  * `Africa/Tripoli` - \n  * `Asia/Amman` - \n  * `Asia/Beirut` - \n  * `Asia/Damascus` - \n  * `Asia/Gaza` - \n  * `Asia/Jerusalem` - \n  * `Asia/Nicosia` - \n  * `Europe/Athens` - \n  * `Europe/Bucharest` - \n  * `Europe/Chisinau` - \n  * `Europe/Helsinki` - \n  * `Europe/Istanbul` - \n  * `Europe/Kaliningrad` - \n  * `Europe/Kiev` - \n  * `Europe/Riga` - \n  * `Europe/Sofia` - \n  * `Europe/Tallinn` - \n  * `Europe/Vilnius` - \n  * `Africa/Khartoum` - \n  * `Africa/Nairobi` - \n  * `Antarctica/Syowa` - \n  * `Asia/Baghdad` - \n  * `Asia/Qatar` - \n  * `Asia/Riyadh` - \n  * `Europe/Minsk` - \n  * `Europe/Moscow` - \n  * `Asia/Tehran` - \n  * `Asia/Baku` - \n  * `Asia/Dubai` - \n  * `Asia/Tbilisi` - \n  * `Asia/Yerevan` - \n  * `Europe/Samara` - \n  * `Indian/Mahe` - \n  * `Indian/Mauritius` - \n  * `Indian/Reunion` - \n  * `Asia/Kabul` - \n  * `Antarctica/Mawson` - \n  * `Asia/Aqtau` - \n  * `Asia/Aqtobe` - \n  * `Asia/Ashgabat` - \n  * `Asia/Dushanbe` - \n  * `Asia/Karachi` - \n  * `Asia/Tashkent` - \n  * `Asia/Yekaterinburg` - \n  * `Indian/Kerguelen` - \n  * `Indian/Maldives` - \n  * `Asia/Calcutta` - \n  * `Asia/Kolkata` - \n  * `Asia/Colombo` - \n  * `Asia/Kathmandu` - \n  * `Asia/Katmandu` - \n  * `Antarctica/Vostok` - \n  * `Asia/Almaty` - \n  * `Asia/Bishkek` - \n  * `Asia/Dhaka` - \n  * `Asia/Omsk` - \n  * `Asia/Thimphu` - \n  * `Indian/Chagos` - \n  * `Asia/Rangoon` - \n  * `Indian/Cocos` - \n  * `Antarctica/Davis` - \n  * `Asia/Bangkok` - \n  * `Asia/Ho_Chi_Minh` - \n  * `Asia/Hovd` - \n  * `Asia/Jakarta` - \n  * `Asia/Krasnoyarsk` - \n  * `Asia/Saigon` - \n  * `Indian/Christmas` - \n  * `Antarctica/Casey` - \n  * `Asia/Brunei` - \n  * `Asia/Choibalsan` - \n  * `Asia/Hong_Kong` - \n  * `Asia/Irkutsk` - \n  * `Asia/Kuala_Lumpur` - \n  * `Asia/Macau` - \n  * `Asia/Makassar` - \n  * `Asia/Manila` - \n  * `Asia/Shanghai` - \n  * `Asia/Singapore` - \n  * `Asia/Taipei` - \n  * `Asia/Ulaanbaatar` - \n  * `Australia/Perth` - \n  * `Asia/Pyongyang` - \n  * `Asia/Dili` - \n  * `Asia/Jayapura` - \n  * `Asia/Seoul` - \n  * `Asia/Tokyo` - \n  * `Asia/Yakutsk` - \n  * `Asia/Yangon` - \n  * `Pacific/Palau` - \n  * `Australia/Adelaide` - \n  * `Australia/Darwin` - \n  * `Antarctica/DumontDUrville` - \n  * `Asia/Magadan` - \n  * `Asia/Vladivostok` - \n  * `Australia/Brisbane` - \n  * `Australia/Hobart` - \n  * `Australia/Sydney` - \n  * `Pacific/Chuuk` - \n  * `Pacific/Guam` - \n  * `Pacific/Port_Moresby` - \n  * `Pacific/Efate` - \n  * `Pacific/Guadalcanal` - \n  * `Pacific/Kosrae` - \n  * `Pacific/Norfolk` - \n  * `Pacific/Noumea` - \n  * `Pacific/Pohnpei` - \n  * `Asia/Kamchatka` - \n  * `Pacific/Auckland` - \n  * `Pacific/Fiji` - \n  * `Pacific/Funafuti` - \n  * `Pacific/Kwajalein` - \n  * `Pacific/Majuro` - \n  * `Pacific/Nauru` - \n  * `Pacific/Tarawa` - \n  * `Pacific/Wake` - \n  * `Pacific/Wallis` - \n  * `Pacific/Apia` - \n  * `Pacific/Enderbury` - \n  * `Pacific/Fakaofo` - \n  * `Pacific/Tongatapu` - \n  * `Pacific/Kiritimati` - \n  * `UTC` -",
-                                "intersight_api": "Timezone",
-                                "enum": [
-                                    "Pacific/Niue",
-                                    "Pacific/Pago_Pago",
-                                    "Pacific/Honolulu",
-                                    "Pacific/Rarotonga",
-                                    "Pacific/Tahiti",
-                                    "Pacific/Marquesas",
-                                    "America/Anchorage",
-                                    "Pacific/Gambier",
-                                    "America/Los_Angeles",
-                                    "America/Tijuana",
-                                    "America/Vancouver",
-                                    "America/Whitehorse",
-                                    "Pacific/Pitcairn",
-                                    "America/Dawson_Creek",
-                                    "America/Denver",
-                                    "America/Edmonton",
-                                    "America/Hermosillo",
-                                    "America/Mazatlan",
-                                    "America/Phoenix",
-                                    "America/Yellowknife",
-                                    "America/Belize",
-                                    "America/Chicago",
-                                    "America/Costa_Rica",
-                                    "America/El_Salvador",
-                                    "America/Guatemala",
-                                    "America/Managua",
-                                    "America/Mexico_City",
-                                    "America/Regina",
-                                    "America/Tegucigalpa",
-                                    "America/Winnipeg",
-                                    "Pacific/Galapagos",
-                                    "America/Bogota",
-                                    "America/Cancun",
-                                    "America/Cayman",
-                                    "America/Guayaquil",
-                                    "America/Havana",
-                                    "America/Iqaluit",
-                                    "America/Jamaica",
-                                    "America/Lima",
-                                    "America/Nassau",
+                                "description": "The timezone of the node's system clock.  Options are:\n\n\n  * `Africa/Abidjan`\n  * `Africa/Accra`\n  * `Africa/Addis_Ababa`\n  * `Africa/Algiers`\n  * `Africa/Asmara`\n  * `Africa/Bamako`\n  * `Africa/Bangui`\n  * `Africa/Banjul`\n  * `Africa/Bissau`\n  * `Africa/Blantyre`\n  * `Africa/Brazzaville`\n  * `Africa/Bujumbura`\n  * `Africa/Cairo`\n  * `Africa/Casablanca`\n  * `Africa/Ceuta`\n  * `Africa/Conakry`\n  * `Africa/Dakar`\n  * `Africa/Dar_es_Salaam`\n  * `Africa/Djibouti`\n  * `Africa/Douala`\n  * `Africa/El_Aaiun`\n  * `Africa/Freetown`\n  * `Africa/Gaborone`\n  * `Africa/Harare`\n  * `Africa/Johannesburg`\n  * `Africa/Juba`\n  * `Africa/Kampala`\n  * `Africa/Khartoum`\n  * `Africa/Kigali`\n  * `Africa/Kinshasa`\n  * `Africa/Lagos`\n  * `Africa/Libreville`\n  * `Africa/Lome`\n  * `Africa/Luanda`\n  * `Africa/Lubumbashi`\n  * `Africa/Lusaka`\n  * `Africa/Malabo`\n  * `Africa/Maputo`\n  * `Africa/Maseru`\n  * `Africa/Mbabane`\n  * `Africa/Mogadishu`\n  * `Africa/Monrovia`\n  * `Africa/Nairobi`\n  * `Africa/Ndjamena`\n  * `Africa/Niamey`\n  * `Africa/Nouakchott`\n  * `Africa/Ouagadougou`\n  * `Africa/Porto-Novo`\n  * `Africa/Sao_Tome`\n  * `Africa/Tripoli`\n  * `Africa/Tunis`\n  * `Africa/Windhoek`\n  * `America/Adak`\n  * `America/Anchorage`\n  * `America/Anguilla`\n  * `America/Antigua`\n  * `America/Araguaina`\n  * `America/Argentina/Buenos_Aires`\n  * `America/Argentina/Catamarca`\n  * `America/Argentina/Cordoba`\n  * `America/Argentina/Jujuy`\n  * `America/Argentina/La_Rioja`\n  * `America/Argentina/Mendoza`\n  * `America/Argentina/Rio_Gallegos`\n  * `America/Argentina/Salta`\n  * `America/Argentina/San_Juan`\n  * `America/Argentina/San_Luis`\n  * `America/Argentina/Tucuman`\n  * `America/Argentina/Ushuaia`\n  * `America/Aruba`\n  * `America/Asuncion`\n  * `America/Atikokan`\n  * `America/Bahia`\n  * `America/Bahia_Banderas`\n  * `America/Barbados`\n  * `America/Belem`\n  * `America/Belize`\n  * `America/Blanc-Sablon`\n  * `America/Boa_Vista`\n  * `America/Bogota`\n  * `America/Boise`\n  * `America/Cambridge_Bay`\n  * `America/Campo_Grande`\n  * `America/Cancun`\n  * `America/Caracas`\n  * `America/Cayenne`\n  * `America/Cayman`\n  * `America/Chicago`\n  * `America/Chihuahua`\n  * `America/Costa_Rica`\n  * `America/Creston`\n  * `America/Cuiaba`\n  * `America/Curacao`\n  * `America/Danmarkshavn`\n  * `America/Dawson`\n  * `America/Dawson_Creek`\n  * `America/Denver`\n  * `America/Detroit`\n  * `America/Dominica`\n  * `America/Edmonton`\n  * `America/Eirunepe`\n  * `America/El_Salvador`\n  * `America/Fortaleza`\n  * `America/Glace_Bay`\n  * `America/Godthab`\n  * `America/Goose_Bay`\n  * `America/Grand_Turk`\n  * `America/Grenada`\n  * `America/Guadeloupe`\n  * `America/Guatemala`\n  * `America/Guayaquil`\n  * `America/Guyana`\n  * `America/Halifax`\n  * `America/Havana`\n  * `America/Hermosillo`\n  * `America/Indiana/Indianapolis`\n  * `America/Indiana/Knox`\n  * `America/Indiana/Marengo`\n  * `America/Indiana/Petersburg`\n  * `America/Indiana/Tell_City`\n  * `America/Indiana/Vevay`\n  * `America/Indiana/Vincennes`\n  * `America/Indiana/Winamac`\n  * `America/Inuvik`\n  * `America/Iqaluit`\n  * `America/Jamaica`\n  * `America/Juneau`\n  * `America/Kentucky/Louisville`\n  * `America/Kentucky/Monticello`\n  * `America/Kralendijk`\n  * `America/La_Paz`\n  * `America/Lima`\n  * `America/Los_Angeles`\n  * `America/Lower_Princes`\n  * `America/Maceio`\n  * `America/Managua`\n  * `America/Manaus`\n  * `America/Marigot`\n  * `America/Martinique`\n  * `America/Matamoros`\n  * `America/Mazatlan`\n  * `America/Menominee`\n  * `America/Merida`\n  * `America/Metlakatla`\n  * `America/Mexico_City`\n  * `America/Miquelon`\n  * `America/Moncton`\n  * `America/Monterrey`\n  * `America/Montevideo`\n  * `America/Montreal`\n  * `America/Montserrat`\n  * `America/Nassau`\n  * `America/New_York`\n  * `America/Nipigon`\n  * `America/Nome`\n  * `America/Noronha`\n  * `America/North_Dakota/Beulah`\n  * `America/North_Dakota/Center`\n  * `America/North_Dakota/New_Salem`\n  * `America/Ojinaga`\n  * `America/Panama`\n  * `America/Pangnirtung`\n  * `America/Paramaribo`\n  * `America/Phoenix`\n  * `America/Port-au-Prince`\n  * `America/Port_of_Spain`\n  * `America/Porto_Velho`\n  * `America/Puerto_Rico`\n  * `America/Rainy_River`\n  * `America/Rankin_Inlet`\n  * `America/Recife`\n  * `America/Regina`\n  * `America/Resolute`\n  * `America/Rio_Branco`\n  * `America/Santa_Isabel`\n  * `America/Santarem`\n  * `America/Santiago`\n  * `America/Santo_Domingo`\n  * `America/Sao_Paulo`\n  * `America/Scoresbysund`\n  * `America/Shiprock`\n  * `America/Sitka`\n  * `America/St_Barthelemy`\n  * `America/St_Johns`\n  * `America/St_Kitts`\n  * `America/St_Lucia`\n  * `America/St_Thomas`\n  * `America/St_Vincent`\n  * `America/Swift_Current`\n  * `America/Tegucigalpa`\n  * `America/Thule`\n  * `America/Thunder_Bay`\n  * `America/Tijuana`\n  * `America/Toronto`\n  * `America/Tortola`\n  * `America/Vancouver`\n  * `America/Whitehorse`\n  * `America/Winnipeg`\n  * `America/Yakutat`\n  * `America/Yellowknife`\n  * `Antarctica/Casey`\n  * `Antarctica/Davis`\n  * `Antarctica/DumontDUrville`\n  * `Antarctica/Macquarie`\n  * `Antarctica/Mawson`\n  * `Antarctica/McMurdo`\n  * `Antarctica/Palmer`\n  * `Antarctica/Rothera`\n  * `Antarctica/South_Pole`\n  * `Antarctica/Syowa`\n  * `Antarctica/Troll`\n  * `Antarctica/Vostok`\n  * `Arctic/Longyearbyen`\n  * `Asia/Aden`\n  * `Asia/Almaty`\n  * `Asia/Amman`\n  * `Asia/Anadyr`\n  * `Asia/Aqtau`\n  * `Asia/Aqtobe`\n  * `Asia/Ashgabat`\n  * `Asia/Baghdad`\n  * `Asia/Bahrain`\n  * `Asia/Baku`\n  * `Asia/Bangkok`\n  * `Asia/Beirut`\n  * `Asia/Bishkek`\n  * `Asia/Brunei`\n  * `Asia/Calcutta`\n  * `Asia/Choibalsan`\n  * `Asia/Chongqing`\n  * `Asia/Colombo`\n  * `Asia/Damascus`\n  * `Asia/Dhaka`\n  * `Asia/Dili`\n  * `Asia/Dubai`\n  * `Asia/Dushanbe`\n  * `Asia/Gaza`\n  * `Asia/Harbin`\n  * `Asia/Hebron`\n  * `Asia/Ho_Chi_Minh`\n  * `Asia/Hong_Kong`\n  * `Asia/Hovd`\n  * `Asia/Irkutsk`\n  * `Asia/Jakarta`\n  * `Asia/Jayapura`\n  * `Asia/Jerusalem`\n  * `Asia/Kabul`\n  * `Asia/Kamchatka`\n  * `Asia/Karachi`\n  * `Asia/Kashgar`\n  * `Asia/Kathmandu`\n  * `Asia/Katmandu`\n  * `Asia/Khandyga`\n  * `Asia/Kolkata`\n  * `Asia/Krasnoyarsk`\n  * `Asia/Kuala_Lumpur`\n  * `Asia/Kuching`\n  * `Asia/Kuwait`\n  * `Asia/Macau`\n  * `Asia/Magadan`\n  * `Asia/Makassar`\n  * `Asia/Manila`\n  * `Asia/Muscat`\n  * `Asia/Nicosia`\n  * `Asia/Novokuznetsk`\n  * `Asia/Novosibirsk`\n  * `Asia/Omsk`\n  * `Asia/Oral`\n  * `Asia/Phnom_Penh`\n  * `Asia/Pontianak`\n  * `Asia/Pyongyang`\n  * `Asia/Qatar`\n  * `Asia/Qyzylorda`\n  * `Asia/Rangoon`\n  * `Asia/Riyadh`\n  * `Asia/Saigon`\n  * `Asia/Sakhalin`\n  * `Asia/Samarkand`\n  * `Asia/Seoul`\n  * `Asia/Shanghai`\n  * `Asia/Singapore`\n  * `Asia/Taipei`\n  * `Asia/Tashkent`\n  * `Asia/Tbilisi`\n  * `Asia/Tehran`\n  * `Asia/Thimphu`\n  * `Asia/Tokyo`\n  * `Asia/Ulaanbaatar`\n  * `Asia/Urumqi`\n  * `Asia/Ust-Nera`\n  * `Asia/Vientiane`\n  * `Asia/Vladivostok`\n  * `Asia/Yakutsk`\n  * `Asia/Yekaterinburg`\n  * `Asia/Yerevan`\n  * `Atlantic/Azores`\n  * `Atlantic/Bermuda`\n  * `Atlantic/Canary`\n  * `Atlantic/Cape_Verde`\n  * `Atlantic/Faroe`\n  * `Atlantic/Madeira`\n  * `Atlantic/Reykjavik`\n  * `Atlantic/South_Georgia`\n  * `Atlantic/Stanley`\n  * `Atlantic/St_Helena`\n  * `Australia/Adelaide`\n  * `Australia/Brisbane`\n  * `Australia/Broken_Hill`\n  * `Australia/Currie`\n  * `Australia/Darwin`\n  * `Australia/Eucla`\n  * `Australia/Hobart`\n  * `Australia/Lindeman`\n  * `Australia/Lord_Howe`\n  * `Australia/Melbourne`\n  * `Australia/Perth`\n  * `Australia/Sydney`\n  * `Etc/GMT`\n  * `Europe/Amsterdam`\n  * `Europe/Andorra`\n  * `Europe/Athens`\n  * `Europe/Belgrade`\n  * `Europe/Berlin`\n  * `Europe/Bratislava`\n  * `Europe/Brussels`\n  * `Europe/Bucharest`\n  * `Europe/Budapest`\n  * `Europe/Busingen`\n  * `Europe/Chisinau`\n  * `Europe/Copenhagen`\n  * `Europe/Dublin`\n  * `Europe/Gibraltar`\n  * `Europe/Guernsey`\n  * `Europe/Helsinki`\n  * `Europe/Isle_of_Man`\n  * `Europe/Istanbul`\n  * `Europe/Jersey`\n  * `Europe/Kaliningrad`\n  * `Europe/Kiev`\n  * `Europe/Lisbon`\n  * `Europe/Ljubljana`\n  * `Europe/London`\n  * `Europe/Luxembourg`\n  * `Europe/Madrid`\n  * `Europe/Malta`\n  * `Europe/Mariehamn`\n  * `Europe/Minsk`\n  * `Europe/Monaco`\n  * `Europe/Moscow`\n  * `Europe/Oslo`\n  * `Europe/Paris`\n  * `Europe/Podgorica`\n  * `Europe/Prague`\n  * `Europe/Riga`\n  * `Europe/Rome`\n  * `Europe/Samara`\n  * `Europe/San_Marino`\n  * `Europe/Sarajevo`\n  * `Europe/Simferopol`\n  * `Europe/Skopje`\n  * `Europe/Sofia`\n  * `Europe/Stockholm`\n  * `Europe/Tallinn`\n  * `Europe/Tirane`\n  * `Europe/Uzhgorod`\n  * `Europe/Vaduz`\n  * `Europe/Vatican`\n  * `Europe/Vienna`\n  * `Europe/Vilnius`\n  * `Europe/Volgograd`\n  * `Europe/Warsaw`\n  * `Europe/Zagreb`\n  * `Europe/Zaporozhye`\n  * `Europe/Zurich`\n  * `Indian/Antananarivo`\n  * `Indian/Chagos`\n  * `Indian/Christmas`\n  * `Indian/Cocos`\n  * `Indian/Comoro`\n  * `Indian/Kerguelen`\n  * `Indian/Mahe`\n  * `Indian/Maldives`\n  * `Indian/Mauritius`\n  * `Indian/Mayotte`\n  * `Indian/Reunion`\n  * `Pacific/Apia`\n  * `Pacific/Auckland`\n  * `Pacific/Chatham`\n  * `Pacific/Chuuk`\n  * `Pacific/Easter`\n  * `Pacific/Efate`\n  * `Pacific/Enderbury`\n  * `Pacific/Fakaofo`\n  * `Pacific/Fiji`\n  * `Pacific/Funafuti`\n  * `Pacific/Galapagos`\n  * `Pacific/Gambier`\n  * `Pacific/Guadalcanal`\n  * `Pacific/Guam`\n  * `Pacific/Honolulu`\n  * `Pacific/Johnston`\n  * `Pacific/Kiritimati`\n  * `Pacific/Kosrae`\n  * `Pacific/Kwajalein`\n  * `Pacific/Majuro`\n  * `Pacific/Marquesas`\n  * `Pacific/Midway`\n  * `Pacific/Nauru`\n  * `Pacific/Niue`\n  * `Pacific/Norfolk`\n  * `Pacific/Noumea`\n  * `Pacific/Pago_Pago`\n  * `Pacific/Palau`\n  * `Pacific/Pitcairn`\n  * `Pacific/Pohnpei`\n  * `Pacific/Port_Moresby`\n  * `Pacific/Rarotonga`\n  * `Pacific/Saipan`\n  * `Pacific/Tahiti`\n  * `Pacific/Tarawa`\n  * `Pacific/Tongatapu`\n  * `Pacific/Wake`\n  * `Pacific/Wallis`\n  * `UTC`",
+                                "default": "UTC",
+                                "examples": [
+                                    "Africa/Abidjan",
                                     "America/New_York",
-                                    "America/Nuuk",
-                                    "America/Panama",
-                                    "America/Port-au-Prince",
-                                    "America/Rio_Branco",
-                                    "America/Toronto",
-                                    "Pacific/Easter",
-                                    "America/Caracas",
+                                    "UTC"
+                                ],
+                                "enum": [
+                                    "Africa/Abidjan",
+                                    "Africa/Accra",
+                                    "Africa/Addis_Ababa",
+                                    "Africa/Algiers",
+                                    "Africa/Asmara",
+                                    "Africa/Bamako",
+                                    "Africa/Bangui",
+                                    "Africa/Banjul",
+                                    "Africa/Bissau",
+                                    "Africa/Blantyre",
+                                    "Africa/Brazzaville",
+                                    "Africa/Bujumbura",
+                                    "Africa/Cairo",
+                                    "Africa/Casablanca",
+                                    "Africa/Ceuta",
+                                    "Africa/Conakry",
+                                    "Africa/Dakar",
+                                    "Africa/Dar_es_Salaam",
+                                    "Africa/Djibouti",
+                                    "Africa/Douala",
+                                    "Africa/El_Aaiun",
+                                    "Africa/Freetown",
+                                    "Africa/Gaborone",
+                                    "Africa/Harare",
+                                    "Africa/Johannesburg",
+                                    "Africa/Juba",
+                                    "Africa/Kampala",
+                                    "Africa/Khartoum",
+                                    "Africa/Kigali",
+                                    "Africa/Kinshasa",
+                                    "Africa/Lagos",
+                                    "Africa/Libreville",
+                                    "Africa/Lome",
+                                    "Africa/Luanda",
+                                    "Africa/Lubumbashi",
+                                    "Africa/Lusaka",
+                                    "Africa/Malabo",
+                                    "Africa/Maputo",
+                                    "Africa/Maseru",
+                                    "Africa/Mbabane",
+                                    "Africa/Mogadishu",
+                                    "Africa/Monrovia",
+                                    "Africa/Nairobi",
+                                    "Africa/Ndjamena",
+                                    "Africa/Niamey",
+                                    "Africa/Nouakchott",
+                                    "Africa/Ouagadougou",
+                                    "Africa/Porto-Novo",
+                                    "Africa/Sao_Tome",
+                                    "Africa/Tripoli",
+                                    "Africa/Tunis",
+                                    "Africa/Windhoek",
+                                    "America/Adak",
+                                    "America/Anchorage",
+                                    "America/Anguilla",
+                                    "America/Antigua",
+                                    "America/Araguaina",
+                                    "America/Argentina/Buenos_Aires",
+                                    "America/Argentina/Catamarca",
+                                    "America/Argentina/Cordoba",
+                                    "America/Argentina/Jujuy",
+                                    "America/Argentina/La_Rioja",
+                                    "America/Argentina/Mendoza",
+                                    "America/Argentina/Rio_Gallegos",
+                                    "America/Argentina/Salta",
+                                    "America/Argentina/San_Juan",
+                                    "America/Argentina/San_Luis",
+                                    "America/Argentina/Tucuman",
+                                    "America/Argentina/Ushuaia",
+                                    "America/Aruba",
                                     "America/Asuncion",
+                                    "America/Atikokan",
+                                    "America/Bahia",
+                                    "America/Bahia_Banderas",
                                     "America/Barbados",
+                                    "America/Belem",
+                                    "America/Belize",
+                                    "America/Blanc-Sablon",
                                     "America/Boa_Vista",
+                                    "America/Bogota",
+                                    "America/Boise",
+                                    "America/Cambridge_Bay",
                                     "America/Campo_Grande",
+                                    "America/Cancun",
+                                    "America/Caracas",
+                                    "America/Cayenne",
+                                    "America/Cayman",
+                                    "America/Chicago",
+                                    "America/Chihuahua",
+                                    "America/Costa_Rica",
+                                    "America/Creston",
                                     "America/Cuiaba",
                                     "America/Curacao",
+                                    "America/Danmarkshavn",
+                                    "America/Dawson",
+                                    "America/Dawson_Creek",
+                                    "America/Denver",
+                                    "America/Detroit",
+                                    "America/Dominica",
+                                    "America/Edmonton",
+                                    "America/Eirunepe",
+                                    "America/El_Salvador",
+                                    "America/Fortaleza",
+                                    "America/Glace_Bay",
+                                    "America/Godthab",
+                                    "America/Goose_Bay",
                                     "America/Grand_Turk",
+                                    "America/Grenada",
+                                    "America/Guadeloupe",
+                                    "America/Guatemala",
+                                    "America/Guayaquil",
                                     "America/Guyana",
                                     "America/Halifax",
+                                    "America/Havana",
+                                    "America/Hermosillo",
+                                    "America/Indiana/Indianapolis",
+                                    "America/Indiana/Knox",
+                                    "America/Indiana/Marengo",
+                                    "America/Indiana/Petersburg",
+                                    "America/Indiana/Tell_City",
+                                    "America/Indiana/Vevay",
+                                    "America/Indiana/Vincennes",
+                                    "America/Indiana/Winamac",
+                                    "America/Inuvik",
+                                    "America/Iqaluit",
+                                    "America/Jamaica",
+                                    "America/Juneau",
+                                    "America/Kentucky/Louisville",
+                                    "America/Kentucky/Monticello",
+                                    "America/Kralendijk",
                                     "America/La_Paz",
+                                    "America/Lima",
+                                    "America/Los_Angeles",
+                                    "America/Lower_Princes",
+                                    "America/Maceio",
+                                    "America/Managua",
                                     "America/Manaus",
+                                    "America/Marigot",
                                     "America/Martinique",
+                                    "America/Matamoros",
+                                    "America/Mazatlan",
+                                    "America/Menominee",
+                                    "America/Merida",
+                                    "America/Metlakatla",
+                                    "America/Mexico_City",
+                                    "America/Miquelon",
+                                    "America/Moncton",
+                                    "America/Monterrey",
+                                    "America/Montevideo",
+                                    "America/Montreal",
+                                    "America/Montserrat",
+                                    "America/Nassau",
+                                    "America/New_York",
+                                    "America/Nipigon",
+                                    "America/Nome",
+                                    "America/Noronha",
+                                    "America/North_Dakota/Beulah",
+                                    "America/North_Dakota/Center",
+                                    "America/North_Dakota/New_Salem",
+                                    "America/Ojinaga",
+                                    "America/Panama",
+                                    "America/Pangnirtung",
+                                    "America/Paramaribo",
+                                    "America/Phoenix",
+                                    "America/Port-au-Prince",
                                     "America/Port_of_Spain",
                                     "America/Porto_Velho",
                                     "America/Puerto_Rico",
-                                    "America/Santo_Domingo",
-                                    "America/Thule",
-                                    "Atlantic/Bermuda",
-                                    "America/St_Johns",
-                                    "America/Araguaina",
-                                    "America/Argentina/Buenos_Aires",
-                                    "America/Bahia",
-                                    "America/Belem",
-                                    "America/Cayenne",
-                                    "America/Fortaleza",
-                                    "America/Godthab",
-                                    "America/Maceio",
-                                    "America/Miquelon",
-                                    "America/Montevideo",
-                                    "America/Paramaribo",
+                                    "America/Rainy_River",
+                                    "America/Rankin_Inlet",
                                     "America/Recife",
+                                    "America/Regina",
+                                    "America/Resolute",
+                                    "America/Rio_Branco",
+                                    "America/Santa_Isabel",
+                                    "America/Santarem",
                                     "America/Santiago",
+                                    "America/Santo_Domingo",
                                     "America/Sao_Paulo",
+                                    "America/Scoresbysund",
+                                    "America/Shiprock",
+                                    "America/Sitka",
+                                    "America/St_Barthelemy",
+                                    "America/St_Johns",
+                                    "America/St_Kitts",
+                                    "America/St_Lucia",
+                                    "America/St_Thomas",
+                                    "America/St_Vincent",
+                                    "America/Swift_Current",
+                                    "America/Tegucigalpa",
+                                    "America/Thule",
+                                    "America/Thunder_Bay",
+                                    "America/Tijuana",
+                                    "America/Toronto",
+                                    "America/Tortola",
+                                    "America/Vancouver",
+                                    "America/Whitehorse",
+                                    "America/Winnipeg",
+                                    "America/Yakutat",
+                                    "America/Yellowknife",
+                                    "Antarctica/Casey",
+                                    "Antarctica/Davis",
+                                    "Antarctica/DumontDUrville",
+                                    "Antarctica/Macquarie",
+                                    "Antarctica/Mawson",
+                                    "Antarctica/McMurdo",
                                     "Antarctica/Palmer",
                                     "Antarctica/Rothera",
-                                    "Atlantic/Stanley",
-                                    "America/Noronha",
-                                    "Atlantic/South_Georgia",
-                                    "America/Scoresbysund",
-                                    "Atlantic/Azores",
-                                    "Atlantic/Cape_Verde",
-                                    "Africa/Abidjan",
-                                    "Africa/Accra",
-                                    "Africa/Bissau",
-                                    "Africa/Casablanca",
-                                    "Africa/El_Aaiun",
-                                    "Africa/Monrovia",
-                                    "America/Danmarkshavn",
-                                    "Atlantic/Canary",
-                                    "Atlantic/Faroe",
-                                    "Atlantic/Reykjavik",
-                                    "Etc/GMT",
-                                    "Europe/Dublin",
-                                    "Europe/Lisbon",
-                                    "Europe/London",
-                                    "Africa/Algiers",
-                                    "Africa/Ceuta",
-                                    "Africa/Lagos",
-                                    "Africa/Ndjamena",
-                                    "Africa/Tunis",
-                                    "Africa/Windhoek",
-                                    "Europe/Amsterdam",
-                                    "Europe/Andorra",
-                                    "Europe/Belgrade",
-                                    "Europe/Berlin",
-                                    "Europe/Brussels",
-                                    "Europe/Budapest",
-                                    "Europe/Copenhagen",
-                                    "Europe/Gibraltar",
-                                    "Europe/Luxembourg",
-                                    "Europe/Madrid",
-                                    "Europe/Malta",
-                                    "Europe/Monaco",
-                                    "Europe/Oslo",
-                                    "Europe/Paris",
-                                    "Europe/Prague",
-                                    "Europe/Rome",
-                                    "Europe/Stockholm",
-                                    "Europe/Tirane",
-                                    "Europe/Vienna",
-                                    "Europe/Warsaw",
-                                    "Europe/Zurich",
-                                    "Africa/Cairo",
-                                    "Africa/Johannesburg",
-                                    "Africa/Maputo",
-                                    "Africa/Tripoli",
-                                    "Asia/Amman",
-                                    "Asia/Beirut",
-                                    "Asia/Damascus",
-                                    "Asia/Gaza",
-                                    "Asia/Jerusalem",
-                                    "Asia/Nicosia",
-                                    "Europe/Athens",
-                                    "Europe/Bucharest",
-                                    "Europe/Chisinau",
-                                    "Europe/Helsinki",
-                                    "Europe/Istanbul",
-                                    "Europe/Kaliningrad",
-                                    "Europe/Kiev",
-                                    "Europe/Riga",
-                                    "Europe/Sofia",
-                                    "Europe/Tallinn",
-                                    "Europe/Vilnius",
-                                    "Africa/Khartoum",
-                                    "Africa/Nairobi",
+                                    "Antarctica/South_Pole",
                                     "Antarctica/Syowa",
-                                    "Asia/Baghdad",
-                                    "Asia/Qatar",
-                                    "Asia/Riyadh",
-                                    "Europe/Minsk",
-                                    "Europe/Moscow",
-                                    "Asia/Tehran",
-                                    "Asia/Baku",
-                                    "Asia/Dubai",
-                                    "Asia/Tbilisi",
-                                    "Asia/Yerevan",
-                                    "Europe/Samara",
-                                    "Indian/Mahe",
-                                    "Indian/Mauritius",
-                                    "Indian/Reunion",
-                                    "Asia/Kabul",
-                                    "Antarctica/Mawson",
+                                    "Antarctica/Troll",
+                                    "Antarctica/Vostok",
+                                    "Arctic/Longyearbyen",
+                                    "Asia/Aden",
+                                    "Asia/Almaty",
+                                    "Asia/Amman",
+                                    "Asia/Anadyr",
                                     "Asia/Aqtau",
                                     "Asia/Aqtobe",
                                     "Asia/Ashgabat",
-                                    "Asia/Dushanbe",
-                                    "Asia/Karachi",
-                                    "Asia/Tashkent",
-                                    "Asia/Yekaterinburg",
-                                    "Indian/Kerguelen",
-                                    "Indian/Maldives",
+                                    "Asia/Baghdad",
+                                    "Asia/Bahrain",
+                                    "Asia/Baku",
+                                    "Asia/Bangkok",
+                                    "Asia/Beirut",
+                                    "Asia/Bishkek",
+                                    "Asia/Brunei",
                                     "Asia/Calcutta",
-                                    "Asia/Kolkata",
+                                    "Asia/Choibalsan",
+                                    "Asia/Chongqing",
                                     "Asia/Colombo",
+                                    "Asia/Damascus",
+                                    "Asia/Dhaka",
+                                    "Asia/Dili",
+                                    "Asia/Dubai",
+                                    "Asia/Dushanbe",
+                                    "Asia/Gaza",
+                                    "Asia/Harbin",
+                                    "Asia/Hebron",
+                                    "Asia/Ho_Chi_Minh",
+                                    "Asia/Hong_Kong",
+                                    "Asia/Hovd",
+                                    "Asia/Irkutsk",
+                                    "Asia/Jakarta",
+                                    "Asia/Jayapura",
+                                    "Asia/Jerusalem",
+                                    "Asia/Kabul",
+                                    "Asia/Kamchatka",
+                                    "Asia/Karachi",
+                                    "Asia/Kashgar",
                                     "Asia/Kathmandu",
                                     "Asia/Katmandu",
-                                    "Antarctica/Vostok",
-                                    "Asia/Almaty",
-                                    "Asia/Bishkek",
-                                    "Asia/Dhaka",
-                                    "Asia/Omsk",
-                                    "Asia/Thimphu",
-                                    "Indian/Chagos",
-                                    "Asia/Rangoon",
-                                    "Indian/Cocos",
-                                    "Antarctica/Davis",
-                                    "Asia/Bangkok",
-                                    "Asia/Ho_Chi_Minh",
-                                    "Asia/Hovd",
-                                    "Asia/Jakarta",
+                                    "Asia/Khandyga",
+                                    "Asia/Kolkata",
                                     "Asia/Krasnoyarsk",
-                                    "Asia/Saigon",
-                                    "Indian/Christmas",
-                                    "Antarctica/Casey",
-                                    "Asia/Brunei",
-                                    "Asia/Choibalsan",
-                                    "Asia/Hong_Kong",
-                                    "Asia/Irkutsk",
                                     "Asia/Kuala_Lumpur",
+                                    "Asia/Kuching",
+                                    "Asia/Kuwait",
                                     "Asia/Macau",
+                                    "Asia/Magadan",
                                     "Asia/Makassar",
                                     "Asia/Manila",
+                                    "Asia/Muscat",
+                                    "Asia/Nicosia",
+                                    "Asia/Novokuznetsk",
+                                    "Asia/Novosibirsk",
+                                    "Asia/Omsk",
+                                    "Asia/Oral",
+                                    "Asia/Phnom_Penh",
+                                    "Asia/Pontianak",
+                                    "Asia/Pyongyang",
+                                    "Asia/Qatar",
+                                    "Asia/Qyzylorda",
+                                    "Asia/Rangoon",
+                                    "Asia/Riyadh",
+                                    "Asia/Saigon",
+                                    "Asia/Sakhalin",
+                                    "Asia/Samarkand",
+                                    "Asia/Seoul",
                                     "Asia/Shanghai",
                                     "Asia/Singapore",
                                     "Asia/Taipei",
-                                    "Asia/Ulaanbaatar",
-                                    "Australia/Perth",
-                                    "Asia/Pyongyang",
-                                    "Asia/Dili",
-                                    "Asia/Jayapura",
-                                    "Asia/Seoul",
+                                    "Asia/Tashkent",
+                                    "Asia/Tbilisi",
+                                    "Asia/Tehran",
+                                    "Asia/Thimphu",
                                     "Asia/Tokyo",
-                                    "Asia/Yakutsk",
-                                    "Asia/Yangon",
-                                    "Pacific/Palau",
-                                    "Australia/Adelaide",
-                                    "Australia/Darwin",
-                                    "Antarctica/DumontDUrville",
-                                    "Asia/Magadan",
+                                    "Asia/Ulaanbaatar",
+                                    "Asia/Urumqi",
+                                    "Asia/Ust-Nera",
+                                    "Asia/Vientiane",
                                     "Asia/Vladivostok",
+                                    "Asia/Yakutsk",
+                                    "Asia/Yekaterinburg",
+                                    "Asia/Yerevan",
+                                    "Atlantic/Azores",
+                                    "Atlantic/Bermuda",
+                                    "Atlantic/Canary",
+                                    "Atlantic/Cape_Verde",
+                                    "Atlantic/Faroe",
+                                    "Atlantic/Madeira",
+                                    "Atlantic/Reykjavik",
+                                    "Atlantic/South_Georgia",
+                                    "Atlantic/Stanley",
+                                    "Atlantic/St_Helena",
+                                    "Australia/Adelaide",
                                     "Australia/Brisbane",
+                                    "Australia/Broken_Hill",
+                                    "Australia/Currie",
+                                    "Australia/Darwin",
+                                    "Australia/Eucla",
                                     "Australia/Hobart",
+                                    "Australia/Lindeman",
+                                    "Australia/Lord_Howe",
+                                    "Australia/Melbourne",
+                                    "Australia/Perth",
                                     "Australia/Sydney",
-                                    "Pacific/Chuuk",
-                                    "Pacific/Guam",
-                                    "Pacific/Port_Moresby",
-                                    "Pacific/Efate",
-                                    "Pacific/Guadalcanal",
-                                    "Pacific/Kosrae",
-                                    "Pacific/Norfolk",
-                                    "Pacific/Noumea",
-                                    "Pacific/Pohnpei",
-                                    "Asia/Kamchatka",
-                                    "Pacific/Auckland",
-                                    "Pacific/Fiji",
-                                    "Pacific/Funafuti",
-                                    "Pacific/Kwajalein",
-                                    "Pacific/Majuro",
-                                    "Pacific/Nauru",
-                                    "Pacific/Tarawa",
-                                    "Pacific/Wake",
-                                    "Pacific/Wallis",
+                                    "Etc/GMT",
+                                    "Europe/Amsterdam",
+                                    "Europe/Andorra",
+                                    "Europe/Athens",
+                                    "Europe/Belgrade",
+                                    "Europe/Berlin",
+                                    "Europe/Bratislava",
+                                    "Europe/Brussels",
+                                    "Europe/Bucharest",
+                                    "Europe/Budapest",
+                                    "Europe/Busingen",
+                                    "Europe/Chisinau",
+                                    "Europe/Copenhagen",
+                                    "Europe/Dublin",
+                                    "Europe/Gibraltar",
+                                    "Europe/Guernsey",
+                                    "Europe/Helsinki",
+                                    "Europe/Isle_of_Man",
+                                    "Europe/Istanbul",
+                                    "Europe/Jersey",
+                                    "Europe/Kaliningrad",
+                                    "Europe/Kiev",
+                                    "Europe/Lisbon",
+                                    "Europe/Ljubljana",
+                                    "Europe/London",
+                                    "Europe/Luxembourg",
+                                    "Europe/Madrid",
+                                    "Europe/Malta",
+                                    "Europe/Mariehamn",
+                                    "Europe/Minsk",
+                                    "Europe/Monaco",
+                                    "Europe/Moscow",
+                                    "Europe/Oslo",
+                                    "Europe/Paris",
+                                    "Europe/Podgorica",
+                                    "Europe/Prague",
+                                    "Europe/Riga",
+                                    "Europe/Rome",
+                                    "Europe/Samara",
+                                    "Europe/San_Marino",
+                                    "Europe/Sarajevo",
+                                    "Europe/Simferopol",
+                                    "Europe/Skopje",
+                                    "Europe/Sofia",
+                                    "Europe/Stockholm",
+                                    "Europe/Tallinn",
+                                    "Europe/Tirane",
+                                    "Europe/Uzhgorod",
+                                    "Europe/Vaduz",
+                                    "Europe/Vatican",
+                                    "Europe/Vienna",
+                                    "Europe/Vilnius",
+                                    "Europe/Volgograd",
+                                    "Europe/Warsaw",
+                                    "Europe/Zagreb",
+                                    "Europe/Zaporozhye",
+                                    "Europe/Zurich",
+                                    "Indian/Antananarivo",
+                                    "Indian/Chagos",
+                                    "Indian/Christmas",
+                                    "Indian/Cocos",
+                                    "Indian/Comoro",
+                                    "Indian/Kerguelen",
+                                    "Indian/Mahe",
+                                    "Indian/Maldives",
+                                    "Indian/Mauritius",
+                                    "Indian/Mayotte",
+                                    "Indian/Reunion",
                                     "Pacific/Apia",
+                                    "Pacific/Auckland",
+                                    "Pacific/Chatham",
+                                    "Pacific/Chuuk",
+                                    "Pacific/Easter",
+                                    "Pacific/Efate",
                                     "Pacific/Enderbury",
                                     "Pacific/Fakaofo",
-                                    "Pacific/Tongatapu",
+                                    "Pacific/Fiji",
+                                    "Pacific/Funafuti",
+                                    "Pacific/Galapagos",
+                                    "Pacific/Gambier",
+                                    "Pacific/Guadalcanal",
+                                    "Pacific/Guam",
+                                    "Pacific/Honolulu",
+                                    "Pacific/Johnston",
                                     "Pacific/Kiritimati",
+                                    "Pacific/Kosrae",
+                                    "Pacific/Kwajalein",
+                                    "Pacific/Majuro",
+                                    "Pacific/Marquesas",
+                                    "Pacific/Midway",
+                                    "Pacific/Nauru",
+                                    "Pacific/Niue",
+                                    "Pacific/Norfolk",
+                                    "Pacific/Noumea",
+                                    "Pacific/Pago_Pago",
+                                    "Pacific/Palau",
+                                    "Pacific/Pitcairn",
+                                    "Pacific/Pohnpei",
+                                    "Pacific/Port_Moresby",
+                                    "Pacific/Rarotonga",
+                                    "Pacific/Saipan",
+                                    "Pacific/Tahiti",
+                                    "Pacific/Tarawa",
+                                    "Pacific/Tongatapu",
+                                    "Pacific/Wake",
+                                    "Pacific/Wallis",
                                     "UTC"
                                 ],
-                                "title": "timezone"
+                                "type": "string"
                             }
                         }
                     }
@@ -12260,8 +12428,7 @@
                     {
                         "type": "object",
                         "description": "Organization provides multi-tenancy within an account. Multiple organizations can be present under an account. Resources are associated to organization using resource groups. Organization can have heterogeneous resources. Resources can be shared among multiple organizations. Organizations are associated to user permissions and privileges can be specified to provide access control. User can have access to multiple organizations in same permission and with different privileges on each organization.",
-                        "required": [
-                        ],
+                        "required": [],
                         "title": "organization - Intersight Uri: organization/Organizations",
                         "properties": {
                             "create_organization": {
@@ -12339,7 +12506,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "The Persistent Memory policy defines the reusable Persistent Memory related configuration that can be applied on many servers. This policy allows the application of Persistent Memory Goals and creation of Persistent Memory Regions and Namespaces. The encryption of the Persistent Memory Modules can be enabled through this policy by providing a passphrase.",
+                        "description": "The Persistent Memory policy defines the reusable Persistent Memory related configuration that can be applied on many servers. This policy allows the application of Persistent Memory Goals and creation of Persistent Memory Regions and Namespaces. The encryption of the Persistent Memory Modules can be enabled through this policy by providing a passphrase.",
                         "required": [
                             "management_mode",
                             "memory_mode_percentage",
@@ -15091,7 +15258,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Power Management policy models a configuration that can be applied to Chassis or Server to manage Power Related Features.",
+                        "description": "Power Management policy models a configuration that can be applied to Chassis or Server to manage Power Related Features.",
                         "required": [
                             "power_redundancy"
                         ],
@@ -16206,7 +16373,6 @@
                         "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                         "title": "pool_name"
                     }
-
                 }
             },
             "resource": {
@@ -16303,7 +16469,7 @@
                     {},
                     {
                         "type": "object",
-                                "description": "A group of REST resources, such as a group of compute.Blade MOs. A ResourceGroup can contain static members which are specified as a set of object references, or it can contain dynamic members, which are specified through OData query filters. A Resource can be part of multiple resource groups.",
+                        "description": "A group of REST resources, such as a group of compute.Blade MOs. A ResourceGroup can contain static members which are specified as a set of object references, or it can contain dynamic members, which are specified through OData query filters. A Resource can be part of multiple resource groups.",
                         "required": [
                             "name"
                         ],
@@ -16423,7 +16589,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "SAN connectivity policy determines the network storage resources and the connections between the server and the SAN on the network. This policy enables configuration of vHBAs that the servers use to communicate with the storage network.",
+                        "description": "SAN connectivity policy determines the network storage resources and the connections between the server and the SAN on the network. This policy enables configuration of vHBAs that the servers use to communicate with the storage network.",
                         "required": [
                             "vhbas"
                         ],
@@ -16794,7 +16960,7 @@
                             "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                             "title": "fc_zone_policy"
                         },
-                    "title": "fc_zone_policies - Fc Zone Policies - Intersight Uri: fabric/FcZonePoliy"
+                        "title": "fc_zone_policies - Fc Zone Policies - Intersight Uri: fabric/FcZonePoliy"
                     },
                     "fibre_channel_adapter_policy": {
                         "type": "string",
@@ -16963,7 +17129,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Definition of the list of properties defined in 'compute.ScrubPolicy', excluding properties defined in parent classes.",
+                        "description": "Definition of the list of properties defined in 'compute.ScrubPolicy', excluding properties defined in parent classes.",
                         "required": [],
                         "title": "scrub_policy - Scrub Policy - Intersight Uri: compute/ScrubPolicies",
                         "properties": {
@@ -17003,7 +17169,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Policy for configuring SD Card settings on endpoint.",
+                        "description": "Policy for configuring SD Card settings on endpoint.",
                         "required": [
                             "enable_diagnostics",
                             "enable_drivers",
@@ -17070,7 +17236,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Policy for configuring Serial Over LAN settings on endpoint.",
+                        "description": "Policy for configuring Serial Over LAN settings on endpoint.",
                         "required": [],
                         "title": "serial_over_lan - Serial Over LAN - Intersight Uri: sol/Policies",
                         "properties": {
@@ -17137,7 +17303,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:\n  * Domain — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * Server — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * Tag — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * Hardware — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
+                        "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:\n  * Domain — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * Server — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * Tag — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * Hardware — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
                         "required": [],
                         "title": "server_pool_qualification - Server Pool Qualification - Intersight Uri: resourcepool/QualificationPolicies",
                         "properties": {
@@ -17162,8 +17328,7 @@
                 "description": "Attributes for all FI-attached servers in any domain that match the provided Fabric Interconnect PID and/or domain name qualify under this type.\n\nOptional Attributes:\n  * `domain_names`\n  * `fabric_interconnect_pids`",
                 "intersight_api": "DomainQualifiers",
                 "object_type": "resource.DomainQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "domain_qualifiers - Domain Qualifiers",
                 "properties": {
                     "domain_names": {
@@ -17212,8 +17377,7 @@
                 "description": "Attributes for all servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nOptional Attributes:\n  * `cpu`\n  * `gpu`\n  * `memory`\n  * `network_adapter`",
                 "intersight_api": "HardwareQualifier",
                 "object_type": "resource.HardwareQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "hardware_qualifiers - Hardware Qualifiers",
                 "properties": {
                     "cpu": {
@@ -17235,8 +17399,7 @@
                 "description": "Attributes to match all servers with the provided CPU parameters qualify under this type.\n\nOptional Attributes:\n  * `number_of_cores`\n  * `pids`\n  * `speed`\n  * `vendor`",
                 "intersight_api": "ProcessorQualifiers",
                 "object_type": "resource.ProcessorQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "cpu - CPU Qualifiers",
                 "properties": {
                     "number_of_cores": {
@@ -17951,8 +18114,7 @@
                 "description": "Attributes to match all servers with the provided Memory parameters qualify under this type.\n\nOptional Attributes:\n  * `capacity`\n  * `number_of_units`",
                 "intersight_api": "MemoryQualifier",
                 "object_type": "resource.MemoryQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "memory - Memory Qualifiers",
                 "properties": {
                     "capacity": {
@@ -18030,8 +18192,7 @@
                 "description": "Attributes to match all servers with the provided Network Adapter parameters qualify under this type.\n\nRequired Attributes:\n  * `number_of_network_adapters`",
                 "intersight_api": "NetworkAdaptorQualifier",
                 "object_type": "resource.NetworkAdaptorQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "network_adapter - Network Adapter Qualifiers",
                 "properties": {
                     "number_of_network_adapters": {
@@ -18075,8 +18236,7 @@
                 "description": "Attributes for all blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n\nOptional Attributes:\n  * `blade_server`\n  * `rack_server`",
                 "intersight_api": "ServerQualifier",
                 "object_type": "resource.ServerQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "server_qualifiers - Server Qualifiers",
                 "properties": {
                     "blade_server": {
@@ -18092,8 +18252,7 @@
                 "description": "Attributes to match blade server parameters.\n\nOptional Attributes:\n  * `asset_tags`\n  * `blade_pids`\n  * `chassis_pids`\n  * `chassis_slot_qualifier`\n  * `user_labels`",
                 "intersight_api": "BladeQualifier",
                 "object_type": "resource.BladeQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "blade_server - Blade Server Qualifiers",
                 "properties": {
                     "asset_tags": {
@@ -18285,8 +18444,7 @@
                 "description": "Attributes to match rack server parameters.\n\nOptional Attributes:\n  * `asset_tags`\n  * `rack_ids`\n  * `rack_pids`\n  * `user_labels`",
                 "intersight_api": "RackServerQualifier",
                 "object_type": "resource.RackServerQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "rack_server - Rack Server Qualifiers",
                 "properties": {
                     "asset_tags": {
@@ -18417,8 +18575,7 @@
                 "description": "Attributes for all servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n\nOptional Attributes:\n  * `chassis_tags`\n  * `domain_profile_tags`\n  * `server_tags`",
                 "intersight_api": "TagQualifier",
                 "object_type": "resource.TagQualifier",
-                "required": [
-                ],
+                "required": [],
                 "title": "tag_qualifiers - Tag Qualifiers",
                 "properties": {
                     "chassis_tags": {
@@ -18572,7 +18729,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Name that identifies the SMTP Policy.",
+                        "description": "Name that identifies the SMTP Policy.",
                         "required": [
                             "mail_alert_recipients",
                             "smtp_alert_sender_address",
@@ -18595,7 +18752,7 @@
                                 "items": {
                                     "type": "string",
                                     "default": "admin@example.com",
-                                    "description": "Minimum fault severity level to receive email notifications. Email notifications are sent for all faults whose severity is equal to or greater than the chosen level.\n  * critical - Minimum severity to report is critical.\n  * condition - Minimum severity to report is informational.\n  * warning - Minimum severity to report is warning.\n  * minor - Minimum severity to report is minor.\n  * major - Minimum severity to report is major.",
+                                    "description": "Mail alert recipient email.",
                                     "intersight_api": "SmtpRecipients",
                                     "minLength": 1,
                                     "maxLength": 255,
@@ -18671,7 +18828,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Policy to configure SNMP settings on endpoint.",
+                        "description": "Policy to configure SNMP settings on endpoint.",
                         "required": [],
                         "title": "snmp",
                         "properties": {
@@ -18946,7 +19103,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Secure shell policy on the endpoint.",
+                        "description": "Secure shell policy on the endpoint.",
                         "required": [],
                         "title": "ssh - SSH - Intersight Uri: ssh/Policies",
                         "properties": {
@@ -18997,7 +19154,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "The storage policy models the reusable storage related configuration that can be applied on many servers. This policy allows creation of RAID groups using existing disk group policies and virtual drives on the drive groups. The user has options to move all unused disks to JBOD or Unconfigured good state. The encryption of drives can be enabled through this policy using remote keys from a KMIP server.",
+                        "description": "The storage policy models the reusable storage related configuration that can be applied on many servers. This policy allows creation of RAID groups using existing disk group policies and virtual drives on the drive groups. The user has options to move all unused disks to JBOD or Unconfigured good state. The encryption of drives can be enabled through this policy using remote keys from a KMIP server.",
                         "required": [],
                         "title": "storage",
                         "properties": {
@@ -19620,7 +19777,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "The syslog policy configure the syslog server to receive CIMC log entries.",
+                        "description": "The syslog policy configure the syslog server to receive CIMC log entries.",
                         "required": [
                             "local_logging"
                         ],
@@ -20545,7 +20702,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Thermal Management policy models a configuration that can be applied to Chassis or Server to manage Thermal Features.",
+                        "description": "Thermal Management policy models a configuration that can be applied to Chassis or Server to manage Thermal Features.",
                         "required": [
                             "fan_control_mode"
                         ],
@@ -20697,7 +20854,7 @@
                                     "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                                     "title": "fc_zone_policy"
                                 },
-                            "title": "fc_zone_policies - Fc Zone Policies - Intersight Uri: fabric/FcZonePoliy"
+                                "title": "fc_zone_policies - Fc Zone Policies - Intersight Uri: fabric/FcZonePoliy"
                             },
                             "fibre_channel_adapter_policy": {
                                 "type": "string",
@@ -20803,7 +20960,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "Policy to configure KVM Launch settings.",
+                        "description": "Policy to configure KVM Launch settings.",
                         "intersight_uri": "kvm/Policies",
                         "object_type": "kvm.Policy",
                         "required": [],
@@ -20875,9 +21032,9 @@
                     {
                         "$ref": "#/components/schemas/abstract_policy"
                     },
-                            {
+                    {
                         "type": "object",
-                                "description": "Policy to configure virtual media settings on endpoint.",
+                        "description": "Policy to configure virtual media settings on endpoint.",
                         "required": [],
                         "title": "virtual_media",
                         "properties": {
@@ -21096,7 +21253,7 @@
                         "description": "Default is `true`.  Used to define whether the name should be used as a prefix or not when it is a list of vlans.",
                         "intersight_api": "name_prefix",
                         "title": "name_prefix"
-                        },
+                    },
                     "native_vlan": {
                         "type": "boolean",
                         "default": false,
@@ -21317,7 +21474,7 @@
                     },
                     {
                         "type": "object",
-                                "description": "A policy for all the Virtual SAN networks to be deployed on the Fabric Interconnect.",
+                        "description": "A policy for all the Virtual SAN networks to be deployed on the Fabric Interconnect.",
                         "required": [
                             "vsans"
                         ],
@@ -22023,367 +22180,367 @@
                 },
                 "map": {
                     "Africa": {
-                        "+0000":{
+                        "+0000": {
                             "daylight": "",
                             "standard": "clock timezone GMT 0 0"
                         },
-                        "+0100":{
+                        "+0100": {
                             "daylight": "",
                             "standard": "clock timezone CET 1 0"
                         },
-                        "+0200":{
+                        "+0200": {
                             "daylight": "",
                             "standard": "clock timezone SAST 2 0"
                         },
-                        "+0300":{
+                        "+0300": {
                             "daylight": "",
                             "standard": "clock timezone EAT 3 0"
                         }
                     },
                     "Antarctica": {
-                        "-0300":{
+                        "-0300": {
                             "daylight": "",
                             "standard": "clock timezone ART -3 0"
                         },
-                        "+0300":{
+                        "+0300": {
                             "daylight": "",
                             "standard": "clock timezone AQT 3 0"
                         },
-                        "+0500":{
+                        "+0500": {
                             "daylight": "",
                             "standard": "clock timezone MAWT 5 0"
                         },
-                        "+0600":{
+                        "+0600": {
                             "daylight": "",
                             "standard": "clock timezone VOST 6 0"
                         },
-                        "+0700":{
+                        "+0700": {
                             "daylight": "",
                             "standard": "clock timezone DAVT 7 0"
                         },
-                        "+0900":{
+                        "+0900": {
                             "daylight": "",
                             "standard": "clock timezone AQT 9 0"
                         },
-                        "+1000":{
+                        "+1000": {
                             "daylight": "",
                             "standard": "clock timezone DDUT 10 0"
                         },
-                        "+1100":{
+                        "+1100": {
                             "daylight": "",
                             "standard": "clock timezone AQT 11 0"
                         }
                     },
                     "Asia": {
-                        "-0400":{
+                        "-0400": {
                             "daylight": "clock summer-time ADT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone AST -4 0"
                         },
-                        "-0300":{
+                        "-0300": {
                             "daylight": "",
                             "standard": "clock timezone FKST -3 0"
                         },
-                        "-0200":{
+                        "-0200": {
                             "daylight": "",
                             "standard": "clock timezone GST -2 0"
                         },
-                        "-0100":{
+                        "-0100": {
                             "daylight": "",
                             "standard": "clock timezone CVT -1 0"
                         },
-                        "+0000":{
+                        "+0000": {
                             "daylight": "clock summer-time IDT last Sunday March 2:00 last Sunday October 2:00 60",
                             "standard": "clock timezone IST 2 0"
                         },
-                        "+0200":{
+                        "+0200": {
                             "daylight": "clock summer-time IDT last Sunday March 2:00 last Sunday October 2:00 60",
                             "standard": "clock timezone IST 2 0"
                         },
-                        "+0300":{
+                        "+0300": {
                             "daylight": "",
                             "standard": "clock timezone AST 3 0"
                         },
-                        "+0330":{
+                        "+0330": {
                             "daylight": "clock summer-time IRDT 3 Wednesday Mar 00:00 4 Friday Sep 00:00 60",
                             "standard": "clock timezone IRST 3 30"
                         },
-                        "+0400":{
+                        "+0400": {
                             "daylight": "",
                             "standard": "clock timezone GST 4 0"
                         },
-                        "+0430":{
+                        "+0430": {
                             "daylight": "",
                             "standard": "clock timezone AFT 4 30"
                         },
-                        "+0500":{
+                        "+0500": {
                             "daylight": "",
                             "standard": "clock timezone PKT 5 0"
                         },
-                        "+0530":{
+                        "+0530": {
                             "daylight": "",
                             "standard": "clock timezone IST 5 30"
                         },
-                        "+0545":{
+                        "+0545": {
                             "daylight": "",
                             "standard": "clock timezone NPT 5 45"
                         },
-                        "+0600":{
+                        "+0600": {
                             "daylight": "",
                             "standard": "clock timezone BST 6 0"
                         },
-                        "+0630":{
+                        "+0630": {
                             "daylight": "",
                             "standard": "clock timezone MMT 6 30"
                         },
-                        "+0700":{
+                        "+0700": {
                             "daylight": "",
                             "standard": "clock timezone ICT 7 0"
                         },
-                        "+0800":{
+                        "+0800": {
                             "daylight": "",
                             "standard": "clock timezone HKT 8 0"
                         },
-                        "+0900":{
+                        "+0900": {
                             "daylight": "",
                             "standard": "clock timezone KST 9 0"
                         },
-                        "+1000":{
+                        "+1000": {
                             "daylight": "",
                             "standard": "clock timezone VLAT 10 0"
                         },
-                        "+1100":{
+                        "+1100": {
                             "daylight": "",
                             "standard": "clock timezone SRET 11 0"
                         },
-                        "+1200":{
+                        "+1200": {
                             "daylight": "",
                             "standard": "clock timezone ANAT 12 0"
                         }
                     },
                     "Atlantic": {
-                        "-0000":{
+                        "-0000": {
                             "daylight": "clock summer-time BST last Sunday March 1:00 last Sunday October 2:00 60",
                             "standard": "clock timezone GMT 0 0"
                         },
-                        "-0400":{
+                        "-0400": {
                             "daylight": "clock summer-time CEST last Sunday March 2:00 last Sunday October 3:00 60",
                             "standard": "clock timezone CET 1 0"
                         },
-                        "-0300":{
+                        "-0300": {
                             "daylight": "clock summer-time EEST last Sunday March 3:00 last Sunday October 4:00 60",
                             "standard": "clock timezone EET 2 0"
                         },
-                        "-0200":{
+                        "-0200": {
                             "daylight": "",
                             "standard": "clock timezone MSK 3 0"
                         },
-                        "-0100":{
+                        "-0100": {
                             "daylight": "clock summer-time AZOT last Sunday March 0:00 last Sunday October 0:00 60",
                             "standard": "clock timezone AZOST 0 0"
                         },
-                        "+0000":{
+                        "+0000": {
                             "daylight": "clock summer-time WEST last Sunday March 0:00 last Sunday October 0:00 60",
                             "standard": "clock timezone WET 0 0"
                         }
                     },
                     "Australia": {
-                        "+0800":{
+                        "+0800": {
                             "daylight": "",
                             "standard": "clock timezone AWST 8 0"
                         },
-                        "+0930":{
+                        "+0930": {
                             "daylight": "clock summer-time LHDT 1 Sunday October 2:00 1 Sunday April 3:00 60",
                             "standard": "clock timezone LHST 9 30"
                         },
-                        "+1000":{
+                        "+1000": {
                             "daylight": "clock summer-time AEDT 1 Sunday October 2:00 1 Sunday April 3:00 60",
                             "standard": "clock timezone AEST 10 0"
                         },
-                        "+1030":{
+                        "+1030": {
                             "daylight": "clock summer-time ACDT 1 Sunday October 2:00 1 Sunday April 3:00 60",
                             "standard": "clock timezone ACST 10 30"
                         },
-                        "+1100":{
+                        "+1100": {
                             "daylight": "",
                             "standard": "clock timezone VUT 11"
                         }
                     },
                     "CentralAmerica": {
-                        "-0800":{
+                        "-0800": {
                             "daylight": "clock summer-time PDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone PST -8 0"
                         },
-                        "-0700":{
+                        "-0700": {
                             "daylight": "clock summer-time MDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone MST -7 0"
                         },
-                        "-0600":{
+                        "-0600": {
                             "daylight": "clock summer-time CDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone CST -6 0"
                         },
-                        "-0500":{
+                        "-0500": {
                             "daylight": "clock summer-time EDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone EST -5 0"
                         },
-                        "-0400":{
+                        "-0400": {
                             "daylight": "",
                             "standard": "clock timezone AST -4 0"
                         },
-                        "-0300":{
+                        "-0300": {
                             "daylight": "clock summer-time PMDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone PMST -3 0"
                         }
                     },
                     "Europe": {
-                        "+0000":{
+                        "+0000": {
                             "daylight": "clock summer-time BST last Sunday March 1:00 last Sunday October 2:00 60",
                             "standard": "clock timezone GMT"
                         },
-                        "+0100":{
+                        "+0100": {
                             "daylight": "clock summer-time CEST last Sunday March 2:00 last Sunday October 3:00 60",
                             "standard": "clock timezone CET 1 0"
                         },
-                        "+0200":{
+                        "+0200": {
                             "daylight": "clock summer-time EEST last Sunday March 3:00 last Sunday October 4:00 60",
                             "standard": "clock timezone EET 2 0"
                         },
-                        "+0300":{
+                        "+0300": {
                             "daylight": "",
                             "standard": "clock timezone MSK 3 0"
                         },
-                        "+0400":{
+                        "+0400": {
                             "daylight": "",
                             "standard": "clock timezone SAMT 4 0"
                         }
                     },
                     "Indian": {
-                        "+0400":{
+                        "+0400": {
                             "daylight": "",
                             "standard": "clock timezone MUS 4 0"
                         },
-                        "+0500":{
+                        "+0500": {
                             "daylight": "",
                             "standard": "clock timezone TFT 5 0"
                         },
-                        "+0600":{
+                        "+0600": {
                             "daylight": "",
                             "standard": "clock timezone IOT 6 0"
                         },
-                        "+0630":{
+                        "+0630": {
                             "daylight": "",
                             "standard": "clock timezone CCT 6 30"
                         },
-                        "+0700":{
+                        "+0700": {
                             "daylight": "",
                             "standard": "clock timezone CXT 7 0"
                         }
                     },
                     "NorthAmerica": {
-                        "-0900":{
+                        "-0900": {
                             "daylight": "clock summer-time AKDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone AKST -9 0"
                         },
-                        "-0800":{
+                        "-0800": {
                             "daylight": "clock summer-time PDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone PST -8 0"
                         },
-                        "-0700":{
+                        "-0700": {
                             "daylight": "clock summer-time MDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone MST -7 0"
                         },
-                        "-0600":{
+                        "-0600": {
                             "daylight": "clock summer-time CDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone CST -6 0"
                         },
-                        "-0500":{
+                        "-0500": {
                             "daylight": "clock summer-time EDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone EST -5 0"
                         },
-                        "-0400":{
+                        "-0400": {
                             "daylight": "clock summer-time ADT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone AST -4 0"
                         },
-                        "-0330":{
+                        "-0330": {
                             "daylight": "clock summer-time NDT 2 Sunday March 2:00 1 Sunday November 2:00 60",
                             "standard": "clock timezone NFT -3 30"
                         },
-                        "-0100":{
+                        "-0100": {
                             "daylight": "",
                             "standard": "clock timezone EGT -1 0"
                         },
-                        "+0000":{
+                        "+0000": {
                             "daylight": "",
                             "standard": "clock timezone GMT 0 0"
                         }
                     },
                     "Pacific": {
-                        "-1100":{
+                        "-1100": {
                             "daylight": "",
                             "standard": "clock timezone BST -11 0"
                         },
-                        "-1000":{
+                        "-1000": {
                             "daylight": "",
                             "standard": "clock timezone HST -10 0"
                         },
-                        "-0930":{
+                        "-0930": {
                             "daylight": "",
                             "standard": "clock timezone MART -9 30"
                         },
-                        "-0900":{
+                        "-0900": {
                             "daylight": "",
                             "standard": "clock timezone GAMT -9 0"
                         },
-                        "-0800":{
+                        "-0800": {
                             "daylight": "",
                             "standard": "clock timezone PST -8 0"
                         },
-                        "-0600":{
+                        "-0600": {
                             "daylight": "",
                             "standard": "clock timezone GALT -6 0"
                         },
-                        "-0500":{
+                        "-0500": {
                             "daylight": "clock summer-time EADT 1 Sunday October 2:00 1 Sunday April 3:00 60",
                             "standard": "clock timezone EAST -6 0"
                         },
-                        "+0900":{
+                        "+0900": {
                             "daylight": "",
                             "standard": "clock timezone PWT 9 0"
                         },
-                        "+1000":{
+                        "+1000": {
                             "daylight": "",
                             "standard": "clock timezone GUT 10 0"
                         },
-                        "+1100":{
+                        "+1100": {
                             "daylight": "",
                             "standard": "clock timezone PONT 11 0"
                         },
-                        "+1200":{
+                        "+1200": {
                             "daylight": "",
                             "standard": "clock timezone FJI 12 0"
                         },
-                        "+1300":{
+                        "+1300": {
                             "daylight": "",
                             "standard": "clock timezone WST 13 0"
                         },
-                        "+1400":{
+                        "+1400": {
                             "daylight": "",
                             "standard": "clock timezone LINT 14 0"
                         }
                     },
                     "SouthAmerica": {
-                        "-0500":{
+                        "-0500": {
                             "daylight": "",
                             "standard": "clock timezone PET -5"
                         },
-                        "-0400":{
+                        "-0400": {
                             "daylight": "",
                             "standard": "clock timezone BOT -4"
                         },
-                        "-0300":{
+                        "-0300": {
                             "daylight": "",
                             "standard": "clock timezone BRT -3"
                         },
-                        "-0200":{
+                        "-0200": {
                             "daylight": "",
                             "standard": "clock timezone FNT -3"
                         }
@@ -22394,7 +22551,7 @@
                 "type": "object",
                 "description": "Object sent by user to configure range of unified ports as FC/Ethernet or ports as breakout.",
                 "title": "Sensitive Variables",
-                "required": [ ],
+                "required": [],
                 "properties": {
                     "drive_security_passphrase": {
                         "type": "string",
@@ -22694,7 +22851,7 @@
                         "ProcessorC1e": "disabled",
                         "ProcessorC6report": "disabled"
                     },
-                    "AzureStack-M6-Intel":{
+                    "AzureStack-M6-Intel": {
                         "Ipv4http": "disabled",
                         "Ipv4pxe": "enabled",
                         "Ipv6http": "disabled",
@@ -22777,7 +22934,7 @@
                         "TpmSupport": "enabled",
                         "TxtSupport": "enabled"
                     },
-                    "AzureStack-M7-Intel":{
+                    "AzureStack-M7-Intel": {
                         "Ipv4http": "disabled",
                         "Ipv4pxe": "enabled",
                         "Ipv6http": "disabled",
@@ -23090,7 +23247,7 @@
                         "PcieSlotsCdnEnable": "enabled",
                         "WorkLoadConfig": "Balanced"
                     },
-                    "M5-amd-virtual":{
+                    "M5-amd-virtual": {
                         "CpuPowerManagement": "custom",
                         "NvmdimmPerformConfig": "Balanced Profile",
                         "PcieSlotsCdnEnable": "enabled",
@@ -23099,7 +23256,7 @@
                         "ProcessorC6report": "disabled",
                         "ProcessorCstate": "disabled"
                     },
-                    "M5-intel-virtual":{
+                    "M5-intel-virtual": {
                         "CpuPowerManagement": "custom",
                         "NvmdimmPerformConfig": "Balanced Profile",
                         "PcieSlotsCdnEnable": "enabled",
@@ -23109,13 +23266,13 @@
                         "ProcessorCstate": "disabled",
                         "TxtSupport": "enabled"
                     },
-                    "M6-amd-virtual":{
+                    "M6-amd-virtual": {
                         "CbsCmnFixedSocPstate": "P0",
                         "CbsDfCmnAcpiSratL3numa": "enabled",
                         "CbsDfCmnDramNps": "NPS4",
                         "PcieSlotsCdnEnable": "enabled"
                     },
-                    "M6-intel-virtual":{
+                    "M6-intel-virtual": {
                         "CpuPerfEnhancement": "Auto",
                         "EnergyEfficientTurbo": "enabled",
                         "NvmdimmPerformConfig": "Balanced Profile",
@@ -23235,14 +23392,14 @@
                         "PcieSlotsCdnEnable": "enabled",
                         "SvmMode": "enabled"
                     },
-                    "tpm":{
+                    "tpm": {
                         "Sha1pcrBank": "disabled",
                         "Sha256pcrBank": "enabled",
                         "TpmControl": "enabled",
                         "TpmPpiRequired": "enabled",
                         "TpmSupport": "enabled"
                     },
-                    "tpm_disabled":{
+                    "tpm_disabled": {
                         "TpmControl": "disabled",
                         "TpmSupport": "disabled"
                     }
@@ -23255,13 +23412,13 @@
                 "required": [],
                 "title": "adapter_template",
                 "properties": {
-                    "16RxQs-4G":{
+                    "16RxQs-4G": {
                         "Description": "Recommended adapter settings for 16RxQs 4th Gen VIC.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 19,
@@ -23269,24 +23426,24 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
-                    "16RxQs-5G":{
+                    "16RxQs-5G": {
                         "Description": "Recommended adapter settings for 16RxQs 5th Gen VIC.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 19,
@@ -23294,24 +23451,24 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 16,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 16384
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 16384
                         }
                     },
-                    "Linux":{
+                    "Linux": {
                         "Description": "Recommended adapter settings for Linux.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 4,
@@ -23319,26 +23476,26 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": false,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         }
                     },
-                    "Linux-NVMe-RoCE":{
+                    "Linux-NVMe-RoCE": {
                         "Description": "Recommended adapter settings for Linux NVMe with RoCEv2.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23348,26 +23505,26 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         }
                     },
-                    "Linux-v2":{
+                    "Linux-v2": {
                         "Description": "Recommended adapter settings for Linux Version 2.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 11,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23377,25 +23534,25 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
-                    "MQ":{
+                    "MQ": {
                         "Description": "Recommended adapter settings for MQ.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 576,
                             "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 4
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
@@ -23403,31 +23560,31 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 512,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 64,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
-                    "MQ-SMBd":{
+                    "MQ-SMBd": {
                         "Description": "Recommended adapter settings for MQ-SMBd.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 576,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 65536,
@@ -23437,31 +23594,31 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 512,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 64,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
-                    "MQ-SMBd-v2":{
+                    "MQ-SMBd-v2": {
                         "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Multi Queue SMBd high performance networking.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 576,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23471,25 +23628,25 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 512,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 64,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
-                    "MQ-v2":{
+                    "MQ-v2": {
                         "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Multi Queue high performance networking.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 576,
                             "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 4
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
@@ -23497,20 +23654,20 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 512,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 64,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
-                    "SMBClient":{
+                    "SMBClient": {
                         "Description": "Recommended adapter settings for SMBClient.",
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 0,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23521,9 +23678,9 @@
                         },
                         "RssSettings": true
                     },
-                    "SMBServer":{
+                    "SMBServer": {
                         "Description": "Recommended adapter settings for SMBServer.",
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 0,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23534,13 +23691,13 @@
                         },
                         "RssSettings": true
                     },
-                    "Solaris":{
+                    "Solaris": {
                         "Description": "Recommended adapter settings for Solaris.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 4,
@@ -23549,9 +23706,9 @@
                         },
                         "RssSettings": false
                     },
-                    "SRIOV-HPN":{
+                    "SRIOV-HPN": {
                         "Description": "Recommended adapter settings for SRIOV high performance and networking.",
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 32,
@@ -23559,34 +23716,34 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         }
                     },
-                    "usNIC":{
+                    "usNIC": {
                         "Description": "Recommended adapter settings for usNIC.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 12,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 6,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 6,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         },
                         "UplinkFailbackTimeout": 0
                     },
-                    "usNICOracleRAC":{
+                    "usNICOracleRAC": {
                         "Description": "Recommended adapter settings for usNICOracleRAC.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 2000,
                             "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 4
                         },
                         "InterruptScaling": true,
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 1024,
@@ -23594,52 +23751,52 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 1000,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1000,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         },
                         "UplinkFailbackTimeout": 0
                     },
-                    "VMware":{
+                    "VMware": {
                         "Description": "Recommended adapter settings for VMware.",
-                        "CompletionQueueSettings":{
-                            "Count":2,
-                            "ObjectType": "vnic.CompletionQueueSettings"
-                        },
-                        "InterruptSettings":{
-                            "CoalescingTime":125,
-                            "CoalescingType": "MIN",
-                            "Count":4,
-                            "Mode": "MSIx",
-                            "ObjectType": "vnic.EthInterruptSettings"
-                        },
-                        "RssSettings":false,
-                        "RxQueueSettings":{
-                            "Count":4,
-                            "ObjectType": "vnic.EthRxQueueSettings",
-                            "RingSize":512
-                        }
-                    },
-                    "VMWareNVMeRoCEv2":{
-                        "Description": "Recommended adapter settings for VMware NVMe ROCEv2.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 2,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 4,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RssSettings": false,
+                        "RxQueueSettings": {
+                            "Count": 4,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 512
+                        }
+                    },
+                    "VMWareNVMeRoCEv2": {
+                        "Description": "Recommended adapter settings for VMware NVMe ROCEv2.",
+                        "CompletionQueueSettings": {
+                            "Count": 2,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23649,24 +23806,24 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 512
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
-                    "VMwarePassThru":{
+                    "VMwarePassThru": {
                         "Description": "Recommended adapter settings for VMwarePassThru.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 12,
@@ -23674,51 +23831,51 @@
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
                         "RssSettings": true,
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 4,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 256
                         }
                     },
-                    "VMware-High-Trf":{
+                    "VMware-High-Trf": {
                         "Description": "Recommended adapter settings for VMware High Traffic.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 11,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
                         "RssSettings": true,
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
-                    "VMware-v2":{
+                    "VMware-v2": {
                         "Description": "Recommended adapter settings for VMware Version 2.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 11,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23728,32 +23885,32 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
                         }
                     },
-                    "Win-AzureStack":{
+                    "Win-AzureStack": {
                         "Description": "Recommended adapter settings for Win-AzureStack.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 11,
                             "ObjectType": "vnic.CompletionQueueSettings",
                             "RingSize": 256
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 256,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23763,12 +23920,12 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 3,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 1024
@@ -23779,9 +23936,9 @@
                             "ObjectType": "vnic.VxlanSettings"
                         }
                     },
-                    "Win-HPN":{
+                    "Win-HPN": {
                         "Description": "Recommended adapter settings for Windows High Performance Networking.",
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 512,
@@ -23795,16 +23952,16 @@
                             "ObjectType": "vnic.VxlanSettings"
                         }
                     },
-                    "Win-HPN-SMBd":{
+                    "Win-HPN-SMBd": {
                         "Description": "Recommended adapter settings for Windows High Performance Networking SMBd.",
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23815,25 +23972,25 @@
                         },
                         "RssSettings": true,
                         "VxlanSettings": {
-                          "ClassId": "vnic.VxlanSettings",
-                          "Enabled": true,
-                          "ObjectType": "vnic.VxlanSettings"
+                            "ClassId": "vnic.VxlanSettings",
+                            "Enabled": true,
+                            "ObjectType": "vnic.VxlanSettings"
                         }
                     },
-                    "Win-HPN-SMBd-v2":{
+                    "Win-HPN-SMBd-v2": {
                         "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows SMBd high performance networking.",
-                        "CompletionQueueSettings":{
+                        "CompletionQueueSettings": {
                             "Count": 9,
                             "ObjectType": "vnic.CompletionQueueSettings"
                         },
-                        "InterruptSettings":{
+                        "InterruptSettings": {
                             "CoalescingTime": 125,
                             "CoalescingType": "MIN",
                             "Count": 512,
                             "Mode": "MSIx",
                             "ObjectType": "vnic.EthInterruptSettings"
                         },
-                        "RoceSettings":{
+                        "RoceSettings": {
                             "ClassOfService": 5,
                             "Enabled": true,
                             "MemoryRegions": 131072,
@@ -23843,42 +24000,12 @@
                             "Version": 2
                         },
                         "RssSettings": true,
-                        "RxQueueSettings":{
+                        "RxQueueSettings": {
                             "Count": 8,
                             "ObjectType": "vnic.EthRxQueueSettings",
                             "RingSize": 4096
                         },
-                        "TxQueueSettings":{
-                            "Count": 1,
-                            "ObjectType": "vnic.EthTxQueueSettings",
-                            "RingSize": 4096
-                        },
-                        "VxlanSettings": {
-                          "ClassId": "vnic.VxlanSettings",
-                          "Enabled": true,
-                          "ObjectType": "vnic.VxlanSettings"
-                        }
-                    },
-                    "Win-HPN-v2":{
-                        "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows high performance networking.",
-                        "CompletionQueueSettings":{
-                            "Count": 9,
-                            "ObjectType": "vnic.CompletionQueueSettings"
-                        },
-                        "InterruptSettings":{
-                            "CoalescingTime": 125,
-                            "CoalescingType": "MIN",
-                            "Count": 512,
-                            "Mode": "MSIx",
-                            "ObjectType": "vnic.EthInterruptSettings"
-                        },
-                        "RssSettings": true,
-                        "RxQueueSettings":{
-                            "Count": 8,
-                            "ObjectType": "vnic.EthRxQueueSettings",
-                            "RingSize": 4096
-                        },
-                        "TxQueueSettings":{
+                        "TxQueueSettings": {
                             "Count": 1,
                             "ObjectType": "vnic.EthTxQueueSettings",
                             "RingSize": 4096
@@ -23889,7 +24016,37 @@
                             "ObjectType": "vnic.VxlanSettings"
                         }
                     },
-                    "Windows":{
+                    "Win-HPN-v2": {
+                        "Description": "Recommended adapter settings for VIC 1400/14000/15000 series and later optimized for Windows high performance networking.",
+                        "CompletionQueueSettings": {
+                            "Count": 9,
+                            "ObjectType": "vnic.CompletionQueueSettings"
+                        },
+                        "InterruptSettings": {
+                            "CoalescingTime": 125,
+                            "CoalescingType": "MIN",
+                            "Count": 512,
+                            "Mode": "MSIx",
+                            "ObjectType": "vnic.EthInterruptSettings"
+                        },
+                        "RssSettings": true,
+                        "RxQueueSettings": {
+                            "Count": 8,
+                            "ObjectType": "vnic.EthRxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "TxQueueSettings": {
+                            "Count": 1,
+                            "ObjectType": "vnic.EthTxQueueSettings",
+                            "RingSize": 4096
+                        },
+                        "VxlanSettings": {
+                            "ClassId": "vnic.VxlanSettings",
+                            "Enabled": true,
+                            "ObjectType": "vnic.VxlanSettings"
+                        }
+                    },
+                    "Windows": {
                         "Description": "Recommended adapter settings for Windows."
                     }
                 }
@@ -23901,91 +24058,91 @@
                 "required": [],
                 "title": "adapter_template",
                 "properties": {
-                    "FCNVMeInitiator":{
+                    "FCNVMeInitiator": {
                         "Description": "Recommended adapter settings for FC NVMe Initiator.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         },
                         "IoThrottleCount": 256
                     },
-                    "FCNVMeTarget":{
+                    "FCNVMeTarget": {
                         "Description": "Recommended adapter settings for FC NVMe Target.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         },
                         "IoThrottleCount": 256
                     },
-                    "Initiator":{
+                    "Initiator": {
                         "Description": "Recommended adapter settings for SCSI Initiator.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 10000
                         },
                         "IoThrottleCount": 256
                     },
-                    "Linux":{
+                    "Linux": {
                         "Description": "Recommended adapter settings for Linux.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         },
                         "IoThrottleCount": 256
                     },
-                    "Solaris":{
+                    "Solaris": {
                         "Description": "Recommended adapter settings for Solaris.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         },
-                        "FlogiSettings":{
+                        "FlogiSettings": {
                             "ObjectType": "vnic.FlogiSettings",
                             "Retries": 8,
                             "Timeout": 20000
                         },
                         "IoThrottleCount": 256
                     },
-                    "Target":{
+                    "Target": {
                         "Description": "Recommended adapter settings for Target.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
                         },
                         "IoThrottleCount": 256
                     },
-                    "VMware":{
+                    "VMware": {
                         "Description": "Recommended adapter settings for VMware.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 10000
                         },
                         "IoThrottleCount": 256
                     },
-                    "WindowsBoot":{
+                    "WindowsBoot": {
                         "Description": "Recommended adapter settings for Windows Boot.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 5000
                         },
-                        "PlogiSettings":{
+                        "PlogiSettings": {
                             "ObjectType": "vnic.PlogiSettings",
                             "Retries": 8,
                             "Timeout": 4000
                         },
                         "IoThrottleCount": 256
                     },
-                    "Windows":{
+                    "Windows": {
                         "Description": "Recommended adapter settings for Windows.",
-                        "ErrorRecoverySettings":{
+                        "ErrorRecoverySettings": {
                             "IoRetryCount": 30,
                             "ObjectType": "vnic.FcErrorRecoverySettings",
                             "PortDownTimeout": 30000
@@ -24197,7 +24354,7 @@
                     },
                     ".Domain": {
                         "type": "string",
-                                "description": "Windows Domain in FQDN Format.",
+                        "description": "Windows Domain in FQDN Format.",
                         "minLength": 1,
                         "maxLength": 72,
                         "pattern": "^(([a-zA-Z0-9])|([a-zA-Z0-9][a-zA-Z0-9\\.\\-]*[a-zA-Z0-9]))$",
@@ -24205,7 +24362,7 @@
                     },
                     ".DomainAdminUser": {
                         "type": "string",
-                                "description": "Windows Administrator with Privileges to add Computer to Domain.",
+                        "description": "Windows Administrator with Privileges to add Computer to Domain.",
                         "minLength": 3,
                         "maxLength": 255,
                         "pattern": "^[\\S]+$",
@@ -24213,7 +24370,7 @@
                     },
                     ".Gateway": {
                         "type": "string",
-                                "description": "Inband Management Gateway.",
+                        "description": "Inband Management Gateway.",
                         "minLength": 6,
                         "maxLength": 39,
                         "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
@@ -24221,7 +24378,7 @@
                     },
                     ".HostName": {
                         "type": "string",
-                                "description": "System Hostname, without FQDN.",
+                        "description": "System Hostname, without FQDN.",
                         "minLength": 1,
                         "maxLength": 15,
                         "pattern": "^([\\da-fA-F]{2}:){7}[\\da-fA-F]{2}$",
@@ -24229,7 +24386,7 @@
                     },
                     ".InputLocale": {
                         "type": "string",
-                                "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
+                        "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
                         "enum": [
                             "(0436:00000409)",
                             "(041c:0000041c)",
@@ -24463,12 +24620,12 @@
                             "(0488:00000488)",
                             "(0478:{E429B25A-E5D3-4D1F-9BE3-0C608477E3A1}{409C8376-007B-4357-AE8E-26316EE3FB0D})",
                             "(046a:0000046a)"
-                          ],
+                        ],
                         "title": ".InputLocale"
                     },
                     ".IpAddress": {
                         "type": "string",
-                                "description": "Inband Management IP Address to Assign.  IPv4 or IPv6.",
+                        "description": "Inband Management IP Address to Assign.  IPv4 or IPv6.",
                         "minLength": 6,
                         "maxLength": 39,
                         "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
@@ -24476,14 +24633,14 @@
                     },
                     ".IpPrefix": {
                         "type": "integer",
-                                "description": "Inband Management Network Prefix.  IPv4 or IPv6.",
+                        "description": "Inband Management Network Prefix.  IPv4 or IPv6.",
                         "minimum": 1,
                         "maximum": 128,
                         "title": ".IpPrefix"
                     },
                     ".LayeredDriver": {
                         "type": "integer",
-                                "description": "LayeredDriver specifies a keyboard driver to use for Japanese or Korean keyboards.  See https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-international-core-winpe-layereddriver",
+                        "description": "LayeredDriver specifies a keyboard driver to use for Japanese or Korean keyboards.  See https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-international-core-winpe-layereddriver",
                         "enum": [
                             1,
                             2,
@@ -24496,7 +24653,7 @@
                     },
                     ".MacAddressNic1_dash_format": {
                         "type": "string",
-                                "description": "MAC Address of the First Interface in dash `-` notation.",
+                        "description": "MAC Address of the First Interface in dash `-` notation.",
                         "minLength": 17,
                         "maxLength": 17,
                         "pattern": "^$|^(((\\d|([a-f]|[A-F])){2}\\-){5}(\\d|([a-f]|[A-F])){2})$",
@@ -24504,7 +24661,7 @@
                     },
                     ".MacAddressNic2_dash_format": {
                         "type": "string",
-                                "description": "MAC Address of the Second Interface in dash `-` notation.",
+                        "description": "MAC Address of the Second Interface in dash `-` notation.",
                         "minLength": 17,
                         "maxLength": 17,
                         "pattern": "^$|^(((\\d|([a-f]|[A-F])){2}\\-){5}(\\d|([a-f]|[A-F])){2})$",
@@ -24512,7 +24669,7 @@
                     },
                     ".NameServer": {
                         "type": "string",
-                                "description": "IP Address of the DNS/Name Server to use for Installation.  Be sure it can resolve Active Directory Domain objects.",
+                        "description": "IP Address of the DNS/Name Server to use for Installation.  Be sure it can resolve Active Directory Domain objects.",
                         "minLength": 23,
                         "maxLength": 23,
                         "pattern": "^$|^(([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:([0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{0,4}|:[0-9A-Fa-f]{1,4})?|(:[0-9A-Fa-f]{1,4}){0,2})|(:[0-9A-Fa-f]{1,4}){0,3})|(:[0-9A-Fa-f]{1,4}){0,4})|:(:[0-9A-Fa-f]{1,4}){0,5})((:[0-9A-Fa-f]{1,4}){2}|:(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])(\\.(25[0-5]|(2[0-4]|1[0-9]|[1-9])?[0-9])){3})|(([0-9A-Fa-f]{1,4}:){1,6}|:):[0-9A-Fa-f]{0,4}|([0-9A-Fa-f]{1,4}:){7}:)$",
@@ -24520,7 +24677,7 @@
                     },
                     ".SystemLocale": {
                         "type": "string",
-                                "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
+                        "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
                         "enum": [
                             "af-ZA",
                             "sq-AL",
@@ -24762,7 +24919,7 @@
                     },
                     ".TimeZone": {
                         "type": "string",
-                                "description": "Windows TimeZones.",
+                        "description": "Windows TimeZones.",
                         "enum": [
                             "AUS Central Standard Time",
                             "AUS Eastern Standard Time",
@@ -24908,7 +25065,7 @@
                     },
                     ".UILanguage": {
                         "type": "string",
-                                "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
+                        "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
                         "enum": [
                             "af-ZA",
                             "sq-AL",
@@ -25150,7 +25307,7 @@
                     },
                     ".UILanguageFallback": {
                         "type": "en-Us",
-                                "description": "Windows System Language Pack for UI Secondary/Fallback.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
+                        "description": "Windows System Language Pack for UI Secondary/Fallback.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
                         "enum": [
                             "bs-Latn-BA",
                             "chr-Cher-US, en-US",
@@ -25172,12 +25329,12 @@
                             "Fa-IR, en-US",
                             "uz-Latn-UZ",
                             "zh-CN"
-                          ],
+                        ],
                         "title": ".UILanguageFallback"
                     },
                     ".UserLocale": {
                         "type": "string",
-                                "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
+                        "description": "Windows System Language Pack for User Input.  See https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-8.1-and-8/hh825682(v=win.10).",
                         "enum": [
                             "af-ZA",
                             "sq-AL",
@@ -25419,7 +25576,7 @@
                     },
                     ".secure.AdministratorPassword": {
                         "type": "string",
-                                "description": "Password for the Local Administrator Account for this Computer.",
+                        "description": "Password for the Local Administrator Account for this Computer.",
                         "minLength": 8,
                         "maxLength": 255,
                         "pattern": "^[\\S]+$",
@@ -25427,7 +25584,7 @@
                     },
                     ".secure.DomainAdminPassword": {
                         "type": "string",
-                                "description": "Password for the Domain Account with Permissions to Add this Computer to the Domain.",
+                        "description": "Password for the Domain Account with Permissions to Add this Computer to the Domain.",
                         "minLength": 8,
                         "maxLength": 255,
                         "pattern": "^[\\S]+$",
@@ -26243,8 +26400,8 @@
         "email": "tyscott@cisco.com"
     },
     "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
     },
     "title": "Terraform Cisco Modules - Easy IMM - JSON Schema",
     "version": "4.2.11-20250410042505149"
