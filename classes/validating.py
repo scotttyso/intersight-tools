@@ -163,6 +163,14 @@ def error_request(status, text):
     pcolor.LightGray(f'\n{"-"*108}\n')
     len(False); sys.exit(1)
 
+def error_requests(method, status, text, uri):
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!! when attempting {method} to {uri}')
+    pcolor.Yellow(f'   Exiting on Error {status} with the following output:')
+    pcolor.Yellow(f'   {text}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    len(False); sys.exit(1)
+
 def error_request_netapp(method, status, text, uri):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.Yellow(f'   !!! ERROR !!! when attempting {method} to {uri}')

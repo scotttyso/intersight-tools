@@ -1786,10 +1786,13 @@ def variable_from_list(kwargs):
                 index += 1
                 if int(var_selection) == index: selection = value; valid = True
         elif kwargs.jdata.multi_select == True and re.search(r'(^[0-9]+$|^[0-9\-,]+[0-9]$)', str(var_selection)):
-            var_list = vlan_list_full(var_selection)
+            if kwargs.jdata.keep_order == True:
+                var_list = var_selection.split(',')
+                kwargs.selection_list = var_list
+            else: var_list = vlan_list_full(var_selection)
             var_length = int(len(var_list))
-            var_count = 0
-            selection = []
+            var_count  = 0
+            selection  = []
             for index, value in enumerate(vars):
                 index += 1
                 for vars in var_list:
