@@ -57,9 +57,150 @@ class api(object):
         return s, url
 
     #=====================================================
+    # UCS - System - BIOS
+    #=====================================================
+    def bios(self, kwargs):
+        #=================================================
+        # Load Variables and Send Begin Notification
+        #=================================================
+        validating.begin_section('ucs', self.type)
+        kwargs = kwargs | DotMap(
+            clist = list(kwargs.item.bios.toDict().keys()),
+            method = 'get',
+            payload = {'Attributes': kwargs.item.bios.toDict()},
+            uri = '/redfish/v1/Systems/system/Bios'
+        )
+        #=================================================
+        # Get existing BIOS Settings
+        #=================================================
+        rdata = api.get(kwargs)
+        bkeys = kwargs.clist
+        rkeys = rdata['Attributes'].keys()
+        cdata = {'Attributes': {}}
+        for e in bkeys:
+            if e in rkeys: cdata['Attributes'][e] = rdata['Attributes'][e]
+        if not cdata == kwargs.payload:
+            pcolor.Cyan(f"     * BIOS Settings on {kwargs.item.hostname} do not match")
+            pcolor.Green(f"     * Configuring BIOS Settings on {kwargs.item.hostname}")
+            if print_payload: pcolor.Cyan(json.dumps(kwargs.payload, indent=4))
+            #=====================================================
+            # Patch the System - BIOS
+            #=====================================================
+            kwargs.uri = '/redfish/v1/Systems/system/Bios/Settings'
+            rdata      = api.patch(kwargs)
+            serial     = kwargs.item.serial_number
+            kwargs.servers[serial] = kwargs.servers[serial] | DotMap(bios = kwargs.payload, check_bios = True, reboot_required = True)
+            #=====================================================
+            # Get the System BIOS to verify the patch
+            #=====================================================
+            kwargs.uri = '/redfish/v1/Systems/system/Bios'
+            rdata      = api.get(kwargs)
+            question   = 'y'
+            compare_data = {'Attributes': {}}
+            rkeys = rdata['Attributes'].keys()
+            for e in bkeys:
+                if e in rkeys:
+                    compare_data['Attributes'][e] = rdata['Attributes'][e]
+            if not compare_data == kwargs.payload:
+                pcolor.Red(f"!!! ERROR !!! does not match after patching")
+                pcolor.Red(f"* Expected:")
+                pcolor.Green(json.dumps(kwargs.payload, indent=4))
+                pcolor.Red(f"* Received:")
+                pcolor.Yellow(json.dumps(compare_data, indent=4))
+                pcolor.Cyan(f"\nCompare the outputs above to determine if there is an issue.")
+                pcolor.Cyan(f"If you are okay with the comparisons, you can continue by answering 'Y' to the next question.")
+                question = input(f"  Do you want to continue? [Y/N]: ").strip().lower()
+            if question not in ['y', 'yes']:
+                pcolor.Red(f"!!! ERROR !!! Configuration failed for {kwargs.item.hostname}")
+                len(False); sys.exit(1)
+        else: pcolor.Cyan(f"     * BIOS Settings on {kwargs.item.hostname} are already configured")
+        #=====================================================
+        # return kwargs
+        #=====================================================
+        return kwargs
+
+    #=====================================================
+    # UCS - System - Boot Order
+    #=====================================================
+    def boot_order(self, kwargs):
+        if kwargs.item.boot_order == True:
+            #=================================================
+            # Get Network Adapters
+            #=================================================
+            adapters   = DotMap()
+            kwargs.uri = '/redfish/v1/Chassis/chassis/NetworkAdapters'
+            rdata = api.get(kwargs)
+            for e in rdata['Members']:
+                kwargs.uri = e['@odata.id']
+                if re.search('FHHL', kwargs.uri):
+                    edata = api.get(kwargs)
+                    for i in edata['Controllers']:
+                        kwargs.uri = i['Links']['NetworkPorts'][0]['@odata.id']
+                        idata = api.get(kwargs)
+                        adapters[idata['AssociatedNetworkAddresses'][0]] = DotMap(Parent = edata['Id'], Id = idata['Id'], Model = edata['Model'])
+            mac_list = list(adapters.keys())
+            #=================================================
+            # Get Boot Options
+            #=================================================
+            kwargs.uri = '/redfish/v1/Systems/system/BootOptions'
+            rdata      = api.get(kwargs)
+            boot_options = []
+            for e in rdata['Members']:
+                kwargs.uri = e['@odata.id']
+                rdata      = api.get(kwargs)
+                boot_options.append(rdata)
+            names = []
+            for e in boot_options:
+                e = DotMap(e)
+                if re.search('Hdd|UefiShell', e.Alias): names.append(f"{e.Name}: {e.Alias} - {e.DisplayName}")
+                elif re.search('Pxe|UefiHttp', e.Alias):
+                    for m in mac_list:
+                        if re.search(m, e.DisplayName):
+                            names.append(f"{e.Name}: {e.Alias} - ({adapters[m].Model} - {adapters[m].Parent} - {adapters[m].Id} - {m})")
+            #=================================================
+            # Prompt User for Boot Options
+            #=================================================
+            kwargs.jdata = DotMap(
+                default      = names[0],
+                enum         = names,
+                description  = 'Enter the Number for each Boot Option in the order you want for the boot policy.',
+                keep_order   = True,
+                multi_select = True,
+                title        = 'Boot Options',
+                type         = 'string'
+            )
+            boot_order = ezfunctions.variable_prompt(kwargs)
+            #=================================================
+            # Compare Boot Order with Desired Boot Order
+            #=================================================
+            selection = []
+            for e in kwargs.selection_list:
+                selection.append(names[int(e) - 1])
+            kwargs = kwargs | DotMap(
+                clist   = ['BootOrder', 'BootMode'],
+                method  = 'get',
+                payload = {'Boot': {"BootOrder": selection}},
+                uri     = '/redfish/v1/Systems/system'
+            )
+            rdata = api.get(kwargs)
+            cdata = {'Boot': {'BootOrder': rdata['Boot']['BootOrder']}}
+            if not cdata == kwargs.payload:
+                kwargs.method  = 'patch'
+                pcolor.Green(f"     * Configuring {(' '.join((self.type).split('_'))).title()} on {kwargs.item.hostname}")
+                if print_payload: pcolor.Cyan(json.dumps(kwargs.payload, indent=4))
+                rdata  = eval(f"api.{kwargs.method}(kwargs)")
+                serial = kwargs.item.serial_number
+                kwargs.servers[serial] = kwargs.servers[serial] | DotMap(boot_order = kwargs.payload, check_boot_order = True, reboot_required = True)
+            else: pcolor.Cyan(f"     * {(' '.join((self.type).split('_'))).title()} on {kwargs.item.hostname} is already configured")
+            #=================================================
+            # return kwargs
+            #=================================================
+        return kwargs
+
+    #=====================================================
     # UCS - Device Connector - HTTP Proxy
     #=====================================================
-    def device_connector_proxy(self, kwargs):
+    def proxy_settings(self, kwargs):
         #=====================================================
         # Patch the Management Interface
         #=====================================================
@@ -85,32 +226,63 @@ class api(object):
     #=====================================================
     # UCS - Device Connector - Registration
     #=====================================================
-    def device_connector_registration(self, kwargs):
+    def device_connector(self, kwargs):
+        dc = kwargs.item.device_connector
+        if len(dc.organization) > 0 and len(dc.resource_group) > 0:
+            #=====================================================
+            # Load Variables and Send Begin Notification
+            #=====================================================
+            #kwargs.uri = '/connector/DeviceConfigurations'
+            #dcdata = api.get(kwargs)
+            validating.begin_section('ucs', self.type)
+            kwargs.uri = '/connector/Systems'
+            sys_data = api.get(kwargs)
+            if sys_data[0]['AccountOwnershipState'] != 'Claimed':
+                kwargs.uri = '/connector/DeviceIdentifiers'
+                id         = api.get(kwargs)
+                valid_time = 0
+                while valid_time < 60:
+                    kwargs.uri = '/connector/SecurityTokens'
+                    token      = api.get(kwargs)
+                    if token[0]['Duration'] >= 60: valid_time = token[0]['Duration']
+                    else:
+                        pcolor.Cyan(f"     * Waiting for Security Token to be valid for at least 60 seconds.")
+                        pcolor.Cyan(f"     * Current Security Token Duration: {token[0]['Duration']} seconds")
+                        time.sleep(60); valid_time = token[0]['Duration']
+                pcolor.Cyan(f"     * {kwargs.item.hostname} is not Claimed, claiming in Intersight Now.")
+                kwargs.org = kwargs.ucs_dict.shared_settings.intersight.organization
+                kwargs = kwargs | DotMap(api_body = {'SecurityToken': token[0]['Token'], 'SerialNumber': id[0]['Id']}, method = 'post', uri = 'asset/DeviceClaims')
+                kwargs = isight.api('device_claim').calls(kwargs)
+            else: pcolor.Cyan(f"     * {kwargs.item.hostname} is already claimed in Intersight.")
         #=====================================================
-        # Load Variables and Send Begin Notification
+        # return kwargs
         #=====================================================
-        #kwargs.uri = '/connector/DeviceConfigurations'
-        #dcdata = api.get(kwargs)
-        validating.begin_section('ucs', self.type)
-        kwargs.uri = '/connector/Systems'
-        sys_data = api.get(kwargs)
-        if sys_data[0]['AccountOwnershipState'] != 'Claimed':
-            kwargs.uri = '/connector/DeviceIdentifiers'
-            id         = api.get(kwargs)
-            valid_time = 0
-            while valid_time < 60:
-                kwargs.uri = '/connector/SecurityTokens'
-                token      = api.get(kwargs)
-                if token[0]['Duration'] >= 60: valid_time = token[0]['Duration']
-                else:
-                    pcolor.Cyan(f"     * Waiting for Security Token to be valid for at least 60 seconds.")
-                    pcolor.Cyan(f"     * Current Security Token Duration: {token[0]['Duration']} seconds")
-                    time.sleep(60); valid_time = token[0]['Duration']
-            pcolor.Cyan(f"     * {kwargs.item.hostname} is not Claimed, claiming in Intersight Now.")
-            kwargs.org = kwargs.ucs_dict.shared_settings.intersight.organization
-            kwargs = kwargs | DotMap(api_body = {'SecurityToken': token[0]['Token'], 'SerialNumber': id[0]['Id']}, method = 'post', uri = 'asset/DeviceClaims')
-            kwargs = isight.api('device_claim').calls(kwargs)
-        else: pcolor.Cyan(f"     * {kwargs.item.hostname} is already claimed in Intersight.")
+        return kwargs
+
+    #=====================================================
+    # UCS - BMC Managers - Ethernet Interfaces
+    #=====================================================
+    def ethernet_interfaces(self, kwargs):
+        intf = kwargs.item.ethernet_interfaces
+        item = kwargs.item
+        if len(intf.ipv4) > 0 and len(intf.dns_servers) and len(intf.domain_name) > 0:
+            #=====================================================
+            # Patch the Management Interface
+            #=====================================================
+            kwargs = kwargs | DotMap(
+                clist = ['DHCPv4', 'DomainName', 'HostName', 'IPv4StaticAddresses', 'StaticNameServers'],
+                method = 'patch',
+                payload = {
+                    "DHCPv4": {"DHCPEnabled": False, "UseDNSServers": True, "UseDomainName": True, "UseNTPServers": True},
+                    "DomainName": intf.domain_name, "HostName": item.hostname,
+                    "IPv4StaticAddresses": [
+                        {"Address": item.ipv4_address, "Gateway": intf.ipv4.gateway, "SubnetMask": intf.ipv4.netmask}
+                    ],
+                    "StaticNameServers": intf.dns_servers,
+                },
+                uri = '/redfish/v1/Managers/bmc/EthernetInterfaces/eth0'
+            )
+            kwargs = api(inspect.currentframe().f_code.co_name).run_api_commands(kwargs)
         #=====================================================
         # return kwargs
         #=====================================================
@@ -138,65 +310,31 @@ class api(object):
                 len(False); sys.exit(1)
 
     #=====================================================
-    # UCS - BMC Managers - Ethernet Interfaces
-    #=====================================================
-    def managers_ethernet_interfaces(self, kwargs):
-        #=====================================================
-        # Patch the Management Interface
-        #=====================================================
-        kwargs = kwargs | DotMap(
-            clist = ['DHCPv4', 'DomainName', 'HostName', 'IPv4StaticAddresses', 'StaticNameServers'],
-            method = 'patch',
-            payload = {
-                "DHCPv4": {"DHCPEnabled": False, "UseDNSServers": True, "UseDomainName": True, "UseNTPServers": True},
-                "DomainName": kwargs.item.domain_name,
-                "HostName": kwargs.item.hostname,
-                "IPv4StaticAddresses": [
-                    {"Address": kwargs.item.ipv4_address, "Gateway": kwargs.item.ipv4.gateway, "SubnetMask": kwargs.item.ipv4.netmask}
-                ],
-                "StaticNameServers": kwargs.item.dns_servers,
-            },
-            uri = '/redfish/v1/Managers/bmc/EthernetInterfaces/eth0'
-        )
-        kwargs = api(inspect.currentframe().f_code.co_name).run_api_commands(kwargs)
-        #=====================================================
-        # return kwargs
-        #=====================================================
-        return kwargs
-
-    #=====================================================
     # UCS - BMC Managers - Network Protocols - NTP
     #=====================================================
-    def managers_network_protocols(self, kwargs):
+    def ntp(self, kwargs):
         #=====================================================
-        # Patch the Management Interface
+        # Configure NTP Services
         #=====================================================
-        kwargs = kwargs | DotMap(
-            clist = ['NTP'],
-            method = 'patch',
-            payload = {"NTP": {"NTPServers": kwargs.item.ntp_servers, "ProtocolEnabled": True}},
-            uri = '/redfish/v1/Managers/bmc/NetworkProtocol'
-        )
-        api(inspect.currentframe().f_code.co_name).run_api_commands(kwargs.item, kwargs)
+        if len(kwargs.item.time_configuration.ntp_servers) > 0:
+            kwargs = kwargs | DotMap(
+                clist   = ['NTP'],
+                method  = 'patch',
+                payload = {"NTP": {"NTPServers": kwargs.item.time_configuration.ntp_servers, "ProtocolEnabled": True}},
+                uri     = '/redfish/v1/Managers/bmc/NetworkProtocol'
+            )
+            api(inspect.currentframe().f_code.co_name).run_api_commands(kwargs.item, kwargs)
         #=====================================================
-        # return kwargs
+        # Configure Timezone
         #=====================================================
-        return kwargs
-
-    #=====================================================
-    # UCS - BMC Managers - Timezone
-    #=====================================================
-    def managers_timezone(self, kwargs):
-        #=====================================================
-        # Patch the Management Interface
-        #=====================================================
-        kwargs = kwargs | DotMap(
-            clist = ['TimeZoneName'],
-            method = 'patch',
-            payload = {"TimeZoneName": kwargs.item.timezone},
-            uri = '/redfish/v1/Managers/bmc'
-        )
-        api(inspect.currentframe().f_code.co_name).run_api_commands(kwargs.item, kwargs)
+        if len(kwargs.item.time_configuration.timezone) > 0:
+            kwargs = kwargs | DotMap(
+                clist   = ['TimeZoneName'],
+                method  = 'patch',
+                payload = {"TimeZoneName": kwargs.item.time_configuration.timezone},
+                uri     = '/redfish/v1/Managers/bmc'
+            )
+            api(inspect.currentframe().f_code.co_name).run_api_commands(kwargs.item, kwargs)
         #=====================================================
         # return kwargs
         #=====================================================
@@ -296,149 +434,9 @@ class api(object):
             pcolor.Cyan(f"     * Rebooting {kwargs.item.hostname} to apply Changes.")
 
     #=====================================================
-    # UCS - System - BIOS
-    #=====================================================
-    def system_bios(self, kwargs):
-        #=================================================
-        # Load Variables and Send Begin Notification
-        #=================================================
-        validating.begin_section('ucs', self.type)
-        kwargs = kwargs | DotMap(
-            clist = list(kwargs.item.bios.toDict().keys()),
-            method = 'get',
-            payload = {'Attributes': kwargs.item.bios.toDict()},
-            uri = '/redfish/v1/Systems/system/Bios'
-        )
-        #=================================================
-        # Get existing BIOS Settings
-        #=================================================
-        rdata = api.get(kwargs)
-        bkeys = kwargs.clist
-        rkeys = rdata['Attributes'].keys()
-        cdata = {'Attributes': {}}
-        for e in bkeys:
-            if e in rkeys: cdata['Attributes'][e] = rdata['Attributes'][e]
-        if not cdata == kwargs.payload:
-            pcolor.Cyan(f"     * BIOS Settings on {kwargs.item.hostname} do not match")
-            pcolor.Green(f"     * Configuring BIOS Settings on {kwargs.item.hostname}")
-            if print_payload: pcolor.Cyan(json.dumps(kwargs.payload, indent=4))
-            #=====================================================
-            # Patch the System - BIOS
-            #=====================================================
-            kwargs.uri = '/redfish/v1/Systems/system/Bios/Settings'
-            rdata      = api.patch(kwargs)
-            serial     = kwargs.item.serial_number
-            kwargs.servers[serial] = kwargs.servers[serial] | DotMap(bios = kwargs.payload, check_bios = True, reboot_required = True)
-            #=====================================================
-            # Get the System BIOS to verify the patch
-            #=====================================================
-            kwargs.uri = '/redfish/v1/Systems/system/Bios'
-            rdata      = api.get(kwargs)
-            question   = 'y'
-            compare_data = {'Attributes': {}}
-            rkeys = rdata['Attributes'].keys()
-            for e in bkeys:
-                if e in rkeys:
-                    compare_data['Attributes'][e] = rdata['Attributes'][e]
-            if not compare_data == kwargs.payload:
-                pcolor.Red(f"!!! ERROR !!! does not match after patching")
-                pcolor.Red(f"* Expected:")
-                pcolor.Green(json.dumps(kwargs.payload, indent=4))
-                pcolor.Red(f"* Received:")
-                pcolor.Yellow(json.dumps(compare_data, indent=4))
-                pcolor.Cyan(f"\nCompare the outputs above to determine if there is an issue.")
-                pcolor.Cyan(f"If you are okay with the comparisons, you can continue by answering 'Y' to the next question.")
-                question = input(f"  Do you want to continue? [Y/N]: ").strip().lower()
-            if question not in ['y', 'yes']:
-                pcolor.Red(f"!!! ERROR !!! Configuration failed for {kwargs.item.hostname}")
-                len(False); sys.exit(1)
-        else: pcolor.Cyan(f"     * BIOS Settings on {kwargs.item.hostname} are already configured")
-        #=====================================================
-        # return kwargs
-        #=====================================================
-        return kwargs
-
-    #=====================================================
-    # UCS - System - Boot Order
-    #=====================================================
-    def system_boot_order(self, kwargs):
-        #=================================================
-        # Get Network Adapters
-        #=================================================
-        adapters   = DotMap()
-        kwargs.uri = '/redfish/v1/Chassis/chassis/NetworkAdapters'
-        rdata = api.get(kwargs)
-        for e in rdata['Members']:
-            kwargs.uri = e['@odata.id']
-            if re.search('FHHL', kwargs.uri):
-                edata = api.get(kwargs)
-                for i in edata['Controllers']:
-                    kwargs.uri = i['Links']['NetworkPorts'][0]['@odata.id']
-                    idata = api.get(kwargs)
-                    adapters[idata['AssociatedNetworkAddresses'][0]] = DotMap(Parent = edata['Id'], Id = idata['Id'], Model = edata['Model'])
-        mac_list = list(adapters.keys())
-        #=================================================
-        # Get Boot Options
-        #=================================================
-        kwargs.uri = '/redfish/v1/Systems/system/BootOptions'
-        rdata      = api.get(kwargs)
-        boot_options = []
-        for e in rdata['Members']:
-            kwargs.uri = e['@odata.id']
-            rdata      = api.get(kwargs)
-            boot_options.append(rdata)
-        names = []
-        for e in boot_options:
-            e = DotMap(e)
-            if re.search('Hdd|UefiShell', e.Alias): names.append(f"{e.Name}: {e.Alias} - {e.DisplayName}")
-            elif re.search('Pxe|UefiHttp', e.Alias):
-                for m in mac_list:
-                    if re.search(m, e.DisplayName):
-                        names.append(f"{e.Name}: {e.Alias} - ({adapters[m].Model} - {adapters[m].Parent} - {adapters[m].Id} - {m})")
-        #=================================================
-        # Prompt User for Boot Options
-        #=================================================
-        kwargs.jdata = DotMap(
-            default      = names[0],
-            enum         = names,
-            description  = 'Enter the Number for each Boot Option in the order you want for the boot policy.',
-            keep_order   = True,
-            multi_select = True,
-            title        = 'Boot Options',
-            type         = 'string'
-        )
-        boot_order = ezfunctions.variable_prompt(kwargs)
-        #=================================================
-        # Compare Boot Order with Desired Boot Order
-        #=================================================
-        selection = []
-        for e in kwargs.selection_list:
-            selection.append(names[int(e) - 1])
-        kwargs = kwargs | DotMap(
-            clist   = ['BootOrder', 'BootMode'],
-            method  = 'get',
-            payload = {'Boot': {"BootOrder": selection}},
-            uri     = '/redfish/v1/Systems/system'
-        )
-        rdata = api.get(kwargs)
-        cdata = {'Boot': {'BootOrder': rdata['Boot']['BootOrder']}}
-        if not cdata == kwargs.payload:
-            kwargs.method  = 'patch'
-            pcolor.Green(f"     * Configuring {(' '.join((self.type).split('_'))).title()} on {kwargs.item.hostname}")
-            if print_payload: pcolor.Cyan(json.dumps(kwargs.payload, indent=4))
-            rdata  = eval(f"api.{kwargs.method}(kwargs)")
-            serial = kwargs.item.serial_number
-            kwargs.servers[serial] = kwargs.servers[serial] | DotMap(boot_order = kwargs.payload, check_boot_order = True, reboot_required = True)
-        else: pcolor.Cyan(f"     * {(' '.join((self.type).split('_'))).title()} on {kwargs.item.hostname} is already configured")
-        #=================================================
-        # return kwargs
-        #=================================================
-        return kwargs
-
-    #=====================================================
     # UCS - System - Power Restore
     #=====================================================
-    def system_power_restore(self, kwargs):
+    def power_restore(self, kwargs):
         #=====================================================
         # Patch the Management Interface
         #=====================================================
@@ -616,28 +614,34 @@ class build(object):
     # Function - UCS BMC - Nodes
     #=====================================================
     def hosts(self, kwargs):
-        kwargs = kwargs | DotMap(username = kwargs.ucs_dict.username, password = kwargs.ucs_dict.password, reboot_required = False)
+        kwargs.sensitive_var = 'local_user_password_1'
+        kwargs = ezfunctions.sensitive_var_value(kwargs)
+        kwargs = kwargs | DotMap(username = kwargs.ucs_dict.username, password = kwargs.var_value, reboot_required = False)
         for e in kwargs.ucs_dict.hosts:
             kwargs = kwargs | DotMap(hostname = e.api, uri = f'/connector/DeviceIdentifiers')
             id     = api.get(kwargs)
             kwargs.servers[id[0]['Id']] = DotMap(check_bios = False, check_boot_order = False, hostname = e.ipv4_address, reboot_required = False)
             kwargs.item = kwargs.ucs_dict.shared_settings.toDict() | e
             kwargs.item.serial_number = id[0]['Id']
+            ilist = list(kwargs.item.keys()) + ['power_restore']
             api_list = [
-                'managers_ethernet_interfaces',
-                'managers_network_protocols',
-                'managers_timezone',
-                'system_power_restore',
-                'device_connector_proxy',
-                'device_connector_registration',
-                'system_boot_order',
-                'system_bios'
+                'ntp',
+                'power_restore',
+                'proxy_settings',
+                'ethernet_interfaces',
+                'device_connector',
+                'boot_order',
+                'bios'
             ]
-            for i in api_list: kwargs = eval(f"api('{i}').{i}(kwargs)")
+            for i in api_list:
+                if i in ilist: eval(f"api('{i}').{i}(kwargs)")
         #=================================================
         # Add servers to resource group if not default
         #=================================================
-        kwargs = build(inspect.currentframe().f_code.co_name).intersight_resource_group(kwargs)
+        skeys = list(kwargs.ucs_dict.shared_settings.keys())
+        dc = kwargs.ucs_dict.shared_settings.device_connector
+        if 'device_connector' in skeys and len(dc.organization) > 0 and len(dc.resource_group) > 0:
+            kwargs = build(inspect.currentframe().f_code.co_name).intersight_resource_group(kwargs)
         #=================================================
         # Reboot servers if required
         #=================================================
