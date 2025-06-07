@@ -7,6 +7,7 @@ try:
     from classes import ezfunctions, pcolor, isight, validating
     from copy import deepcopy
     from dotmap import DotMap
+    from stringcase import camelcase, pascalcase, snakecase
     import inspect, json, os, re, requests, socket, time, urllib3
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -308,6 +309,69 @@ class api(object):
                 pcolor.Red(f'{url}/api/{kwargs.uri}')
                 pcolor.Red(f"!!! ERROR !!! Method {(inspect.currentframe().f_code.co_name).upper()} Failed. Exception: {e}")
                 len(False); sys.exit(1)
+
+    #=====================================================
+    # UCS - BMC Managers - Accounts - Local User
+    #=====================================================
+    def ldap(self, kwargs):
+        #=====================================================
+        # Configure Local Users
+        #=====================================================
+        if len(kwargs.item.ldap) > 0:
+            # Administrator, Operator, ReadOnly
+            kwargs.sensitive_var = f'binding_parameters_password'
+            kwargs = ezfunctions.sensitive_var_value(kwargs)
+            ldap = kwargs.item.ldap
+            if ldap.ldap_servers[0].vendor == 'MSAD': vendor = 'ActiveDirectory'
+            else: vendor = 'OpenLdap'
+            kwargs = kwargs | DotMap(
+                method  = 'patch',
+                payload = {
+                    vendor: {
+                        "Authentication": {"Username": ldap.binding_parameters.bind_dn, "Password": kwargs.var_value},
+                        "LDAPService": {"SearchSettings": {
+                            "BaseDistinguishedNames":[f"DC={',DC='.join(ldap.base_settings.domain_name.split('.'))}"],
+                            "GroupAttribute": ldap.search_parameters.group_attribute,
+                            "UsernameAttribute": ldap.search_parameters.user_attribute
+                        }},
+                        "RemoteRoleMapping": [
+                            {"LocalRole": e.end_point_role, "RemoteGroup": e.group_dn} for e in ldap.ldap_groups
+                        ],
+                        "ServiceEnabled": True,
+                        "ServiceAddresses": [f'ldap://{e.server}:{e.port}' for e in ldap.ldap_servers],
+                    }
+                },
+                uri     = '/redfish/v1/AccountService'
+            )
+            api.patch(kwargs)
+        #=====================================================
+        # return kwargs
+        #=====================================================
+        return kwargs
+
+    #=====================================================
+    # UCS - BMC Managers - Accounts - Local User
+    #=====================================================
+    def local_user(self, kwargs):
+        #=====================================================
+        # Configure Local Users
+        #=====================================================
+        if len(kwargs.item.local_user) > 0:
+            for e in kwargs.item.local_user:
+                # Administrator, Operator, ReadOnly
+                kwargs.sensitive_var = f'local_user_password_{e.password}'
+                kwargs = ezfunctions.sensitive_var_value(kwargs)
+                kwargs = kwargs | DotMap(
+                    clist   = [pascalcase(d) for d in e.toDict().keys()].pop('password'),
+                    method  = 'patch',
+                    payload = {"UserName": e.username, "Password": kwargs.var_value, "RoleId": e.role_id, "Enabled": e.enabled},
+                    uri     = '/redfish/v1/AccountService/Accounts'
+                )
+                api.patch(kwargs)
+        #=====================================================
+        # return kwargs
+        #=====================================================
+        return kwargs
 
     #=====================================================
     # UCS - BMC Managers - Network Protocols - NTP
@@ -625,6 +689,7 @@ class build(object):
             kwargs.item.serial_number = id[0]['Id']
             ilist = list(kwargs.item.keys()) + ['power_restore']
             api_list = [
+                'local_user',
                 'ntp',
                 'power_restore',
                 'proxy_settings',
