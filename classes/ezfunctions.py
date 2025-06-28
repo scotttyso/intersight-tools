@@ -554,16 +554,20 @@ def installation_body(v, kwargs):
                             answers[x[0]]   = base64.b64encode(f'{password}Password'.encode(encoding='utf-16-le')).decode()
                         else: answers[x[0]] = base64.b64encode(f'{password}AdministratorPassword'.encode(encoding='utf-16-le')).decode()
                     else:
-                        try:
-                            from passlib.hash import sha512_crypt
-                            import crypt
-                        except ImportError as e:
-                            prRed(f'classes/ezfunctions.py line 557 - !!! ERROR !!!\n{e.__class__.__name__}')
-                            prRed(f" Module {e.name} is required to run this script")
-                            prRed(f" Install the module using the following: `pip install {e.name}`")
-                            sys.exit(1)
-                        answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
-                    encrypted = True
+                        if kwargs.op_system == 'Windows':
+                            answers[x[0]] = password
+                            encrypted = False
+                        else:
+                            try:
+                                #from passlib.hash import sha512_crypt
+                                import crypt
+                            except ImportError as e:
+                                prRed(f'classes/ezfunctions.py line 557 - !!! ERROR !!!\n{e.__class__.__name__}')
+                                prRed(f" Module {e.name} is required to run this script")
+                                prRed(f" Install the module using the following: `pip install {e.name}`")
+                                sys.exit(1)
+                            answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
+                            encrypted = True
                 elif x[0] == 'NameServer': answers['Nameserver'] = v.answers[x[0]]
                 elif x[0] == 'AlternateNameServer': answers['AlternateNameServers'] = [v.answers['AlternateNameServer']]
                 else: answers[x[0]] = v.answers[x[0]]
