@@ -10,7 +10,7 @@ try:
     from stringcase import camelcase, pascalcase, snakecase
     import inspect, json, os, re, requests, socket, time, urllib3
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'classes/bmc.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
@@ -65,12 +65,15 @@ class api(object):
         # Load Variables and Send Begin Notification
         #=================================================
         validating.begin_section('ucs', self.type)
+        bdata  = kwargs.fsai_data.shared_settings.bios.properties
         kwargs = kwargs | DotMap(
-            clist = list(kwargs.item.bios.toDict().keys()),
+            clist = [kwargs.item.bios[e].bios_key for e in list(kwargs.item.bios.toDict().keys())],
             method = 'get',
-            payload = {'Attributes': kwargs.item.bios.toDict()},
+            payload = {'Attributes': {bdata[k].bios_key:v for k,v in (kwargs.item.bios.toDict()).items()}},
             uri = '/redfish/v1/Systems/system/Bios'
         )
+        print(kwargs.payload)
+        exit(1)
         #=================================================
         # Get existing BIOS Settings
         #=================================================

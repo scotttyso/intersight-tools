@@ -9,7 +9,7 @@ try:
     from time import sleep
     import json, numpy, re
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'classes/claim_device.py line 6 - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)

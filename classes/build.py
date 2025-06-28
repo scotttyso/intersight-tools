@@ -9,7 +9,7 @@ try:
     from dotmap import DotMap
     import ipaddress, json, inflect, numpy, os, re, time, urllib3
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'classes/build.py line 6 - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)

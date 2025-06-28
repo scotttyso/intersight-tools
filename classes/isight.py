@@ -13,7 +13,7 @@ try:
     from stringcase import pascalcase, snakecase
     import base64, json, numpy, os, re, requests, time, urllib3
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'classes/isight.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)

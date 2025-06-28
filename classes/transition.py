@@ -9,7 +9,7 @@ try:
     from dotmap import DotMap
     import json, re
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'classes/transition.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
@@ -122,6 +122,7 @@ class intersight(object):
         key_list = [
             'completion.queue_count,completion_queue_count',
             'completion.ring_size,completion_ring_size',
+            'enable_ether_channel_pinning,enable_etherchannel_pinning',
             'receive.queue_count,receive_queue_count',
             'receive.ring_size,receive_ring_size',
             'receive_side_scaling,rss_settings',
@@ -528,7 +529,8 @@ class intersight(object):
             'port_role_fc_storage,san_storage_ports',
             'port_role_fc_uplinks,san_uplink_ports',
             'port_role_fcoe_uplinks,fcoe_ports',
-            'port_role_servers,server_ports'
+            'port_role_servers,server_ports',
+            'xbreakout_ports,breakout_ports'
         ]
         pvars = intersight.replace_keys(key_list, pvars)
         pkeys = list(pvars.keys())
@@ -545,7 +547,18 @@ class intersight(object):
                             pvars[port_type][x].vsan_ids = [pvars[port_type][x].vsan_id]
                             pvars[port_type][x].pop('vsan_id')
                         if 'fill_pattern' in xkeys: pvars[port_type][x].pop('fill_pattern')
-                if re.search('port_modes', port_type):
+                elif re.search('xbreakout_ports', port_type):
+                    if not 'port_modes' in pkeys: pvars.port_modes = []
+                    modes = DotMap({
+                        '4x8g': 'BreakoutFibreChannel8G',
+                        '4x16g': 'BreakoutFibreChannel16G',
+                        '4x10g': 'BreakoutEthernet10G',
+                        '4x25g': 'BreakoutEthernet25G',
+                        '4x32g': 'BreakoutFibreChannel32G'})
+                    for e in pvars[port_type]:
+                        pvars.port_modes.append(DotMap({'custom_mode': modes[e.mode],'port_list': [e.port_id, e.port_id]}))
+                    pvars.pop(port_type)
+                elif re.search('port_modes', port_type):
                     pvars[port_type].port_list = [pvars[port_type].port_id_start, pvars[port_type].port_id_end]
                     pvars[port_type].pop('port_id_start')
                     pvars[port_type].pop('port_id_end')
@@ -555,7 +568,7 @@ class intersight(object):
                         pvars[port_type].custom_mode = 'BreakoutFibreChannel32G'
                     else: pvars[port_type].custom_mode = 'FibreChannel'
                     pvars[port_type] = [pvars[port_type]]
-                if re.search('port_role', port_type):
+                elif re.search('port_role', port_type):
                     for x in range(0, len(pvars[port_type])):
                         pvars[port_type][x].port_list = str(pvars[port_type][x].port_id)
                         pvars[port_type][x].pop('port_id')
@@ -568,7 +581,7 @@ class intersight(object):
                         if 'vsan_id' in xkeys:
                             pvars[port_type][x].vsan_ids = [pvars[port_type][x].vsan_id]
                             pvars[port_type][x].pop('vsan_id')
-                if re.search('port_role|port_channel', port_type):
+                elif re.search('port_role|port_channel', port_type):
                     for x in range(0, len(pvars[port_type])):
                         plist = list(pvars[port_type][x].keys())
                         if 'ethernet_network_group_policy' in plist:

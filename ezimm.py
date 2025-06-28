@@ -32,7 +32,7 @@ try:
     import argparse, json, os, re, requests, urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'EZIMM - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
@@ -306,7 +306,7 @@ def imm_transition(kwargs):
             kwargs.jdata = kwargs.ezwizard.setup.properties.json_file
             json_file    = ezfunctions.variable_prompt(kwargs)
         else: json_check = True
-    kwargs.json_data = DotMap(json.load(open(json_file, 'r')))
+    kwargs.json_data = DotMap(json.load(open(json_file, 'r', encoding='utf8')))
     device_type = kwargs.json_data.easyucs.metadata[0].device_type
     #=========================================================================
     # Validate the device_type in json file

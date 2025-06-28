@@ -16,10 +16,10 @@ try:
     from OpenSSL import crypto
     from pathlib import Path
     from stringcase import snakecase
-    import argparse, base64, crypt, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform
+    import argparse, base64, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform
     import pytz, re, requests, shutil, subprocess, stdiomask, string, textwrap, time, validators, yaml
 except ImportError as e:
-    prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
+    prRed(f'classes/ezfunctions.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f' Module {e.name} is required to run this script')
     prRed(f' Install the module using the following: `pip install {e.name}`')
     sys.exit(1)
@@ -129,11 +129,12 @@ def base_script_settings(kwargs):
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
-    ezdata          = json.load(open(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json')))
+    ezdata = json.load(open(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), encoding='utf8'))
     ezdata.pop('$ref')
-    with open(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'w') as f:
-        json.dump(ezdata, f, indent=4)
-    ezdata              = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'r', encoding='utf8'))
+    with open(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'w') as f: json.dump(ezdata, f, indent=4)
+    ezdata = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'r', encoding='utf8'))
+    if os.path.exists(os.path.join(kwargs.script_path, 'variables', 'temp.json')):
+        os.remove(os.path.join(kwargs.script_path, 'variables', 'temp.json'))
     script_tag          = script_name.replace('ez', 'easy-')
     kwargs.ez_tags      = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['version']}]
     kwargs.ezdata       = DotMap(ezdata['components']['schemas'])
@@ -141,8 +142,6 @@ def base_script_settings(kwargs):
     kwargs.ez_templates = DotMap(ezdata['components']['templates'])
     kwargs.ezwizard     = DotMap(ezdata['components']['wizard'])
     kwargs.ez_wizard    = DotMap(ezdata['components']['wizard'])
-    if os.path.exists(os.path.join(kwargs.script_path, 'variables', 'temp.json')):
-        os.remove(os.path.join(kwargs.script_path, 'variables', 'temp.json'))
     #=========================================================================
     # Get Intersight Configuration
     # - apikey
@@ -268,8 +267,8 @@ def count_keys(ws, func):
 # Function for Processing easyDict and Creating YAML Files
 #=============================================================================
 def create_yaml(orgs, kwargs):
-    ezdata  = kwargs.ezdata.ezimm_class.properties
-    classes = kwargs.ezdata.ezimm_class.properties.classes.enum
+    ezdata  = kwargs.ez_scripts.ezimm_class.properties
+    classes = kwargs.ez_scripts.ezimm_class.properties.classes.enum
     def write_file(dest_dir, dest_file, idict, title):
         if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
         if not os.path.exists(os.path.join(dest_dir, dest_file)):
@@ -554,7 +553,16 @@ def installation_body(v, kwargs):
                         if 'LogonPassword' in x[0]:
                             answers[x[0]]   = base64.b64encode(f'{password}Password'.encode(encoding='utf-16-le')).decode()
                         else: answers[x[0]] = base64.b64encode(f'{password}AdministratorPassword'.encode(encoding='utf-16-le')).decode()
-                    else: answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
+                    else:
+                        try:
+                            from passlib.hash import sha512_crypt
+                            import crypt
+                        except ImportError as e:
+                            prRed(f'classes/ezfunctions.py line 557 - !!! ERROR !!!\n{e.__class__.__name__}')
+                            prRed(f" Module {e.name} is required to run this script")
+                            prRed(f" Install the module using the following: `pip install {e.name}`")
+                            sys.exit(1)
+                        answers[x[0]] = crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
                     encrypted = True
                 elif x[0] == 'NameServer': answers['Nameserver'] = v.answers[x[0]]
                 elif x[0] == 'AlternateNameServer': answers['AlternateNameServers'] = [v.answers['AlternateNameServer']]
