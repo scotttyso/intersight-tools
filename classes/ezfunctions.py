@@ -562,6 +562,7 @@ def installation_body(v, kwargs):
                                 #from passlib.hash import sha512_crypt
                                 import crypt
                             except ImportError as e:
+                                prRed(f'{e}')
                                 prRed(f'classes/ezfunctions.py line 557 - !!! ERROR !!!\n{e.__class__.__name__}')
                                 prRed(f" Module {e.name} is required to run this script")
                                 prRed(f" Install the module using the following: `pip install {e.name}`")
