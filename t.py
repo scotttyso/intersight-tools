@@ -108,6 +108,9 @@ def child_login(kwargs):
     elif 'imm' in kwargs.type: password = os.environ['immpassword']; kwargs.username = 'admin'
     elif 'lab' in kwargs.type: password = os.environ['labpassword']; kwargs.username = 'admin'
     elif 'kit' in kwargs.type: password = os.environ['kitpassword']; kwargs.username = 'imm-toolkit'
+    elif 'telnet' in kwargs.type:
+        kwargs.port = 23; kwargs.protocol = 'telnet'
+        password = os.environ['password']; kwargs.username = os.environ['username']
     elif re.search('^r14[2-3][a-z]-pdu', kwargs.hostname):
         kwargs.port = 23; kwargs.protocol = 'telnet'
         if re.search('3[a-e]', kwargs.hostname): password = os.environ['pdupassword']; kwargs.username = 'localadmin'; 
@@ -261,7 +264,8 @@ def main():
     #=========================================================================
     # Configure Base Module Setup
     #=========================================================================
-    kwargs = base_script_settings(DotMap())
+    kwargs = DotMap()
+    kwargs = base_script_settings(kwargs)
     kwargs = child_login(kwargs)
     #=========================================================================
     # Prompt User for Main Menu

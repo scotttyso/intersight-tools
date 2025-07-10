@@ -521,7 +521,7 @@
         },
         "o2": {
             "description": "r142b-oob02 OOB Switch",
-            "hostname": "r142b-oob01.rich.ciscolabs.com",
+            "hostname": "r142b-oob02.rich.ciscolabs.com",
             "type": "nxos"
         },
         "o3": {
@@ -578,6 +578,21 @@
             "description": "r143c ACI Spine2",
             "hostname": "r143c-spine2.rich.ciscolabs.com",
             "type": "aci-lab"
+        },
+        "sw1": {
+            "description": "r143b Core Switch",
+            "hostname": "r143b-sw1.rich.ciscolabs.com",
+            "type": "nxos"
+        },
+        "t1": {
+            "description": "r142b Terminal Server",
+            "hostname": "r142b-ts.rich.ciscolabs.com",
+            "type": "telnet"
+        },
+        "t2": {
+            "description": "r143b Terminal Server",
+            "hostname": "r143b-ts.rich.ciscolabs.com",
+            "type": "telnet"
         },
         "u": {
             "description": "r143c UCS Domain VIP",
