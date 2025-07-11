@@ -17,7 +17,7 @@ except ImportError as e:
 # Function: Main Script
 #=================================================================
 def main():
-    ezdata = json.load(open(os.path.join(script_path, 'easy-imm.json')))
+    ezdata = json.load(open(os.path.join(script_path, 'easy-imm.json'), encoding='utf8'))
     for e in ['scripts', 'templates', 'wizard']:
         ezdata['components'].pop(e)
     ezdata['$schema'] = 'http://json-schema.org/draft-07/schema#'

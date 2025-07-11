@@ -55,7 +55,7 @@ def bios_keys():
     kwargs.org      = 'default'
     kwargs.uri      = kwargs.ezdata.bios.intersight_uri
     kwargs          = isight.api('multi_org').calls(kwargs)
-    api_docs        = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi.json'), 'r'))
+    api_docs        = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi.json'), 'r', encoding='utf8'))
     intersight_bios = DotMap(api_docs['components']['schemas'])['bios.Policy'].allOf[1].properties
     bios            = DotMap()
     defaults        = DotMap()
