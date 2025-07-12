@@ -32,11 +32,9 @@ script_path= os.path.dirname(os.path.realpath(sys.argv[0]))
 sys.path.insert(0, f'{script_path}{os.sep}classes')
 try:
     from classes import bmc, ezfunctions, pcolor
-    from copy import deepcopy
     from dotmap import DotMap
     from json_ref_dict import materialize, RefDict
-    from pathlib import Path
-    import argparse, json, os, re, yaml
+    import argparse, json, os, yaml
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -63,10 +61,10 @@ def main():
     kwargs = ezfunctions.base_script_settings(kwargs)
     fsai_data = json.load(open(os.path.join(kwargs.script_path, 'variables', 'fsai-schema.json'), encoding='utf8'))
     fsai_data.pop('$ref')
-    with open(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'w') as f: json.dump(fsai_data, f, indent=4)
-    fsai_data  = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'r', encoding='utf8'))
-    if os.path.exists(os.path.join(kwargs.script_path, 'variables', 'temp.json')):
-        os.remove(os.path.join(kwargs.script_path, 'variables', 'temp.json'))
+    with open(os.path.join(kwargs.script_path, 'variables', 'temp2.json'), 'w') as f: json.dump(fsai_data, f, indent=4)
+    fsai_data  = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'temp2.json'), 'r', encoding='utf8'))
+    if os.path.exists(os.path.join(kwargs.script_path, 'variables', 'temp2.json')):
+        os.remove(os.path.join(kwargs.script_path, 'variables', 'temp2.json'))
     kwargs.fsai_data = DotMap(fsai_data['components']['schemas'])
     #=========================================================================
     # Send Notification Message
@@ -82,7 +80,7 @@ def main():
     #=========================================================================
     if (kwargs.args.yaml_file):
         yfile = open(os.path.join(kwargs.args.yaml_file), 'r')
-        kwargs.ucs_dict = DotMap(yaml.safe_load(yfile))
+        kwargs.ucs_dict = (DotMap(yaml.safe_load(yfile))).c885
         yfile.close()
     else:
         pcolor.Red(f'!!! ERROR !!!\n  The YAML file `{kwargs.args.yaml_file}` is not valid.')

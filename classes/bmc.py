@@ -65,15 +65,14 @@ class api(object):
         # Load Variables and Send Begin Notification
         #=================================================
         validating.begin_section('ucs', self.type)
-        bdata  = kwargs.fsai_data.shared_settings.bios.properties
+        bdata  = kwargs.fsai_data['shared_settings.bios'].properties
         kwargs = kwargs | DotMap(
-            clist = [kwargs.item.bios[e].bios_key for e in list(kwargs.item.bios.toDict().keys())],
+            clist = [bdata[e].bios_key for e in list(kwargs.item.bios.toDict().keys())],
             method = 'get',
             payload = {'Attributes': {bdata[k].bios_key:v for k,v in (kwargs.item.bios.toDict()).items()}},
             uri = '/redfish/v1/Systems/system/Bios'
         )
-        print(kwargs.payload)
-        exit(1)
+        exit()
         #=================================================
         # Get existing BIOS Settings
         #=================================================
@@ -364,8 +363,9 @@ class api(object):
                 # Administrator, Operator, ReadOnly
                 kwargs.sensitive_var = f'local_user_password_{e.password}'
                 kwargs = ezfunctions.sensitive_var_value(kwargs)
+
                 kwargs = kwargs | DotMap(
-                    clist   = [pascalcase(d) for d in e.toDict().keys()].pop('password'),
+                    clist   = [pascalcase(d) for d in e.toDict().keys() if d != 'password'],
                     method  = 'patch',
                     payload = {"UserName": e.username, "Password": kwargs.var_value, "RoleId": e.role_id, "Enabled": e.enabled},
                     uri     = '/redfish/v1/AccountService/Accounts'
@@ -685,11 +685,11 @@ class build(object):
         kwargs = ezfunctions.sensitive_var_value(kwargs)
         kwargs = kwargs | DotMap(username = kwargs.ucs_dict.username, password = kwargs.var_value, reboot_required = False)
         for e in kwargs.ucs_dict.hosts:
-            kwargs = kwargs | DotMap(hostname = e.api, uri = f'/connector/DeviceIdentifiers')
-            id     = api.get(kwargs)
-            kwargs.servers[id[0]['Id']] = DotMap(check_bios = False, check_boot_order = False, hostname = e.ipv4_address, reboot_required = False)
+            #kwargs = kwargs | DotMap(hostname = e.api, uri = f'/connector/DeviceIdentifiers')
+            #id     = api.get(kwargs)
+            #kwargs.servers[id[0]['Id']] = DotMap(check_bios = False, check_boot_order = False, hostname = e.ipv4_address, reboot_required = False)
             kwargs.item = kwargs.ucs_dict.shared_settings.toDict() | e
-            kwargs.item.serial_number = id[0]['Id']
+            #kwargs.item.serial_number = id[0]['Id']
             ilist = list(kwargs.item.keys()) + ['power_restore']
             api_list = [
                 'local_user',
