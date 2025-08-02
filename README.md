@@ -96,7 +96,7 @@ git config --global user.email "<email>"
 - Python 3.9 or Greater
 - Linux - Use the System Package Manager - apt/yum etc.
 - Windows Download Here: [*Python*](https://www.python.org/downloads/) 
-  Note: Make sure to select the `Add To System Path Option` during the installation
+  Note: Make sure to select the `Add To System Path Option` during the installation for Windows
 
 ### Clone this Repository
 

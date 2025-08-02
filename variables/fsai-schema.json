@@ -1,5 +1,5 @@
 {
-    "$id": "https://github.com/scotttyso/flashstack-ai/pure-storage",
+    "$id": "https://github.com/scotttyso/flashstack-ai",
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$ref": "#/components/schemas/nac",
     "components": {
@@ -194,9 +194,9 @@
             },
             "nac": {
                 "additionalProperties": false,
-                "description": "This dictionary provides the required configuration settings for Pure Storage deployment.\n\nRequired fields are:\n  * `pure_storage`",
+                "description": "This dictionary provides the required configuration settings for FlashStack AI Pods deployment.\n\nOptional fields are:\n  * `c885`\n  * `pure_storage`",
                 "required": [],
-                "title": "Pure Storage - Array provisioning",
+                "title": "FlashStack AI Pod provisioning",
                 "type": "object",
                 "properties": {
                     "c885": {

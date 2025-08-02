@@ -1916,6 +1916,7 @@ def vlan_list_full(vlan_list):
         a,b = vlan_list.split('-'); a = int(a); b = int(b); vrange = range(a,b+1)
         for v in vrange: full_vlan_list.append(int(v))
     else: full_vlan_list.append(int(vlan_list))
+    full_vlan_list = list(set(full_vlan_list))  # Remove Duplicates
     return full_vlan_list
 
 #=============================================================================
