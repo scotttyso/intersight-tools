@@ -9990,7 +9990,7 @@
                                 "description": "List of VNICs to add to the LAN Connectivity Policy that will use a vNIC template.\n\nRequired Attributes:\n  * name\n  * placement\n  * vnic_template\n\nOptional Attributes:\n  * ethernet_adapter_policy - If Allow Override Enabled on the template\n  * cdn_value - Only if Consistency Device Naming has been configured as User at the Template Level. \n  * iscsi_boot_policy - If Allow Override Enabled on the template\n  * mac_address_pool - If Allow Override Enabled on the template\n  * pin_group_name - If Allow Override Enabled on the template\n  * sriov\n  * usnic\n  * vmq",
                                 "intersight_uri": "vnic/EthIfs",
                                 "items": {
-                                    "$ref": "#/components/schemas/lan_connectivity.vnics"
+                                    "$ref": "#/components/schemas/lan_connectivity.vnics_from_template"
                                 },
                                 "object_type": "vnic.EthIf",
                                 "title": "vnics_from_template - Vnics with a Source Template - Intersight Uri: vnic/EthIfs"
