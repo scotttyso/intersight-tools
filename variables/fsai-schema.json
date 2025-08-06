@@ -1293,18 +1293,33 @@
                 "required": [
                     "password",
                     "role",
-                    "user"
+                    "name"
                 ],
                 "title": "Pure Storage - Settings > Security > Users",
                 "type": "object",
                 "properties": {
+                    "api_token": {
+                        "default": false,
+                        "description": "Add API Token for User.",
+                        "title": "API Token",
+                        "type": "boolean"
+                    },
                     "password": {
                         "default": 1,
-                        "description": "Default is `1`.  The local user password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables local_user_password_[1-64].  i.e. `export local_user_password_1='cisco123'`.",
+                        "description": "Default is `1`.  The local user password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables local_user_password_[1-64].  i.e. `export local_user_password_1='cisco123'`.  If value is `0`, script will generate random password.",
                         "maximum": 64,
-                        "minimum": 1,
+                        "minimum": 0,
                         "title": "User Password",
                         "type": "integer"
+                    },
+                    "name": {
+                        "default": "portworx",
+                        "description": "The user name.",
+                        "maxLength": 127,
+                        "minLength": 1,
+                        "pattern": "^(?!pureuser$)|([^+\\-][a-zA-Z0-9=!#$%()*+,-.:;@ _{|}~?&]*)$",
+                        "title": "Username",
+                        "type": "string"
                     },
                     "role": {
                         "default": "readonly",
@@ -1319,15 +1334,6 @@
                             "array_admin"
                         ],
                         "title": "Endpoint Role",
-                        "type": "string"
-                    },
-                    "user": {
-                        "default": "pureuser",
-                        "description": "The user name.",
-                        "maxLength": 127,
-                        "minLength": 1,
-                        "pattern": "^([^+\\-][a-zA-Z0-9=!#$%()*+,-.:;@ _{|}~?&]*)$",
-                        "title": "Username",
                         "type": "string"
                     }
                 }
