@@ -728,7 +728,7 @@
                         "$ref": "#/components/schemas/settings.security.single_sign_on"
                     },
                     "users": {
-                        "description": "Endpoint User or Local User.\n\nRequired fields are:\n  * `password`\n  * `role`\n  * `user`",
+                        "description": "Endpoint User or Local User.\n\nRequired fields are:\n  * `name`\n  * `password`\n  * `role`",
                         "items": {
                             "$ref": "#/components/schemas/settings.security.users"
                         },
@@ -1289,11 +1289,11 @@
                 }
             },
             "settings.security.users": {
-                "description": "Endpoint User or Local User.\n\nRequired fields are:\n  * `password`\n  * `role`\n  * `user`",
+                "description": "Endpoint User or Local User.\n\nRequired fields are:\n  * `name`\n  * `password`\n  * `role`",
                 "required": [
                     "password",
-                    "role",
-                    "name"
+                    "name",
+                    "role"
                 ],
                 "title": "Pure Storage - Settings > Security > Users",
                 "type": "object",
@@ -1304,14 +1304,6 @@
                         "title": "API Token",
                         "type": "boolean"
                     },
-                    "password": {
-                        "default": 1,
-                        "description": "Default is `1`.  The local user password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables local_user_password_[1-64].  i.e. `export local_user_password_1='cisco123'`.  If value is `0`, script will generate random password.",
-                        "maximum": 64,
-                        "minimum": 0,
-                        "title": "User Password",
-                        "type": "integer"
-                    },
                     "name": {
                         "default": "portworx",
                         "description": "The user name.",
@@ -1320,6 +1312,14 @@
                         "pattern": "^(?!pureuser$)|([^+\\-][a-zA-Z0-9=!#$%()*+,-.:;@ _{|}~?&]*)$",
                         "title": "Username",
                         "type": "string"
+                    },
+                    "password": {
+                        "default": 1,
+                        "description": "Default is `1`.  The local user password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables local_user_password_[1-64].  i.e. `export local_user_password_1='cisco123'`.  If value is `0`, script will generate random password.",
+                        "maximum": 64,
+                        "minimum": 0,
+                        "title": "User Password",
+                        "type": "integer"
                     },
                     "role": {
                         "default": "readonly",
