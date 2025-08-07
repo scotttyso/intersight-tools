@@ -358,6 +358,9 @@
                 "title": "Pure Storage - Settings > Network",
                 "type": "object",
                 "properties": {
+                    "connectors": {
+                        "$ref": "#/components/schemas/settings.network.connectors"
+                    },
                     "dns": {
                         "$ref": "#/components/schemas/settings.network.dns"
                     },
@@ -374,6 +377,143 @@
                     },
                     "subnets_and_interfaces": {
                         "$ref": "#/components/schemas/settings.network.subnets_and_interfaces"
+                    }
+                }
+            },
+            "settings.network.connectors": {
+                "additionalProperties": false,
+                "description": "This dictionary is for connector settings for Pure Storage.\n\nRequired fields are:\n  * `ethernet`",
+                "required": [
+                    "ethernet"
+                ],
+                "title": "Pure Storage - Settings > Network > Connectors",
+                "type": "object",
+                "properties": {
+                    "ethernet": {
+                        "description": "List of Ethernet interfaces to configure.\n\nRequired fields are:\n  * `address`\n  * `gateway`\n  * `name`\n  * `prefix`\n\nOptional fields are:\n  * `enabled`\n  * `mtu`\n  * `services`\n  * `state`",
+                        "items": {
+                            "$ref": "#/components/schemas/settings.network.connectors.ethernet"
+                        },
+                        "maxItems": 256,
+                        "minItems": 1,
+                        "title": "Pure Storage - Settings > Network > Connectors > Ethernet Interfaces",
+                        "type": "array",
+                        "uniqueItems": true
+                    }
+                }
+            },
+            "settings.network.connectors.ethernet": {
+                "additionalProperties": false,
+                "description": "List of Ethernet interfaces to configure.\n\nRequired fields are:\n  * `address`\n  * `gateway`\n  * `name`\n  * `prefix`\n\nOptional fields are:\n  * `enabled`\n  * `mtu`\n  * `services`\n  * `state`",
+                "required": [
+                    "address",
+                    "gateway",
+                    "name",
+                    "prefix"
+                ],
+                "title": "Ethernet settings for Pure Storage",
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "default": "198.18.0.1",
+                        "description": "Default is `198.18.0.1`.  IP address of the Interface.",
+                        "examples": [
+                            "198.18.0.1"
+                        ],
+                        "maxLength": 39,
+                        "minLength": 6,
+                        "pattern": "((^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$)|(^((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?$))",
+                        "title": "IPv4 or IPv6 Address",
+                        "type": "string"
+                    },
+                    "array_fqdn": {
+                        "default": "pure-array1.example.com",
+                        "description": "Fully Qualified Domain Name of the storage array.",
+                        "examples": [
+                            "pure-array1.example.com"
+                        ],
+                        "maxLength": 255,
+                        "minLength": 7,
+                        "pattern": "(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\\.)+[a-zA-Z]{2,63}$)",
+                        "title": "Array FQDN",
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "default": true,
+                        "description": "Default is `true`.  Enable ethernet interface.",
+                        "title": "Enable Ethernet Interface",
+                        "type": "boolean"
+                    },
+                    "gateway": {
+                        "description": "Gateway to assign.",
+                        "default": "198.18.0.1",
+                        "examples": [
+                            "198.18.0.1"
+                        ],
+                        "maxLength": 39,
+                        "minLength": 6,
+                        "pattern": "((^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$)|(^((([0-9a-f]{1,4}:){7}([0-9a-f]{1,4}|:))|(([0-9a-f]{1,4}:){6}(:[0-9a-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9a-f]{1,4}:){5}(((:[0-9a-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9a-f]{1,4}:){4}(((:[0-9a-f]{1,4}){1,3})|((:[0-9a-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9a-f]{1,4}:){3}(((:[0-9a-f]{1,4}){1,4})|((:[0-9a-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9a-f]{1,4}:){2}(((:[0-9a-f]{1,4}){1,5})|((:[0-9a-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9a-f]{1,4}:){1}(((:[0-9a-f]{1,4}){1,6})|((:[0-9a-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9a-f]{1,4}){1,7})|((:[0-9a-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?$))",
+                        "title": "Gateway",
+                        "type": "string"
+                    },
+                    "mtu": {
+                        "description": "MTU to assign.",
+                        "maximum": 9216,
+                        "minimum": 1500,
+                        "title": "MTU",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "default": "default",
+                        "description": "The name of the ethernet interface.",
+                        "maxLength": 63,
+                        "minLength": 1,
+                        "pattern": "^([a-zA-Z0-9][a-zA-Z0-9\\._-]{0,61})?[a-zA-Z0-9]$",
+                        "title": "The Name of the Ethernet Interface",
+                        "type": "string"
+                    },
+                    "prefix": {
+                        "description": "Network Prefix to assign.",
+                        "maximum": 128,
+                        "minimum": 1,
+                        "title": "Network Prefix",
+                        "type": "integer"
+                    },
+                    "services": {
+                        "description": "List of services to assign to the interface.",
+                        "items": {
+                            "default": "data",
+                            "description": "Service to assign to the ethernet interface.",
+                            "enum": [
+                                "replication",
+                                "management",
+                                "ds",
+                                "file",
+                                "iscsi",
+                                "scsi-fc",
+                                "nvme-fc",
+                                "nvme-tcp",
+                                "nvme-roce",
+                                "system"
+                            ],
+                            "title": "Serviceto assign to the Ethernet Interface",
+                            "type": "string"
+                        },
+                        "maxItems": 5,
+                        "minItems": 1,
+                        "title": "Service(s) to assign to the Ethernet Interface",
+                        "type": "array",
+                        "uniqueItems": true
+                    },
+                    "state": {
+                        "default": "present",
+                        "description": "State of the ethernet interface.",
+                        "enum": [
+                            "absent",
+                            "present"
+                        ],
+                        "title": "State of the Ethernet Interface",
+                        "type": "string"
                     }
                 }
             },
@@ -1111,7 +1251,7 @@
                         ],
                         "maxLength": 300,
                         "minLength": 1,
-                        "pattern": "^((CN=([^,]*)),)?((((?:CN|OU)=[^,]+,?)+),)?((DC=[^,]+,?)+)$",
+                        "pattern": "^((CN=([^,]*)),)?((((?:CN|OU)=[^,]+,?)+),)?(((?:CN|OU|DC)=[^,]+,?)+)?$",
                         "title": "Group Distinguished Name",
                         "type": "string"
                     },
