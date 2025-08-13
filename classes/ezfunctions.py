@@ -16,8 +16,9 @@ try:
     from OpenSSL import crypto
     from pathlib import Path
     from stringcase import snakecase
-    import argparse, base64, ipaddress, itertools, jinja2, json, logging, os, pexpect, pkg_resources, platform
+    import argparse, base64, ipaddress, itertools, jinja2, json, logging, os, pexpect, platform
     import pytz, re, requests, shutil, subprocess, stdiomask, string, textwrap, time, validators, yaml
+    import importlib
 except ImportError as e:
     prRed(f'classes/ezfunctions.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f' Module {e.name} is required to run this script')
@@ -196,8 +197,8 @@ def child_login(kwargs):
         child.sendline(f'ping -n 2 {kwargs.hostname}')
         child.expect(f'ping -n 2 {kwargs.hostname}')
         child.expect_exact('> ')
-        child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | Tee-Object {log_dir}\{kwargs.hostname}.txt')
-        child.expect(f'Tee-Object {log_dir}\{kwargs.hostname}.txt')
+        child.sendline(f'ssh {kwargs.username}@{kwargs.hostname} | Tee-Object {log_dir}\\{kwargs.hostname}.txt')
+        child.expect(f'{kwargs.hostname}.txt')
     else:
         child.sendline(f'ping -c 2 {kwargs.hostname}')
         child.expect(f'ping -c 2 {kwargs.hostname}')
@@ -539,7 +540,7 @@ def installation_body(v, kwargs):
         answers = DotMap(); encrypted = False
         answer_keys = list(v.answers.keys())
         for e in kwargs.os_cfg_moids[v.os_configuration].Placeholders:
-            if re.search('\.answers\.', e.Type.Name): name = e.Type.Name[9:]
+            if re.search(r'\.answers\.', e.Type.Name): name = e.Type.Name[9:]
             elif '.internal' in e.Type.Name: continue
             elif 'FQDN' in e.Type.Name: continue
             else: name = e.Type.Name[1:]
@@ -1471,7 +1472,7 @@ def terraform_provider_config(kwargs):
             for line in r.iter_lines():
                 toString = line.decode('utf-8')
                 if re.search(r'/releases/tag/v(\d+\.\d+\.\d+)\"', toString):
-                    repoVer = re.search('/releases/tag/v(\d+\.\d+\.\d+)', toString).group(1)
+                    repoVer = re.search(r'/releases/tag/v(\d+\.\d+\.\d+)', toString).group(1)
                     break
             stringMatch = True
         # Make sure the latest_versions Key exists
@@ -2026,7 +2027,7 @@ def write_to_repo_folder(pol_vars, kwargs):
     #=========================================================================
     # Setup jinja2 Environment
     #=========================================================================
-    template_path = pkg_resources.resource_filename(f'policies', 'templates/')
+    template_path = importlib.resources.path(f'policies', 'templates/')
     templateLoader = jinja2.FileSystemLoader(searchpath=(template_path + 'provider/'))
     templateEnv = jinja2.Environment(loader=templateLoader)
     #=========================================================================
