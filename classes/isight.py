@@ -3067,7 +3067,6 @@ class imm(object):
         if len(kwargs.profile_update) > 0:
             kwargs = api_get(False, list(kwargs.profile_update.keys()), self.type, kwargs)
             profile_results = kwargs.results
-            print(json.dumps(profile_results, indent=4, sort_keys=True, default=str))
             for e in list(kwargs.profile_update.keys()):
                 indx = next((index for (index, d) in enumerate(profile_results) if d['Name'] == e), None)
                 changes  = profile_results[indx].ConfigChanges.Changes
