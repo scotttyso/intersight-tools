@@ -1,0 +1,32 @@
+---
+apiVersion: extensions.hive.openshift.io/v1beta1
+kind: AgentClusterInstall
+metadata:
+  name: {{ cluster.name }}
+  namespace: {{ cluster.name }}
+  labels:
+    agentclusterinstalls.extensions.hive.openshift.io/location: {{ cluster.label.location }}
+  annotations:
+    agent-install.openshift.io/install-config-overrides: '{"networking":{"networkType":"Cilium"}}'
+spec:
+  clusterDeploymentRef:
+    name: {{ cluster.name }}
+  # Needed for Cilium??
+  deployKubeProxy: false
+  imageSetRef:
+    name: "img{{ cluster.version }}-x86-64-appsub"
+  networking:
+    clusterNetwork:
+    - cidr: {{ cluster.networks.cluster.cidr }}
+      hostPrefix: {{ cluster.networks.cluster.host_prefix }}
+    serviceNetwork:
+    - cidr: {{ cluster.networks.service.cidr }}
+    machineNetwork:
+    - cidr: {{ cluster.networks.machine.cidr }}
+  provisionRequirements:
+    controlPlaneAgents: {{ cluster.agents.control_plane }}
+    workerAgents: {{ cluster.agents.worker }}
+  sshPublicKey: "{{ cluster.ssh_public_key }}"
+  apiVIP: {{ cluster.vip.api }}
+  ingressVIP: {{ cluster.vip.ingress }}
+

@@ -1,0 +1,51 @@
+---
+apiVersion: cilium.io/v1alpha1
+kind: CiliumConfig
+metadata:
+  labels:
+    app.kubernetes.io/name: clife
+  name: ciliumconfig
+spec:
+  bpf:
+    hostLegacyRouting: true
+  cluster:
+    name: {{ cluster.name }}
+  securityContext:
+    privileged: true
+  ipam:
+    mode: cluster-pool
+    operator:
+      clusterPoolIPv4PodCIDRList:
+        - {{ cluster.networks.cluster.cidr }}
+      clusterPoolIPv4MaskSize: {{ cluster.networks.cluster.host_prefix }}
+  cni:
+    binPath: "/var/lib/cni/bin"
+    confPath: "/var/run/multus/cni/net.d"
+    # portmap is needed for supporting HostPort without KPR
+    chainingMode: portmap
+    exclusive: false
+  prometheus:
+    enabled: true
+    serviceMonitor:
+     enabled: true
+  hubble:
+    enabled: true
+  operator:
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+  socketLB:
+    hostNamespaceOnly: true
+  sessionAffinity: true
+  # avoid conflicts
+  clusterHealthPort: 9940
+  # OVN Kubernetes default port, firewalls may already be configured for it
+  tunnelPort: 4789
+  kubeProxyReplacement: true
+  k8sServiceHost: {{ cluster.vip.api }}
+  k8sServicePort: 443
+  enterprise:
+    featureGate:
+      approved:
+      - CNIChainingMode

@@ -1,0 +1,44 @@
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  labels:
+    agentclusterinstalls.extensions.hive.openshift.io/location: "{{ cluster.label.location }}"
+    networkType: static
+  name: "{{ cluster.name }}"
+  namespace: "{{ cluster.name }}"
+spec:
+  clusterRef:
+    name: "{{ cluster.name }}"
+    namespace: "{{ cluster.name }}"
+  pullSecretRef:
+    name: "{{ cluster.name }}-pull-secret"
+  sshAuthorizedKey: "{{ cluster.ssh_public_key }}"
+  additionalNTPSources: "{{ cluster.ntp_servers }}"
+  nmStateConfigLabelSelector:
+      matchLabels:
+        infraenvs.agent-install.openshift.io: "{{ cluster.name }}"
+{%- if cluster.proxy is defined %}
+  proxy:
+    httpProxy: "{{ cluster.proxy.http_proxy }}"
+    httpsProxy: "{{ cluster.proxy.https_proxy }}"
+    noProxy: "{{ cluster.proxy.no_proxy }}"
+{%- endif %}
+  cpuArchitecture: x86_64
+status:
+  agentLabelSelector:
+    matchLabels:
+      'agentclusterinstalls.extensions.hive.openshift.io/location': "{{ cluster.label.location }}"
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: capi-provider-role
+  namespace: "{{ cluster.name }}"
+rules:
+  - verbs:
+      - '*'
+    apiGroups:
+      - agent-install.openshift.io
+    resources:
+      - agents
