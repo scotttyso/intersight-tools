@@ -71,8 +71,7 @@ def main():
     #=========================================================================
     if os.path.isfile(kwargs.args.yaml_file): pass
     else: pcolor.Yellow(f'`{kwargs.args.yaml_file}` is not valid')
-    kwargs.args.dir        = os.path.dirname(os.path.abspath(kwargs.args.yaml_file))
-
+    kwargs.args.dir = os.path.dirname(os.path.abspath(kwargs.args.yaml_file))
     pcolor.Green(f'\n{"-"*108}\n\n  Begin Deployment for hosts.')
     pcolor.Green(f'\n{"-"*108}\n')
     #=========================================================================

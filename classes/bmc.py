@@ -71,6 +71,7 @@ class api(object):
             method = 'get',
             payload = {'Attributes': {bdata[k].bios_key:v for k,v in (kwargs.item.bios.toDict()).items()}},
             uri = '/redfish/v1/Systems/system/Bios'
+            '{NWSK001: "Disabled", NWSK006: "Disabled"}'
         )
         exit()
         #=================================================
@@ -669,6 +670,77 @@ class api(object):
         #=====================================================
         return kwargs
 
+
+    #=====================================================
+    # UCS - System - BIOS
+    #=====================================================
+    def virtual_media(self, kwargs):
+        #=================================================
+        # Load Variables and Send Begin Notification
+        #=================================================
+        validating.begin_section('ucs', self.type)
+        bdata  = kwargs.fsai_data['shared_settings.bios'].properties
+        kwargs = kwargs | DotMap(
+            clist   = [bdata[e].bios_key for e in list(kwargs.item.bios.toDict().keys())],
+            method  = 'get',
+            payload = {'Image': 'https://10.247.2.11/discovery2.iso'},
+            uri     = '/redfish/v1/Systems/system/Bios'
+        )
+        exit()
+        #=================================================
+        # Get existing BIOS Settings
+        #=================================================
+        rdata = api.get(kwargs)
+        bkeys = kwargs.clist
+        rkeys = rdata['Attributes'].keys()
+        cdata = {'Attributes': {}}
+        for e in bkeys:
+            if e in rkeys: cdata['Attributes'][e] = rdata['Attributes'][e]
+        if not cdata == kwargs.payload:
+            pcolor.Cyan(f"     * BIOS Settings on {kwargs.item.hostname} do not match")
+            pcolor.Green(f"     * Configuring BIOS Settings on {kwargs.item.hostname}")
+            if print_payload: pcolor.Cyan(json.dumps(kwargs.payload, indent=4))
+            #=====================================================
+            # Post - Insert Virtual Media
+            #=====================================================
+            kwargs.uri = '/redfish/v1/Managers/bmc/VirtualMedia/Slot_2/Actions/VirtualMedia.InsertMedia'
+            rdata      = api.post(kwargs)
+            serial     = kwargs.item.serial_number
+            kwargs.servers[serial] = kwargs.servers[serial] | DotMap(bios = kwargs.payload, check_bios = True, reboot_required = True)
+            #=====================================================
+            # Post - Remove Virtual Media
+            #=====================================================
+            kwargs.uri = '/redfish/v1/Managers/bmc/VirtualMedia/Slot_2/Actions/VirtualMedia.EjectMedia'
+            rdata      = api.post(kwargs)
+
+
+            #=====================================================
+            # Get the System BIOS to verify the patch
+            #=====================================================
+            rdata      = api.get(kwargs)
+            question   = 'y'
+            compare_data = {'Attributes': {}}
+            rkeys = rdata['Attributes'].keys()
+            for e in bkeys:
+                if e in rkeys:
+                    compare_data['Attributes'][e] = rdata['Attributes'][e]
+            if not compare_data == kwargs.payload:
+                pcolor.Red(f"!!! ERROR !!! does not match after patching")
+                pcolor.Red(f"* Expected:")
+                pcolor.Green(json.dumps(kwargs.payload, indent=4))
+                pcolor.Red(f"* Received:")
+                pcolor.Yellow(json.dumps(compare_data, indent=4))
+                pcolor.Cyan(f"\nCompare the outputs above to determine if there is an issue.")
+                pcolor.Cyan(f"If you are okay with the comparisons, you can continue by answering 'Y' to the next question.")
+                question = input(f"  Do you want to continue? [Y/N]: ").strip().lower()
+            if question not in ['y', 'yes']:
+                pcolor.Red(f"!!! ERROR !!! Configuration failed for {kwargs.item.hostname}")
+                len(False); sys.exit(1)
+        else: pcolor.Cyan(f"     * BIOS Settings on {kwargs.item.hostname} are already configured")
+        #=====================================================
+        # return kwargs
+        #=====================================================
+        return kwargs
 
 #=========================================================
 # Build Storage Class

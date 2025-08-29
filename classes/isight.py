@@ -243,22 +243,24 @@ class api(object):
                         pcolor.Red(json.dumps(kwargs.api_body, indent=4))
                         pcolor.Red(kwargs.api_body)
                         pcolor.Red(f'!!! ERROR !!!')
-                        if   method == 'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif method ==      'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif method ==         'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
-                        elif method ==       'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
-                        elif method ==        'post': pcolor.Red(f'  URL: {url}/{uri}')
+                        if   method ==  'get_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==       'delete': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==          'get': pcolor.Red(f'  URL: {url}/{uri}{aargs}')
+                        elif method ==        'patch': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method == 'post_by_moid': pcolor.Red(f'  URL: {url}/{uri}/{moid}')
+                        elif method ==         'post': pcolor.Red(f'  URL: {url}/{uri}')
                         pcolor.Red(f'  Running Process: {method} {self.type}')
                         pcolor.Red(f'    Error status is {response}')
                         if '{' in response.text:
                             for k, v in (response.json()).items(): pcolor.Red(f"    {k} is '{v}'")
                         else: pcolor.Red(response.text)
                         len(False); sys.exit(1)
-                    if   method == 'get_by_moid': response = requests.get(   f'{url}/{uri}/{moid}', verify=False, auth=aauth)
-                    elif method ==      'delete': response = requests.delete(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
-                    elif method ==         'get': response = requests.get(   f'{url}/{uri}{aargs}', verify=False, auth=aauth)
-                    elif method ==       'patch': response = requests.patch( f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
-                    elif method ==        'post': response = requests.post(  f'{url}/{uri}',        verify=False, auth=aauth, json=payload)
+                    if   method ==  'get_by_moid': response = requests.get(   f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                    elif method ==       'delete': response = requests.delete(f'{url}/{uri}/{moid}', verify=False, auth=aauth)
+                    elif method ==          'get': response = requests.get(   f'{url}/{uri}{aargs}', verify=False, auth=aauth)
+                    elif method ==        'patch': response = requests.patch( f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
+                    elif method == 'post_by_moid': response = requests.post(  f'{url}/{uri}/{moid}', verify=False, auth=aauth, json=payload)
+                    elif method ==         'post': response = requests.post(  f'{url}/{uri}',        verify=False, auth=aauth, json=payload)
                     if re.search('40[0|3]', str(response)):
                         retry_action = False
                         #send_error()
@@ -291,10 +293,11 @@ class api(object):
             api_results = DotMap(response.json())
             if int(debug_level) >= 1: pcolor.Cyan(f'RESPONSE: {str(response)}')
             if int(debug_level)>= 5:
-                if   method == 'get_by_moid': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
-                elif method ==         'get': pcolor.Cyan(f'URL:      {url}/{uri}{aargs}')
-                elif method ==       'patch': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
-                elif method ==        'post': pcolor.Cyan(f'URL:      {url}/{uri}')
+                if   method ==  'get_by_moid': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method ==          'get': pcolor.Cyan(f'URL:      {url}/{uri}{aargs}')
+                elif method ==        'patch': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method == 'post_by_moid': pcolor.Cyan(f'URL:      {url}/{uri}/{moid}')
+                elif method ==         'post': pcolor.Cyan(f'URL:      {url}/{uri}')
             if int(debug_level) >= 6:
                 pcolor.Cyan('HEADERS:')
                 pcolor.Cyan(json.dumps(dict(response.headers), indent=4))
@@ -1647,7 +1650,6 @@ class imm(object):
                     api_body['RemoteKey'][e] = kwargs.var_value
             api_body['KeySettings']['RemoteKey'] = api_body['RemoteKey']
             api_body.pop('RemoteKey')
-        print(json.dumps(api_body, indent=4)); exit()
         return api_body
 
     #=========================================================================
@@ -3428,7 +3430,7 @@ class imm(object):
                         kwargs = api(self.type).calls(kwargs)
                         active_result = kwargs.results
                     else: active_result = activate_results[indx]
-                    if active_result.WorkflowStatus == 'Completed': success_message(e); deploy_complete   = True
+                    if active_result.WorkflowStatus == 'Completed': success_message(e); deploy_complete = True
                     elif re.search('Failed|Terminated|Canceled', active_result.WorkflowStatus):
                         failed_message(e); deploy_complete == True
                     else:  
