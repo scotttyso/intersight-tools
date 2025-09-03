@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - logcollector-serviceaccount.yaml
+  - cluster-log-forwarder-template.yaml
+  - lokistack-rbac.yaml
+  - logcollector-token-secret.yaml
+#   - lokistack-bearer-token-job.yaml # Convert to Script to run manually
+
+commonLabels:
+  app.kubernetes.io/name: cluster-log-forwarder
+  app.kubernetes.io/component: log-forwarding
+  app.kubernetes.io/part-of: openshift-logging

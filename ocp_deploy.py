@@ -38,6 +38,15 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 #=============================================================================
+# Exception Classes and YAML dumper
+#=============================================================================
+class insufficient_args(Exception): pass
+
+class yaml_dumper(yaml.Dumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(yaml_dumper, self).increase_indent(flow, False)
+
+#=============================================================================
 # Function: Parse Arguments
 #=============================================================================
 def cli_arguments():
@@ -62,47 +71,61 @@ def cli_arguments():
     return DotMap(args = parser.parse_args())
 
 #=============================================================================
+# Function: Write File
+#=============================================================================
+def write_file(dest_dir, dest_file, ydata):
+    if not os.path.isdir(dest_dir): os.makedirs(dest_dir)
+    if not os.path.exists(os.path.join(dest_dir, dest_file)):
+        create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'
+        os.system(create_file)
+    wr_file = open(os.path.join(dest_dir, dest_file), 'w')
+    wr_file.write(yaml.dump(ydata, Dumper = yaml_dumper, default_flow_style=False))
+    wr_file.close()
+
+#=============================================================================
 # Function: Main Script
 #=============================================================================
 def menu(kwargs):
-    yfile = open(os.path.join(kwargs.args.yaml_file), 'r')
-    kwargs.ezdata = DotMap(yaml.safe_load(yfile))
-    yfile.close()
+    #=========================================================================
+    # Import YAML Data
+    #=========================================================================
+    yaml_file    = open(os.path.join(kwargs.args.yaml_file), 'r')
+    kwargs.ydata = DotMap(yaml.safe_load(yaml_file))
+    yaml_file.close()
     #=========================================================================
     # Setup jinja2 Environment
     #=========================================================================
-    template_dir    = os.path.join(kwargs.script_path, 'templates', 'openshift', 'deploy_cluster')
+    template_dir    = os.path.join(kwargs.script_path, 'classes', 'templates', 'openshift', 'cluster-deployment')
     template_loader = jinja2.FileSystemLoader(template_dir)
     template_env    = jinja2.Environment(loader=template_loader)
     #=========================================================================
-    # Define the Template Source
+    # Loop Through Templates
     #=========================================================================
-    template_list = [
-        # '00-cilium-namespace.j2',
-        # '00-cluster-namespace.j2',
-        # '01-agent-cluster-install.j2',
-        # '02-assisted-deployment-pull-secret.j2',
-        # '02-cluster-deployment.j2',
-        # '03-cilium-custom-resource-definition.j2',
-        # '04-cilium-deployment.j2',
-        # '05-cilium-config.j2',
-        # '06-cilium-operator-group.j2',
-        # '07-cilium-rbac-cluster-roles.j2',
-        # '08-cilium-subscription.j2',
-        # '09-cilium-service-account.j2',
-        # '09-cilium-service.j2',
-        '10-nmstate-config.j2',
-        # '12-spoke-infraenv.j2',
-        # '13-baremetal-cluster.j2',
-        # '14-machine-config.j2',
-        # '15-portworx-machine-config.j2'
-    ]
+    start_directory = os.path.join(kwargs.script_path, 'classes', 'templates', 'openshift', 'gitops')
+    print(f"All files (including subdirectories) in '{start_directory}':")
+    for root, _, files in os.walk(start_directory):
+        for file_name in files:
+            full_path = os.path.join(root, file_name)
+            if re.search('_', full_path):
+                print(full_path)
+            # print(full_path)
+    exit()
+    #=========================================================================
+    # Loop Through Templates
+    #=========================================================================
+    template_list = [item for item in os.listdir(template_dir) if os.path.isfile(os.path.join(template_dir, item))]
     for template_file in template_list:
         template = template_env.get_template(template_file)
-        #print(template); exit()
-        payload  = template.render(kwargs.ezdata.toDict())
-        print(json.dumps(payload, indent=4))
-    exit()
+        ydata    = template.render(kwargs.ydata.toDict())
+        write_file(dest_dir=dest_dir, dest_file=f'{template_file.replace('j2', 'yaml')}', ydata=ydata)
+    
+    #argo_cd = DotMap(
+    #    apps=['cluster_config'],
+    #    cluster_config=[DotMap(
+    #        apps=[]
+    #    )]
+    #    openshift_gitops=['argocd','kustomization','operator','rbac'])
+
 #=============================================================================
 # Function: Main Script
 #=============================================================================

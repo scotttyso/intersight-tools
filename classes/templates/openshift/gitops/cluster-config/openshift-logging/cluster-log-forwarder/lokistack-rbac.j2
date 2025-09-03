@@ -1,0 +1,54 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lokistack-dev-tenant-logs-role
+rules:
+  - apiGroups:
+      - 'loki.grafana.com'
+    resources:
+      - application
+      - infrastructure
+      - audit
+    resourceNames:
+      - logs
+    verbs:
+      - 'get'
+      - 'create'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: logcollector-secret-manager
+  namespace: openshift-logging
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "configmaps"]
+    verbs: ["get", "list", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: logcollector-secret-manager-binding
+  namespace: openshift-logging
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: logcollector-secret-manager
+subjects:
+  - kind: ServiceAccount
+    name: logcollector
+    namespace: openshift-logging
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: lokistack-dev-tenant-logs-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: lokistack-dev-tenant-logs-role
+subjects:
+  - kind: ServiceAccount
+    name: logcollector
+    namespace: openshift-logging

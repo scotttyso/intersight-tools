@@ -1,0 +1,40 @@
+---
+# oc process -p VLAN=1924 -p NODE_SELECTOR_KEY=kubernetes.io/hostname -p NODE_SELECTOR_VALUE=hub-q4jtr-cnv-dn79n \
+#    -f templates/template-nncp.yaml -o yaml | yq e '.items[0]' - > nncp-hub-q4jtr-cnv-dn79n.yaml
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  annotations:
+    description: Networking Configuration to Add eno6 and eno7
+  name: d2midphosv513-eno6-eno7
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: d2midphosv513.edc.nam.gm.com
+  desiredState:
+    interfaces:
+      - name: br1
+        description: Linux bridge with eno6 as a port
+        type: linux-bridge
+        state: up
+        # ipv4 configuration is optional if this will be used by Pods/VMs
+        ipv4:
+          enabled: true
+          dhcp: true
+          address: # static IP configuration
+            - ip: 10.247.3.55
+              prefix-length: 24
+        bridge:
+          options:
+            stp:
+              enabled: false
+          port:
+            - name: eno6
+      - ipv4:
+          address:
+            - ip: 10.247.4.55
+              prefix-length: 24
+          dhcp: false
+          enabled: true
+        name: eno7
+        state: up
+        type: ethernet

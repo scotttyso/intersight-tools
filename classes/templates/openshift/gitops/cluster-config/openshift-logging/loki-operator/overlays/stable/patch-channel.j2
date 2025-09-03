@@ -1,0 +1,3 @@
+- op: replace
+  path: /spec/channel
+  value: "stable-{{ argo_cd.loki_operator.patch_channel | default(6.3) }}"

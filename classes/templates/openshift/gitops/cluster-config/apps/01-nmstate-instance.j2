@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nmstate-instance
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  destination:
+    namespace: openshift-nmstate
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: cluster-config/nmstate/instance/overlays/default
+    repoURL: {{ argo_cd.repo_url }}
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: {{ argo_cd.sync_policy.prune | default(true) }}
+      selfHeal: {{ argo_cd.sync_policy.self_heal | default(true) }}
+    syncOptions:
+      - CreateNamespace=true

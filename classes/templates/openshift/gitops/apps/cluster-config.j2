@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-config
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: openshift-gitops
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: cluster-config/apps
+    repoURL: {{ argo_cd.repo_url }}
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
