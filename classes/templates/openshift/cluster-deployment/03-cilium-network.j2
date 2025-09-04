@@ -1,0 +1,15 @@
+---
+apiVersion: operator.openshift.io/v1
+kind: Network
+metadata:
+  name: cluster
+spec:
+  deployKubeProxy: false
+  clusterNetwork:
+  - cidr: {{ cluster.networks.cluster.cidr }}
+    hostPrefix: {{ cluster.networks.cluster.host_prefix }}
+  externalIP:
+    policy: {}
+  networkType: Cilium
+  serviceNetwork:
+  - {{ cluster.networks.service.cidr }}

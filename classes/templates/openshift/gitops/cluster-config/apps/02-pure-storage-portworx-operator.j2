@@ -2,17 +2,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: portworx
+  name: pure-storage-portworx-operator
   namespace: openshift-gitops
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   destination:
     namespace: portworx
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: cluster-config/pure-storage/portworx/overlays/stable
+    path: cluster-config/pure-storage/portworx-operator/overlays/default
     repoURL: {{ argo_cd.repo_url }}
     targetRevision: main
   syncPolicy:

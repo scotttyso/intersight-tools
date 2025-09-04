@@ -11,8 +11,6 @@ metadata:
 spec:
   clusterDeploymentRef:
     name: {{ cluster.name }}
-  # Needed for Cilium??
-  deployKubeProxy: false
   imageSetRef:
     name: "img{{ cluster.version }}-x86-64-appsub"
   networking:
