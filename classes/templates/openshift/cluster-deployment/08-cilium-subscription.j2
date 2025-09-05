@@ -5,7 +5,7 @@ metadata:
   name: clife
   namespace: cilium
 spec:
-  channel: "1.17"
+  channel: {{ cluster.cilium.channel }}
   installPlanApproval: Manual
   name: clife
   source: certified-operators
@@ -13,6 +13,6 @@ spec:
   config:
     env:
       - name: KUBERNETES_SERVICE_HOST
-        value: "{{ cluster.vip.api }}"
+        value: {{ cluster.vip.api }}
       - name: KUBERNETES_SERVICE_PORT
         value: "443"

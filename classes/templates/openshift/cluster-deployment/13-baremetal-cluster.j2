@@ -4,19 +4,19 @@ kind: ManagedCluster
 metadata:
   labels:
     cloud: Baremetal
-    name: "{{ cluster.name }}"
-  name: "{{ cluster.name }}"
+    name: {{ cluster.name }}
+  name: {{ cluster.name }}
 spec:
   hubAcceptsClient: true
 ---
 apiVersion: agent.open-cluster-management.io/v1
 kind: KlusterletAddonConfig
 metadata:
-  name: "{{ cluster.name }}"
-  namespace: "{{ cluster.name }}"
+  name: {{ cluster.name }}
+  namespace: {{ cluster.name }}
 spec:
-  clusterName: "{{ cluster.name }}"
-  clusterNamespace: "{{ cluster.name }}"
+  clusterName: {{ cluster.name }}
+  clusterNamespace: {{ cluster.name }}
   clusterLabels:
     cloud: Baremetal
   applicationManager:

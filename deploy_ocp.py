@@ -30,7 +30,7 @@ try:
     from copy import deepcopy
     from dotmap import DotMap
     from pathlib import Path
-    import argparse, jinja2, json, logging, os, platform, re, requests, urllib3, yaml
+    import argparse, base64, jinja2, json, logging, os, platform, re, requests, urllib3, yaml
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
     prRed(f'EZIMM - !!! ERROR !!!\n{e.__class__.__name__}')
@@ -38,36 +38,31 @@ except ImportError as e:
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
 #=============================================================================
-# Exception Classes and YAML dumper
-#=============================================================================
-class insufficient_args(Exception): pass
-
-class yaml_dumper(yaml.Dumper):
-    def increase_indent(self, flow=False, indentless=False):
-        return super(yaml_dumper, self).increase_indent(flow, False)
-
-#=============================================================================
 # Function: Parse Arguments
 #=============================================================================
 def cli_arguments():
     parser = argparse.ArgumentParser(description ='Intersight Easy IMM Deployment Module')
-    parser = ezfunctions.base_arguments(parser)
+    #parser = ezfunctions.base_arguments(parser)
     parser.add_argument(
-        '-dm', '--deployment-method', default ='',
-        help = 'Deployment Method values are: \
-            1.  Python \
-            2.  Terraform')
+        '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
+        help   = 'The Intersight API key id for HTTP signature scheme.')
+    parser.add_argument(
+        '-d', '--dir', default = f'{Path.home()}{os.sep}install',
+        help   = 'The Directory to use for the Creation of the YAML Configuration Files.')
     parser.add_argument(
         '-dt', '--deployment-type', default ='',
         help = 'Deployment Type values are: \
-            1.  Convert \
-            2.  Deploy \
-            3.  Domain \
-            4.  Individual \
-            5.  OSInstall \
-            6.  Server \
-            7.  StateUpdate \
-            8.  Exit')
+            1.  cluster-deployment \
+            2.  gitops \
+            3.  openshift-ai \
+            4.  Exit')
+    parser.add_argument(
+        '-i', '--ignore-tls', action = 'store_false',
+        help   = 'Ignore TLS server-side certificate verification.  Default is False.')
+    parser.add_argument(
+        '-k', '--intersight-secret-key', default = os.getenv('intersight_secret_key'),
+        help   = 'Name of the file containing The Intersight secret key or contents of the secret key in environment.')
+    parser.add_argument('-y', '--yaml-file', default = None,  help = 'The input YAML File.')
     return DotMap(args = parser.parse_args())
 
 #=============================================================================
@@ -79,16 +74,49 @@ def write_file(dest_dir, dest_file, ydata):
         create_file = f'type nul >> {os.path.join(dest_dir, dest_file)}'
         os.system(create_file)
     wr_file = open(os.path.join(dest_dir, dest_file), 'w')
-    wr_file.write(yaml.dump(ydata, Dumper = yaml_dumper, default_flow_style=False))
+    wr_file.write(ydata)
     wr_file.close()
 
 #=============================================================================
-# Function: Main Script
+# Function: RedHat OpenShift Cluster
 #=============================================================================
-def menu(kwargs):
+def cluster_deployment(kwargs):
     #=========================================================================
     # Import YAML Data
     #=========================================================================
+    if not os.path.isdir(kwargs.args.dir): os.mkdir(kwargs.args.dir)
+    yaml_file    = open(os.path.join(kwargs.args.yaml_file), 'r')
+    kwargs.ydata = DotMap(yaml.safe_load(yaml_file))
+    yaml_file.close()
+    #=========================================================================
+    # Setup jinja2 Environment
+    #=========================================================================
+    def b64decode_filter(value):
+        return base64.b64decode(value).decode('utf-8')
+    def b64encode_filter(value):
+        return base64.b64encode(value.encode('utf-8')).decode('utf-8')
+    template_dir = os.path.join(kwargs.script_path, 'classes', 'templates', 'openshift', 'cluster-deployment')
+    template_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+    template_env.filters['b64decode'] = b64decode_filter
+    template_env.filters['b64encode'] = b64encode_filter
+    #=========================================================================
+    # Loop Through Templates
+    #=========================================================================
+    dest_dir      = kwargs.args.dir
+    template_list = [item for item in os.listdir(template_dir) if os.path.isfile(os.path.join(template_dir, item))]
+    for template_file in template_list:
+        template = template_env.get_template(template_file)
+        ydata    = template.render(kwargs.ydata.toDict())
+        write_file(dest_dir=dest_dir, dest_file=f'{template_file.replace('j2', 'yaml')}', ydata=ydata)
+    
+#=============================================================================
+# Function: RedHat OpenShift ArgoCD Applications
+#=============================================================================
+def gitops(kwargs):
+    #=========================================================================
+    # Import YAML Data
+    #=========================================================================
+    if not os.path.isdir(kwargs.args.dir): os.mkdir(kwargs.args.dir)
     yaml_file    = open(os.path.join(kwargs.args.yaml_file), 'r')
     kwargs.ydata = DotMap(yaml.safe_load(yaml_file))
     yaml_file.close()
@@ -106,7 +134,7 @@ def menu(kwargs):
     for root, _, files in os.walk(start_directory):
         for file_name in files:
             full_path = os.path.join(root, file_name)
-            if re.search('_', full_path):
+            if re.search('j2', full_path):
                 print(full_path)
             # print(full_path)
     exit()
@@ -118,13 +146,6 @@ def menu(kwargs):
         template = template_env.get_template(template_file)
         ydata    = template.render(kwargs.ydata.toDict())
         write_file(dest_dir=dest_dir, dest_file=f'{template_file.replace('j2', 'yaml')}', ydata=ydata)
-    
-    #argo_cd = DotMap(
-    #    apps=['cluster_config'],
-    #    cluster_config=[DotMap(
-    #        apps=[]
-    #    )]
-    #    openshift_gitops=['argocd','kustomization','operator','rbac'])
 
 #=============================================================================
 # Function: Main Script
@@ -157,13 +178,52 @@ def main():
     kwargs.op_system     = platform.system()
     kwargs.type_dotmap   = type(DotMap())
     kwargs.type_none     = type(None)
-
-    # kwargs = ezfunctions.base_script_settings(kwargs)
+    pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Begin Proceedures !!!\n\n{"-"*108}\n')
     #=========================================================================
-    # Prompt User for Main Menu
+    # Prompt User for YAML input file
     #=========================================================================
-    kwargs = menu(kwargs)
-    #if re.search('Domain|Individual|OSInstall|Server', kwargs.deployment_type): kwargs = process_wizard(kwargs)
+    if not kwargs.args.yaml_file:
+        valid = False
+        while valid == False:
+            kwargs.jdata = DotMap(
+                type = "string",
+                default = "",
+                description = "What is the path to the YAML Data File?",
+                maxLength = 2048,
+                minLength = 1,
+                pattern = '.*',
+                title = "YAML File"
+            )
+            kwargs.args.yaml_file = ezfunctions.variable_prompt(kwargs)
+            if not os.path.isfile(kwargs.args.yaml_file):
+                pcolor.Yellow(f'\n{"-"*108}\n')
+                pcolor.Red(f' !!! ERROR !!! Invalid File\n  * `{kwargs.args.yaml_file}`')
+                pcolor.Cyan(f'\n  Re-enter the File Path.')
+                pcolor.Yellow(f'\n{"-"*108}\n')
+            else: valid = True
+    #=========================================================================
+    # Prompt User for Deployment Type
+    #=========================================================================
+    if not kwargs.args.deployment_type:
+        kwargs.jdata = DotMap(
+            type = "string",
+            default = "cluster-deployment",
+            description = 'Select the Option to Perform:'\
+                '\n  * cluster-deployment: Create YAML Files for RHACM agent assist cluster deployment.'\
+                '\n  * gitops:             Create YAML Files for ArgoCD application deployment.' \
+                '\n  * openshift-ai:       Create YAML Files for RedHat Openshift AI ArgoCD.' \
+                '\n  * Exit:               Cancel the Wizard',
+            enum = [
+                "cluster-deployment",
+                "gitops",
+                "openshift-ai",
+                "Exit"
+            ],
+            sort = False,
+            title = "Deployment Type"
+        )
+        kwargs.args.deployment_type = ezfunctions.variable_prompt(kwargs)
+    if kwargs.args.deployment_type == 'cluster-deployment': kwargs = cluster_deployment(kwargs)
     pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Procedures Complete !!!\n  Closing Environment and Exiting Script...\n\n{"-"*108}\n')
     sys.exit(0)
 

@@ -47,10 +47,10 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: KUBERNETES_SERVICE_HOST
-            value: "{{ cluster.vip.api }}"
+            value: {{ cluster.vip.api }}
           - name: KUBERNETES_SERVICE_PORT
             value: "443"
-        image: quay.io/isovalent/clife:v1.17.7-cee.1@sha256:239a952bcc21877bcae15fae082d10b372635c0ae5ed19d412313df6ec1345e1
+        image: {{ cluster.cilium.image }}
         livenessProbe:
           httpGet:
             path: /healthz

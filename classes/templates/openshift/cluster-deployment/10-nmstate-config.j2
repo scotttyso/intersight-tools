@@ -20,8 +20,8 @@ spec:
           - {{ item }}
   {%- endfor %}
     interfaces:
-  {%- if element.config_interfaces.ethernet is defined %}
-    {%- for item in element.config_interfaces.ethernet %}
+  {%- for item in element.config_interfaces %}
+    {%- if item.type == "ethernet" %}
       - name: {{ item.name }}
         ipv4:
           address:
@@ -33,10 +33,7 @@ spec:
         mtu: {{ item.mtu | default(9000) }}
         state: up
         type: ethernet
-    {%- endfor %}
-  {%- endif %}
-  {%- if element.config_interfaces.bond is defined %}
-    {%- for item in element.config_interfaces.bond %}
+    {%- elif item.type == "bond" %}
       - name: {{ item.name }}
         ipv4:
           address:
@@ -55,8 +52,8 @@ spec:
         mtu: {{ item.mtu | default(9000) }}
         state: up
         type: bond
-    {%- endfor %}
-  {%- endif %}
+    {%- endif %}
+  {%- endfor %}
     routes:
       config:
   {%- for item in element.routes %}

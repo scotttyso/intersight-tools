@@ -24,7 +24,7 @@ spec:
   provisionRequirements:
     controlPlaneAgents: {{ cluster.agents.control_plane }}
     workerAgents: {{ cluster.agents.worker }}
-  sshPublicKey: "{{ cluster.ssh_public_key }}"
+  sshPublicKey: {{ cluster.ssh_public_key }}
   apiVIP: {{ cluster.vip.api }}
   ingressVIP: {{ cluster.vip.ingress }}
 
