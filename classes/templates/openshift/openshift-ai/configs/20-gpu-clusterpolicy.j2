@@ -58,7 +58,7 @@ spec:
         timeoutSeconds: 0
     repoConfig:
       configMapName: ''
-    version: {{ redhat_openshift_ai.nvidia.driver_version | default(550.163.01) }}
+    version: {{ redhat_openshift_ai.nvidia.driver_version | default('550.163.01') }}
     image: driver
     repository: nvcr.io/nvidia
     virtualTopology:
