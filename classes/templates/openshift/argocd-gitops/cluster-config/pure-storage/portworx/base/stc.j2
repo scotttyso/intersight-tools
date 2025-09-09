@@ -1,0 +1,49 @@
+apiVersion: core.libopenstorage.org/v1
+kind: StorageCluster
+metadata:
+  annotations:
+    portworx.io/is-openshift: "true"
+    portworx.io/misc-args: ' -T px-storev2 '
+  name: px-cluster
+  namespace: portworx
+spec:
+  autopilot: {}
+  cloudStorage:
+    deviceSpecs:
+    - size=1000
+    - size=1000
+    maxStorageNodesPerZone: 3
+    provider: pure
+    systemMetadataDeviceSpec: size=64
+  csi:
+    enabled: true
+    installSnapshotController: true
+  env:
+    - name: PURE_FLASHARRAY_SAN_TYPE
+      value: NVMEOF-TCP
+  image: portworx/oci-monitor:3.3.1.2
+  imagePullPolicy: Always
+  kvdb:
+    enableTLS: false
+    internal: true
+  monitoring:
+    prometheus:
+      exportMetrics: true
+      resources: {}
+    telemetry:
+      enabled: true
+  revisionHistoryLimit: 10
+  runtimeOptions:
+    default-io-profile: "6"
+  secretsProvider: k8s
+  startPort: 17001
+  stork:
+    args:
+      webhook-controller: "true"
+    enabled: true
+  updateStrategy:
+    rollingUpdate:
+      disruption:
+        allow: true
+      maxUnavailable: 1
+    type: RollingUpdate

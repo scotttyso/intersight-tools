@@ -1,0 +1,70 @@
+apiVersion: observability.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  serviceAccount:
+    name: logcollector
+  outputs:
+    - name: loki-app
+      type: loki
+      loki:
+        url: https://logging-loki-gateway-http.openshift-logging.svc:8080/api/logs/v1/application
+        authentication:
+          token:
+            from: secret
+            secret:
+              name: lokistack-gateway-bearer-token
+              key: token
+      tls:
+        ca:
+          key: ca-bundle.crt
+          secretName: lokistack-gateway-bearer-token
+        insecureSkipVerify: true
+    - name: loki-infra
+      type: loki
+      loki:
+        url: https://logging-loki-gateway-http.openshift-logging.svc:8080/api/logs/v1/infrastructure
+        authentication:
+          token:
+            from: secret
+            secret:
+              name: lokistack-gateway-bearer-token
+              key: token
+      tls:
+        ca:
+          key: ca-bundle.crt
+          secretName: lokistack-gateway-bearer-token
+        insecureSkipVerify: true
+    - name: loki-audit
+      type: loki
+      loki:
+        url: https://logging-loki-gateway-http.openshift-logging.svc:8080/api/logs/v1/audit
+        authentication:
+          token:
+            from: secret
+            secret:
+              name: lokistack-gateway-bearer-token
+              key: token
+      tls:
+        ca:
+          key: ca-bundle.crt
+          secretName: lokistack-gateway-bearer-token
+        insecureSkipVerify: true
+  pipelines:
+    - name: send-app-logs
+      inputRefs:
+        - application
+      outputRefs:
+        - loki-app
+    - name: send-infra-logs
+      inputRefs:
+        - infrastructure
+      outputRefs:
+        - loki-infra
+    - name: send-audit-logs
+      inputRefs:
+        - audit
+      outputRefs:
+        - loki-audit

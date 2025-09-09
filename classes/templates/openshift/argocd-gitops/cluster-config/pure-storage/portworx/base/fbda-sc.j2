@@ -1,0 +1,12 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: fbda-sc
+provisioner: pxd.portworx.com
+parameters:
+  backend: "pure_file"
+  pure_export_rules: "*(rw)"
+mountOptions:
+  - nfsvers=3
+  - tcp
+allowVolumeExpansion: true

@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../cluster-config/loki-stack
+  - ../../cluster-config/cluster-log-forwarder
+# Note: ClusterLogging managed by logging-instance ArgoCD app
+# Note: ClusterLogForwarder managed here for environment-specific routing
+
+labels:
+  - pairs:
+      environment: dev
+    includeSelectors: true
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/size
+        value: '1x.small'
+    target:
+      kind: LokiStack
+      name: logging-loki
+
+patchesStrategicMerge:
+  - cluster-log-forwarder-dev.yaml
+
+configMapGenerator:
+  - name: environment-config
+    literals:
+      - environment=dev
+      - region=us-east-1

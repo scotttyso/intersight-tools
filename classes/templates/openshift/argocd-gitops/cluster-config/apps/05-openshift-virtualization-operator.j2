@@ -1,0 +1,23 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openshift-virtualization-operator
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  destination:
+    namespace: openshift-cnv
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: cluster-config/openshift-virtualization/operator/overlays/standard
+    repoURL: {{ argo_cd.repo_url }}
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: {{ argo_cd.sync_policy.prune | default(true) }}
+      selfHeal: {{ argo_cd.sync_policy.self_heal | default(true) }}
+    syncOptions:
+      - CreateNamespace=true

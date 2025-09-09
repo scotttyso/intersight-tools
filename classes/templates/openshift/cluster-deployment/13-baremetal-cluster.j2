@@ -1,0 +1,31 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1
+kind: ManagedCluster
+metadata:
+  labels:
+    cloud: Baremetal
+    name: {{ cluster.name }}
+  name: {{ cluster.name }}
+spec:
+  hubAcceptsClient: true
+---
+apiVersion: agent.open-cluster-management.io/v1
+kind: KlusterletAddonConfig
+metadata:
+  name: {{ cluster.name }}
+  namespace: {{ cluster.name }}
+spec:
+  clusterName: {{ cluster.name }}
+  clusterNamespace: {{ cluster.name }}
+  clusterLabels:
+    cloud: Baremetal
+  applicationManager:
+    enabled: true
+  certPolicyController:
+    enabled: true
+  iamPolicyController:
+    enabled: true
+  policyController:
+    enabled: true
+  searchCollector:
+    enabled: true

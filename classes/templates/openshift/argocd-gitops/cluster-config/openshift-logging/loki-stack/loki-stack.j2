@@ -1,0 +1,19 @@
+apiVersion: loki.grafana.com/v1
+kind: LokiStack
+metadata:
+  name: logging-loki
+  namespace: openshift-logging
+spec:
+  size: {{ argo_cd.loki_stack.size | default ('1x.small') }}  # Will be overridden in overlays
+  storage:
+    schemas:
+      - version: {{ argo_cd.loki_stack.storage.schema.version | default(v13) }}
+        effectiveDate: '{{ argo_cd.loki_stack.storage.schema.effective_date | default('2024-10-25') }}'
+    secret:
+      name: {{ argo_cd.loki_stack.storage.secret.name | default ('logging-loki-s3') }}
+      type: {{ argo_cd.loki_stack.storage.secret.type | default ('s3') }}
+    tls:
+      caName: openshift-service-ca.crt
+  storageClassName: fada-sc  # Will be overridden in overlays
+  tenants:
+    mode: openshift-logging

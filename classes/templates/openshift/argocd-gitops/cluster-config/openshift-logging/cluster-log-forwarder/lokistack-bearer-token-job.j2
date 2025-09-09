@@ -1,0 +1,42 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-lokistack-bearer-token
+  namespace: openshift-logging
+spec:
+  template:
+    spec:
+      serviceAccountName: logcollector
+      containers:
+        - name: create-secret
+          image: registry.redhat.io/ubi8/ubi-minimal:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              # Install kubectl
+              # curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              # chmod +x kubectl
+              # mv kubectl /usr/local/bin/
+              curl -L "https://downloads-openshift-console.apps.{{ cluster.name }}.{{ cluster.base_domain }}/amd64/linux/oc.tar"
+              tar -xvf oc.tar
+              chmod +x oc
+              mv oc /usr/local/bin/
+
+              # Get token from logcollector-token secret
+              TOKEN=$(oc get secret logcollector-token -n openshift-logging -o jsonpath='{.data.token}' | base64 -d)
+              
+              # Get CA certificate from configmap
+              CA_CERT=$(oc get configmap openshift-service-ca.crt -n openshift-logging -o jsonpath='{.data.service-ca\.crt}')
+              
+              # Create or update the secret
+              oc create secret generic lokistack-gateway-bearer-token \
+                --from-literal=token="$TOKEN" \
+                --from-literal=ca-bundle.crt="$CA_CERT" \
+                --namespace=openshift-logging \
+                --dry-run=client -o yaml | oc apply -f -
+              
+              echo "Secret lokistack-gateway-bearer-token created/updated successfully"
+      restartPolicy: OnFailure
+  backoffLimit: 3
