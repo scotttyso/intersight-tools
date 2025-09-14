@@ -17,7 +17,7 @@ spec:
       - cidr: {{ cluster.networks.cluster.cidr }}
         hostPrefix: {{ cluster.networks.cluster.host_prefix }}
     serviceNetwork:
-      - cidr: {{ cluster.networks.service.cidr }}
+      - {{ cluster.networks.service.cidr }}
   provisionRequirements:
     controlPlaneAgents: {{ cluster.agents.control_plane }}
     workerAgents: {{ cluster.agents.worker }}
