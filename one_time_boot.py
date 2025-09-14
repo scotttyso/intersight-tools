@@ -52,40 +52,38 @@ def cli_arguments():
 #=============================================================================
 def hosts(kwargs):
     #=========================================================================
-    # Setup Variables
+    # Import YAML Data
     #=========================================================================
-    boot_device = 'kvm'
-    kwargs.org  = 'common'
-    kwargs.org1 = 'RICH'
-    name        = 'vmedia1'
-    profiles = [
-        DotMap(action = 'Deploy', name = 'r142c-2-8', serial_number = 'FCH243974V2'),
-        # DotMap(action = 'Deploy', name = 'r142c-2-8', serial_number = 'FCH243974V2'),
-        # DotMap(action = 'Deploy', name = 'r142c-2-8', serial_number = 'FCH243974V2'),
-        # DotMap(action = 'Deploy', name = 'r142c-2-8', serial_number = 'FCH243974V2'),
-        # DotMap(action = 'Deploy', name = 'r142c-2-8', serial_number = 'FCH243974V2'),
-        # DotMap(action = 'Deploy', name = 'r142c-2-8', serial_number = 'FCH243974V2')
-    ]
-    #=========================================================================
+    yaml_file = open(os.path.join(kwargs.args.yaml_file), 'r')
+    ydata     = DotMap(yaml.safe_load(yaml_file))
+    yaml_file.close()
+     #=========================================================================
     # Patch Virtual Media
     #=========================================================================
-    kwargs = isight.api('organization').all_organizations(kwargs)
-    kwargs = kwargs | DotMap(method = 'get', names = [name], uri = 'vmedia/Policies')
-    kwargs = isight.api('virtual_media').calls(kwargs)
+    kwargs.org = ydata.vmedia.organization
+    kwargs     = isight.api('organization').all_organizations(kwargs)
+    kwargs     = kwargs | DotMap(method = 'get', names = [ydata.vmedia.name], uri = 'vmedia/Policies')
+    kwargs     = isight.api('virtual_media').calls(kwargs)
     api_body = {
         "Mappings": [{
             'AuthenticationProtocol': 'none', 'DeviceType': 'cdd',
-            'FileLocation': f'https://10.247.2.11/{kwargs.args.mapping_iso}', 'MountOptions': 'noauto', 'MountProtocol': 'https'
+            'FileLocation': f'{ydata.vmedia.url}', 'MountOptions': 'noauto', 'MountProtocol': 'https'
         }]
     }
-    kwargs = kwargs | DotMap(api_body = api_body, method = 'patch', pmoid = kwargs.pmoids[name].moid, uri = 'vmedia/Policies')
+    kwargs = kwargs | DotMap(api_body = api_body, method = 'patch', pmoid = kwargs.pmoids[ydata.vmedia.name].moid, uri = 'vmedia/Policies')
     kwargs = isight.api('virtual_media').calls(kwargs)
     pcolor.Cyan(f'\n{"-"*108}\n\n  !!! Virtual Media Patch Complete.  Sleeping for Profile Validation !!!\n\n{"-"*108}\n')
     time.sleep(30)
     #=========================================================================
-    # Deploy Domain Profiles
+    # Setup Variables
     #=========================================================================
-    kwargs.org = kwargs.org1
+    profiles = []
+    for e in ydata.profiles:
+        profiles.append(DotMap(action = 'Deploy', name = e.name, serial_number = e.serial))
+   #=========================================================================
+    # Deploy Server Profiles
+    #=========================================================================
+    kwargs.org = ydata.profiles_organization
     kwargs = isight.imm('profiles.server').profiles_chassis_server_deploy(profiles, kwargs)
     #=========================================================================
     # Set One Time Boot and Reboot
@@ -99,7 +97,7 @@ def hosts(kwargs):
     for e in kwargs.results: physical_servers[e.Ancestors[0].Moid].server_settings_moid = e.Moid
     pcolor.Cyan(f'\n{"-"*108}\n')
     for k, v in physical_servers.items():
-        api_body = {'AdminPowerState': "PowerCycle", 'OneTimeBootDevice': boot_device}
+        api_body = {'AdminPowerState': "PowerCycle", 'OneTimeBootDevice': ydata.boot_device}
         kwargs   = kwargs | DotMap(api_body = api_body, method = 'post_by_moid', pmoid = v.server_settings_moid)
         kwargs   = isight.api('servers').calls(kwargs)
         pcolor.Cyan(f'    * One Time Boot Set for Server: {v.name} - Moid: {k}')
