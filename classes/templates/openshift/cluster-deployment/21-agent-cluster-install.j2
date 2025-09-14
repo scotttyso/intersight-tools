@@ -17,7 +17,7 @@ spec:
       - cidr: {{ cluster.networks.cluster.cidr }}
         hostPrefix: {{ cluster.networks.cluster.host_prefix }}
     machineNetwork:
-      - cidr: {{ cluster.networks.machine_network.cidr }}
+      - cidr: {{ cluster.networks.machine.cidr }}
     serviceNetwork:
       - {{ cluster.networks.service.cidr }}
   provisionRequirements:
