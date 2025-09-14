@@ -29,7 +29,6 @@ spec:
               prefix-length: {{ item.ip.prefix }}
           dhcp: false
           enabled: true
-        mac_address: {{ item.mac_address }}
         mtu: {{ item.mtu | default(9000) }}
         state: up
         type: ethernet
