@@ -23,7 +23,7 @@ try:
     from classes import ezfunctions, pcolor
     from dotmap  import DotMap
     from pathlib import Path
-    import argparse, base64, jinja2, logging, re, yaml
+    import argparse, base64, jinja2, json, logging, re, yaml
 except ImportError as e:
     prRed(f'deploy_ocp.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -83,9 +83,14 @@ def cluster_deployment(kwargs):
     #=========================================================================
     template_list = [item for item in os.listdir(template_dir) if os.path.isfile(os.path.join(template_dir, item))]
     for template_file in template_list:
+        # print(json.dumps(kwargs.ydata, indent=4)); sys.exit(0)
         template = template_env.get_template(template_file)
         ydata    = template.render(kwargs.ydata.toDict())
-        write_file(dest_dir=os.path.join(kwargs.args.dir, kwargs.args.deployment_type), dest_file=f'{template_file.replace('j2', 'yaml')}', ydata=ydata)
+        if re.search('cilium', template_file) and kwargs.ydata.network_type == 'Cilium':
+            write_file(dest_dir=os.path.join(kwargs.args.dir, kwargs.args.deployment_type), dest_file=f'{template_file.replace('j2', 'yaml')}', ydata=ydata)
+        elif re.search('cilium', template_file): continue
+        else:
+            write_file(dest_dir=os.path.join(kwargs.args.dir, kwargs.args.deployment_type), dest_file=f'{template_file.replace('j2', 'yaml')}', ydata=ydata)
     
 #=============================================================================
 # Function: RedHat OpenShift ArgoCD Applications for OpenShift AI

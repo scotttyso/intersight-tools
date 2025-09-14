@@ -4,23 +4,20 @@ kind: AgentClusterInstall
 metadata:
   name: {{ cluster.name }}
   namespace: {{ cluster.name }}
-  labels:
-    agentclusterinstalls.extensions.hive.openshift.io/location: {{ cluster.label.location }}
-  annotations:
-    agent-install.openshift.io/install-config-overrides: '{"networking":{"networkType":"Cilium"}}'
+  # labels:
+  #   agentclusterinstalls.extensions.hive.openshift.io/location: {{ cluster.label.location }}
 spec:
   clusterDeploymentRef:
     name: {{ cluster.name }}
   imageSetRef:
-    name: "img{{ cluster.version }}-x86-64-appsub"
+    name: 'img{{ cluster.version }}-x86-64-appsub'
   networking:
+    networkType: {{ cluster.network_type }}
     clusterNetwork:
-    - cidr: {{ cluster.networks.cluster.cidr }}
-      hostPrefix: {{ cluster.networks.cluster.host_prefix }}
+      - cidr: {{ cluster.networks.cluster.cidr }}
+        hostPrefix: {{ cluster.networks.cluster.host_prefix }}
     serviceNetwork:
-    - cidr: {{ cluster.networks.service.cidr }}
-    machineNetwork:
-    - cidr: {{ cluster.networks.machine.cidr }}
+      - cidr: {{ cluster.networks.service.cidr }}
   provisionRequirements:
     controlPlaneAgents: {{ cluster.agents.control_plane }}
     workerAgents: {{ cluster.agents.worker }}
