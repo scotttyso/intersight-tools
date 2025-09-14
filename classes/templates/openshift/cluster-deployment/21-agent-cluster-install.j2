@@ -4,8 +4,8 @@ kind: AgentClusterInstall
 metadata:
   name: {{ cluster.name }}
   namespace: {{ cluster.name }}
-  # labels:
-  #   agentclusterinstalls.extensions.hive.openshift.io/location: {{ cluster.label.location }}
+    labels:
+      agentclusterinstalls.extensions.hive.openshift.io/location: {{ cluster.label.location }}
 spec:
   clusterDeploymentRef:
     name: {{ cluster.name }}
