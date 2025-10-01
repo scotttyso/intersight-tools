@@ -24,3 +24,25 @@ spec:
       - type: Restart
         restart: 
           serviceName: iscsid.service
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: set-allocatable 
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/worker: "" 
+  kubeletConfig:
+    systemReserved:
+      memory: 4096Mi
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-worker-blacklist-irdma
+spec:
+  kernelArguments:
+    - "module_blacklist=irdma"
