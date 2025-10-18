@@ -79,8 +79,8 @@ def hosts(kwargs):
     #=========================================================================
     profiles = []
     for e in ydata.profiles:
-        profiles.append(DotMap(action = 'Deploy', name = e.name, serial_number = e.serial))
-   #=========================================================================
+        profiles.append(DotMap(action = 'Deploy', name = e.name, serial_number = e.serial_number))
+    #=========================================================================
     # Deploy Server Profiles
     #=========================================================================
     kwargs.org = ydata.profiles_organization
