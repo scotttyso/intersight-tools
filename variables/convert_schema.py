@@ -13,10 +13,33 @@ except ImportError as e:
     prRed(f" Module {e.name} is required to run this script")
     prRed(f" Install the module using the following: `pip install {e.name}`")
     sys.exit(1)
-#=================================================================
-# Function: Main Script
-#=================================================================
-def main():
+#=============================================================================
+# Easy IMM Conversion Function
+#=============================================================================
+def aipods():
+    ezdata = json.load(open(os.path.join(script_path, 'cisco-ai-pods.json'), encoding='utf8'))
+    ezdata['$schema'] = 'http://json-schema.org/draft-07/schema#'
+    plist = []
+    for k,v in ezdata['components']['schemas'].items():
+        pkeys = list(v.keys())
+        if 'allOf' in pkeys:
+            if len(ezdata['components']['schemas'][k]['allOf']) > 2:
+                print(json.dumps(ezdata['components']['schemas'][k], indent=4))
+                exit(0)
+            if len(ezdata['components']['schemas'][k]['allOf']) > 1:
+                ezdata['components']['schemas'][k]['allOf'].pop(0)
+            ezdata['components']['schemas'][k]['allOf'][0]['required'].sort()
+            ezdata['components']['schemas'][k]['allOf'][0].update({'additionalProperties': False})
+            ezdata['components']['schemas'][k]['allOf'][0] = dict(sorted(ezdata['components']['schemas'][k]['allOf'][0].items()))
+            ezdata['components']['schemas'][k]['allOf'][0]['properties'] = dict(sorted(
+                ezdata['components']['schemas'][k]['allOf'][0]['properties'].items()))
+    with open(os.path.join(script_path, 'ai-pods.json'), 'w') as f:
+        json.dump(ezdata, f, indent=4)
+
+#=============================================================================
+# Easy IMM Conversion Function
+#=============================================================================
+def ezimm():
     ezdata = json.load(open(os.path.join(script_path, 'easy-imm.json'), encoding='utf8'))
     for e in ['scripts', 'templates', 'wizard']:
         ezdata['components'].pop(e)
@@ -66,6 +89,15 @@ def main():
                 ezdata['components']['schemas'][k]['allOf'][0]['properties'].items()))
     with open(os.path.join(script_path, 'new.json'), 'w') as f:
         json.dump(ezdata, f, indent=4)
+
+#=================================================================
+# Function: Main Script
+#=================================================================
+def main():
+    if sys.argv[1] == 'aipods':
+        aipods()
+    elif sys.argv[1] == 'ezimm':
+        ezimm()
 
 if __name__ == '__main__':
     main()
