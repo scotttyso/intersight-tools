@@ -910,13 +910,13 @@ class tools(object):
                 if kwargs.servers[k].moid in vhba_keys:
                     for e in profile_vhbas[kwargs.servers[k].moid]:
                         if e.WwpnAddressType == 'STATIC':
-                            kwargs.servers[k].vhbas.append({'name': e.Name, 'order': e.Order, 'switch_id':e.Placement.SwitchId,'wwpn_address':e.StaticWwpnAddress})
-                        else: kwargs.servers[k].vhbas.append({'name': e.Name, 'order': e.Order, 'switch_id':e.Placement.SwitchId,'wwpn_address':e.Wwpn})
+                            kwargs.servers[k].vhbas.append({'name': e.Name, 'order': e.Order, 'switch_id':e.Placement.SwitchId, 'vif_id': e.VifId, 'wwpn_address':e.StaticWwpnAddress})
+                        else: kwargs.servers[k].vhbas.append({'name': e.Name, 'order': e.Order, 'switch_id':e.Placement.SwitchId, 'vif_id': e.VifId,'wwpn_address':e.Wwpn})
                 if kwargs.servers[k].moid in vnic_keys:
                     for e in profile_vnics[kwargs.servers[k].moid]:
                         if e.MacAddressType == 'STATIC':
-                            kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.StaticMacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order})
-                        else: kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.MacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order})
+                            kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.StaticMacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order, 'vif_id': e.VifId})
+                        else: kwargs.servers[k].vnics.append({'name': e.Name, 'mac_address':e.MacAddress,'mtu':qos_policies[e.EthQosPolicy.Moid].mtu, 'order': e.Order, 'vif_id': e.VifId})
         #=====================================================================
         # BUILD Workbooks
         #=====================================================================
@@ -945,7 +945,7 @@ class tools(object):
                 #=============================================================
                 # Create Column Headers - Extend with server dict
                 #=============================================================
-                column_headers = ['Domain','Profile','Server','Serial','WWNN']
+                column_headers = ['Domain','Profile','Server','Serial','VIF','WWNN']
                 vhba_list = []; vnic_list = []
                 for i in list(kwargs.servers.keys()):
                     for e in kwargs.servers[i].vhbas:
@@ -983,10 +983,16 @@ class tools(object):
                             else: data.append(server_dn); column_count += 1
                         else:
                             for e in v.vhbas:
-                                if i == e.name: data.append(e.wwpn_address); column_count += 1
+                                if i == e.name:
+                                    data.append(e.wwpn_address); column_count += 1
+                                    data[4] = e.vif_id  # Update VIF column
                             for e in v.vnics:
-                                if i == e.name: data.append(e.mac_address); column_count += 1
-                        if column_count == 0: data.append('Not Configured')
+                                if i == e.name:
+                                    data.append(e.mac_address); column_count += 1
+                                    data[4] = e.vif_id  # Update VIF column
+                        if column_count == 0:
+                            if i == 'VIF': data.append('unassigned')
+                            else: data.append('Not Configured')
                     ws.append(data)
                     for cell in ws[ws_row_count:ws_row_count]:
                         if ws_row_count % 2 == 0: cell.style = 'odd'
