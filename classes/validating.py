@@ -285,7 +285,7 @@ def dns_name(varName, varValue):
     if len(hostname) > 255: valid_count =+ 1
     if not validators.domain(hostname): valid_count =+ 1
     if hostname[-1] == ".": hostname = hostname[:-1] # strip exactly one dot from the right, if present
-    allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+    allowed = re.compile(r"(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
     if not all(allowed.match(x) for x in hostname.split(".")): valid_count =+ 1
     if not valid_count == 0:
         print(f'{"-"*108}')
@@ -308,7 +308,7 @@ def dns_name_ws(var, kwargs):
         if not validators.domain(domain): valid_count =+ 1
     if not re.search('^\\..*', hostname):
         if hostname[-1] == ".": hostname = hostname[:-1] # strip exactly one dot from the right, if present
-        allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+        allowed = re.compile(r"(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
         if not all(allowed.match(x) for x in hostname.split(".")):
             valid_count =+ 1
     if not valid_count == 0:

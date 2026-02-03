@@ -945,7 +945,7 @@ class tools(object):
                 #=============================================================
                 # Create Column Headers - Extend with server dict
                 #=============================================================
-                column_headers = ['Domain','Profile','Server','Serial','VIF','WWNN']
+                column_headers = ['Domain','Profile','Server','Serial','WWNN']
                 vhba_list = []; vnic_list = []
                 for i in list(kwargs.servers.keys()):
                     for e in kwargs.servers[i].vhbas:
@@ -983,21 +983,59 @@ class tools(object):
                             else: data.append(server_dn); column_count += 1
                         else:
                             for e in v.vhbas:
-                                if i == e.name:
-                                    data.append(e.wwpn_address); column_count += 1
-                                    data[4] = e.vif_id  # Update VIF column
+                                if i == e.name: data.append(e.wwpn_address); column_count += 1
                             for e in v.vnics:
-                                if i == e.name:
-                                    data.append(e.mac_address); column_count += 1
-                                    data[4] = e.vif_id  # Update VIF column
-                        if column_count == 0:
-                            if i == 'VIF': data.append('unassigned')
-                            else: data.append('Not Configured')
+                                if i == e.name: data.append(e.mac_address); column_count += 1
+                        if column_count == 0: data.append('Not Configured')
                     ws.append(data)
                     for cell in ws[ws_row_count:ws_row_count]:
                         if ws_row_count % 2 == 0: cell.style = 'odd'
                         else: cell.style = 'even'
                     ws_row_count += 1
+            #=================================================================
+            # VIF Inventory Workbook
+            #=================================================================
+            elif kwargs.args.vif_identities:
+                #=============================================================
+                # Create Column Headers - Extend with server dict
+                #=============================================================
+                column_headers = ['Domain', 'Profile', 'Server', 'Serial', 'Interface Name', 'VIF', 'WWPN / MAC']
+                vhba_list = []; vnic_list = []
+                column_headers = column_headers + vhba_list + vnic_list
+                for i in range(len(column_headers)): ws.column_dimensions[chr(ord('@')+i+1)].width = 30
+                cLength = len(column_headers)
+                ws_header = f'Collected UCS Data on {kwargs.time_long}'
+                data = [ws_header]
+                ws.append(data)
+                ws.merge_cells(f'A1:{chr(ord("@")+cLength)}1')
+                for cell in ws['1:1']: cell.style = 'heading_1'
+                ws.append(column_headers)
+                for cell in ws['2:2']: cell.style = 'heading_2'
+                ws_row_count = 3
+                #=============================================================
+                # Populate the Worksheet with Server Inventory
+                #=============================================================
+                for k, v in kwargs.servers.items():
+                    if not 'sys' in v.server_dn:
+                        if len(v.chassis_id) > 0: server_dn = f'sys/chassis-{v.chassis_id}/blade-{v.slot}'
+                        else: server_dn = f'sys/rack-unit-{v.server_id}'
+                    else: server_dn = v.server_dn
+                    for e in v.vhbas:
+                        if len(server_dn) == 0:
+                            ws.append([v.domain, v.server_profile, '', k, e.name, e.vif_id, e.wwpn_address])
+                        else: ws.append([v.domain, v.server_profile, server_dn, k, e.name, e.vif_id, e.wwpn_address])
+                        for cell in ws[ws_row_count:ws_row_count]:
+                            if ws_row_count % 2 == 0: cell.style = 'odd'
+                            else: cell.style = 'even'
+                        ws_row_count += 1
+                    for e in v.vnics:
+                        if len(server_dn) == 0:
+                            ws.append([v.domain, v.server_profile, '', k, e.name, e.vif_id, e.mac_address])
+                        else: ws.append([v.domain, v.server_profile, server_dn, k, e.name, e.vif_id, e.mac_address])
+                        for cell in ws[ws_row_count:ws_row_count]:
+                            if ws_row_count % 2 == 0: cell.style = 'odd'
+                            else: cell.style = 'even'
+                        ws_row_count += 1
             #=================================================================
             # WWPN Inventory Workbook
             #=================================================================

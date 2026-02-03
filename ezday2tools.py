@@ -22,9 +22,10 @@ The Script uses argparse to take in the following CLI arguments:
                                       5. hcl_inventory
                                       6. inventory
                                       7. server_identities
-    -v or --api-key-v3:             Flag for API Key Version 3.
-    -wb or --workbook:              The Source Workbook for hcl_inventory
-    -y or --yaml-file:              The input YAML File.
+    -v   or --api-key-v3:           Flag for API Key Version 3.
+    -vif or --vif-identities:       Flag for Virtual Interface Identities.
+    -wb  or --workbook:             The Source Workbook for hcl_inventory
+    -y   or --yaml-file:            The input YAML File.
 """
 #=============================================================================
 # Source Modules
@@ -63,6 +64,9 @@ def cli_arguments():
             '5. hcl_inventory '\
             '6. inventory '\
             '7. server_identities.')
+    parser.add_argument(
+        '-vif', '--vif-identities', action = 'store_true',
+        help = 'Used in conjunction with server_identities to pull Virtual Interface Identity inventory.')
     parser.add_argument('-wb', '--workbook', default = 'Settings.xlsx', help = 'The source Workbook.')
     return DotMap(args = parser.parse_args())
 
