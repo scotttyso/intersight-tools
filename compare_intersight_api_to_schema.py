@@ -34,13 +34,7 @@ def cli_arguments():
 #=================================================================
 # Function: BOIS Keys
 #=================================================================
-def bios_keys():
-    #=============================================================
-    # Configure Base Module Setup
-    #=============================================================
-    kwargs = cli_arguments()
-    kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+def bios_keys(kwargs):
     #=============================================================
     # Sorting BIOS Tokens from easy-imm.json
     #=============================================================
@@ -109,7 +103,7 @@ def bios_keys():
 #=================================================================
 # Function: BIOS Templates
 #=================================================================
-def bios_templates():
+def bios_templates(kwargs):
     #=============================================================
     # Configure Base Module Setup
     #=============================================================
@@ -160,12 +154,39 @@ def bios_templates():
         pcolor.Yellow(yaml.dump(bios_yaml.toDict(), Dumper = yaml_dumper, default_flow_style=False))
     else: pcolor.Yellow('None\n')
 
+def setup(kwargs):
+    jpath = os.path.join(kwargs.script_path, 'lib', 'intersight', 'templates', 'policies', 'policies.json')
+    if not os.path.exists(jpath):
+        print(f'File not found: {jpath}')
+        exit()
+    jdata = json.load(open(os.path.join(
+        kwargs.script_path, 'lib', 'intersight', 'templates', 'policies', 'policies.json'), 'r', encoding='utf8'))
+    jdata = DotMap(jdata)
+    pkeys = list(jdata.keys())
+    for pk in pkeys:
+        jdata[pk].api              = kwargs.ezdata[pk].intersight_uri
+        jdata[pk].object_type      = kwargs.ezdata[pk].object_type
+        jdata[pk].target_platforms = kwargs.ezdata[pk].target_platforms
+        jdata[pk]['type']          = kwargs.ezdata[pk].intersight_type
+        if type(jdata[pk].target_platforms) == kwargs.type_dotmap:
+            jdata[pk].target_platforms = []
+        if type(jdata[pk]['type']) == kwargs.type_dotmap:
+            jdata[pk]['type'] = 'sub_policy'
+    print(json.dumps(jdata.toDict(), indent=4))
+
 #=================================================================
 # Function: Main Script
 #=================================================================
 def main():
-    bios_templates()
-    bios_keys()
+    #=============================================================
+    # Configure Base Module Setup
+    #=============================================================
+    kwargs = cli_arguments()
+    kwargs = ezfunctions.base_script_settings(kwargs)
+    # kwargs = isight.api('organization').all_organizations(kwargs)
+    setup(kwargs)
+    # bios_templates(kwargs)
+    # bios_keys(kwargs)
 
 if __name__ == '__main__':
     main()
