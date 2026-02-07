@@ -1,0 +1,24 @@
+{
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}"{% if resource_groups is defined or tags is defined %},{% endif %}
+{%- if resource_groups is defined %}
+    "ResourceGroups": [
+  {%- for item in resource_groups %}
+        {
+            "Moid": "{{ resource_group_moids[item.name].moid }}",
+            "ObjectType": "resource.Group"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor %}
+    ]{% if tags is defined %},{% endif %}
+{%- endif %}
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
+}

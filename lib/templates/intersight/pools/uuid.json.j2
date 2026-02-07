@@ -1,0 +1,32 @@
+{
+    "AssignmentOrder": "{{ assignment_order | default('sequential') }}",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "Prefix": "{{ prefix | default('000025B5-C15C-0000') }}",
+    "Reservations": [],
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+{% if uuid_blocks is defined %}
+    "UuidSuffixBlocks": [
+  {%- for item in uuid_blocks -%}
+        {
+            "From": "{{ item.from }}",
+            "ObjectType": "uuidpool.UuidBlock",
+            "Size": "{{ item.size | default(256) }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
+}

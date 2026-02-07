@@ -1,0 +1,61 @@
+{
+    "Description": "default",
+    "KeySetting": {
+        "ClassId": "storage.KeySetting",
+        "KeyType": "Kmip",
+        "ManualKey": null,
+        "ObjectType": "storage.KeySetting",
+        "RemoteKey": {
+            "AuthCredentials": {
+                "ClassId": "storage.KmipAuthCredentials",
+                "IsPasswordSet": true,
+                "ObjectType": "storage.KmipAuthCredentials",
+                "UseAuthentication": true,
+                "Username": "kmip_user"
+            },
+            "ClassId": "storage.RemoteKeySetting",
+            "IsExistingKeySet": false,
+            "ObjectType": "storage.RemoteKeySetting",
+            "PrimaryServer": {
+                "ClassId": "storage.KmipServer",
+                "EnableDriveSecurity": true,
+                "IpAddress": "kmip-primary.example.com",
+                "ObjectType": "storage.KmipServer",
+                "Port": 5696,
+                "Timeout": 60
+            },
+            "SecondaryServer": {
+                "ClassId": "storage.KmipServer",
+                "EnableDriveSecurity": true,
+                "IpAddress": "kmip-secondary.example.com",
+                "ObjectType": "storage.KmipServer",
+                "Port": 5696,
+                "Timeout": 60
+            },
+            "ServerCertificate": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUl6RENDQnJTZ0F3SUJBZ0lURWdBQUFBdmEveXdNc2dBV3dRQUFBQUFBQ3pBTkJna3Foa2lHOXcwQkFRMEYKQURCZU1STXdFUVlLQ1pJbWlaUHlMR1FCR1JZRFkyOXRNUmt3RndZS0NaSW1pWlB5TEdRQkdSWUpZMmx6WTI5cwpZV0p6TVJRd0VnWUtDWkltaVpQeUxHUUJHUllFY21samFERVdNQlFHQTFVRUF4TU5jbWxqYUMxQlJESXRRMEV0Ck1UQWVGdzB5TXpBM016QXhOekV4TkRGYUZ3MHlPREEzTWpneE56RXhOREZhTUlHZE1Rc3dDUVlEVlFRR0V3SlYKVXpFTk1Bc0dBMVVFQ0JNRVQyaHBiekVTTUJBR0ExVUVCeE1KVW1samFHWnBaV3hrTVJZd0ZBWURWUVFLRXcxRAphWE5qYnlCVGVYTjBaVzF6TVE0d0RBWURWUVFMRXdWVFlXeGxjekVnTUI0R0ExVUVBeE1YYjJScGJpNXlhV05vCkxtTnBjMk52YkdGaWN5NWpiMjB4SVRBZkJna3Foa2lHOXcwQkNRRVdFbkpwWTJndGJHRmlRR05wYzJOdkxtTnYKYlRDQ0FpSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnSVBBRENDQWdvQ2dnSUJBTllRTXJwK3ZaTDVaRzVEb0N5KworTXFvNDZxNlRuV1J6N1p0RkNQKzczTS9qdG1Md2hDanNrOWtsZFowS1ZLMjJtTElYZUYzcEl6WE1jc1ZpM1dMCitPWUJFWDJPOWR4c29xbWJWRTM3czVpRm4yOHZSRmpuaXZSTUFpS0ozRzNTTlJzR1c4KzZzRTluU1ZoSFQ0VkoKMndXdlg1NnMzdWZ1ZUNNVDFNeng2ZXlmU0NrclNwN0twODNBQmlqQnBDRmFSKzNWczdNYzVvRWl0RGFsd20vdgpJMmhLMXBZSGtmRzNSV1diUGZDcVhSZTJQYm5iOHU1UFF1eFdTSmJqbE5pWDlZYzZrSThKUW13RWZDQ0FLNFZBClg4akNYR25VUWl2OHEvYk9lVWxOb0lHalNPV0hKaS9PL2FuVVIwL2R2d1NSbDJ5NHJaODFBbThRcU5XL25IUVkKS29NdFZKdm43djJYdGdvd2g1WW9vaGIwTUxvVmxuQ1lxbFUwSG1hYkpyK04vNXBzNVpjd2FyQlNrUzNxb1dyRQpZTDVBcEhJK1RTQVZ0LytReWVHQzRoTVFEUlBpeklHdEdEekoxT1hPWWN0RlVrZFdQNjJibER0eEpMcjRweXdrClREdDJDQXF1emo5aUtORitZWmZWdllRQk1Nd2VJL1RqRXJXVFM1Y08veHBwQ0VQbDB2L28zdTVFcXNqZE1aaGQKWFdVbnR6b0tXMi9ZUUhmWjJiZHJVYVk3UXc0MWJHM3REUm5hMUQxMldoMEw0OWNKYkZNRGRzMFQxTGg0NGdUOAoxbktNamgrakVwcnRqdk5KclZUSEoycURhMkhMb0s2WW1UUm9EYWtPV09ua3NFU2Q3SGYxcCtBNjh4NzJTSHN6CmFrRXhMVkN2WG81aEUyb1BnZEduVklXL0FnTUJBQUdqZ2dOQk1JSURQVEFkQmdOVkhRNEVGZ1FVelJScXBlclgKYkdtL3J5WnQzcnU0akhaZHZKWXdId1lEVlIwakJCZ3dGb0FVRWlZRW5lbDJTTGpaRGdPU0h3cU56cDkxL1NrdwpnZEVHQTFVZEh3U0J5VENCeGpDQnc2Q0J3S0NCdllhQnVteGtZWEE2THk4dlEwNDljbWxqYUMxQlJESXRRMEV0Ck1TeERUajFoWkRJc1EwNDlRMFJRTEVOT1BWQjFZbXhwWXlVeU1FdGxlU1V5TUZObGNuWnBZMlZ6TEVOT1BWTmwKY25acFkyVnpMRU5PUFVOdmJtWnBaM1Z5WVhScGIyNHNSRU05Y21samFDeEVRejFqYVhOamIyeGhZbk1zUkVNOQpZMjl0UDJObGNuUnBabWxqWVhSbFVtVjJiMk5oZEdsdmJreHBjM1EvWW1GelpUOXZZbXBsWTNSRGJHRnpjejFqClVreEVhWE4wY21saWRYUnBiMjVRYjJsdWREQ0J5UVlJS3dZQkJRVUhBUUVFZ2J3d2dia3dnYllHQ0NzR0FRVUYKQnpBQ2hvR3BiR1JoY0Rvdkx5OURUajF5YVdOb0xVRkVNaTFEUVMweExFTk9QVUZKUVN4RFRqMVFkV0pzYVdNbApNakJMWlhrbE1qQlRaWEoyYVdObGN5eERUajFUWlhKMmFXTmxjeXhEVGoxRGIyNW1hV2QxY21GMGFXOXVMRVJEClBYSnBZMmdzUkVNOVkybHpZMjlzWVdKekxFUkRQV052YlQ5alFVTmxjblJwWm1sallYUmxQMkpoYzJVL2IySnEKWldOMFEyeGhjM005WTJWeWRHbG1hV05oZEdsdmJrRjFkR2h2Y21sMGVUQU9CZ05WSFE4QkFmOEVCQU1DQmFBdwpQZ1lKS3dZQkJBR0NOeFVIQkRFd0x3WW5Ld1lCQkFHQ054VUlnNVNnRm9XRXgxU0RxWlUraDVYYkNJV3F0bXVCCkNvSDV3Z0dDNzVKa0FnRmtBZ0VETUJNR0ExVWRKUVFNTUFvR0NDc0dBUVVGQndNQk1Cc0dDU3NHQVFRQmdqY1YKQ2dRT01Bd3dDZ1lJS3dZQkJRVUhBd0V3Z2RnR0ExVWRFUVNCMERDQnpZSVhiMlJwYmk1eWFXTm9MbU5wYzJOdgpiR0ZpY3k1amIyMkNIRzlrYVc0dGJtUXdNUzV5YVdOb0xtTnBjMk52YkdGaWN5NWpiMjJDSEc5a2FXNHRibVF3Ck1pNXlhV05vTG1OcGMyTnZiR0ZpY3k1amIyMkNIRzlrYVc0dGJtUXdNeTV5YVdOb0xtTnBjMk52YkdGaWN5NWoKYjIyQ0hHOWthVzR0Ym1Rd05DNXlhV05vTG1OcGMyTnZiR0ZpY3k1amIyMkNIRzlrYVc0dGJtUXdOUzV5YVdObwpMbU5wYzJOdmJHRmljeTVqYjIyQ0hHOWthVzR0Ym1Rd05pNXlhV05vTG1OcGMyTnZiR0ZpY3k1amIyMHdEUVlKCktvWklodmNOQVFFTkJRQURnZ0lCQURibEQ5TUFYRTFCS2ZSNXY3b3N0aUFlWEN4d0VQdHArVnozc2NpNVhmTlkKdm8vTU8rR2hRVnJhSVBCZnI4aWdGT1dlMlZKSzFDT2FMeVNhbW93anlkb1FFZ21YM1E1dHUyckhXZlRRakJVeAp0RmJkQ283TlpuQ2ZKR1BwZEM3TTBKNnJCWi9JZVFNSzc5S0J5S0tZVnl5MWxJM2l4Z1gydGpJcVF2eTZFajhpCnBzRWs2aG8wdDJIR2h3Q01SbDhsUVkrVnFCZUFpQ3BjTzE3U0tTMEtacXc1TXJPSFplYm4yRXppaTV5cy9MRTAKRVhIOEYrR3dMUDlyeGJiR0NSNmJWaFhkb0ZJVkFZWTRYWTRGUVRlTGRvWGo3L3ZrelVWWjNTbkZJaHdGRlVXVwpVc2VWcnkzNmVUUkFlRjdRNHVTYXdiNTlReFJLbU8wZWhhY1p0SjhEMWNpcjRyenpYZDFsQktCbFJLRnZEUW4zCm9FRWV2YzU5K2cxTitGR1E4dVUybW1zeHdPajVpNG9YS3N1NHJ4RjVGOXdCMHZWeDR4K2pZUnRiUDBWMklzWkIKeGgzTlptTHp4RFBFUVBESW5tSUdmL2pGN0JTMzNHYUlkalZHZ082Q0VUYndhUFRjelJuNmZiMFdhOW1zSlpRUQpDRFBNWHppUE1RT2orTWRQb21qSlFsaXlTbjkxV1BWNnJwRENRMmJkaWVZRDJJYUkxMURIa1BhZGM0dUoydXJMCnBQOFVwOWdtVFBzSm1YVlpYSStwK3FPZUdrL1Vxa1JNT210SWdjUU4wN2w5SGF0NS9zZ2V2ZUdaZnBLbG90VE4KZWlmakZ3VmwrV0ppNlE1M2FLSTBjbHMxazBLS2xCSG4zUG56ellicVFqdWNCS3ZWbFR1VmFxeHZYcjEzMEVBeQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCgo="
+        }
+    },
+    "Name": "default",
+    "Organization": {
+        "ClassId": "mo.MoRef",
+        "Moid": "5ddea1e16972652d32b6493a",
+        "ObjectType": "organization.Organization",
+        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+    },
+    "Tags": [
+        {
+            "Key": "Module",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "easy-imm"
+        },
+        {
+            "Key": "Version",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "4.2.11-20241017091918219"
+        }
+    ]
+}

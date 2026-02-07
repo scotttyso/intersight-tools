@@ -1,0 +1,145 @@
+{
+    "Action": "No-op",
+    "ActionParams": [],
+    "AssignedServer": {
+        "ClassId": "mo.MoRef",
+        "Moid": "615d07f676752d31332d5ddd",
+        "ObjectType": "compute.RackUnit",
+        "link": "https://intersight.com/api/v1/compute/RackUnits/615d07f676752d31332d5ddd"
+    },
+    "AssociatedServer": null,
+    "ConfigChangeContext": {
+        "ClassId": "policy.ConfigChangeContext",
+        "ConfigChangeError": "",
+        "ConfigChangeState": "Ok",
+        "InitialConfigContext": {
+            "ClassId": "policy.ConfigContext",
+            "ConfigState": "Assigned",
+            "ConfigStateSummary": "Assigned",
+            "ConfigType": "",
+            "ControlAction": "No-op",
+            "ErrorState": "",
+            "InconsistencyReason": [],
+            "ObjectType": "policy.ConfigContext",
+            "OperState": "Ok"
+        },
+        "ObjectType": "policy.ConfigChangeContext"
+    },
+    "ConfigChangeDetails": [
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "66da09da77696e3201887633",
+            "ObjectType": "server.ConfigChangeDetail",
+            "link": "https://intersight.com/api/v1/server/ConfigChangeDetails/66da09da77696e3201887633"
+        },
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "66da09da77696e320188763d",
+            "ObjectType": "server.ConfigChangeDetail",
+            "link": "https://intersight.com/api/v1/server/ConfigChangeDetails/66da09da77696e320188763d"
+        }
+    ],
+    "ConfigChanges": {
+        "Changes": [
+            "OperationalPolicies"
+        ],
+        "ClassId": "policy.ConfigChange",
+        "Disruptions": [
+            "StorageReconfigOnDeploy"
+        ],
+        "ObjectType": "policy.ConfigChange",
+        "PolicyDisruptions": [
+            {
+                "ClassId": "policy.ConfigChangeDisruptionDetailType",
+                "Disruptions": [
+                    "StorageReconfigOnDeploy"
+                ],
+                "IsOnlyRequiredByOtherPolicies": false,
+                "ObjectType": "policy.ConfigChangeDisruptionDetailType",
+                "PolicyName": "storage.StoragePolicy",
+                "PolicyPendingAction": "Deploy",
+                "RequiredByPolicies": null
+            }
+        ]
+    },
+    "ConfigContext": {
+        "ClassId": "policy.ConfigContext",
+        "ConfigState": "Assigned",
+        "ConfigStateSummary": "Assigned",
+        "ConfigType": "",
+        "ControlAction": "No-op",
+        "ErrorState": "",
+        "InconsistencyReason": [],
+        "ObjectType": "policy.ConfigContext",
+        "OperState": "Ok"
+    },
+    "ConfigResult": {
+        "ClassId": "mo.MoRef",
+        "Moid": "62f2b1ee77696e2d32b30225",
+        "ObjectType": "server.ConfigResult",
+        "link": "https://intersight.com/api/v1/server/ConfigResults/62f2b1ee77696e2d32b30225"
+    },
+    "DeployStatus": "None",
+    "DeployedPolicies": null,
+    "DeployedSwitches": "None",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "InternalReservationReferences": [],
+    "IsPmcDeployedSecurePassphraseSet": false,
+    "LocationDetails": null,
+    "ManagementMode": "IntersightStandalone",
+    "Name": "DO_NOT_TEST_WITH_THIS_SERVER",
+    "Organization": {
+        "ClassId": "mo.MoRef",
+        "Moid": "5ddea1e16972652d32b6493a",
+        "ObjectType": "organization.Organization",
+        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+    },
+    "OverriddenList": null,
+    "PartiallyDeployedPolicies": [],
+    "PolicyBucket": [
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "66568bca656f6e3101c0a8fb",
+            "ObjectType": "storage.StoragePolicy",
+            "link": "https://intersight.com/api/v1/storage/StoragePolicies/66568bca656f6e3101c0a8fb"
+        }
+    ],
+    "PolicyChangeDetails": [],
+    "PostDeployAction": null,
+    "RemovedPolicies": null,
+    "ReportedPolicyChanges": [],
+    "ReservationReferences": [],
+    "ResourceLease": {
+        "ClassId": "mo.MoRef",
+        "Moid": "66da09da6962753101a17cfb",
+        "ObjectType": "resourcepool.Lease",
+        "link": "https://intersight.com/api/v1/resourcepool/Leases/66da09da6962753101a17cfb"
+    },
+    "RunningWorkflows": [],
+    "ScheduledActions": [],
+    "ServerAssignmentMode": "Static",
+    "ServerPool": null,
+    "ServerPreAssignBySerial": "",
+    "ServerPreAssignBySlot": {
+        "ChassisId": 0,
+        "ClassId": "server.ServerAssignTypeSlot",
+        "DomainName": "",
+        "ObjectType": "server.ServerAssignTypeSlot",
+        "SlotId": 0
+    },
+    "SrcTemplate": null,
+    "StaticUuidAddress": "",
+    "Tags": [],
+    "TargetPlatform": "Standalone",
+    "TemplateActions": [],
+    "TemplateSyncErrors": [],
+    "TemplateSyncStatus": "None",
+    "Type": "instance",
+    "UndeployWfTasks": null,
+    "UserLabel": "",
+    "Uuid": "",
+    "UuidAddressType": "NONE",
+    "UuidLease": null,
+    "UuidPool": null
+}

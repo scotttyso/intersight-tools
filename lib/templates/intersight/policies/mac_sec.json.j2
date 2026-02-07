@@ -1,0 +1,51 @@
+{
+    "CipherSuite": "GCM-AES-XPN-256",
+    "ConfidentialityOffset": "CONF-OFFSET-0",
+    "Description": "",
+    "FallbackKeyChain": {
+        "ClassId": "fabric.SecKeyChain",
+        "Name": "",
+        "ObjectType": "fabric.SecKeyChain",
+        "SecKeys": []
+    },
+    "IncludeIcvIndicator": false,
+    "KeyServerPriority": 16,
+    "MacSecEaPol": {
+        "ClassId": "fabric.MacSecEaPol",
+        "EaPolEthertype": "0x888e",
+        "EaPolMacAddress": "0180.C200.0003",
+        "ObjectType": "fabric.MacSecEaPol"
+    },
+    "Name": "adsf",
+    "Organization": {
+        "ClassId": "mo.MoRef",
+        "Moid": "5ddea1e16972652d32b6493a",
+        "ObjectType": "organization.Organization",
+        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+    },
+    "PrimaryKeyChain": {
+        "ClassId": "fabric.SecKeyChain",
+        "Name": "xyz",
+        "ObjectType": "fabric.SecKeyChain",
+        "SecKeys": [
+            {
+                "ClassId": "fabric.SecKey",
+                "CryptographicAlgorithm": "AES_256_CMAC",
+                "Id": "12",
+                "IsOctetStringSet": true,
+                "KeyType": "Type-6",
+                "ObjectType": "fabric.SecKey",
+                "SendLifetimeDuration": 0,
+                "SendLifetimeEndTime": "0001-01-01T00:00:00Z",
+                "SendLifetimeInfinite": false,
+                "SendLifetimeStartTime": "0001-01-01T00:00:00Z",
+                "SendLifetimeTimeZone": "UTC",
+                "SendLifetimeUnlimited": true
+            }
+        ]
+    },
+    "ReplayWindowSize": 148809600,
+    "SakExpiryTime": 0,
+    "SecurityPolicy": "Should-secure",
+    "Tags": []
+}

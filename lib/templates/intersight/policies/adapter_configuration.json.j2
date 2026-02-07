@@ -1,0 +1,77 @@
+{
+    "Description": "adapter Adapter Configuration Policy",
+    "Name": "adapter",
+    "Organization": {
+        "Moid": "5ddea1e16972652d32b6493a",
+        "ObjectType": "organization.Organization"
+    },
+    "Settings": [
+        {
+            "ClassId": "adapter.AdapterConfig",
+            "DceInterfaceSettings": [
+                {
+                    "ClassId": "adapter.DceInterfaceSettings",
+                    "FecMode": "cl91",
+                    "InterfaceId": 0,
+                    "ObjectType": "adapter.DceInterfaceSettings"
+                },
+                {
+                    "ClassId": "adapter.DceInterfaceSettings",
+                    "FecMode": "cl91",
+                    "InterfaceId": 1,
+                    "ObjectType": "adapter.DceInterfaceSettings"
+                },
+                {
+                    "ClassId": "adapter.DceInterfaceSettings",
+                    "FecMode": "cl91",
+                    "InterfaceId": 2,
+                    "ObjectType": "adapter.DceInterfaceSettings"
+                },
+                {
+                    "ClassId": "adapter.DceInterfaceSettings",
+                    "FecMode": "cl91",
+                    "InterfaceId": 3,
+                    "ObjectType": "adapter.DceInterfaceSettings"
+                }
+            ],
+            "EthSettings": {
+                "ClassId": "adapter.EthSettings",
+                "LldpEnabled": true,
+                "ObjectType": "adapter.EthSettings"
+            },
+            "FcSettings": {
+                "ClassId": "adapter.FcSettings",
+                "FipEnabled": true,
+                "ObjectType": "adapter.FcSettings"
+            },
+            "ObjectType": "adapter.AdapterConfig",
+            "PhysicalNicModeSettings": {
+                "ClassId": "adapter.PhysicalNicModeSettings",
+                "ObjectType": "adapter.PhysicalNicModeSettings",
+                "PhyNicEnabled": false
+            },
+            "PortChannelSettings": {
+                "ClassId": "adapter.PortChannelSettings",
+                "Enabled": true,
+                "ObjectType": "adapter.PortChannelSettings"
+            },
+            "SlotId": "MLOM"
+        }
+    ],
+    "Tags": [
+        {
+            "Key": "Module",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "easy-imm"
+        },
+        {
+            "Key": "Version",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "4.2.11-20241017091918219"
+        }
+    ]
+}

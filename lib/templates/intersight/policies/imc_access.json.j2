@@ -1,0 +1,46 @@
+{
+    "AddressType": {
+        "ClassId": "access.AddressType",
+        "EnableIpV4": true,
+        "EnableIpV6": false,
+        "ObjectType": "access.AddressType"
+    },
+    "ConfigurationType": {
+        "ClassId": "access.ConfigurationType",
+        "ConfigureInband": true,
+        "ConfigureOutOfBand": true,
+        "ObjectType": "access.ConfigurationType"
+    },
+    "Description": "kvm Imc Access Policy",
+    "InbandIpPool": {
+        "ClassId": "mo.MoRef",
+        "Moid": "64bf472269627531019f2166",
+        "ObjectType": "ippool.Pool",
+        "link": "https://intersight.com/api/v1/ippool/Pools/64bf472269627531019f2166"
+    },
+    "InbandVlan": 1001,
+    "InbandVrf": null,
+    "Name": "kvm",
+    "Organization": {
+        "ClassId": "mo.MoRef",
+        "Moid": "639ffbbe6972652d3243d65f",
+        "ObjectType": "organization.Organization",
+        "link": "https://intersight.com/api/v1/organization/Organizations/639ffbbe6972652d3243d65f"
+    },
+    "OutOfBandIpPool": {
+        "ClassId": "mo.MoRef",
+        "Moid": "6467a419696275310148c749",
+        "ObjectType": "ippool.Pool",
+        "link": "https://intersight.com/api/v1/ippool/Pools/6467a419696275310148c749"
+    },
+    "OutOfBandVrf": null,
+    "Tags": [
+        {
+            "Key": "ezci",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "3.1.2"
+        }
+    ]
+}

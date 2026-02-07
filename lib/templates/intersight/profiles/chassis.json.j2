@@ -1,0 +1,63 @@
+{
+    "Action": "No-op",
+    "AssignedChassis": {
+        "ClassId": "mo.MoRef",
+        "Moid": "68eb57dc76752d370132dc6a",
+        "ObjectType": "equipment.Chassis",
+        "link": "https://intersight.com/api/v1/equipment/Chasses/68eb57dc76752d370132dc6a"
+    },
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "ClassId": "mo.MoRef",
+        "Moid": "639ffbbe6972652d3243d65f",
+        "ObjectType": "organization.Organization",
+        "link": "https://intersight.com/api/v1/organization/Organizations/639ffbbe6972652d3243d65f"
+    },
+    "PolicyBucket": [
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "6467a430627572310105efea",
+            "ObjectType": "access.Policy",
+            "link": "https://intersight.com/api/v1/access/Policies/6467a430627572310105efea"
+        },
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "65d3788d6275723101a96b72",
+            "ObjectType": "power.Policy",
+            "link": "https://intersight.com/api/v1/power/Policies/65d3788d6275723101a96b72"
+        },
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "65d3788c6275723101a96aeb",
+            "ObjectType": "snmp.Policy",
+            "link": "https://intersight.com/api/v1/snmp/Policies/65d3788c6275723101a96aeb"
+        },
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "65d3788d6275723101a96c0b",
+            "ObjectType": "thermal.Policy",
+            "link": "https://intersight.com/api/v1/thermal/Policies/65d3788d6275723101a96c0b"
+        }
+    ],
+    "SrcTemplate": null,
+    "Tags": [
+        {
+            "Key": "ezci",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "3.1.2"
+        },
+        {
+            "Key": "cisco.meta.sharingpresent",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "true"
+        }
+    ],
+    "TargetPlatform": "FIAttached",
+    "Type": "instance",
+    "UserLabel": ""
+}

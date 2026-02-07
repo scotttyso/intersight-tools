@@ -1,0 +1,80 @@
+{
+    "AssignmentOrder": "{{ assignment_order | default('sequential') }}",
+    "Description": "{{ description | default('') }}",
+    "EnableBlockLevelSubnetConfig":  {% if ipv4_configuration is defined or ipv6_configuration is defined %}false{% else %}true{% endif %},
+{%- if ipv4_blocks is defined %}
+    "IpV4Blocks": [
+  {%- for item in ipv4_blocks %}
+        {
+            "From": "{{ item.from }}",
+    {%- if item.id_mapping_policy is defined and item.id_mapping_policy_moid != "" %}
+            "IdMappingPolicyMoid": "{{ item.id_mapping_policy_moid }}",
+    {%- endif %}
+    {%- if item.gateway is defined and item.netmask is defined %}
+            "IpV4Config": {
+                "Gateway": "{{ item.gateway }}",
+                "Netmask": "{{ item.netmask }}",
+                "ObjectType": "ippool.IpV4Config",
+                "PrimaryDns": "{{ item.primary_dns | default('') }}",
+                "SecondaryDns": "{{ item.secondary_dns | default('') }}"
+            },
+    {%- endif %}
+            "ObjectType": "ippool.IpV4Block",
+            "Size": {{ item.size | default(256) }}
+        }{% if not loop.last %},{% endif %}
+  {%- endfor %}
+    ],
+{%- endif %}
+    "IpV4Config": {
+        "Gateway": {% if ipv4_configuration is defined %}"{{ ipv4_configuration.gateway }}"{% else %}""{% endif %},
+        "Netmask": {% if ipv4_configuration is defined %}"{{ ipv4_configuration.netmask }}"{% else %}""{% endif %},
+        "ObjectType": "ippool.IpV4Config",
+        "PrimaryDns": {% if ipv4_configuration is defined %}"{{ ipv4_configuration.primary_dns | default('') }}"{% else %}""{% endif %},
+        "SecondaryDns": {% if ipv4_configuration is defined %}"{{ ipv4_configuration.secondary_dns | default('') }}"{% else %}""{% endif %}
+    },
+{%- if ipv6_blocks is defined %}
+    "IpV6Blocks": [
+  {%- for item in ipv6_blocks %}
+        {
+            "From": "{{ item.from }}",
+    {%- if item.id_mapping_policy is defined and item.id_mapping_policy_moid != "" %}
+            "IdMappingPolicyMoid": "{{ item.id_mapping_policy_moid }}",
+    {%- endif %}
+    {%- if item.gateway is defined and item.prefix is defined %}
+            "IpV6Config": {
+                "Gateway": "{{ item.gateway }}",
+                "Prefix": "{{ item.prefix }}",
+                "ObjectType": "ippool.IpV6Config",
+                "PrimaryDns": "{{ item.primary_dns | default('') }}",
+                "SecondaryDns": "{{ item.secondary_dns | default('') }}"
+            },
+    {%- endif %}
+            "ObjectType": "ippool.IpV6Block",
+            "Size": {{ item.size | default(256) }}
+        }{% if not loop.last %},{% endif %}
+  {%- endfor %}
+    ],
+{%- endif %}
+    "IpV6Config": {
+        "Gateway": {% if ipv6_configuration is defined %}"{{ ipv6_configuration.gateway }}"{% else %}""{% endif %},
+        "ObjectType": "ippool.IpV6Config",
+        "Prefix": {% if ipv6_configuration is defined %}{{ ipv6_configuration.prefix }}{% else %}0{% endif %},
+        "PrimaryDns": {% if ipv6_configuration is defined %}"{{ ipv6_configuration.primary_dns | default('') }}"{% else %}""{% endif %},
+        "SecondaryDns": {% if ipv6_configuration is defined %}"{{ ipv6_configuration.secondary_dns | default('') }}"{% else %}""{% endif %}
+    },
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    }{% if tags is defined %},{% endif %}
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
+}

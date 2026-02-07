@@ -10,7 +10,8 @@ try:
     from classes import ezfunctions, isight, pcolor
     from copy import deepcopy
     from dotmap import DotMap
-    from stringcase import snakecase
+    from jinja2 import Template
+    from stringcase import pascalcase, snakecase
     import argparse, json, os, re, urllib3, yaml
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
@@ -155,24 +156,45 @@ def bios_templates(kwargs):
     else: pcolor.Yellow('None\n')
 
 def setup(kwargs):
-    jpath = os.path.join(kwargs.script_path, 'lib', 'intersight', 'templates', 'policies', 'policies.json')
-    if not os.path.exists(jpath):
-        print(f'File not found: {jpath}')
-        exit()
-    jdata = json.load(open(os.path.join(
-        kwargs.script_path, 'lib', 'intersight', 'templates', 'policies', 'policies.json'), 'r', encoding='utf8'))
-    jdata = DotMap(jdata)
-    pkeys = list(jdata.keys())
-    for pk in pkeys:
-        jdata[pk].api              = kwargs.ezdata[pk].intersight_uri
-        jdata[pk].object_type      = kwargs.ezdata[pk].object_type
-        jdata[pk].target_platforms = kwargs.ezdata[pk].target_platforms
-        jdata[pk]['type']          = kwargs.ezdata[pk].intersight_type
-        if type(jdata[pk].target_platforms) == kwargs.type_dotmap:
-            jdata[pk].target_platforms = []
-        if type(jdata[pk]['type']) == kwargs.type_dotmap:
-            jdata[pk]['type'] = 'sub_policy'
-    print(json.dumps(jdata.toDict(), indent=4))
+    data = DotMap(
+        description = "Example IP Pool",
+        ipv4_blocks = [
+            DotMap({
+                "from": "192.168.65.10",
+                "gateway": "192.168.64.1",
+                "netmask": "255.255.254.0",
+                "primary_dns": "192.168.64.15",
+                "secondary_dns": "192.168.64.100"
+            })
+        ],
+        #ipv4_configuration = DotMap(
+        #    gateway = "192.168.64.1",
+        #    netmask = "255.255.254.0",
+        #    primary_dns = "192.168.64.15",
+        #    secondary_dns = "192.168.64.100"
+        #),
+        name = "example-ip-pool",
+        organization = "default",
+        org_moids = kwargs.org_moids
+    )
+    output = json.loads(Template(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', 'pools', 'ip.json.j2'), 'r', encoding='utf8').read()).render(data.toDict()))
+    pcolor.LightGray(f'\n{"="*20} POOLS {"="*20}\n')
+    pcolor.Yellow(json.dumps(output, indent=4))
+    pcolor.Yellow(output)
+    exit()
+    blist = ['AccountMoid', 'Ancestors', 'ClassId', 'CreateTime', 'DisplayNames', 'DomainGroupMoid', 'ModTime', 'Moid', 'ObjectType',
+        'Owners', 'Parent', 'PermissionResources', 'Profiles', 'SharedScope', 'VersionContext']
+    
+    # for i in ['organizations', 'policies', 'pools', 'profiles']:
+    for i in ['pools']:
+        idata = DotMap(json.load(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', i, f'bios.json'), 'r', encoding='utf8')))
+        pcolor.LightGray(f'\n{"="*20} {i.upper()} {"="*20}\n')
+        idata = DotMap(json.load(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', i, f'bios.json'), 'r', encoding='utf8')))
+        for k, v in kwargs.ezdata.bios.allOf[1].properties.items():
+            if re.search('string|integer', v['type']) and v.intersight_api in idata.keys():
+                idata[v.intersight_api] = f"{{{{ {k} | default({v.default}) }}}}"
+        with open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', i, f'bios.json'), 'w', encoding='utf8') as f:
+            json.dump(idata.toDict(), f, indent=4)
 
 #=================================================================
 # Function: Main Script
@@ -183,7 +205,7 @@ def main():
     #=============================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    # kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organization').all_organizations(kwargs)
     setup(kwargs)
     # bios_templates(kwargs)
     # bios_keys(kwargs)

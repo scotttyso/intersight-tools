@@ -1,0 +1,50 @@
+{
+    "Description": "syslog Policy",
+    "LocalClients": [
+        {
+            "ClassId": "syslog.LocalFileLoggingClient",
+            "MinSeverity": "warning",
+            "ObjectType": "syslog.LocalFileLoggingClient"
+        }
+    ],
+    "Name": "syslog",
+    "Organization": {
+        "ClassId": "mo.MoRef",
+        "Moid": "639ffbbe6972652d3243d65f",
+        "ObjectType": "organization.Organization",
+        "link": "https://intersight.com/api/v1/organization/Organizations/639ffbbe6972652d3243d65f"
+    },
+    "RemoteClients": [
+        {
+            "ClassId": "syslog.RemoteLoggingClient",
+            "Enabled": true,
+            "Facility": "",
+            "Hostname": "10.101.128.24",
+            "MinSeverity": "informational",
+            "ObjectType": "syslog.RemoteLoggingClient",
+            "Port": 514,
+            "Protocol": "udp",
+            "VrfName": ""
+        },
+        {
+            "ClassId": "syslog.RemoteLoggingClient",
+            "Enabled": true,
+            "Facility": "",
+            "Hostname": "10.101.128.25",
+            "MinSeverity": "informational",
+            "ObjectType": "syslog.RemoteLoggingClient",
+            "Port": 514,
+            "Protocol": "udp",
+            "VrfName": ""
+        }
+    ],
+    "Tags": [
+        {
+            "Key": "ezci",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "3.1.2"
+        }
+    ]
+}
