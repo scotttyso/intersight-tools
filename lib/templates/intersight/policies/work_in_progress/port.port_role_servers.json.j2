@@ -1,0 +1,26 @@
+{
+    "AggregatePortId": 0,
+    "AutoNegotiationDisabled": false,
+    "Fec": "Auto",
+    "PortId": 65,
+    "PortPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "6605c55a6f62693001b4e1c0",
+        "ObjectType": "fabric.PortPolicy",
+        "link": "https://intersight.com/api/v1/fabric/PortPolicies/6605c55a6f62693001b4e1c0"
+    },
+    "PreferredDeviceId": 0,
+    "PreferredDeviceType": "Auto",
+    "SlotId": 1,
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "UserLabel": ""
+}

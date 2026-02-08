@@ -1,27 +1,19 @@
 {
-    "Description": "5108 Thermal Policy",
-    "FanControlMode": "Balanced",
-    "Name": "5108",
+    "Description": "{{ description | default('') }}",
+    "FanControlMode": "{{ fan_control_mode | default('Balanced') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
-    },
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    }{% if tags is defined %},{% endif %}
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

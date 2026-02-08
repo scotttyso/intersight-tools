@@ -1,0 +1,68 @@
+{
+    "Description": "Recommended adapter settings for VMware.",
+    "ErrorDetectionTimeout": 2000,
+    "ErrorRecoverySettings": {
+        "ClassId": "vnic.FcErrorRecoverySettings",
+        "Enabled": false,
+        "IoRetryCount": 8,
+        "IoRetryTimeout": 5,
+        "LinkDownTimeout": 30000,
+        "ObjectType": "vnic.FcErrorRecoverySettings",
+        "PortDownTimeout": 10000
+    },
+    "FlogiSettings": {
+        "ClassId": "vnic.FlogiSettings",
+        "ObjectType": "vnic.FlogiSettings",
+        "Retries": 8,
+        "Timeout": 4000
+    },
+    "InterruptSettings": {
+        "ClassId": "vnic.FcInterruptSettings",
+        "Mode": "MSIx",
+        "ObjectType": "vnic.FcInterruptSettings"
+    },
+    "IoThrottleCount": 512,
+    "LunCount": 1024,
+    "LunQueueDepth": 20,
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "PlogiSettings": {
+        "ClassId": "vnic.PlogiSettings",
+        "ObjectType": "vnic.PlogiSettings",
+        "Retries": 8,
+        "Timeout": 20000
+    },
+    "ResourceAllocationTimeout": 10000,
+    "RxQueueSettings": {
+        "ClassId": "vnic.FcQueueSettings",
+        "Count": 1,
+        "ObjectType": "vnic.FcQueueSettings",
+        "RingSize": 64
+    },
+    "ScsiQueueSettings": {
+        "ClassId": "vnic.ScsiQueueSettings",
+        "Count": 1,
+        "ObjectType": "vnic.ScsiQueueSettings",
+        "RingSize": 512
+    },
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "TxQueueSettings": {
+        "ClassId": "vnic.FcQueueSettings",
+        "Count": 1,
+        "ObjectType": "vnic.FcQueueSettings",
+        "RingSize": 64
+    }
+}

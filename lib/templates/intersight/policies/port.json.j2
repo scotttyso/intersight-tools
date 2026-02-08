@@ -1,27 +1,19 @@
 {
-    "Description": "r143e-2-a Port Policy.",
-    "DeviceModel": "UCS-FI-64108",
-    "Name": "r143e-2-a",
+    "Description": "{{ description | default('') }}",
+    "DeviceModel": "{{ device_model | default('UCS-FI-6454') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
-    },
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    }{% if tags is defined %},{% endif %}
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241004054146474"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

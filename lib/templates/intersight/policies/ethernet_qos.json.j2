@@ -1,32 +1,24 @@
 {
-    "Burst": 10240,
-    "Cos": 0,
-    "Description": "Bronze Ethernet QoS Policy",
-    "Mtu": 9000,
-    "Name": "bronze",
+    "Burst": {{ burst | default(10240) }},
+    "Cos": {{ class_of_service | default(0) }},
+    "Description": "{{ description | default('') }}",
+    "Mtu": {{ mtu | default(1500) }},
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "Priority": "Bronze",
-    "RateLimit": 0,
+    "Priority": "{{ priority | default('Bronze') }}",
+    "RateLimit": {{ rate_limit | default(0) }},
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "TrustHostCos": false
+{%- endif %}
+    "TrustHostCos": {{ enable_trust_host_cos | default(false) }}
 }

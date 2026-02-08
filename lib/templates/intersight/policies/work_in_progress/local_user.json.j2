@@ -1,0 +1,38 @@
+{
+    "Description": "users Local User Policy",
+    "EndPointUserRoles": [
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "65d3789a6275723101a98dbf",
+            "ObjectType": "iam.EndPointUserRole",
+            "link": "https://intersight.com/api/v1/iam/EndPointUserRoles/65d3789a6275723101a98dbf"
+        }
+    ],
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "PasswordProperties": {
+        "ClassId": "iam.EndPointPasswordProperties",
+        "EnablePasswordExpiry": true,
+        "EnforceStrongPassword": true,
+        "ForceSendPassword": false,
+        "GracePeriod": 0,
+        "NotificationPeriod": 15,
+        "ObjectType": "iam.EndPointPasswordProperties",
+        "PasswordExpiryDuration": 90,
+        "PasswordHistory": 0
+    },
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
+}

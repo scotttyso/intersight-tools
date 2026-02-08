@@ -1,29 +1,21 @@
 {
-    "ConnectionTimeOut": 15,
-    "Description": "adapter iSCSI Adapter Policy",
-    "DhcpTimeout": 60,
-    "LunBusyRetryCount": 15,
-    "Name": "adapter",
+    "ConnectionTimeOut": {{ tcp_connection_timeout | default(15) }},
+    "Description": "{{ description | default('') }}",
+    "DhcpTimeout": {{ dhcp_timeout | default(60) }},
+    "LunBusyRetryCount": {{ lun_busy_retry_count | default(15) }},
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "5ddea1e16972652d32b6493a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

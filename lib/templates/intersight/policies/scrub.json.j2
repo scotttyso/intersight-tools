@@ -1,15 +1,26 @@
+{%- set scrub_targets = [] -%}
+{%- if bios is defined and bios == true -%}
+    {%- do scrub_targets.append('BIOS') -%}
+{%- endif -%}
+{%- if disk is defined and disk == true -%}
+    {%- do scrub_targets.append('Disk') -%}
+{%- endif -%}
 {
-    "Description": "",
-    "Name": "adsf",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "5ddea1e16972652d32b6493a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "ScrubTargets": [
-        "Disk",
-        "BIOS"
-    ],
-    "Tags": []
+    "ScrubTargets": {{ scrub_targets | tojson }}{% if tags is defined %},{% endif %}
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
 }

@@ -1,0 +1,24 @@
+{
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "UdldSettings": {
+        "AdminState": "Enabled",
+        "ClassId": "fabric.UdldSettings",
+        "Mode": "normal",
+        "ObjectType": "fabric.UdldSettings"
+    }
+}

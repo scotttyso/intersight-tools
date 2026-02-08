@@ -130,14 +130,23 @@
     },
     "SrcTemplate": null,
     "StaticUuidAddress": "",
-    "Tags": [],
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
     "TargetPlatform": "Standalone",
     "TemplateActions": [],
     "TemplateSyncErrors": [],
     "TemplateSyncStatus": "None",
     "Type": "instance",
     "UndeployWfTasks": null,
-    "UserLabel": "",
+    "UserLabel": "{{ user_label | default('') }}",
     "Uuid": "",
     "UuidAddressType": "NONE",
     "UuidLease": null,

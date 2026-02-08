@@ -1,24 +1,23 @@
 {
-    "Description": "mcast Multicast Policy",
-    "Name": "mcast",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "639ffbbe6972652d3243d65f",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/639ffbbe6972652d3243d65f"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "QuerierIpAddress": "",
-    "QuerierIpAddressPeer": "",
-    "QuerierState": "Disabled",
-    "SnoopingState": "Enabled",
-    "SrcIpProxy": "Enabled",
+    "QuerierIpAddress": "{{ querier_ip_address | default('') }}",
+    "QuerierIpAddressPeer": "{{ querier_ip_address_peer | default('') }}",
+    "QuerierState": "{{ querier_state | default('Disabled') }}",
+    "SnoopingState": "{{ snooping_state | default('Enabled') }}",
+    "SrcIpProxy": "{{ source_ip_proxy_state | default('Enabled') }}"{% if tags is defined %},{% endif %}
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "ezci",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "3.1.2"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

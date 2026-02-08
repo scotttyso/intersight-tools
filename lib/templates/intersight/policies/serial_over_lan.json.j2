@@ -1,30 +1,22 @@
 {
-    "BaudRate": 115200,
-    "ComPort": "com0",
-    "Description": "sol Serial over LAN Policy",
-    "Enabled": true,
-    "Name": "sol",
+    "BaudRate": {{ baud_rate | default(115200) }},
+    "ComPort": "{{ com_port | default('com0') }}",
+    "Description": "{{ description | default('') }}",
+    "Enabled": {{ enabled | default(true) | bool }},
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "SshPort": 2400,
+    "SshPort": {{ ssh_port | default(2400) }}{% if tags is defined %},{% endif %}
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

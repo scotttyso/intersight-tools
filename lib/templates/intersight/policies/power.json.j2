@@ -1,35 +1,27 @@
 {
-    "AllocatedBudget": 0,
-    "Description": "server Power Policy",
-    "DynamicRebalancing": "Enabled",
-    "ExtendedPowerCapacity": "Enabled",
-    "Name": "server",
+    "AllocatedBudget": "{{ power_allocation | default(0) }}",
+    "Description": "{{ description | default('') }}",
+    "DynamicRebalancing": "{{ dynamic_power_rebalancing | default('Enabled') }}",
+    "ExtendedPowerCapacity": "{{ extended_power_capacity | default('Enabled') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "PowerPriority": "Low",
-    "PowerProfiling": "Enabled",
-    "PowerRestoreState": "LastState",
-    "PowerSaveMode": "Enabled",
-    "ProcessorPackagePowerLimit": "Default",
-    "RedundancyMode": "Grid",
+    "PowerPriority": "{{ power_priority | default('Low') }}",
+    "PowerProfiling": "{{ power_profiling | default('Enabled') }}",
+    "PowerRestoreState": "{{ power_restore | default('LastState') }}",
+    "PowerSaveMode": "{{ power_save_mode | default('Enabled') }}",
+    "ProcessorPackagePowerLimit": "{{ processor_package_power_limit | default('Default') }}",
+    "RedundancyMode": "{{ power_redundancy | default('Grid') }}"{% if tags is defined %},{% endif %}
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

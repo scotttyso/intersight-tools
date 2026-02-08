@@ -1,0 +1,37 @@
+{
+    "Description": "",
+    "Goals": [
+        {
+            "ClassId": "memory.PersistentMemoryGoal",
+            "MemoryModePercentage": 10,
+            "ObjectType": "memory.PersistentMemoryGoal",
+            "PersistentMemoryType": "app-direct",
+            "SocketId": "All Sockets"
+        }
+    ],
+    "LocalSecurity": {
+        "ClassId": "memory.PersistentMemoryLocalSecurity",
+        "Enabled": false,
+        "IsSecurePassphraseSet": false,
+        "ObjectType": "memory.PersistentMemoryLocalSecurity"
+    },
+    "LogicalNamespaces": [],
+    "ManagementMode": "configured-from-intersight",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "RetainNamespaces": true,
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
+}

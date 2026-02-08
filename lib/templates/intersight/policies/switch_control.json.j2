@@ -1,46 +1,39 @@
 {
-    "Description": "sw-ctrl Switch Control Policy",
-    "EnableJumboFrame": false,
-    "EthernetSwitchingMode": "end-host",
-    "FabricPcVhbaReset": "Disabled",
-    "FcSwitchingMode": "end-host",
+    "Description": "{{ description | default('') }}",
+    "EnableJumboFrame": {% if target_platform == 'Unified Edge' %}{{ enable_jumbo_frame | default(false) | bool}}{% else %}false{% endif %},
+    "EthernetSwitchingMode": "{{ switching_mode_ethernet | default('end-host') }}",
+    "FabricPcVhbaReset": "{{ fabric_port_channel_vhba_reset | default('Disabled') }}",
+    "FcSwitchingMode": "{{ switching_mode_fc | default('end-host') }}",
     "IsAesPrimaryKeySet": false,
     "MacAgingSettings": {
         "ClassId": "fabric.MacAgingSettings",
-        "MacAgingOption": "Default",
-        "MacAgingTime": 14500,
+        "MacAgingOption": "{{ mac_address_table_aging | default('Default') }}",
+        "MacAgingTime": {{ mac_aging_time | default(14500) }},
         "ObjectType": "fabric.MacAgingSettings"
     },
-    "Name": "sw-ctrl",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "ReservedVlanStartId": 3915,
+    "ReservedVlanStartId": {{ reserved_vlan_start_id | default(3915) }},
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "TargetPlatform": "UCS Domain",
+{%- endif %}
+    "TargetPlatform": "{{ target_platform | default('UCS Domain') }}",
     "UdldSettings": {
         "ClassId": "fabric.UdldGlobalSettings",
-        "MessageInterval": 15,
+        "MessageInterval": {% if udld_global_settings is defined %}{{ udld_global_settings.message_interval | default(15) }}{% else %}15{% endif %},
         "ObjectType": "fabric.UdldGlobalSettings",
-        "RecoveryAction": "reset"
+        "RecoveryAction": "{% if udld_global_settings is defined %}{{ udld_global_settings.recovery_action | default('reset') }}{% else %}reset{% endif %}"
     },
-    "VlanPortOptimizationEnabled": false
+    "VlanPortOptimizationEnabled": {{ vlan_port_count_optimization | default(false) | bool}}
 }

@@ -1,13 +1,21 @@
 {
-    "AdminState": "Enabled",
-    "AuditdLogLevel": "notifications",
-    "Description": "",
-    "Name": "asdf",
+    "AdminState": "{% if enable == true %}'Enabled'{% else %}'Disabled'{% endif %}",
+    "AuditdLogLevel": "{{ minimum_severity_to_report | default('notifications') }}",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "ObjectType": "auditd.Policy",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "5ddea1e16972652d32b6493a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
-    },
-    "Tags": []
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    }{% if tags is defined %},{% endif %}
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
 }

@@ -1,33 +1,26 @@
 {
     "AuthenticatedNtpServers": [],
-    "Description": "ntp NTP Policy",
-    "Enabled": true,
-    "Name": "ntp",
+    "Description": "{{ description | default('') }}",
+    "Enabled": "{{ enabled | default(true) | bool }}",
+    "Name": "{{ name | default('default') }}",
     "NtpServers": [
-        "10.101.128.15",
-        "10.101.128.16"
+{% for ntp_server in ntp_servers %}
+        "{{ ntp_server }}"{% if not loop.last %},{% endif %}
+{% endfor %}
     ],
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "Timezone": "America/New_York"
+{%- endif %}
+    "Timezone": "{{ timezone | default('UTC') }}"
 }

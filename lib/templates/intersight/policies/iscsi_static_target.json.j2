@@ -1,36 +1,27 @@
 {
-    "Description": "target iSCSI Static Target Policy",
-    "IpAddress": "198.18.32.60",
-    "IscsiIpType": "IPv4",
+    "Description": "{{ description | default('') }}",
+    "IpAddress": "{{ ip_address | default('198.18.32.60') }}",
+    "IscsiIpType": "{{ ip_protocol | default('IPv4') }}",
     "Lun": {
         "Bootable": true,
-        "ClassId": "vnic.Lun",
-        "LunId": 0,
+        "LunId": {{ lun_id | default(0) }},
         "ObjectType": "vnic.Lun"
     },
-    "Name": "target",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "5ddea1e16972652d32b6493a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "Port": 3260,
+    "Port": {{ port | default(3260) }},
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "TargetName": "iqn.1984-12.com.cisco:lnx1"
+{%- endif %}
+    "TargetName": "{{ target_name | default('iqn.1984-12.com.cisco:ucs000') }}"
 }

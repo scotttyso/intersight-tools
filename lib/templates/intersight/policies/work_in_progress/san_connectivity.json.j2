@@ -1,0 +1,43 @@
+{
+    "Description": "scp-vic-gen4:mlom San Connectivity Policy",
+    "FcIfs": [
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "6467a4ca2f0dcb4401a943c2",
+            "ObjectType": "vnic.FcIf",
+            "link": "https://intersight.com/api/v1/vnic/FcIfs/6467a4ca2f0dcb4401a943c2"
+        },
+        {
+            "ClassId": "mo.MoRef",
+            "Moid": "6467a4cb2f0dcb4401a943d5",
+            "ObjectType": "vnic.FcIf",
+            "link": "https://intersight.com/api/v1/vnic/FcIfs/6467a4cb2f0dcb4401a943d5"
+        }
+    ],
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "PlacementMode": "custom",
+    "StaticWwnnAddress": "",
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "TargetPlatform": "FIAttached",
+    "WwnnAddressType": "POOL",
+    "WwnnPool": {
+        "ClassId": "mo.MoRef",
+        "Moid": "6467a417696275310148c6da",
+        "ObjectType": "fcpool.Pool",
+        "link": "https://intersight.com/api/v1/fcpool/Pools/6467a417696275310148c6da"
+    }
+}

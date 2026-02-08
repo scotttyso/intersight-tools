@@ -1,0 +1,53 @@
+{
+    "AdminSpeed": "Auto",
+    "EthNetworkControlPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "6722338e6f62693001e98766",
+        "ObjectType": "fabric.EthNetworkControlPolicy",
+        "link": "https://intersight.com/api/v1/fabric/EthNetworkControlPolicies/6722338e6f62693001e98766"
+    },
+    "EthNetworkGroupPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "690e0f2b6f6269300155718a",
+        "ObjectType": "fabric.EthNetworkGroupPolicy",
+        "link": "https://intersight.com/api/v1/fabric/EthNetworkGroupPolicies/690e0f2b6f6269300155718a"
+    },
+    "Fec": "Auto",
+    "LinkAggregationPolicy": null,
+    "Mode": "trunk",
+    "PcId": 1,
+    "PortPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "6985ee9e6f6269300156060c",
+        "ObjectType": "fabric.PortPolicy",
+        "link": "https://intersight.com/api/v1/fabric/PortPolicies/6985ee9e6f6269300156060c"
+    },
+    "Ports": [
+        {
+            "AggregatePortId": 0,
+            "ClassId": "fabric.PortIdentifier",
+            "ObjectType": "fabric.PortIdentifier",
+            "PortId": 47,
+            "SlotId": 1
+        },
+        {
+            "AggregatePortId": 0,
+            "ClassId": "fabric.PortIdentifier",
+            "ObjectType": "fabric.PortIdentifier",
+            "PortId": 48,
+            "SlotId": 1
+        }
+    ],
+    "Priority": "Best Effort",
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "UserLabel": ""
+}

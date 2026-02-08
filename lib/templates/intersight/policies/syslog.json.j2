@@ -1,50 +1,40 @@
 {
-    "Description": "syslog Policy",
+    "Description": "{{ description | default('') }}",
     "LocalClients": [
         {
-            "ClassId": "syslog.LocalFileLoggingClient",
-            "MinSeverity": "warning",
+            "MinSeverity": "{{  local_logging.minimum_severity | default('warning') }}",
             "ObjectType": "syslog.LocalFileLoggingClient"
         }
     ],
-    "Name": "syslog",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "639ffbbe6972652d3243d65f",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/639ffbbe6972652d3243d65f"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if remote_logging is defined %}
     "RemoteClients": [
+  {%- for item in remote_logging -%}
         {
-            "ClassId": "syslog.RemoteLoggingClient",
-            "Enabled": true,
+            "Enabled": {{ item.enable | default(true) | bool }},
             "Facility": "",
-            "Hostname": "10.101.128.24",
-            "MinSeverity": "informational",
+            "Hostname": "{{ item.hostname }}",
+            "MinSeverity": "{{ item.minimum_severity | default('warning') }}",
             "ObjectType": "syslog.RemoteLoggingClient",
-            "Port": 514,
-            "Protocol": "udp",
+            "Port": {{ item.port | default(514) }},
+            "Protocol": "{{ item.protocol | default('udp') }}",
             "VrfName": ""
-        },
-        {
-            "ClassId": "syslog.RemoteLoggingClient",
-            "Enabled": true,
-            "Facility": "",
-            "Hostname": "10.101.128.25",
-            "MinSeverity": "informational",
-            "ObjectType": "syslog.RemoteLoggingClient",
-            "Port": 514,
-            "Protocol": "udp",
-            "VrfName": ""
-        }
-    ],
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]{% if tags is defined %},{% endif %}
+{%- endif %}
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "ezci",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "3.1.2"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

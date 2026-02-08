@@ -39,8 +39,17 @@
         }
     ],
     "SwitchProfilesCount": 2,
-    "Tags": [],
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
     "TargetPlatform": "UCS Domain",
     "Type": "instance",
-    "UserLabel": ""
+    "UserLabel": "{{ user_label | default('') }}"
 }

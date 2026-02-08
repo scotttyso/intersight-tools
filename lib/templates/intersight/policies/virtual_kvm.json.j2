@@ -1,32 +1,24 @@
 {
-    "Description": "vkvm Virtual KVM Policy",
-    "EnableLocalServerVideo": true,
-    "EnableVideoEncryption": true,
-    "Enabled": true,
-    "MaximumSessions": 4,
-    "Name": "vkvm",
+    "Description": "{{ description | default('') }}",
+    "EnableLocalServerVideo": "{{ enable_local_server_video | default(true) | bool }}",
+    "EnableVideoEncryption": "{{ enable_video_encryption | default(true) | bool }}",
+    "Enabled": "{{ enable_virtual_kvm | default(true) | bool }}",
+    "MaximumSessions": "{{ maximum_sessions | default(4) }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "RemotePort": 2068,
+    "RemotePort": "{{ remote_port | default(2068) }}",
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "TunneledKvmEnabled": true
+{%- endif %}
+    "TunneledKvmEnabled": "{{ allow_tunneled_vkvm | default(false) | bool }}"
 }

@@ -1,0 +1,164 @@
+{
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "Qualifiers": [
+        {
+            "ClassId": "resource.DomainQualifier",
+            "DomainNames": [],
+            "FabricInterConnectPids": [
+                "UCS-FI-6454"
+            ],
+            "ObjectType": "resource.DomainQualifier"
+        },
+        {
+            "AssetTags": [],
+            "ClassId": "resource.RackServerQualifier",
+            "ObjectType": "resource.RackServerQualifier",
+            "Pids": [
+                "UCSC-C220-M5"
+            ],
+            "RackIdRange": [
+                {
+                    "ClassId": "resource.RackIdRangeFilter",
+                    "ConditionType": "RANGE",
+                    "MaxValue": 4,
+                    "MinValue": 1,
+                    "ObjectType": "resource.RackIdRangeFilter"
+                }
+            ],
+            "UserLabels": []
+        },
+        {
+            "AssetTags": [],
+            "ChassisAndSlotIdRange": [
+                {
+                    "ChassisIdRange": {
+                        "ClassId": "resource.ChassisIdRangeFilter",
+                        "ConditionType": "RANGE",
+                        "MaxValue": 7,
+                        "MinValue": 6,
+                        "ObjectType": "resource.ChassisIdRangeFilter"
+                    },
+                    "ClassId": "resource.ChassisAndSlotQualification",
+                    "ObjectType": "resource.ChassisAndSlotQualification",
+                    "SlotIdRanges": []
+                },
+                {
+                    "ChassisIdRange": {
+                        "ClassId": "resource.ChassisIdRangeFilter",
+                        "ConditionType": "RANGE",
+                        "MaxValue": 5,
+                        "MinValue": 4,
+                        "ObjectType": "resource.ChassisIdRangeFilter"
+                    },
+                    "ClassId": "resource.ChassisAndSlotQualification",
+                    "ObjectType": "resource.ChassisAndSlotQualification",
+                    "SlotIdRanges": [
+                        {
+                            "ClassId": "resource.SlotIdRangeFilter",
+                            "ConditionType": "RANGE",
+                            "MaxValue": 8,
+                            "MinValue": 1,
+                            "ObjectType": "resource.SlotIdRangeFilter"
+                        }
+                    ]
+                }
+            ],
+            "ChassisPids": [],
+            "ClassId": "resource.BladeQualifier",
+            "ObjectType": "resource.BladeQualifier",
+            "Pids": [
+                "UCSB-B200-M5"
+            ],
+            "UserLabels": []
+        },
+        {
+            "ChassisTags": [
+                {
+                    "ClassId": "resource.Tag",
+                    "Key": "Module",
+                    "ObjectType": "resource.Tag",
+                    "Value": "easy-imm"
+                }
+            ],
+            "ClassId": "resource.TagQualifier",
+            "DomainProfileTags": [],
+            "ObjectType": "resource.TagQualifier",
+            "ServerTags": [
+                {
+                    "ClassId": "resource.Tag",
+                    "Key": "Module",
+                    "ObjectType": "resource.Tag",
+                    "Value": "easy-imm"
+                }
+            ]
+        },
+        {
+            "ClassId": "resource.MemoryQualifier",
+            "MemoryCapacityRange": {
+                "ClassId": "resource.MemoryCapacityRangeFilter",
+                "ConditionType": "RANGE",
+                "MaxValue": 512,
+                "MinValue": 1,
+                "ObjectType": "resource.MemoryCapacityRangeFilter"
+            },
+            "MemoryUnitsRange": {
+                "ClassId": "resource.MemoryUnitsRangeFilter",
+                "ConditionType": "RANGE",
+                "MaxValue": 0,
+                "MinValue": 0,
+                "ObjectType": "resource.MemoryUnitsRangeFilter"
+            },
+            "ObjectType": "resource.MemoryQualifier"
+        },
+        {
+            "ClassId": "resource.GpuQualifier",
+            "GpuControllersRange": {
+                "ClassId": "resource.GpuControllersRangeFilter",
+                "ConditionType": "RANGE",
+                "MaxValue": 0,
+                "MinValue": 0,
+                "ObjectType": "resource.GpuControllersRangeFilter"
+            },
+            "GpuEvaluationType": "ServerWithoutGpu",
+            "ObjectType": "resource.GpuQualifier",
+            "Pids": [],
+            "Vendor": ""
+        },
+        {
+            "ClassId": "resource.ProcessorQualifier",
+            "CpuCoresRange": {
+                "ClassId": "resource.CpuCoreRangeFilter",
+                "ConditionType": "RANGE",
+                "MaxValue": 0,
+                "MinValue": 0,
+                "ObjectType": "resource.CpuCoreRangeFilter"
+            },
+            "ObjectType": "resource.ProcessorQualifier",
+            "Pids": [],
+            "SpeedRange": {
+                "ClassId": "resource.CpuSpeedRangeFilter",
+                "ConditionType": "RANGE",
+                "MaxValue": 0,
+                "MinValue": 0,
+                "ObjectType": "resource.CpuSpeedRangeFilter"
+            },
+            "Vendor": "Intel(R) Corporation"
+        }
+    ],
+    "ResourcePools": [],
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ]
+{%- endif %}
+}

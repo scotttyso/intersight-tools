@@ -1,50 +1,34 @@
 {
-    "Description": "fw-domain-servers Firmware Policy",
+    "Description": "{{ description | default('') }}",
     "ExcludeComponentList": [
         "none"
     ],
     "ModelBundleCombo": [
+{%- for item in model_bundle_versions %}
+  {% set outer_loop = loop %}  {% comment %} Alias the outer loop variable {% endcomment %}
+  {%- for m in item.server_models %}
         {
-            "BundleVersion": "4.3(2.240009)",
-            "ClassId": "firmware.ModelBundleVersion",
-            "ModelFamily": "UCSC-C240-M5",
+            "BundleVersion": "{{ item.firmware_version }}",
+            "ModelFamily": "{{ m }}",
             "ObjectType": "firmware.ModelBundleVersion"
-        },
-        {
-            "BundleVersion": "5.2(0.230127)",
-            "ClassId": "firmware.ModelBundleVersion",
-            "ModelFamily": "UCSB-B200-M5",
-            "ObjectType": "firmware.ModelBundleVersion"
-        },
-        {
-            "BundleVersion": "5.2(2.240053)",
-            "ClassId": "firmware.ModelBundleVersion",
-            "ModelFamily": "UCSX-210C-M6",
-            "ObjectType": "firmware.ModelBundleVersion"
-        }
+        }{% if not loop.last or not outer_loop.last %},{% endif %}
+  {%- endfor -%}
+{%- endfor -%}
     ],
-    "Name": "fw-domain-servers",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "TargetPlatform": "FIAttached"
+{%- endif %}
+    "TargetPlatform": "{{ target_platform | default('FIAttached') }}"
 }

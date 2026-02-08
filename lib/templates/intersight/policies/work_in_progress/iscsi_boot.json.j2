@@ -1,0 +1,60 @@
+{
+    "AutoTargetvendorName": "",
+    "Chap": {
+        "ClassId": "vnic.IscsiAuthProfile",
+        "IsPasswordSet": false,
+        "ObjectType": "vnic.IscsiAuthProfile",
+        "UserId": ""
+    },
+    "Description": "boot iSCSI Boot Policy",
+    "InitiatorIpPool": null,
+    "InitiatorIpSource": "DHCP",
+    "InitiatorStaticIpV4Address": "",
+    "InitiatorStaticIpV4Config": {
+        "ClassId": "ippool.IpV4Config",
+        "Gateway": "",
+        "Netmask": "",
+        "ObjectType": "ippool.IpV4Config",
+        "PrimaryDns": "",
+        "SecondaryDns": ""
+    },
+    "InitiatorStaticIpV6Address": "",
+    "InitiatorStaticIpV6Config": null,
+    "IscsiAdapterPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "65d3788dfccacb17015ccf54",
+        "ObjectType": "vnic.IscsiAdapterPolicy",
+        "link": "https://intersight.com/api/v1/vnic/IscsiAdapterPolicies/65d3788dfccacb17015ccf54"
+    },
+    "IscsiIpType": "IPv4",
+    "MutualChap": {
+        "ClassId": "vnic.IscsiAuthProfile",
+        "IsPasswordSet": false,
+        "ObjectType": "vnic.IscsiAuthProfile",
+        "UserId": ""
+    },
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "PrimaryTargetPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "65d3788efccacb17015cd0a5",
+        "ObjectType": "vnic.IscsiStaticTargetPolicy",
+        "link": "https://intersight.com/api/v1/vnic/IscsiStaticTargetPolicies/65d3788efccacb17015cd0a5"
+    },
+    "SecondaryTargetPolicy": null,
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "TargetSourceType": "Static"
+}

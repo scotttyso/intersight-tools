@@ -1,0 +1,40 @@
+{
+    "AdminSpeed": "Auto",
+    "Fec": "Auto",
+    "LinkAggregationPolicy": null,
+    "LinkControlPolicy": null,
+    "PcId": 2,
+    "PortPolicy": {
+        "ClassId": "mo.MoRef",
+        "Moid": "6985ee9e6f6269300156060c",
+        "ObjectType": "fabric.PortPolicy",
+        "link": "https://intersight.com/api/v1/fabric/PortPolicies/6985ee9e6f6269300156060c"
+    },
+    "Ports": [
+        {
+            "AggregatePortId": 0,
+            "ClassId": "fabric.PortIdentifier",
+            "ObjectType": "fabric.PortIdentifier",
+            "PortId": 45,
+            "SlotId": 1
+        },
+        {
+            "AggregatePortId": 0,
+            "ClassId": "fabric.PortIdentifier",
+            "ObjectType": "fabric.PortIdentifier",
+            "PortId": 46,
+            "SlotId": 1
+        }
+    ],
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "UserLabel": ""
+}

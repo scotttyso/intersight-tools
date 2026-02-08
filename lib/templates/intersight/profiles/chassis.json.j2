@@ -41,23 +41,17 @@
         }
     ],
     "SrcTemplate": null,
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "ezci",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "3.1.2"
-        },
-        {
-            "Key": "cisco.meta.sharingpresent",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "true"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
+{%- endif %}
     "TargetPlatform": "FIAttached",
     "Type": "instance",
-    "UserLabel": ""
+    "UserLabel": "{{ user_label | default('') }}"
 }

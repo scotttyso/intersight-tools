@@ -1,37 +1,27 @@
 {
-    "CdpEnabled": true,
-    "Description": "cdp Ethernet Network Control Policy",
-    "ForgeMac": "allow",
+    "CdpEnabled": {{ cdp_enable | default(false)}},
+    "Description": "{{ description | default('') }}",
+    "ForgeMac": "{{ mac_security_forge | default('allow')}}",
     "LldpSettings": {
-        "ClassId": "fabric.LldpSettings",
         "ObjectType": "fabric.LldpSettings",
-        "ReceiveEnabled": true,
-        "TransmitEnabled": true
+        "ReceiveEnabled": {{ lldp_enable_receive | default(false) }},
+        "TransmitEnabled": {{ lldp_enable_transmit | default(false) }}
     },
-    "MacRegistrationMode": "nativeVlanOnly",
-    "Name": "both",
-    "NetworkPolicy": [],
+    "MacRegistrationMode": "{{ mac_register_mode | default('nativeVlanOnly') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "UplinkFailAction": "linkDown"
+{%- endif %}
+    "UplinkFailAction": "{{ action_on_uplink_fail | default('linkDown') }}"
 }

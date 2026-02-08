@@ -1,36 +1,27 @@
 {
-    "Description": "network Ethernet Network Policy",
-    "Name": "network",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "5ddea1e16972652d32b6493a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
-    "TargetPlatform": "Standalone",
+{%- endif %}
     "VlanSettings": {
         "AllowedVlans": "",
         "ClassId": "vnic.VlanSettings",
-        "DefaultVlan": 4,
-        "Mode": "ACCESS",
+        "DefaultVlan": {{ default_vlan | default(0) }},
+        "Mode": "{{ vlan_mode | default('ACCESS') }}",
         "ObjectType": "vnic.VlanSettings",
-        "QinqEnabled": false,
-        "QinqVlan": 2
+        "QinqEnabled": {% if qinq_vlan is defined %}true{% else %}false{% endif %},
+        "QinqVlan": {{ qinq_vlan | default(2) }}
     }
 }

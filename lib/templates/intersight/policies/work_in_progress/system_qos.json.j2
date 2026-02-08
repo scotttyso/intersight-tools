@@ -1,0 +1,93 @@
+{
+    "Classes": [
+        {
+            "AdminState": "Enabled",
+            "BandwidthPercent": 10,
+            "ClassId": "fabric.QosClass",
+            "Cos": 255,
+            "Mtu": 9216,
+            "MulticastOptimize": false,
+            "Name": "Best Effort",
+            "ObjectType": "fabric.QosClass",
+            "PacketDrop": true,
+            "Weight": 5
+        },
+        {
+            "AdminState": "Enabled",
+            "BandwidthPercent": 14,
+            "ClassId": "fabric.QosClass",
+            "Cos": 1,
+            "Mtu": 9216,
+            "MulticastOptimize": false,
+            "Name": "Bronze",
+            "ObjectType": "fabric.QosClass",
+            "PacketDrop": true,
+            "Weight": 7
+        },
+        {
+            "AdminState": "Enabled",
+            "BandwidthPercent": 18,
+            "ClassId": "fabric.QosClass",
+            "Cos": 4,
+            "Mtu": 9216,
+            "MulticastOptimize": false,
+            "Name": "Gold",
+            "ObjectType": "fabric.QosClass",
+            "PacketDrop": true,
+            "Weight": 9
+        },
+        {
+            "AdminState": "Enabled",
+            "BandwidthPercent": 20,
+            "ClassId": "fabric.QosClass",
+            "Cos": 3,
+            "Mtu": 2240,
+            "MulticastOptimize": false,
+            "Name": "FC",
+            "ObjectType": "fabric.QosClass",
+            "PacketDrop": false,
+            "Weight": 10
+        },
+        {
+            "AdminState": "Enabled",
+            "BandwidthPercent": 20,
+            "ClassId": "fabric.QosClass",
+            "Cos": 5,
+            "Mtu": 9216,
+            "MulticastOptimize": false,
+            "Name": "Platinum",
+            "ObjectType": "fabric.QosClass",
+            "PacketDrop": false,
+            "Weight": 10
+        },
+        {
+            "AdminState": "Enabled",
+            "BandwidthPercent": 18,
+            "ClassId": "fabric.QosClass",
+            "Cos": 2,
+            "Mtu": 9216,
+            "MulticastOptimize": true,
+            "Name": "Silver",
+            "ObjectType": "fabric.QosClass",
+            "PacketDrop": true,
+            "Weight": 8
+        }
+    ],
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    }{% if tags is defined %},{% endif %}
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "TargetPlatform": "UCS Domain"
+}

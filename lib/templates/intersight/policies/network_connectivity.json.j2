@@ -1,35 +1,27 @@
 {
-    "AlternateIpv4dnsServer": "10.101.128.16",
-    "AlternateIpv6dnsServer": "::",
-    "Description": "dns Network Connectivity Policy",
-    "DynamicDnsDomain": "",
-    "EnableDynamicDns": false,
-    "EnableIpv4dnsFromDhcp": false,
-    "EnableIpv6": false,
-    "EnableIpv6dnsFromDhcp": false,
-    "Name": "dns",
+    "AlternateIpv4dnsServer": {% if dns_servers_v4 is defined and dns_servers_v4 | length > 1 %}"{{ dns_servers_v4[1] }}"{% else %}""{% endif %},
+    "AlternateIpv6dnsServer": {% if dns_servers_v6 is defined and dns_servers_v6 | length > 1 %}"{{ dns_servers_v6[1] }}"{% else %}"::"{% endif %},
+    "Description": "{{ description | default('') }}",
+    "DynamicDnsDomain": "{{ update_domain | default('') }}",
+    "EnableDynamicDns": {{ enable_dynamic_dns | default(false) | bool }},
+    "EnableIpv4dnsFromDhcp": {{ obtain_ipv4_dns_from_dhcp | default(false) | bool }},
+    "EnableIpv6": {% if obtain_ipv6_dns_from_dhcp is defined or dns_servers_v6 is defined %}true{% else %}false{% endif %},
+    "EnableIpv6dnsFromDhcp": {{ obtain_ipv6_dns_from_dhcp | default(false) | bool }},
+    "Name": "{{ name | default('default') }}"
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6505cc486972653201c3bc8a",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/6505cc486972653201c3bc8a"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
-    "PreferredIpv4dnsServer": "10.101.128.15",
-    "PreferredIpv6dnsServer": "::",
+    "PreferredIpv4dnsServer": {% if dns_servers_v4 is defined and dns_servers_v4 | length > 0 %}"{{ dns_servers_v4[0] }}"{% else %}""{% endif %},
+    "PreferredIpv6dnsServer": {% if dns_servers_v6 is defined and dns_servers_v6 | length > 0 %}"{{ dns_servers_v6[0] }}"{% else %}"::"{% endif %},
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "Module",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "easy-imm"
-        },
-        {
-            "Key": "Version",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "4.2.11-20241017091918219"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ]
+{%- endif %}
 }

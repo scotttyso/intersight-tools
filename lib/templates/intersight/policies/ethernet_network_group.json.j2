@@ -1,27 +1,26 @@
 {
-    "Description": "mgmt Ethernet Network Group Policy",
-    "Name": "mgmt",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
-        "Moid": "639ffbbe6972652d3243d65f",
-        "ObjectType": "organization.Organization",
-        "link": "https://intersight.com/api/v1/organization/Organizations/639ffbbe6972652d3243d65f"
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
     },
+{% if tags is defined %}
     "Tags": [
+  {%- for tag in tags -%}
         {
-            "Key": "ezci",
-            "Propagated": false,
-            "SysTag": false,
-            "Type": "KeyValue",
-            "Value": "3.1.2"
-        }
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
     ],
+{%- endif %}
     "VlanSettings": {
-        "AllowedVlans": "1001",
+        "AllowedVlans": "{{ allowed_vlans | default('') }}",
         "ClassId": "fabric.VlanSettings",
-        "NativeVlan": 1001,
+        "NativeVlan": {{ native_vlan | default(1) }},
         "ObjectType": "fabric.VlanSettings",
-        "QinqEnabled": false,
-        "QinqVlan": 2
+        "QinqEnabled": {{ if qinq_vlan is defined }}true{{ else }}false{{ endif }},
+        "QinqVlan": {{ qinq_vlan | default(2) }}
     }
 }

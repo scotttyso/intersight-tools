@@ -1,0 +1,35 @@
+{
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
+    "Organization": {
+        "Moid": "{{ org_moids[organization].moid }}",
+        "ObjectType": "organization.Organization"
+    },
+    "PerTypeCombinedSelector": [
+        {
+            "ClassId": "resource.PerTypeCombinedSelector",
+            "CombinedSelector": "(Moid eq '5ddea1e16972652d32b64920')",
+            "EmptyFilter": false,
+            "ObjectType": "resource.PerTypeCombinedSelector",
+            "SelectorObjectType": "resource.Group"
+        }
+    ],
+    "Selectors": [
+        {
+            "ClassId": "resource.Selector",
+            "ObjectType": "resource.Selector",
+            "Selector": "/api/v1/resource/Groups?$filter=Moid in('5ddea1e16972652d32b64920')"
+        }
+    ],
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- endif %}
+    "UsageCount": 0
+}
