@@ -13,7 +13,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "VlanSettings": {
         "AllowedVlans": "{{ allowed_vlans | default('') }}",

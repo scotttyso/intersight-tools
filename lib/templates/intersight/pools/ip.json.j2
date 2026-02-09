@@ -24,6 +24,8 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor %}
     ],
+{%- else %}
+    "IpV4Blocks": [],
 {%- endif %}
     "IpV4Config": {
         "Gateway": {% if ipv4_configuration is defined %}"{{ ipv4_configuration.gateway }}"{% else %}""{% endif %},
@@ -54,6 +56,8 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor %}
     ],
+{%- else %}
+    "IpV6Blocks": [],
 {%- endif %}
     "IpV6Config": {
         "Gateway": {% if ipv6_configuration is defined %}"{{ ipv6_configuration.gateway }}"{% else %}""{% endif %},
@@ -66,7 +70,7 @@
     "Organization": {
         "Moid": "{{ org_moids[organization].moid }}",
         "ObjectType": "organization.Organization"
-    }{% if tags is defined %},{% endif %}
+    },
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -76,5 +80,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

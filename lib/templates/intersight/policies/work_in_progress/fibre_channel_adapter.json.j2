@@ -57,7 +57,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "TxQueueSettings": {
         "ClassId": "vnic.FcQueueSettings",

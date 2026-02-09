@@ -17,7 +17,7 @@
             "StartTime": "2026-02-18T09:00:00Z",
             "TimeZone": "America/Anchorage"
         }
-    ]{% if tags is defined %},{% endif %}
+    ],
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -27,5 +27,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

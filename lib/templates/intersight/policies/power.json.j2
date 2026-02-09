@@ -13,7 +13,7 @@
     "PowerRestoreState": "{{ power_restore | default('LastState') }}",
     "PowerSaveMode": "{{ power_save_mode | default('Enabled') }}",
     "ProcessorPackagePowerLimit": "{{ processor_package_power_limit | default('Default') }}",
-    "RedundancyMode": "{{ power_redundancy | default('Grid') }}"{% if tags is defined %},{% endif %}
+    "RedundancyMode": "{{ power_redundancy | default('Grid') }}",
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -23,5 +23,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

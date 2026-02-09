@@ -27,7 +27,9 @@
     {%- endif -%}
         }{% if not loop.last %},{% endif %}
   {%- endfor %}
-    ]{% if tags is defined %},{% endif %}
+    ],
+{%- else %}
+    "Selectors": [],
 {%- endif %}
 {% if tags is defined %}
     "Tags": [
@@ -38,5 +40,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

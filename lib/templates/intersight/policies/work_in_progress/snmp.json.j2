@@ -23,7 +23,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "TrapCommunity": "",
     "V2Enabled": false,

@@ -9,7 +9,7 @@
         "ObjectType": "organization.Organization"
     },
     "Priority": "FC",
-    "RateLimit": {{ rate_limit | default(0) }}{% if tags is defined %},{% endif %}
+    "RateLimit": {{ rate_limit | default(0) }},
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -19,5 +19,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

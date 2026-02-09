@@ -9,7 +9,7 @@
     "QuerierIpAddressPeer": "{{ querier_ip_address_peer | default('') }}",
     "QuerierState": "{{ querier_state | default('Disabled') }}",
     "SnoopingState": "{{ snooping_state | default('Enabled') }}",
-    "SrcIpProxy": "{{ source_ip_proxy_state | default('Enabled') }}"{% if tags is defined %},{% endif %}
+    "SrcIpProxy": "{{ source_ip_proxy_state | default('Enabled') }}",
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -19,5 +19,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

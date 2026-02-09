@@ -15,7 +15,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "Timeout": {{ ssh_timeout | default(1800) }}
 }

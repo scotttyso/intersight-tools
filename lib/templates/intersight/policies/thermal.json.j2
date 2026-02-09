@@ -5,7 +5,7 @@
     "Organization": {
         "Moid": "{{ org_moids[organization].moid }}",
         "ObjectType": "organization.Organization"
-    }{% if tags is defined %},{% endif %}
+    },
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -15,5 +15,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

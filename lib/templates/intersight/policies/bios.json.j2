@@ -13,7 +13,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "AcpiSratSpFlagEn": "{{ acpi_srat_sp_flag_en | default('platform-default') }}",
     "AcsControlGpu1state": "{{ acs_control_gpu1state | default('platform-default') }}",

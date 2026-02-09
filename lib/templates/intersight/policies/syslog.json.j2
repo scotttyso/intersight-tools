@@ -25,7 +25,9 @@
             "VrfName": ""
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]{% if tags is defined %},{% endif %}
+    ],
+{%- else %}
+    "RemoteClients": [],
 {%- endif %}
 {% if tags is defined %}
     "Tags": [
@@ -36,5 +38,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

@@ -21,7 +21,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "TargetName": "{{ target_name | default('iqn.1984-12.com.cisco:ucs000') }}"
 }

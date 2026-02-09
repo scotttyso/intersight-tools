@@ -21,7 +21,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "UplinkFailAction": "{{ action_on_uplink_fail | default('linkDown') }}"
 }

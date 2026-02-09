@@ -12,13 +12,15 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ],
+{%- else %}
+    "IqnSuffixBlocks": [],
 {%- endif %}
     "Name": "{{ name | default('default') }}",
     "Organization": {
         "Moid": "{{ org_moids[organization].moid }}",
         "ObjectType": "organization.Organization"
     },
-    "Prefix": "{{ prefix | default('iqn.1984-12.com.cisco') }}"{% if tags is defined %},{% endif %}
+    "Prefix": "{{ prefix | default('iqn.1984-12.com.cisco') }}",
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -28,5 +30,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }

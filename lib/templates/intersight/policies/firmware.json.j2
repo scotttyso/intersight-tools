@@ -28,7 +28,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ],
+    ]
+{%- else %}
+    "Tags": [],
 {%- endif %}
     "TargetPlatform": "{{ target_platform | default('FIAttached') }}"
 }

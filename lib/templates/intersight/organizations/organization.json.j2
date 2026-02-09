@@ -1,6 +1,6 @@
 {
     "Description": "{{ description | default('') }}",
-    "Name": "{{ name | default('default') }}"{% if resource_groups is defined or tags is defined %},{% endif %}
+    "Name": "{{ name | default('default') }}",
 {%- if resource_groups is defined %}
     "ResourceGroups": [
   {%- for item in resource_groups %}
@@ -9,7 +9,9 @@
             "ObjectType": "resource.Group"
         }{% if not loop.last %},{% endif %}
   {%- endfor %}
-    ]{% if tags is defined %},{% endif %}
+    ],
+{%- else %}
+    "ResourceGroups": [],
 {%- endif %}
 {% if tags is defined %}
     "Tags": [
@@ -20,5 +22,7 @@
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
     ]
+{%- else %}
+    "Tags": []
 {%- endif %}
 }
