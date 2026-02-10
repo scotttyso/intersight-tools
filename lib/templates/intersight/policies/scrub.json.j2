@@ -1,10 +1,10 @@
 {%- set scrub_targets = [] -%}
-{%- if bios is defined and bios == true -%}
-    {%- do scrub_targets.append('BIOS') -%}
-{%- endif -%}
-{%- if disk is defined and disk == true -%}
-    {%- do scrub_targets.append('Disk') -%}
-{%- endif -%}
+{%-if bios is defined and bios == true -%}
+    {%- set _ = scrub_targets.append('BIOS') -%}
+{%-endif -%}
+{%-if disk is defined and disk == true -%}
+    {%- set _ = scrub_targets.append('Disk') -%}
+{%-endif -%}
 {
     "Description": "{{ description | default('') }}",
     "Name": "{{ name | default('default') }}",

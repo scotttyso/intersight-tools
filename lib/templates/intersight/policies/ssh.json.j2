@@ -1,6 +1,6 @@
 {
     "Description": "{{ description | default('') }}",
-    "Enabled": {{ enable_ssh | default(true) | bool }},
+    "Enabled": {{ enable_ssh | default('true') }},
     "Name": "{{ name | default('default') }}",
     "Organization": {
         "Moid": "{{ org_moids[organization].moid }}",
@@ -15,7 +15,7 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}

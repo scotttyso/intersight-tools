@@ -1,6 +1,6 @@
 {
     "Description": "{{ description | default('') }}",
-    "Enabled": "{{ enabled | default(true) | bool }}",
+    "Enabled": {{ enabled | default('true') }},
 {%- if encryption_key is defined -%}
     "EncryptionKey": "{{ encryption_key }}",
 {%- endif -%}

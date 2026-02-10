@@ -5,7 +5,7 @@
     ],
     "ModelBundleCombo": [
 {%- for item in model_bundle_versions %}
-  {% set outer_loop = loop %}  {% comment %} Alias the outer loop variable {% endcomment %}
+  {% set outer_loop = loop %}  {# Alias the outer loop variable #}
   {%- for m in item.server_models %}
         {
             "BundleVersion": "{{ item.firmware_version }}",
@@ -28,7 +28,7 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}

@@ -2,7 +2,7 @@
     "BaudRate": {{ baud_rate | default(115200) }},
     "ComPort": "{{ com_port | default('com0') }}",
     "Description": "{{ description | default('') }}",
-    "Enabled": {{ enabled | default(true) | bool }},
+    "Enabled": {{ enabled | default('true') }},
     "Name": "{{ name | default('default') }}",
     "Organization": {
         "Moid": "{{ org_moids[organization].moid }}",

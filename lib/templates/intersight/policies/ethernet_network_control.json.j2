@@ -1,11 +1,11 @@
 {
-    "CdpEnabled": {{ cdp_enable | default(false)}},
+    "CdpEnabled": {{ cdp_enable | default('false') }},
     "Description": "{{ description | default('') }}",
     "ForgeMac": "{{ mac_security_forge | default('allow')}}",
     "LldpSettings": {
         "ObjectType": "fabric.LldpSettings",
-        "ReceiveEnabled": {{ lldp_enable_receive | default(false) }},
-        "TransmitEnabled": {{ lldp_enable_transmit | default(false) }}
+        "ReceiveEnabled": {{ lldp_enable_receive | default('false') }},
+        "TransmitEnabled": {{ lldp_enable_transmit | default('false') }}
     },
     "MacRegistrationMode": "{{ mac_register_mode | default('nativeVlanOnly') }}",
     "Name": "{{ name | default('default') }}",
@@ -21,7 +21,7 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}

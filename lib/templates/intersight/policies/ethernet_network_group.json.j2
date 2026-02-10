@@ -13,7 +13,7 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}
@@ -22,7 +22,7 @@
         "ClassId": "fabric.VlanSettings",
         "NativeVlan": {{ native_vlan | default(1) }},
         "ObjectType": "fabric.VlanSettings",
-        "QinqEnabled": {{ if qinq_vlan is defined }}true{{ else }}false{{ endif }},
+        "QinqEnabled": {% if qinq_vlan is defined %}true{% else %}false{% endif %},
         "QinqVlan": {{ qinq_vlan | default(2) }}
     }
 }

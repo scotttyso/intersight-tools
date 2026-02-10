@@ -1,6 +1,6 @@
 {
     "Description": "{{ description | default('') }}",
-    "EnableJumboFrame": {% if target_platform == 'Unified Edge' %}{{ enable_jumbo_frame | default(false) | bool}}{% else %}false{% endif %},
+    "EnableJumboFrame": {% if target_platform == 'Unified Edge' %}{{ enable_jumbo_frame | default('false') }}{% else %}false{% endif %},
     "EthernetSwitchingMode": "{{ switching_mode_ethernet | default('end-host') }}",
     "FabricPcVhbaReset": "{{ fabric_port_channel_vhba_reset | default('Disabled') }}",
     "FcSwitchingMode": "{{ switching_mode_fc | default('end-host') }}",
@@ -26,7 +26,7 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}
@@ -37,5 +37,5 @@
         "ObjectType": "fabric.UdldGlobalSettings",
         "RecoveryAction": "{% if udld_global_settings is defined %}{{ udld_global_settings.recovery_action | default('reset') }}{% else %}reset{% endif %}"
     },
-    "VlanPortOptimizationEnabled": {{ vlan_port_count_optimization | default(false) | bool}}
+    "VlanPortOptimizationEnabled": {{ vlan_port_count_optimization | default('false') }}
 }

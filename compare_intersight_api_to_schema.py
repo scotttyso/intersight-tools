@@ -156,6 +156,50 @@ def bios_templates(kwargs):
     else: pcolor.Yellow('None\n')
 
 def setup(kwargs):
+    plist = [
+        'auditd.json.j2',
+        'bios.json.j2',
+        'device_connector.json.j2',
+        'ethernet_network.json.j2',
+        'ethernet_network_control.json.j2',
+        'ethernet_network_group.json.j2',
+        'ethernet_qos.json.j2',
+        'fibre_channel_network.json.j2',
+        'fibre_channel_qos.json.j2',
+        'firmware.json.j2',
+        'flow_control.json.j2',
+        'ipmi_over_lan.json.j2',
+        'iscsi_adapter.json.j2',
+        'iscsi_static_target.json.j2',
+        'memory.json.j2',
+        'multicast.json.j2',
+        'network_connectivity.json.j2',
+        'ntp.json.j2',
+        'port.json.j2',
+        'power.json.j2',
+        'scrub.json.j2',
+        'serial_over_lan.json.j2',
+        'smtp.json.j2',
+        'ssh.json.j2',
+        'switch_control.json.j2',
+        'syslog.json.j2',
+        'thermal.json.j2',
+        'virtual_kvm.json.j2',
+        'vlan.json.j2'
+    ]
+    data = DotMap(
+        local_logging = DotMap(minimum_severity = 'warning'),
+        organization = "default",
+        org_moids = kwargs.org_moids,
+        # tags = [DotMap(key = 'example', value = 'example')]
+    )
+    for i in plist:
+        pcolor.LightGray(f'\n{"="*20} {i.upper()} {"="*20}\n')
+        # output = Template(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', 'policies', i), 'r', encoding='utf8').read()).render(data.toDict())
+        # pcolor.Yellow(output)
+        output = json.loads(Template(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', 'policies', i), 'r', encoding='utf8').read()).render(data.toDict()))
+        pcolor.Yellow(json.dumps(output, indent=4))
+    exit()
     data = DotMap(
         description = "Example IP Pool",
         ipv4_blocks = [

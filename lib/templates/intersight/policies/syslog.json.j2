@@ -15,7 +15,7 @@
     "RemoteClients": [
   {%- for item in remote_logging -%}
         {
-            "Enabled": {{ item.enable | default(true) | bool }},
+            "Enabled": {{ item.enable | default('true') }},
             "Facility": "",
             "Hostname": "{{ item.hostname }}",
             "MinSeverity": "{{ item.minimum_severity | default('warning') }}",

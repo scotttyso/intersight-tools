@@ -3,11 +3,11 @@
     "AlternateIpv6dnsServer": {% if dns_servers_v6 is defined and dns_servers_v6 | length > 1 %}"{{ dns_servers_v6[1] }}"{% else %}"::"{% endif %},
     "Description": "{{ description | default('') }}",
     "DynamicDnsDomain": "{{ update_domain | default('') }}",
-    "EnableDynamicDns": {{ enable_dynamic_dns | default(false) | bool }},
-    "EnableIpv4dnsFromDhcp": {{ obtain_ipv4_dns_from_dhcp | default(false) | bool }},
+    "EnableDynamicDns": {{ enable_dynamic_dns | default('false') }},
+    "EnableIpv4dnsFromDhcp": {{ obtain_ipv4_dns_from_dhcp | default('false') }},
     "EnableIpv6": {% if obtain_ipv6_dns_from_dhcp is defined or dns_servers_v6 is defined %}true{% else %}false{% endif %},
-    "EnableIpv6dnsFromDhcp": {{ obtain_ipv6_dns_from_dhcp | default(false) | bool }},
-    "Name": "{{ name | default('default') }}"
+    "EnableIpv6dnsFromDhcp": {{ obtain_ipv6_dns_from_dhcp | default('false') }},
+    "Name": "{{ name | default('default') }}",
     "Organization": {
         "Moid": "{{ org_moids[organization].moid }}",
         "ObjectType": "organization.Organization"

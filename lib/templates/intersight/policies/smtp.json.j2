@@ -4,7 +4,7 @@
     "Description": "{{ description | default('') }}",
     "EnableAuth": false,
     "EnableTls": false,
-    "Enabled": {{ enable_smtp | default(true) | bool }},
+    "Enabled": {{ enable_smtp | default('true') }},
     "IsAuthPasswordSet": false,
     "MinSeverity": "{{ minimum_severity | default('critical') }}",
     "Name": "{{ name | default('default') }}",
@@ -28,7 +28,7 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}

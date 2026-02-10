@@ -18,9 +18,9 @@
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
   {%- endfor -%}
-    ]
+    ],
 {%- else %}
     "Tags": [],
 {%- endif %}
-    "TrustHostCos": {{ enable_trust_host_cos | default(false) }}
+    "TrustHostCos": {{ enable_trust_host_cos | default('false') }}
 }
