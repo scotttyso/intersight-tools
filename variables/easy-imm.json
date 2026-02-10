@@ -9433,7 +9433,7 @@
                         "items": {
                             "type": "string",
                             "default": "UCSX-210C-M7",
-                            "description": "The default value is `UCSX-210C-M7`.  The server family that will be impacted by this upgrade.  Options are:\n`\n  * `UCSB-B200-M5` - The upgrade on all UCSB-B200-M5 servers claimed in setup.\n  * `UCSB-B200-M6` - The upgrade on all UCSB-B200-M6 servers claimed in setup.\n  * `UCSB-B480-M5` - The upgrade on all UCSB-B480-M5 servers claimed in setup.\n  * `UCSC-C125` - The upgrade on all UCSC-C125 servers claimed in setup.\n  * `UCSC-C220-M5` - The upgrade on all UCSC-C220-M5 servers claimed in setup.\n  * `UCSC-C220-M6` - The upgrade on all UCSC-C220-M6 servers claimed in setup.\n  * `UCSC-C220-M7` - The upgrade on all UCSC-C220-M7 servers claimed in setup.\n  * `UCSC-C225-M6` - The upgrade on all UCSC-C225-M6 servers claimed in setup.\n  * `UCSC-C225-M8` - The upgrade on all UCSC-C225-M8 servers claimed in setup.\n  * `UCSC-C240-M5` - The upgrade on all UCSC-C240-M5 servers claimed in setup.\n  * `UCSC-C240-M6` - The upgrade on all UCSC-C240-M6 servers claimed in setup.\n  * `UCSC-C240-M7` - The upgrade on all UCSC-C240-M7 servers claimed in setup.\n  * `UCSC-C245-M6` - The upgrade on all UCSC-C245-M6 servers claimed in setup.\n  * `UCSC-C245-M8` - The upgrade on all UCSC-C245-M8 servers claimed in setup.\n  * `UCSC-C480-M5` - The upgrade on all UCSC-C480-M5 servers claimed in setup.\n  * `UCSX-210C-M6` - The upgrade on all UCSX-210C-M6 servers claimed in setup.\n  * `UCSX-210C-M7` - The upgrade on all UCSX-210C-M7 servers claimed in setup.\n  * `UCSX-215C-M8` - The upgrade on all UCSX-215C-M8 servers claimed in setup.\n  * `UCSX-410C-M7` - The upgrade on all UCSX-410C-M7 servers claimed in setup.",
+                            "description": "The default value is `UCSX-210C-M7`.  The server family that will be impacted by this upgrade.  Options are:\n\n  * `UCSB-B200-M5` - The upgrade on all UCSB-B200-M5 servers claimed in setup.\n  * `UCSB-B200-M6` - The upgrade on all UCSB-B200-M6 servers claimed in setup.\n  * `UCSB-B480-M5` - The upgrade on all UCSB-B480-M5 servers claimed in setup.\n  * `UCSC-C125` - The upgrade on all UCSC-C125 servers claimed in setup.\n  * `UCSC-C220-M5` - The upgrade on all UCSC-C220-M5 servers claimed in setup.\n  * `UCSC-C220-M6` - The upgrade on all UCSC-C220-M6 servers claimed in setup.\n  * `UCSC-C220-M7` - The upgrade on all UCSC-C220-M7 servers claimed in setup.\n  * `UCSC-C225-M6` - The upgrade on all UCSC-C225-M6 servers claimed in setup.\n  * `UCSC-C225-M8` - The upgrade on all UCSC-C225-M8 servers claimed in setup.\n  * `UCSC-C240-M5` - The upgrade on all UCSC-C240-M5 servers claimed in setup.\n  * `UCSC-C240-M6` - The upgrade on all UCSC-C240-M6 servers claimed in setup.\n  * `UCSC-C240-M7` - The upgrade on all UCSC-C240-M7 servers claimed in setup.\n  * `UCSC-C245-M6` - The upgrade on all UCSC-C245-M6 servers claimed in setup.\n  * `UCSC-C245-M8` - The upgrade on all UCSC-C245-M8 servers claimed in setup.\n  * `UCSC-C480-M5` - The upgrade on all UCSC-C480-M5 servers claimed in setup.\n  * `UCSX-210C-M6` - The upgrade on all UCSX-210C-M6 servers claimed in setup.\n  * `UCSX-210C-M7` - The upgrade on all UCSX-210C-M7 servers claimed in setup.\n  * `UCSX-215C-M8` - The upgrade on all UCSX-215C-M8 servers claimed in setup.\n  * `UCSX-410C-M7` - The upgrade on all UCSX-410C-M7 servers claimed in setup.",
                             "intersight_api": "ModelFamily",
                             "enum": [
                                 "UCSB-B200-M5",
@@ -9676,7 +9676,7 @@
                         "properties": {
                             "ipv4_blocks": {
                                 "type": "array",
-                                "description": "A block of IPv4 addresses.\n\nRequired Attributes:\n  * `from\n\nOptional Attributes:\n  * `size`\n  * `to\nNote: Only assign either size or to, not both.",
+                                "description": "A block of IPv4 addresses.\n\nRequired Attributes:\n  * `from`\n\nOptional Attributes:\n  * `size`\n  * `to`\nNote: Only assign either size or to, not both.",
                                 "items": {
                                     "$ref": "#/components/schemas/ip.ipv4_blocks"
                                 },
@@ -9687,7 +9687,7 @@
                             },
                             "ipv6_blocks": {
                                 "type": "array",
-                                "description": "A block of IPv6 addresses.\n\nRequired Attributes:\n  * `from\n\nOptional Attributes:\n  * `size`\n  * `to\nNote: Only assign either size or to, not both.",
+                                "description": "A block of IPv6 addresses.\n\nRequired Attributes:\n  * `from`\n\nOptional Attributes:\n  * `size`\n  * `to`\nNote: Only assign either size or to, not both.",
                                 "items": {
                                     "$ref": "#/components/schemas/ip.ipv6_blocks"
                                 },
@@ -10838,12 +10838,12 @@
                     },
                     "switch_ids": {
                         "type": "array",
-                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n`\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
+                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "items": {
                             "type": "string",
                             "default": "None",
-                            "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n`\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
+                            "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                             "intersight_api": "SwitchId",
                             "enum": [
                                 "A",
@@ -11193,7 +11193,7 @@
                     "switch_id": {
                         "type": "string",
                         "default": "None",
-                        "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n`\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
+                        "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "enum": [
                             "A",
@@ -11868,7 +11868,7 @@
                         "properties": {
                             "mac_blocks": {
                                 "type": "array",
-                                "description": "A block of MAC addresses.\n\nRequired Attributes:\n  * `from\n\nOptional Attributes:\n  * `size`\n  * `to\nNote: Only assign either size or to, not both.",
+                                "description": "A block of MAC addresses.\n\nRequired Attributes:\n  * `from`\n\nOptional Attributes:\n  * `size`\n  * `to`\nNote: Only assign either size or to, not both.",
                                 "items": {
                                     "$ref": "#/components/schemas/mac.mac_blocks"
                                 },
@@ -14014,7 +14014,7 @@
             "pools": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Pools are the basic building blocks for uniquely identifying hardware resources. As the basis for the UCS management model, they allow Service Profiles to be associated with any blade server, while still providing the exact same ID and presentation to the upstream LAN or SAN. If a pool is actively associated with a profile, the pool cannot be deleted.\nOptions are:\n`\n  * `ip`\n  * `iqn`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `resource`\n  * `uuid`\n  * `wwnn`\n  * `wwpn`",
+                "description": "Pools are the basic building blocks for uniquely identifying hardware resources. As the basis for the UCS management model, they allow Service Profiles to be associated with any blade server, while still providing the exact same ID and presentation to the upstream LAN or SAN. If a pool is actively associated with a profile, the pool cannot be deleted.\nOptions are:\n\n  * `ip`\n  * `iqn`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `resource`\n  * `uuid`\n  * `wwnn`\n  * `wwpn`",
                 "properties": {
                     "ip": {
                         "description": "An IP pool is a sequential range of IP addresses within a certain network. You can assign multiple pool blocks within a pool configuration.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `assignment_order`\n  * `description`\n  * `ipv4_blocks`\n  * `ipv4_configuration`\n  * `ipv6_blocks`\n  * `ipv6_configuration`\n  * `tags`\nNote: For each Address Family IPv4/IPv6, both ipv(4|6)_blocks and ipv(4|6)_configuration must be defined.",
@@ -16853,7 +16853,7 @@
             },
             "resource_group.resources": {
                 "additionalProperties": false,
-                "description": "List of devices to assign to the resource group.  Options are:\n`\n  * `sub_targets`\n  * `targets",
+                "description": "List of devices to assign to the resource group.  Options are:\n\n  * `sub_targets`\n  * `targets",
                 "properties": {
                     "sub_targets": {
                         "$ref": "#/components/schemas/resource_group.resources.sub_targets"
@@ -17246,12 +17246,12 @@
                     },
                     "switch_ids": {
                         "type": "array",
-                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n`\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
+                        "description": "A List of the fabric port(s) to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "items": {
                             "type": "string",
                             "default": "None",
-                            "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n`\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
+                            "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                             "intersight_api": "SwitchId",
                             "enum": [
                                 "A",
@@ -17441,7 +17441,7 @@
                     "switch_id": {
                         "type": "string",
                         "default": "None",
-                        "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n`\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
+                        "description": "The default value is `None`.  The fabric port to which the vNICs will be associated.\n\nNote: This can only be configured if the Allow Override is configured at the Template Level\n\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.\n  * `None` - Fabric Id is `None` for a standalone server use-case where the server is not connected to Fabric Interconnects.",
                         "intersight_api": "SwitchId",
                         "enum": [
                             "A",
@@ -17708,8 +17708,8 @@
                             "description": "Fabric Interconnect Product ID.",
                             "intersight_api": "FabricInterConnectPids",
                             "enum": [
-                                "UCS-FI-6454",
                                 "UCS-FI-64108",
+                                "UCS-FI-6454",
                                 "UCS-FI-6536",
                                 "UCS-FI-6652",
                                 "UCS-FI-6664",
@@ -18749,10 +18749,10 @@
                             "intersight_api": "ChassisPids",
                             "enum": [
                                 "N20-C6508",
-                                "UCSC-C3X60-BASE",
                                 "UCSB-5108-AC2",
                                 "UCSB-5108-DC",
                                 "UCSB-5108-DC2",
+                                "UCSC-C3X60-BASE",
                                 "UCSX-9508",
                                 "UCSXE-9305"
                             ],
@@ -19618,7 +19618,7 @@
                             },
                             "drive_groups": {
                                 "type": "array",
-                                "description": "A reusable RAID drive group configuration that specifies a pool of drives and a set of virtual drives that are to be created using this pool of drives.\n`\n  * `name`\nOptional Attributes are:`\n  * `automatic_drive_group`\n  * `manual_drive_group`\n  * `raid_level`\n  * `secure_drive_group`\n  * `virtual_drives",
+                                "description": "A reusable RAID drive group configuration that specifies a pool of drives and a set of virtual drives that are to be created using this pool of drives.\n\n  * `name`\nOptional Attributes are:`\n  * `automatic_drive_group`\n  * `manual_drive_group`\n  * `raid_level`\n  * `secure_drive_group`\n  * `virtual_drives",
                                 "intersight_api": "drive_groups",
                                 "items": {
                                     "$ref": "#/components/schemas/storage.drive_groups"
@@ -20245,7 +20245,7 @@
                             },
                             "remote_logging": {
                                 "type": "array",
-                                "description": "Set of remote logging clients on the endpoint.\n\nRequired Attributes:\n  * `hostname\n\nOptional Attributes:\n  * `enable`\n  * `minimum_severity`\n  * `port`\n  * `protocol",
+                                "description": "Set of remote logging clients on the endpoint.\n\nRequired Attributes:\n  * `hostname`\n\nOptional Attributes:\n  * `enable`\n  * `minimum_severity`\n  * `port`\n  * `protocol`",
                                 "intersight_api": "ObjectType",
                                 "object_type": "syslog.RemoteLoggingClient",
                                 "title": "remote_logging - Remote Logging - object_type: syslog.RemoteLoggingClient",
@@ -20259,7 +20259,7 @@
             },
             "syslog.local_logging": {
                 "type": "object",
-                "description": "Set of local logging clients on the endpoint.\n\nRequired Attributes:\n  * `minimum_severity",
+                "description": "Set of local logging clients on the endpoint.\n\nRequired Attributes:\n  * `minimum_severity`",
                 "intersight_api": "LocalClients",
                 "object_type": "syslog.LocalFileLoggingClient",
                 "required": [
@@ -20375,25 +20375,27 @@
                         "properties": {
                             "classes": {
                                 "type": "array",
-                                "description": "System QoS Classes to Configure for the Domain.\n\nRequired Attributes:\n  * `priority - {Best Effort|Bronze|FC|Gold|Platinum|Silver}`\n  * `state\n\nOptional Attributes:\n  * `cos`\n  * `packet_drop`\n  * `weight",
+                                "description": "System QoS Classes to Configure for the Domain.  Configure All six priority classes:\n\n  * Best Effort\n  * Bronze\n  * FC\n  * Gold\n  * Platinum\n  * Silver\n\nRequired Attributes:\n  * `priority - {Best Effort|Bronze|FC|Gold|Platinum|Silver}`\n  * `state\n\nOptional Attributes:\n  * `cos`\n  * `packet_drop`\n  * `weight`",
                                 "intersight_uri": "fabric/SystemQosPolicies",
                                 "items": {
                                     "$ref": "#/components/schemas/system_qos.classes"
                                 },
+                                "maxItems": 6,
+                                "minItems": 1,
                                 "object_type": "fabric.QosClass",
                                 "title": "classes - Classes"
                             },
                             "configure_default_classes": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Flag to Configure the following class values:\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n    cos: 255\n    packet_drop: true\n    priority: Best Effort\n    state: Enabled\n    weight: 10\n    cos: 3\n    mtu: 2240\n    packet_drop: false\n    priority: FC\n    state: Enabled\n    weight: 10",
+                                "description": "Flag to Configure the following class values:\n\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n    - cos: 255\n      packet_drop: true\n      priority: Best Effort\n      state: Enabled\n      weight: 10\n    - cos: 3\n      mtu: 2240\n      packet_drop: false\n      priority: FC\n      state: Enabled\n      weight: 10",
                                 "intersight_api": "configure_default_classes",
                                 "title": "configure_default_classes"
                             },
                             "configure_recommended_classes": {
                                 "type": "boolean",
                                 "default": false,
-                                "description": "Flag to Configure the following class values:\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n    cos: 255\n    packet_drop: true\n    priority: Best Effort\n    state: Enabled\n    weight: 5\n    cos: 1\n    packet_drop: true\n    priority: Bronze\n    state: Enabled\n    weight: 7\n    cos: 4\n    packet_drop: true\n    priority: Gold\n    state: Enabled\n    weight: 9\n    cos: 3\n    mtu: 2240\n    packet_drop: false\n    priority: FC\n    state: Enabled\n    weight: 10\n    cos: 5\n    packet_drop: false\n    priority: Platinum\n    state: Enabled\n    weight: 10\n    cos: 2\n    packet_drop: true\n    priority: Silver\n    state: Enabled\n    weight: 8",
+                                "description": "Flag to Configure the following class values:\n\nNote: MTU Will be configured based on the Jumbo MTU Flag\n\nclasses:\n    - cos: 255\n      packet_drop: true\n      priority: Best Effort\n      state: Enabled\n      weight: 5\n    - cos: 1\n      packet_drop: true\n      priority: Bronze\n      state: Enabled\n      weight: 7\n    - cos: 4\n      packet_drop: true\n      priority: Gold\n      state: Enabled\n      weight: 9\n    - cos: 3\n      mtu: 2240\n      packet_drop: false\n      priority: FC\n      state: Enabled\n      weight: 10\n    - cos: 5\n      packet_drop: false\n      priority: Platinum\n      state: Enabled\n      weight: 10\n    - cos: 2\n      packet_drop: true\n      priority: Silver\n      state: Enabled\n      weight: 8",
                                 "intersight_api": "configure_recommended_classes",
                                 "title": "configure_recommended_classes"
                             },
@@ -20422,7 +20424,7 @@
                     "cos": {
                         "type": "integer",
                         "default": 255,
-                        "description": "Class of service Assigned to the System QoS Class.\n  * `Best Effort - By default is `255` and cannot be changed.\n  * `Bronze - By default is `1`.\n  * `FC - By default is `3` and cannot be changed.\n  * `Gold - By default is `4`.\n  * `Platinum - By default is `5`.\n  * `Silver - By default is `2`.",
+                        "description": "Class of service Assigned to the System QoS Class.\n  * `Best Effort` - By default is `255` and cannot be changed.\n  * `Bronze` - By default is `1`.\n  * `FC` - By default is `3` and cannot be changed.\n  * `Gold` - By default is `4`.\n  * `Platinum` - By default is `5`.\n  * `Silver` - By default is `2`.",
                         "intersight_api": "Cos",
                         "minimum": 0,
                         "maximum": 255,
@@ -20464,7 +20466,7 @@
                     "weight": {
                         "type": "integer",
                         "default": 1,
-                        "description": "The weight of the QoS Class controls the distribution of bandwidth between QoS Classes,with the same priority after the Guarantees for the QoS Classes are reached.  Default is `1`.\n  * `Best Effort - By Default is `5`.\n  * `Bronze - By Default is `7`.\n  * `FC - By Default is `5`.\n  * `Gold - By Default is `9`.\n  * `Platinum - By Default is `10`.\n  * `Silver - By Default is `8`.",
+                        "description": "The weight of the QoS Class controls the distribution of bandwidth between QoS Classes,with the same priority after the Guarantees for the QoS Classes are reached.  Default is `1`.\n  * `Best Effort` - By Default is `5`.\n  * `Bronze` - By Default is `7`.\n  * `FC` - By Default is `5`.\n  * `Gold` - By Default is `9`.\n  * `Platinum` - By Default is `10`.\n  * `Silver` - By Default is `8`.",
                         "intersight_api": "Weight",
                         "minimum": 1,
                         "maximum": 10,
@@ -20516,10 +20518,10 @@
             "templates": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Use this section to Create or Define UCS Templates.  Options are:\n\n  * `chassis`\n  * `domain`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `server",
+                "description": "Use this section to Create or Define UCS Templates.  Options are:\n\n  * `chassis`\n  * `domain`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `server`",
                 "properties": {
                     "chassis": {
-                        "description": "In Cisco Intersight, a Chassis Profile Template enables resource management by streamlining policy alignment, and chassis configuration. You can create Chassis Profile Templates using the UCS Chassis Profile Template wizard to provision chassis, create policies to ensure smooth deployment of a chassis, and eliminate failures that are caused by inconsistent configuration. The UCS Chassis Profile Templates wizard has the following policies that are attached to a template:\n`\n  * `Chassis Configuration — IMC Access, Power, SNMP and Thermal\n\nRequired Base Attributes:`\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:`\n  * `description`\n  * `tags`\n\n#=======================================\n# Chassis Configuration\n#=======================================`\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy",
+                        "description": "In Cisco Intersight, a Chassis Profile Template enables resource management by streamlining policy alignment, and chassis configuration. You can create Chassis Profile Templates using the UCS Chassis Profile Template wizard to provision chassis, create policies to ensure smooth deployment of a chassis, and eliminate failures that are caused by inconsistent configuration. The UCS Chassis Profile Templates wizard has the following policies that are attached to a template:\n\n  * `Chassis Configuration` — IMC Access, Power, SNMP and Thermal\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`",
                         "intersight_uri": "chassis/Profiles",
                         "items": {
                             "$ref": "#/components/schemas/templates.chassis"
@@ -20529,7 +20531,7 @@
                         "type": "array"
                     },
                     "domain": {
-                        "description": "In Cisco Intersight, a Domain Profile Template enables resource management by streamlining policy alignment, and domain configuration. You can create Domain Profile Templates using the UCS Domain Profile Template wizard to provision Fabric Interconnects, create policies to ensure smooth deployment of a Pair of Fabric Interconnects, and eliminate failures that are caused by inconsistent configuration. The Domain Profile Templates wizard groups the domain policies into the following three categories to provide a quick Summary View of the policies that are attached to a template:`\n  * `VLAN & VSAN Configuration — VLAN and VSAN policies for Fabric Interconnect A and Fabric Interconnect B.\n     - Note: Both Fabrics can share the same policies or they can be distinct.\n  * `Ports Configuration — Port policies.\n     - Note: Both Fabrics can share the same port policy or they can be distinct.\n  * `UCS Domain Configuration — Management: NTP, Syslog, Network Connectivity and SNMP.  Network: System QoS and Switch Control.\n\nRequired Base Attributes:`\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:`\n  * `description`\n  * `tags`\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================`\n  * `vlan_policies - required - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================`\n  * `port_policies - required\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================`\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================`\n  * `switch_control_policy`\n  * `system_qos_policy - required",
+                        "description": "In Cisco Intersight, a Domain Profile Template enables resource management by streamlining policy alignment, and domain configuration. You can create Domain Profile Templates using the UCS Domain Profile Template wizard to provision Fabric Interconnects, create policies to ensure smooth deployment of a Pair of Fabric Interconnects, and eliminate failures that are caused by inconsistent configuration. The Domain Profile Templates wizard groups the domain policies into the following three categories to provide a quick Summary View of the policies that are attached to a template:`\n  * `VLAN & VSAN Configuration` — VLAN and VSAN policies for Fabric Interconnect A and Fabric Interconnect B.\n     - Note: Both Fabrics can share the same policies or they can be distinct.\n  * `Ports Configuration` — Port policies.\n     - Note: Both Fabrics can share the same port policy or they can be distinct.\n  * `UCS Domain Configuration` — Management: NTP, Syslog, Network Connectivity and SNMP.  Network: System QoS and Switch Control.\n\nRequired Base Attributes:\n  * `create_template`\n  * `name`\n\nOptional Base Attributes:\n  * `description`\n  * `tags`\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================\n  * `vlan_policies` - required - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================\n  * `port_policies` - required\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================\n  * `switch_control_policy`\n  * `system_qos_policy` - required",
                         "intersight_uri": "fabric/SwitchClusterProfiles",
                         "items": {
                             "$ref": "#/components/schemas/templates.domain"
@@ -20545,7 +20547,7 @@
                         "$ref": "#/components/schemas/profiles.name.prefix_suffix"
                     },
                     "server": {
-                        "description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * `Compute Policies — BIOS, Boot Order, and Virtual Media.\n  * `Network Policies — Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * `Storage Policies — Drive Security, SD Card and Storage policies`\n  * `Management Policies — Certificate Management, Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n\nRequired for Standalone:`\n  * `target_platform\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#===========================\n# Compute Configuration\n#===========================`\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy - Standalone Only`\n  * `power_policy - FIAttached Only`\n  * `thermal_policy`\n  * `uuid_pool - FIAttached Only`\n  * `virtual_media_policy\n#===========================\n# Management Configuration\n#===========================`\n  * `certificate_management_policy`\n  * `device_connector_policy - Standalone Only`\n  * `imc_access_policy - FIAttached Only`\n  * `ipmi_over_lan_policy`\n  * `ldap_policy - Standalone Only`\n  * `local_user_policy`\n  * `network_connectivity_policy - Standalone Only`\n  * `ntp_policy - Standalone Only`\n  * `serial_over_lan_policy`\n  * `smtp_policy - Standalone Only`\n  * `snmp_policy`\n  * `ssh_policy - Standalone Only`\n  * `syslog_policy`\n  * `virtual_kvm_policy\n#===========================\n# Storage Configuration\n#===========================`\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy\n#===========================\n# Network Configuration\n#===========================`\n  * `adapter_configuration_policy - Standalone Only`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy",
+                        "description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * `Compute Policies` — BIOS, Boot Order, and Virtual Media.\n  * `Network Policies` — Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * `Storage Policies` — Drive Security, SD Card and Storage policies`\n  * `Management Policies` — Certificate Management, Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n\nRequired for Standalone:\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#===========================\n# Compute Configuration\n#===========================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only\n  * `power_policy` - FIAttached Only\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only\n  * `virtual_media_policy`\n#===========================\n# Management Configuration\n#===========================\n  * `certificate_management_policy`\n  * `device_connector_policy `- Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy`- Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n#===========================\n# Storage Configuration\n#===========================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n#===========================\n# Network Configuration\n#===========================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                         "intersight_uri": "server/ProfileTemplates",
                         "items": {
                             "$ref": "#/components/schemas/templates.server"
@@ -21218,7 +21220,7 @@
                             },
                             "uuid_blocks": {
                                 "type": "array",
-                                "description": "A block of UUID addresses.\n\nRequired Attributes:\n  * `from\n\nOptional Attributes:\n  * `size`\n  * `to\nNote: Only assign either size or to, not both.",
+                                "description": "A block of UUID addresses.\n\nRequired Attributes:\n  * `from`\n\nOptional Attributes:\n  * `size`\n  * `to`\nNote: Only assign either size or to, not both.",
                                 "items": {
                                     "$ref": "#/components/schemas/uuid.uuid_blocks"
                                 }
@@ -21364,7 +21366,7 @@
                             "placement_switch_id": {
                                 "type": "string",
                                 "default": "A",
-                                "description": "The fabric port to which the vHBA will be associated.\n`\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                                "description": "The fabric port to which the vHBA will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
                                 "intersight_api": "SwitchId",
                                 "enum": [
                                     "A",
@@ -21498,7 +21500,7 @@
                         "properties": {
                             "add_virtual_media": {
                                 "type": "array",
-                                "description": "Adds a new Virtual Media mapping for images.\n\nRequired Attributes:\n  * `name`\n  * `file_location\n\nOptional Attributes:\n  * `authentication_protocol`\n  * `device_type`\n  * `mount_options`\n  * `protocol`\n  * `password`\n  * `username",
+                                "description": "Adds a new Virtual Media mapping for images.\n\nRequired Attributes:\n  * `name`\n  * `file_location`\n\nOptional Attributes:\n  * `authentication_protocol`\n  * `device_type`\n  * `mount_options`\n  * `protocol`\n  * `password`\n  * `username`",
                                 "intersight_api": "ObjectType",
                                 "items": {
                                     "$ref": "#/components/schemas/virtual_media.add_virtual_media"
@@ -21545,7 +21547,7 @@
                     "authentication_protocol": {
                         "type": "string",
                         "default": "none",
-                        "description": "The default value is `none`.  Type of Authentication protocol when CIFS is used for communication with the remote server.\n  * `none - (Default) No authentication is used.\n  * `ntlm - NT LAN Manager (NTLM) security protocol. Use this option only with Windows 2008 R2 and Windows 2012 R2.\n  * `ntlmi - NTLMi security protocol. Use this option only when you enable Digital Signing in the CIFS Windows server.\n  * `ntlmv2 - NTLMv2 security protocol. Use this option only with Samba Linux.\n  * `ntlmv2i - NTLMv2i security protocol. Use this option only with Samba Linux.\n  * `ntlmssp - NT LAN Manager Security Support Provider (NTLMSSP) protocol. Use this option only with Windows 2008 R2 and Windows 2012 R2.\n  * `ntlmsspi - NTLMSSPi protocol. Use this option only when you enable Digital Signing in the CIFS Windows server.",
+                        "description": "The default value is `none`.  Type of Authentication protocol when CIFS is used for communication with the remote server.\n  * `none` - (Default) No authentication is used.\n  * `ntlm` - NT LAN Manager (NTLM) security protocol. Use this option only with Windows 2008 R2 and Windows 2012 R2.\n  * `ntlmi` - NTLMi security protocol. Use this option only when you enable Digital Signing in the CIFS Windows server.\n  * `ntlmv2` - NTLMv2 security protocol. Use this option only with Samba Linux.\n  * `ntlmv2i` - NTLMv2i security protocol. Use this option only with Samba Linux.\n  * `ntlmssp` - NT LAN Manager Security Support Provider (NTLMSSP) protocol. Use this option only with Windows 2008 R2 and Windows 2012 R2.\n  * `ntlmsspi` - NTLMSSPi protocol. Use this option only when you enable Digital Signing in the CIFS Windows server.",
                         "intersight_api": "AuthenticationProtocol",
                         "enum": [
                             "none",
@@ -21561,7 +21563,7 @@
                     "device_type": {
                         "type": "string",
                         "default": "cdd",
-                        "description": "Defualt is `cdd`.  Type of remote Virtual Media device.\n  * `cdd - (Default) Uses compact disc drive as the virtual media mount device.\n  * `hdd - Uses hard disk drive as the virtual media mount device.",
+                        "description": "Defualt is `cdd`.  Type of remote Virtual Media device.\n  * `cdd` - (Default) Uses compact disc drive as the virtual media mount device.\n  * `hdd` - Uses hard disk drive as the virtual media mount device.",
                         "intersight_api": "DeviceType",
                         "enum": [
                             "cdd",
@@ -21572,7 +21574,7 @@
                     "file_location": {
                         "type": "string",
                         "default": "https://server.example.com/os.iso",
-                        "description": "The remote file location path for the virtual media mapping. Accepted formats are:`\n  * `HDD for CIFS: cifs://hostname-or-IP/filePath/fileName.img`\n  * `CDD for CIFS: cifs://hostname-or-IP/filePath/fileName.iso`\n  * `HDD for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.img`\n  * `CDD for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.iso`\n  * `HDD for NFS: nfs://hostname-or-IP/filePath/fileName.img`\n  * `CDD for NFS: nfs://hostname-or-IP/filePath/fileName.iso",
+                        "description": "The remote file location path for the virtual media mapping. Accepted formats are:`\n  * `HDD` for CIFS: cifs://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for CIFS: cifs://hostname-or-IP/filePath/fileName.iso`\n  * `HDD` for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.iso`\n  * `HDD` for NFS: nfs://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for NFS: nfs://hostname-or-IP/filePath/fileName.iso",
                         "intersight_api": "FileLocation",
                         "minLength": 1,
                         "maxLength": 512,
@@ -21582,7 +21584,7 @@
                     "mount_options": {
                         "type": "string",
                         "default": "",
-                        "description": "Mount options for the Virtual Media mapping. The field can be left blank or filled in a comma separated list with the following options.\nFor NFS, supported options are:`\n  * `ro`\n  * `rw`\n  * `nolock`\n  * `noexec`\n  * `soft`\n  * `port=VALUE`\n  * `timeo=VALUE`\n  * `retry=VALUE\nFor CIFS, supported options are:`\n  * `soft`\n  * `nounix`\n  * `noserverino`\n  * `guest\nNote: For CIFS version less than 3.0, vers=VALUE is mandatory. e.g. vers=2.0\nFor HTTP/HTTPS, the only supported option is:`\n  * `noauto",
+                        "description": "Mount options for the Virtual Media mapping. The field can be left blank or filled in a comma separated list with the following options.\n\nFor NFS, supported options are:`\n  * `ro`\n  * `rw`\n  * `nolock`\n  * `noexec`\n  * `soft`\n  * `port=VALUE`\n  * `timeo=VALUE`\n  * `retry=VALUE`\n\nFor CIFS, supported options are:`\n  * `soft`\n  * `nounix`\n  * `noserverino`\n  * `guest`\nNote: For CIFS version less than 3.0, `vers=VALUE` is mandatory. e.g. `vers=2`.\n\nFor HTTP/HTTPS, the only supported option is:`\n  * `noauto`",
                         "intersight_api": "MountOptions",
                         "minLength": 1,
                         "maxLength": 64,
@@ -21611,7 +21613,7 @@
                     "protocol": {
                         "type": "string",
                         "default": "https",
-                        "description": "The default value is `https`.  Protocol to use to communicate with the remote server.\n  * `nfs - NFS protocol for vmedia mount.\n  * `cifs - CIFS protocol for vmedia mount.\n  * `http - HTTP protocol for vmedia mount.\n  * `https - HTTPS protocol for vmedia mount.",
+                        "description": "The default value is `https`.  Protocol to use to communicate with the remote server.\n  * `nfs` - NFS protocol for vmedia mount.\n  * `cifs` - CIFS protocol for vmedia mount.\n  * `http` - HTTP protocol for vmedia mount.\n  * `https` - HTTPS protocol for vmedia mount.",
                         "intersight_api": "MountProtocol",
                         "enum": [
                             "nfs",
@@ -21669,7 +21671,7 @@
                             },
                             "vlans": {
                                 "type": "array",
-                                "description": "List of VLANs to add to the VLAN Policy.\n\nRequired Attributes:\n  * `multicast_policy`\n  * `name`\n  * `vlan_list\n\nOptional Attributes:\n  * `auto_allow_on_uplinks`\n  * `native_vlan`\n  * `name`\n  * `name`_prefix`\n  * `primary_vlan_id`\n  * `sharing_type",
+                                "description": "List of VLANs to add to the VLAN Policy.\n\nRequired Attributes:\n  * `multicast_policy`\n  * `name`\n  * `vlan_list`\n\nOptional Attributes:\n  * `auto_allow_on_uplinks`\n  * `native_vlan`\n  * `name`\n  * `name`_prefix`\n  * `primary_vlan_id`\n  * `sharing_type`",
                                 "intersight_uri": "fabric/Vlans",
                                 "items": {
                                     "$ref": "#/components/schemas/vlan.vlans"
@@ -21904,7 +21906,7 @@
                             "placement_switch_id": {
                                 "type": "string",
                                 "default": "A",
-                                "description": "The fabric port to which the vNICs will be associated.\n`\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
+                                "description": "The fabric port to which the vNICs will be associated.\n\n  * `None` - Fabric Id is not set to either A or B for the standalone case where the server is not connected to Fabric Interconnects. The value 'None' should be used.\n  * `A` - Fabric A of the FI cluster.\n  * `B` - Fabric B of the FI cluster.",
                                 "intersight_api": "SwitchId",
                                 "enum": [
                                     "A",
@@ -21958,7 +21960,7 @@
                             },
                             "vsans": {
                                 "type": "array",
-                                "description": "List of VSANs to add to the VSAN Policy.  Required Attributes are:`\n  * `name`\n  * `vsan_id\n\nOptional Attributes:\n  * `default_zoning`\n  * `fcoe_vlan_id`\n  * ``vsan_scope`",
+                                "description": "List of VSANs to add to the VSAN Policy.  Required Attributes are:`\n  * `name`\n  * `vsan_id`\n\nOptional Attributes:\n  * `default_zoning`\n  * `fcoe_vlan_id`\n  * ``vsan_scope`",
                                 "intersight_uri": "fabric/Vsans",
                                 "items": {
                                     "$ref": "#/components/schemas/vsan.vsans"
@@ -22053,7 +22055,7 @@
                         "properties": {
                             "id_blocks": {
                                 "type": "array",
-                                "description": "A block of WWNN addresses.\n\nRequired Attributes:\n  * `from\n\nOptional Attributes:\n  * `size`\n  * `to\nNote: Only assign either size or to, not both.",
+                                "description": "A block of WWNN addresses.\n\nRequired Attributes:\n  * `from`\n\nOptional Attributes:\n  * `size`\n  * `to`\nNote: Only assign either size or to, not both.",
                                 "items": {
                                     "$ref": "#/components/schemas/wwnn.id_blocks"
                                 },
@@ -22128,7 +22130,7 @@
                         "properties": {
                             "id_blocks": {
                                 "type": "array",
-                                "description": "A block of WWPN addresses.\n\nRequired Attributes:\n  * `from\n\nOptional Attributes:\n  * `size`\n  * `to\nNote: Only assign either size or to, not both.",
+                                "description": "A block of WWPN addresses.\n\nRequired Attributes:\n  * `from`\n\nOptional Attributes:\n  * `size`\n  * `to`\nNote: Only assign either size or to, not both.",
                                 "items": {
                                     "$ref": "#/components/schemas/wwpn.id_blocks"
                                 },
@@ -24781,7 +24783,7 @@
                     "domain_source": {
                         "type": "string",
                         "default": "New",
-                        "description": "Select how you would like to create this new domain profile.\n  * `Clone - Use an existing domain profile to create the new domain profile`\n  * `New - Create a new domain profile",
+                        "description": "Select how you would like to create this new domain profile.\n  * `Clone` - Use an existing domain profile to create the new domain profile`\n  * `New` - Create a new domain profile",
                         "enum": [
                             "Clone",
                             "New"
@@ -24951,7 +24953,7 @@
             },
             "os.configuration.azurestack": {
                 "type": "object",
-                "description": "The WWxN reservation object, used to hold reserved addresses.\n\nRequired Attributes:\n  * `identities\n\nOptional Attributes:\n  * `allocation_type",
+                "description": "The WWxN reservation object, used to hold reserved addresses.\n\nRequired Attributes:\n  * `identities`\n\nOptional Attributes:\n  * `allocation_type`",
                 "title": "Azure Stack - OS Configuration",
                 "properties": {
                     ".DisableAutoDaylightTimeSet": {
@@ -26618,13 +26620,13 @@
             },
             "server": {
                 "type": "object",
-                "description": "Profile Deployement Wizard.",
+                "description": "Profile Deployment Wizard.",
                 "title": "Profile",
                 "properties": {
                     "boot_volume": {
                         "type": "string",
                         "default": "M2",
-                        "description": "Boot Volume.\n  * `iSCSI`: OS will be installed on an iSCSI LUN.\n  * `M2`:    OS will be installed on the M2 HWRAID LUN.\n  * `MRAID`: OS will be installed on a local LUN.\n  * `SAN:   OS will be installed on SAN attached LUN.",
+                        "description": "Boot Volume.\n  * `iSCSI`: OS will be installed on an iSCSI LUN.\n  * `M2`:    OS will be installed on the M2 HWRAID LUN.\n  * `MRAID`: OS will be installed on a local LUN.\n  * `SAN`:   OS will be installed on SAN attached LUN.",
                         "enum": [
                             "iSCSI",
                             "M2",
@@ -26668,7 +26670,7 @@
                     "profile_source": {
                         "type": "string",
                         "default": "templates.server",
-                        "description": "Profile Source.\n  * `profiles.server: Profiles will be cloned from a server profile and not attached to a server template.\n  * `templates.server: Profiles will be attached to a server profile template.",
+                        "description": "Profile Source.\n  * `profiles.server`: Profiles will be cloned from a server profile and not attached to a server template.\n  * `templates.server`: Profiles will be attached to a server profile template.",
                         "enum": [
                             "profiles.server",
                             "templates.server"
@@ -26858,7 +26860,7 @@
                     "profile_type": {
                         "type": "string",
                         "default": "FIAttached",
-                        "description": "Select the Profile Type.  Options are:\n\n  * `chassis: Chassis Profiles.\n  * `domain: Domain Profiles.\n  * `FIAttached: Domain Attached Server Profiles/Templates.\n  * `Standalone: Standalone Server Profiles/Templates.",
+                        "description": "Select the Profile Type.  Options are:\n\n  * `chassis`: Chassis Profiles.\n  * `domain`: Domain Profiles.\n  * `FIAttached`: Domain Attached Server Profiles/Templates.\n  * `Standalone`: Standalone Server Profiles/Templates.",
                         "enum": [
                             "chassis",
                             "domain",
@@ -26879,7 +26881,7 @@
                     "server_type": {
                         "type": "string",
                         "default": "server_template",
-                        "description": "Select the Server Profile Type.  Options are:\n\n  * `server: Server Profiles.\n  * `server_template: Server Profile Templates.",
+                        "description": "Select the Server Profile Type.  Options are:\n\n  * `server`: Server Profiles.\n  * `server_template`: Server Profile Templates.",
                         "enum": [
                             "server",
                             "server_template"
@@ -26912,7 +26914,7 @@
                     "sw_repo_os_cfg_variable_type": {
                         "type": "string",
                         "default": "shared_variable",
-                        "description": "Select the input type for `REPLACE` below:\n`\n  * `shared_variable - The variable will be the same for all servers.\n  * `unique_variable - The Variable will be unique for each server",
+                        "description": "Select the input type for `REPLACE` below:\n\n  * `shared_variable` - The variable will be the same for all servers.\n  * `unique_variable` - The Variable will be unique for each server",
                         "enum": [
                             "shared_variable",
                             "unique_variable"

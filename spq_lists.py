@@ -42,13 +42,13 @@ def main():
             models = sorted([e.Pid for e in kwargs.results])
         else:
             models = sorted([e.Model for e in kwargs.results])
-        json.dumps(print(json.dumps(models, indent=4)))
+        json.dumps(print(json.dumps(models, indent=32)))
     for e in ['blade', 'rack']:
         pcolor.LightGray(f'\n{"="*20} {e.capitalize()} Descriptors {"="*20}\n')
         kwargs = kwargs | DotMap(api_filter = f"ServerFormFactor eq '{e}'", method = 'get', uri = 'capability/ServerDescriptors')
         kwargs = isight.api('capability').calls(kwargs)
         models = sorted([e.Model for e in kwargs.results])
-        json.dumps(print(json.dumps(models, indent=4)))
+        json.dumps(print(json.dumps(models, indent=32)))
 
 if __name__ == '__main__':
     main()
