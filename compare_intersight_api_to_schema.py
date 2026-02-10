@@ -11,6 +11,7 @@ try:
     from copy import deepcopy
     from dotmap import DotMap
     from jinja2 import Template
+    from json_ref_dict import materialize, RefDict
     from stringcase import pascalcase, snakecase
     import argparse, json, os, re, urllib3, yaml
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -156,37 +157,60 @@ def bios_templates(kwargs):
     else: pcolor.Yellow('None\n')
 
 def setup(kwargs):
+    ijson = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260114070309674.json'), encoding='utf8'))
+    bios_json = DotMap(ijson['components']['schemas']['bios.Policy']['allOf'][1]['properties'])
+    bios_data = deepcopy(kwargs.ezdata.bios.allOf[1])
+    for k, v in kwargs.ezdata.bios.allOf[1].properties.items():
+        if not re.search('bios_template', k):
+            bios_data.properties[k].description = f'The default value is `{bios_json[v.intersight_api].default}`.  {bios_json[v.intersight_api].description}'
+            bios_data.properties[k].default = bios_json[v.intersight_api].default
+            if 'enum' in bios_json[v.intersight_api].keys(): bios_data.properties[k].enum = bios_json[v.intersight_api].enum
+    print(json.dumps(bios_data.toDict(), indent=4))
+        #if re.search('string|integer', v['type']):
+        #    pcolor.LightGray(f'{"="*20} {k.upper()} {"="*20}')
+        #    pcolor.Yellow(f"{v.description}\n")
+        #    pcolor.Yellow(f"Default Value: {v.default}")
+        #    if 'enum' in v.keys(): pcolor.Yellow(f"Enum Values: {json.dumps(v.enum, indent=4)}")
+    exit()
+    #plist = [
+    #    'auditd.json.j2',
+    #    'bios.json.j2',
+    #    'device_connector.json.j2',
+    #    'ethernet_network.json.j2',
+    #    'ethernet_network_control.json.j2',
+    #    'ethernet_network_group.json.j2',
+    #    'ethernet_qos.json.j2',
+    #    'fibre_channel_network.json.j2',
+    #    'fibre_channel_qos.json.j2',
+    #    'firmware.json.j2',
+    #    'flow_control.json.j2',
+    #    'ipmi_over_lan.json.j2',
+    #    'iscsi_adapter.json.j2',
+    #    'iscsi_static_target.json.j2',
+    #    'memory.json.j2',
+    #    'multicast.json.j2',
+    #    'network_connectivity.json.j2',
+    #    'ntp.json.j2',
+    #    'port.json.j2',
+    #    'power.json.j2',
+    #    'scrub.json.j2',
+    #    'serial_over_lan.json.j2',
+    #    'smtp.json.j2',
+    #    'ssh.json.j2',
+    #    'switch_control.json.j2',
+    #    'syslog.json.j2',
+    #    'thermal.json.j2',
+    #    'virtual_kvm.json.j2',
+    #    'vlan.json.j2'
+    #]
     plist = [
-        'auditd.json.j2',
-        'bios.json.j2',
-        'device_connector.json.j2',
-        'ethernet_network.json.j2',
-        'ethernet_network_control.json.j2',
-        'ethernet_network_group.json.j2',
-        'ethernet_qos.json.j2',
-        'fibre_channel_network.json.j2',
-        'fibre_channel_qos.json.j2',
-        'firmware.json.j2',
-        'flow_control.json.j2',
-        'ipmi_over_lan.json.j2',
-        'iscsi_adapter.json.j2',
-        'iscsi_static_target.json.j2',
-        'memory.json.j2',
-        'multicast.json.j2',
-        'network_connectivity.json.j2',
-        'ntp.json.j2',
-        'port.json.j2',
-        'power.json.j2',
-        'scrub.json.j2',
-        'serial_over_lan.json.j2',
-        'smtp.json.j2',
-        'ssh.json.j2',
-        'switch_control.json.j2',
-        'syslog.json.j2',
-        'thermal.json.j2',
-        'virtual_kvm.json.j2',
-        'vlan.json.j2'
-    ]
+        'ip.json.j2',
+        'iqn.json.j2',
+        'mac.json.j2',
+        'uuid.json.j2',
+        'wwnn.json.j2',
+        'wwpn.json.j2'
+        ]
     data = DotMap(
         local_logging = DotMap(minimum_severity = 'warning'),
         organization = "default",
@@ -197,7 +221,7 @@ def setup(kwargs):
         pcolor.LightGray(f'\n{"="*20} {i.upper()} {"="*20}\n')
         # output = Template(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', 'policies', i), 'r', encoding='utf8').read()).render(data.toDict())
         # pcolor.Yellow(output)
-        output = json.loads(Template(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', 'policies', i), 'r', encoding='utf8').read()).render(data.toDict()))
+        output = json.loads(Template(open(os.path.join(kwargs.script_path, 'lib', 'templates', 'intersight', 'pools', i), 'r', encoding='utf8').read()).render(data.toDict()))
         pcolor.Yellow(json.dumps(output, indent=4))
     exit()
     data = DotMap(

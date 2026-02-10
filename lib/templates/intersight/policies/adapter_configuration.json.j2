@@ -1,62 +1,57 @@
 {
-    "Description": "adapter Adapter Configuration Policy",
-    "Name": "adapter",
+    "Description": "{{ description | default('') }}",
+    "Name": "{{ name | default('default') }}",
     "Organization": {
-        "Moid": "5ddea1e16972652d32b6493a",
+        "Moid": "{{ org_moids[organization].moid }}",
         "ObjectType": "organization.Organization"
     },
     "Settings": [
+{%- if add_vic_adapter_configuration is defined %}
+    {%- for item in add_vic_adapter_configuration -%}
         {
-            "ClassId": "adapter.AdapterConfig",
             "DceInterfaceSettings": [
                 {
-                    "ClassId": "adapter.DceInterfaceSettings",
-                    "FecMode": "cl91",
+                    "FecMode": {% if item.dce_interface_settings is defined %}"{{ item.dce_interface_settings.dce_interface_1_fec_mode }}"{% else %}"cl91"{% endif %},
                     "InterfaceId": 0,
                     "ObjectType": "adapter.DceInterfaceSettings"
                 },
                 {
-                    "ClassId": "adapter.DceInterfaceSettings",
-                    "FecMode": "cl91",
+                    "FecMode": {% if item.dce_interface_settings is defined %}"{{ item.dce_interface_settings.dce_interface_2_fec_mode }}"{% else %}"cl91"{% endif %},
                     "InterfaceId": 1,
                     "ObjectType": "adapter.DceInterfaceSettings"
                 },
                 {
-                    "ClassId": "adapter.DceInterfaceSettings",
-                    "FecMode": "cl91",
+                    "FecMode": {% if item.dce_interface_settings is defined %}"{{ item.dce_interface_settings.dce_interface_3_fec_mode }}"{% else %}"cl91"{% endif %},
                     "InterfaceId": 2,
                     "ObjectType": "adapter.DceInterfaceSettings"
                 },
                 {
-                    "ClassId": "adapter.DceInterfaceSettings",
-                    "FecMode": "cl91",
+                    "FecMode": {% if item.dce_interface_settings is defined %}"{{ item.dce_interface_settings.dce_interface_4_fec_mode }}"{% else %}"cl91"{% endif %},
                     "InterfaceId": 3,
                     "ObjectType": "adapter.DceInterfaceSettings"
                 }
             ],
             "EthSettings": {
-                "ClassId": "adapter.EthSettings",
-                "LldpEnabled": true,
+                "LldpEnabled": {{ item.enable_lldp | default('true') }},
                 "ObjectType": "adapter.EthSettings"
             },
             "FcSettings": {
-                "ClassId": "adapter.FcSettings",
-                "FipEnabled": true,
+                "FipEnabled": {{ item.enable_fip | default('true') }},
                 "ObjectType": "adapter.FcSettings"
             },
             "ObjectType": "adapter.AdapterConfig",
             "PhysicalNicModeSettings": {
-                "ClassId": "adapter.PhysicalNicModeSettings",
                 "ObjectType": "adapter.PhysicalNicModeSettings",
-                "PhyNicEnabled": false
+                "PhyNicEnabled": {{ item.enable_physical_nic_mode | default('false') }}
             },
             "PortChannelSettings": {
-                "ClassId": "adapter.PortChannelSettings",
-                "Enabled": true,
+                "Enabled": {{ item.enable_port_channel | default('true') }},
                 "ObjectType": "adapter.PortChannelSettings"
             },
-            "SlotId": "MLOM"
-        }
+            "SlotId": "{{ item.slot_id | default('MLOM') }}",
+        }{% if not loop.last %},{% endif %}
+    {%- endfor -%}
+{%- endif %}
     ],
 {% if tags is defined %}
     "Tags": [
