@@ -7860,7 +7860,7 @@
             },
             "drive_security.manual_key": {
                 "type": "object",
-                "description": "Definition of the list of properties defined in 'storage.LocalKeySetting', excluding properties defined in parent classes.\n\nRequired Attributes:\n  * `new_security_key_passphrase\n\nOptional Attributes:\n  * `current_security_key_passphrase",
+                "description": "Definition of the list of properties defined in 'storage.LocalKeySetting', excluding properties defined in parent classes.\n\nRequired Attributes:\n  * `new_security_key_passphrase`\n\nOptional Attributes:\n  * `current_security_key_passphrase`",
                 "intersight_api": "ManualKey",
                 "object_type": "storage.LocalKeySetting",
                 "required": [
@@ -8394,7 +8394,7 @@
             },
             "ethernet_adapter.roce_settings": {
                 "type": "object",
-                "description": "Ethernet Adapter Policy - RoCE Settings.  Options are:\n\n  * `class_of_service`\n  * `enable_rdma_over_converged_ethernet`\n  * `memory_regions`\n  * `queue_pairs`\n  * `resource_groups`\n  * `version",
+                "description": "Ethernet Adapter Policy - RoCE Settings.  Options are:\n\n  * `class_of_service`\n  * `enable_rdma_over_converged_ethernet`\n  * `memory_regions`\n  * `queue_pairs`\n  * `resource_groups`\n  * `version`",
                 "intersight_api": "RoceSettings",
                 "object_type": "vnic.RoceSettings",
                 "required": [],
@@ -8456,7 +8456,7 @@
             },
             "ethernet_adapter.tcp_offload": {
                 "type": "object",
-                "description": "Ethernet Adapter Policy - TCP Offload Settings.  Options are:\n\n  * `enable_large_receive_offload`\n  * `enable_large_send_offload`\n  * `enable_rx_checksum_offload`\n  * `enable_tx_checksum_offload",
+                "description": "Ethernet Adapter Policy - TCP Offload Settings.  Options are:\n\n  * `enable_large_receive_offload`\n  * `enable_large_send_offload`\n  * `enable_rx_checksum_offload`\n  * `enable_tx_checksum_offload`",
                 "intersight_api": "TcpOffloadSettings",
                 "object_type": "vnic.TcpOffloadSettings",
                 "required": [],
@@ -8823,7 +8823,7 @@
                             "fc_target_zoning_type": {
                                 "type": "string",
                                 "default": "SIMT",
-                                "description": "The default value is `SIMT`.  Type of FC zoning. Allowed values are SIST, SIMT and None.\n  * `SIST` - `a.k.a - Single Initiator Single Target` The system automatically creates one zone for each vHBA and storage port pair. Each zone has two members.\n  * `SIMT` - `a.k.a - Single Initiator Multiple Target` The system automatically creates one zone for each vHBA. Configure this type of zoning if the number of zones created is likely to exceed the maximum supported number of zones.\n  * `None` - FC zoning is not configured.",
+                                "description": "The default value is `SIMT`.  Type of FC zoning. Allowed values are SIST, SIMT and None.\n  * `SIST` - `a.k.a - Single Initiator Single Target`, The system automatically creates one zone for each vHBA and storage port pair. Each zone has two members.\n  * `SIMT` - `a.k.a - Single Initiator Multiple Target` The system automatically creates one zone for each vHBA. Configure this type of zoning if the number of zones created is likely to exceed the maximum supported number of zones.\n  * `None` - FC zoning is not configured.",
                                 "intersight_api": "FcTargetZoningType",
                                 "enum": [
                                     "SIST",
@@ -8834,7 +8834,7 @@
                             },
                             "targets": {
                                 "type": "array",
-                                "description": "List of target WWPN members that are part of the zone.\n\nRequired Attributes:\n  * `name`\n  * `switch_id`\n  * `vsan_id`\n  * `wwpn",
+                                "description": "List of target WWPN members that are part of the zone.\n\nRequired Attributes:\n  * `name`\n  * `switch_id`\n  * `vsan_id``\n  * `wwpn`",
                                 "intersight_api": "ObjectType",
                                 "items": {
                                     "$ref": "#/components/schemas/fc_zone.targets"
@@ -9464,7 +9464,7 @@
             },
             "firmware_authenticate": {
                 "type": "object",
-                "description": "The Credentials to use to Authenticate to Download Firmware for the Environemnt.\n\nRequired:`\n  * `cco_password`\n  * `cco_user",
+                "description": "The Credentials to use to Authenticate to Download Firmware for the Environemnt.\n\nRequired:`\n  * `cco_password`\n  * `cco_user`",
                 "intersight_type": "policies",
                 "intersight_uri": "softwarerepository/Authorizations",
                 "object_type": "softwarerepository.Authorization",
@@ -9784,7 +9784,7 @@
             },
             "ip.ipv4_configuration": {
                 "type": "object",
-                "description": "Network interface configuration data for IPv4 interfaces. Netmask, Gateway and DNS settings.\n\nRequired Attributes:\n  * `gateway`\n  * `netmask`\n  * `primary_dns\n\nOptional Attributes:\n  * `secondary_dns.",
+                "description": "Network interface configuration data for IPv4 interfaces. Netmask, Gateway and DNS settings.\n\nRequired Attributes:\n  * `gateway`\n  * `netmask`\n  * `primary_dns`\n\nOptional Attributes:\n  * `secondary_dns`",
                 "intersight_api": "IpV4Config",
                 "object_type": "ippool.IpV4Config",
                 "required": [
@@ -9919,7 +9919,7 @@
             },
             "ip.ipv6_configuration": {
                 "type": "object",
-                "description": "Network interface configuration data for IPv6 interfaces. Prefix, Gateway and DNS settings.\n\nRequired Attributes:\n  * `gateway`\n  * `prefix`\n  * `primary_dns\n\nOptional Attributes:\n  * `secondary_dns.",
+                "description": "Network interface configuration data for IPv6 interfaces. Prefix, Gateway and DNS settings.\n\nRequired Attributes:\n  * `gateway`\n  * `prefix`\n  * `primary_dns`\n\nOptional Attributes:\n  * `secondary_dns`",
                 "intersight_api": "IpV6Config",
                 "object_type": "ippool.IpV6Config",
                 "required": [
@@ -10310,7 +10310,7 @@
             },
             "iscsi_boot.initiator_static_ipv4_config": {
                 "type": "object",
-                "description": "IPV4 configurations such as Netmask, Gateway and DNS for iSCSI Initiator.\n\nRequired Attributes:\n  * `ip_address`\n  * `gateway`\n  * `netmask\n\nOptional Attributes:\n  * `primary_dns`\n  * `secondary_dns`",
+                "description": "IPV4 configurations such as Netmask, Gateway and DNS for iSCSI Initiator.\n\nRequired Attributes:\n  * `ip_address`\n  * `gateway`\n  * `netmask`\n\nOptional Attributes:\n  * `primary_dns`\n  * `secondary_dns`",
                 "intersight_api": "InitiatorStaticIpV4Config",
                 "object_type": "vnic.IscsiStaticIpv4Config",
                 "required": [
@@ -10939,7 +10939,7 @@
             },
             "lan_connectivity.vnics.usnic": {
                 "type": "object",
-                "description": "User Space NIC Settings that enable low-latency and higher throughput by bypassing the kernel layer when sending/receiving packets.\n\nOptional Attributes:\n  * `class_of_service`\n  * `number_of_usnics`\n  * `usnic_adapter_policy",
+                "description": "User Space NIC Settings that enable low-latency and higher throughput by bypassing the kernel layer when sending/receiving packets.\n\nOptional Attributes:\n  * `class_of_service`\n  * `number_of_usnics`\n  * `usnic_adapter_policy`",
                 "intersight_api": "UsnicSettings",
                 "object_type": "vnic.UsnicSettings",
                 "required": [
@@ -11140,7 +11140,7 @@
             },
             "lan_connectivity.vnics_from_template.placement": {
                 "type": "object",
-                "description": "Placement Settings for the vnic created from a Template.\n\nRequired Attributes:\n  * `pci_order\n\nOptional Attributes:\n  * `automatic_pci_link_assignment`\n  * `automatic_slot_id_assignment`\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports",
+                "description": "Placement Settings for the vnic created from a Template.\n\nRequired Attributes:\n  * `pci_order`\n\nOptional Attributes:\n  * `automatic_pci_link_assignment`\n  * `automatic_slot_id_assignment`\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports`",
                 "intersight_api": "Placement",
                 "object_type": "vnic.PlacementSettings",
                 "required": [
@@ -11272,7 +11272,7 @@
                             },
                             "ldap_groups": {
                                 "type": "array",
-                                "description": "A List of LDAP Groups.\n\nRequired Attributes:\n  * `end_point_role`\n  * `group_dn`\n  * `name`\n\nOptional Attributes:\n  * `domain",
+                                "description": "A List of LDAP Groups.\n\nRequired Attributes:\n  * `end_point_role`\n  * `group_dn`\n  * `name`\n\nOptional Attributes:\n  * `domain`",
                                 "intersight_uri": "iam/LdapGroups",
                                 "items": {
                                     "$ref": "#/components/schemas/ldap.ldap_groups"
@@ -11282,7 +11282,7 @@
                             },
                             "ldap_servers": {
                                 "type": "array",
-                                "description": "A List of LDAP Provider Servers.\n\nRequired Attributes:\n  * `server\n\nOptional Attributes:\n  * `port`\n  * `vendor",
+                                "description": "A List of LDAP Provider Servers.\n\nRequired Attributes:\n  * `server`\n\nOptional Attributes:\n  * `port`\n  * `vendor`",
                                 "intersight_uri": "iam/LdapProviders",
                                 "items": {
                                     "$ref": "#/components/schemas/ldap.ldap_servers"
@@ -11360,7 +11360,7 @@
             },
             "ldap.binding_parameters": {
                 "type": "object",
-                "description": "Base settings of LDAP required while configuring LDAP policy.\n\nRequired Attributes:\n  * `bind_method\n\nOptional Attributes:\n  * `bind_dn",
+                "description": "Base settings of LDAP required while configuring LDAP policy.\n\nRequired Attributes:\n  * `bind_method`\n\nOptional Attributes:\n  * `bind_dn`",
                 "intersight_api": "BaseProperties",
                 "object_type": "iam.LdapBaseProperties",
                 "required": [
@@ -11403,7 +11403,7 @@
             },
             "ldap.ldap_from_dns": {
                 "type": "object",
-                "description": "DNS settings used to access LDAP Providers.\n\nRequired Attributes:\n  * `search_domain\n\nOptional Attributes:\n  * `search_forest`\n  * `source",
+                "description": "DNS settings used to access LDAP Providers.\n\nRequired Attributes:\n  * `search_domain`\n\nOptional Attributes:\n  * `search_forest`\n  * `source`",
                 "intersight_api": "vnics",
                 "object_type": "iam.LdapDnsParameters",
                 "required": [
@@ -11472,7 +11472,7 @@
                     "end_point_role": {
                         "type": "string",
                         "default": "readonly",
-                        "description": "The default value is `readonly`.  The name of the end point role.\n  * `admin`\n  * `readonly`\n  * `user",
+                        "description": "The default value is `readonly`.  The name of the end point role.  The role determines the level of access the users in the LDAP group will have to CIMC/IPMI.  The `admin` role will have full access to all features and settings in Intersight.  The `readonly` role will have read-only access to all features and settings in Intersight.  The `user` role will have access to all features and settings in Intersight except for user management and policy management.",
                         "intersight_api": "$ref:EndPointRole:iam.EndPointRole:Moid",
                         "enum": [
                             "admin",
@@ -11548,7 +11548,7 @@
             },
             "ldap.search_parameters": {
                 "type": "object",
-                "description": "Base settings of LDAP required while configuring LDAP policy.Required Attributes:`\n  * `attribute`\n  * `filter`\n  * `group_attribute",
+                "description": "Base settings of LDAP required while configuring LDAP policy.Required Attributes:`\n  * `attribute`\n  * `filter`\n  * `group_attribute`",
                 "intersight_api": "BaseProperties",
                 "object_type": "iam.LdapBaseProperties",
                 "title": "search_parameters",
@@ -11702,7 +11702,7 @@
                             },
                             "users": {
                                 "type": "array",
-                                "description": "List of users to add to the local user policy.\n\nRequired Attributes:\n  * `username`\n  * `password\n\nOptional Attributes:\n  * `enabled`\n  * `role",
+                                "description": "List of users to add to the local user policy.\n\nRequired Attributes:\n  * `username`\n  * `password`\n\nOptional Attributes:\n  * `enabled`\n  * `role`",
                                 "intersight_uri": "iam/EndPointUsers",
                                 "items": {
                                     "$ref": "#/components/schemas/local_user.users"
@@ -11716,7 +11716,7 @@
             },
             "local_user.password_properties": {
                 "type": "object",
-                "description": "Set password properties for endpoint users.\n\nOptional Attributes:\n  * `always_send_user_password`\n  * `enable_password_expiry`\n  * `enforce_strong_password`\n  * `grace_period`\n  * `notification_period`\n  * `password_expiry_duration`\n  * `password_history",
+                "description": "Set password properties for endpoint users.\n\nOptional Attributes:\n  * `always_send_user_password`\n  * `enable_password_expiry`\n  * `enforce_strong_password`\n  * `grace_period`\n  * `notification_period`\n  * `password_expiry_duration`\n  * `password_history`",
                 "intersight_api": "PasswordProperties",
                 "object_type": "iam.EndPointPasswordProperties",
                 "required": [
@@ -11747,7 +11747,7 @@
                     "enforce_strong_password": {
                         "type": "boolean",
                         "default": true,
-                        "description": "The default value is `true`.  Enables a strong password policy. Strong password requirements:`\n  * `A. The password must have a minimum of 8 and a maximum of 20 characters.\n  * `B. The password must not contain the User's Name.\n  * `C. The password must contain characters from three of the following four categories.\n    - 1) English uppercase characters (A through Z). 2) English lowercase characters (a through z).\n    - 3) Base 10 digits (0 through 9).\n    - 4) Non-alphabetic characters (! , @, #, $, %, ^, &, *, -, _, +, =).",
+                        "description": "The default value is `true`.  Enables a strong password policy. Strong password requirements:`\n  * A. The password must have a minimum of 8 and a maximum of 20 characters.\n  * B. The password must not contain the User's Name.\n  * C. The password must contain characters from three of the following four categories.\n    - 1) English uppercase characters (A through Z). 2) English lowercase characters (a through z).\n    - 3) Base 10 digits (0 through 9).\n    - 4) Non-alphabetic characters (! , @, #, $, %, ^, &, *, -, _, +, =).",
                         "intersight_api": "EnforceStrongPassword",
                         "title": "enforce_strong_password"
                     },
@@ -11822,7 +11822,7 @@
                     "role": {
                         "type": "string",
                         "default": "readonly",
-                        "description": "The default value is `readonly`.  The name of the end point role.\n  * `admin`\n  * `readonly`\n  * `user",
+                        "description": "The default value is `readonly`.  The name of the end point role.\n  * `admin`\n  * `readonly`\n  * `user`",
                         "intersight_api": "Role",
                         "enum": [
                             "admin",
@@ -12026,7 +12026,7 @@
             },
             "mac_sec.eapol_configurations": {
                 "type": "object",
-                "description": "Extensible authentication protocol over LAN (EAPoL). MacSec transmits MacSec key agreement (MKA) protocol data units (PDUs) using EAPoL packets to establish a secure session.\n\nRequired Attributes:\n  * `ether_type`\n  * `mac_address",
+                "description": "Extensible authentication protocol over LAN (EAPoL). MacSec transmits MacSec key agreement (MKA) protocol data units (PDUs) using EAPoL packets to establish a secure session.\n\nRequired Attributes:\n  * `ether_type`\n  * `mac_address`",
                 "intersight_api": "MacSecEaPol",
                 "object_type": "fabric.MacSecEaPol",
                 "required": [
@@ -12059,7 +12059,7 @@
             },
             "mac_sec.mac_sec_fallback_key_chain": {
                 "type": "object",
-                "description": "Fallback key chain for managing an alternative set of security keys to be used when a secure session cannot be established using the primary key chain.\n\nRequired Attributes:\n  * `fallback_key_chain_name\n\nOptional Attributes:\n  * `add_key",
+                "description": "Fallback key chain for managing an alternative set of security keys to be used when a secure session cannot be established using the primary key chain.\n\nRequired Attributes:\n  * `fallback_key_chain_name`\n\nOptional Attributes:\n  * `add_key`",
                 "intersight_api": "FallbackKeyChain",
                 "object_type": "fabric.SecKeyChain",
                 "required": [
@@ -12069,7 +12069,7 @@
                 "properties": {
                     "add_key": {
                         "type": "array",
-                        "description": "A collection of security keys used for encrypting and decrypting data frames to ensure secure communication between devices.\n\nRequired Attributes:\n  * `cryptographic_algorithm`\n  * `id`\n  * `secret\n\nOptional Attributes:\n  * `key_lifetime",
+                        "description": "A collection of security keys used for encrypting and decrypting data frames to ensure secure communication between devices.\n\nRequired Attributes:\n  * `cryptographic_algorithm`\n  * `id`\n  * `secret`\n\nOptional Attributes:\n  * `key_lifetime`",
                         "intersight_uri": "fabric.SecKey",
                         "items": {
                             "$ref": "#/components/schemas/mac_sec.mac_sec_fallback_key_chain.add_key"
@@ -12181,7 +12181,7 @@
             },
             "mac_sec.mac_sec_primary_key_chain": {
                 "type": "object",
-                "description": "Primary key chain for managing the default set of security keys for encryption and decryption.\n\nRequired Attributes:\n  * `primary_key_chain_name\n\nOptional Attributes:\n  * `add_key",
+                "description": "Primary key chain for managing the default set of security keys for encryption and decryption.\n\nRequired Attributes:\n  * `primary_key_chain_name`\n\nOptional Attributes:\n  * `add_key`",
                 "intersight_api": "PrimaryKeyChain",
                 "object_type": "fabric.SecKeyChain",
                 "required": [
@@ -12191,7 +12191,7 @@
                 "properties": {
                     "add_key": {
                         "type": "array",
-                        "description": "A collection of security keys used for encrypting and decrypting data frames to ensure secure communication between devices.\n\nRequired Attributes:\n  * `cryptographic_algorithm`\n  * `id`\n  * `secret\n\nOptional Attributes:\n  * `key_lifetime",
+                        "description": "A collection of security keys used for encrypting and decrypting data frames to ensure secure communication between devices.\n\nRequired Attributes:\n  * `cryptographic_algorithm`\n  * `id`\n  * `secret\n\nOptional Attributes:\n  * `key_lifetime`",
                         "intersight_uri": "fabric.SecKey",
                         "items": {
                             "$ref": "#/components/schemas/mac_sec.mac_sec_primary_key_chain.add_key"
@@ -13925,7 +13925,7 @@
             },
             "pool.name.prefix_suffix": {
                 "type": "object",
-                "description": "A list of prefixes/suffixes to add to the pool names.  If `default` is defined that will be assigned to any pools that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `default`\n  * `ip`\n  * `iqn`\n  * `mac`\n  * `resource`\n  * `uuid`\n  * `wwnn`\n  * `wwpn",
+                "description": "A list of prefixes/suffixes to add to the pool names.  If `default` is defined that will be assigned to any pools that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `default`\n  * `ip`\n  * `iqn`\n  * `mac`\n  * `resource`\n  * `uuid`\n  * `wwnn`\n  * `wwpn`",
                 "object_type": "not_applicable",
                 "title": "Pool Name Prefix/Suffix",
                 "properties": {
@@ -14156,7 +14156,7 @@
                             },
                             "pin_groups": {
                                 "type": "array",
-                                "description": "Use this Map to Configure LAN/SAN Pin Groups.\n\nRequired Attributes:\n  * `identifier`\n  * `interface_type`\n  * `pin_group_name\n\nOptional Attributes:\n  * `enabled`\n  * `pin_group_type",
+                                "description": "Use this Map to Configure LAN/SAN Pin Groups.\n\nRequired Attributes:\n  * `identifier`\n  * `interface_type`\n  * `pin_group_name`\n\nOptional Attributes:\n  * `enabled`\n  * `pin_group_type`",
                                 "items": {
                                     "$ref": "#/components/schemas/port.pin_groups"
                                 },
@@ -14165,7 +14165,7 @@
                             },
                             "port_channel_appliances": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * `ethernet_network_control_policy`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `interfaces`\n  * `pc_ids\n\nOptional Attributes:\n  * `admin_speed`\n  * `link_aggregation_policy`\n  * `mode`\n  * `priority`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * `ethernet_network_control_policy`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `interfaces`\n  * `pc_ids`\n\nOptional Attributes:\n  * `admin_speed`\n  * `link_aggregation_policy`\n  * `mode`\n  * `priority`\n  * `user_labels`",
                                 "intersight_uri": "fabric/AppliancePcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_appliances"
@@ -14175,7 +14175,7 @@
                             },
                             "port_channel_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * `interfaces`\n  * `pc_ids\n\nOptional Attributes:\n  * `admin_speed`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `flow_control_policy`\n  * `link_aggregation_policy`\n  * `link_control_policy`\n  * `mac_sec_policy`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for Ethernet Port-Channels.\n\nRequired Attributes:\n  * `interfaces`\n  * `pc_ids`\n\nOptional Attributes:\n  * `admin_speed`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `flow_control_policy`\n  * `link_aggregation_policy`\n  * `link_control_policy`\n  * `mac_sec_policy`\n  * `user_labels`",
                                 "intersight_uri": "fabric/UplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_ethernet_uplinks"
@@ -14185,7 +14185,7 @@
                             },
                             "port_channel_fc_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Fibre-Channel Port-Channels.\n\nRequired Attributes:\n  * `interfaces`\n  * `pc_ids\n\nOptional Attributes:\n  * `admin_speed`\n  * `user_labels`\n  * `vsan_ids",
+                                "description": "Use this Map to Configure Ports for Fibre-Channel Port-Channels.\n\nRequired Attributes:\n  * `interfaces`\n  * `pc_ids`\n\nOptional Attributes:\n  * `admin_speed`\n  * `user_labels`\n  * `vsan_ids`",
                                 "intersight_uri": "fabric/FcUplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_fc_uplinks"
@@ -14195,7 +14195,7 @@
                             },
                             "port_channel_fcoe_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * `interfaces`\n  * `pc_ids\n\nOptional Attributes:\n  * `admin_speed`\n  * `fec`\n  * `link_aggregation_policy`\n  * `link_control_policy`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for Appliance Port-Channels.\n\nRequired Attributes:\n  * `interfaces`\n  * `pc_ids`\n\nOptional Attributes:\n  * `admin_speed`\n  * `fec`\n  * `link_aggregation_policy`\n  * `link_control_policy`\n  * `user_labels`",
                                 "intersight_uri": "fabric/FcoeUplinkPcRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_channel_fcoe_uplinks"
@@ -14205,7 +14205,7 @@
                             },
                             "port_modes": {
                                 "type": "array",
-                                "description": "List of Ports to change the default Mode (Breakout Mode|Unified Mode).\n\nRequired Attributes:\n  *custom_mode`\n  * `port_list",
+                                "description": "List of Ports to change the default Mode (Breakout Mode|Unified Mode).\n\nRequired Attributes:\n  *custom_mode`\n  * `port_list`",
                                 "intersight_uri": "fabric/PortModes",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_modes"
@@ -14215,7 +14215,7 @@
                             },
                             "port_role_appliances": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Appliances.\n\nRequired Attributes:\n  * `port_list\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `ethernet_network_control_policy`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `mode`\n  * `priority`\n  * `slot_id`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for Appliances.\n\nRequired Attributes:\n  * `port_list`\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `ethernet_network_control_policy`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `mode`\n  * `priority`\n  * `slot_id`\n  * `user_labels`",
                                 "intersight_uri": "fabric/ApplianceRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_appliances"
@@ -14225,7 +14225,7 @@
                             },
                             "port_role_ethernet_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Ethernet Uplinks.\n\nRequired Attributes:\n  * `port_list\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `flow_control_policy`\n  * `link_control_policy`\n  * `mac_sec_policy`\n  * `slot_id`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for Ethernet Uplinks.\n\nRequired Attributes:\n  * `port_list`\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `ethernet_network_group_policy`\n  * `fec`\n  * `flow_control_policy`\n  * `link_control_policy`\n  * `mac_sec_policy`\n  * `slot_id`\n  * `user_labels`",
                                 "intersight_uri": "fabric/UplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_ethernet_uplinks"
@@ -14235,7 +14235,7 @@
                             },
                             "port_role_fc_storage": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for FC Storage.\n\nRequired Attributes:\n  * `port_list`\n  * `vsan_ids\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `slot_id`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for FC Storage.\n\nRequired Attributes:\n  * `port_list`\n  * `vsan_ids`\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `slot_id`\n  * `user_labels`",
                                 "intersight_uri": "fabric/FcStorageRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_fc_storage"
@@ -14245,7 +14245,7 @@
                             },
                             "port_role_fc_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for FC Uplinks.\n\nRequired Attributes:\n  * `port_list`\n  * `vsan_ids\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `slot_id`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for FC Uplinks.\n\nRequired Attributes:\n  * `port_list`\n  * `vsan_ids`\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `slot_id`\n  * `user_labels`",
                                 "intersight_uri": "fabric/FcUplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_fc_uplinks"
@@ -14255,7 +14255,7 @@
                             },
                             "port_role_fcoe_uplinks": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for FCoE Uplinks.\n\nRequired Attributes:\n  * `port_list\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `link_control_policy`\n  * `fec`\n  * `slot_id`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for FCoE Uplinks.\n\nRequired Attributes:\n  * `port_list`\n\nOptional Attributes:\n  * `admin_speed`\n  * `breakout_port_id`\n  * `link_control_policy`\n  * `fec`\n  * `slot_id`\n  * `user_labels`",
                                 "intersight_uri": "fabric/FcoeUplinkRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_fcoe_uplinks"
@@ -14265,7 +14265,7 @@
                             },
                             "port_role_servers": {
                                 "type": "array",
-                                "description": "Use this Map to Configure Ports for Servers.\n\nRequired Attributes:\n  * `port_list\n\nOptional Attributes:\n  * `auto_negotiation`\n  * `breakout_port_id`\n  * `connected_device_type`\n  * `device_number`\n  * `fec`\n  * `slot_id`\n  * `user_labels`",
+                                "description": "Use this Map to Configure Ports for Servers.\n\nRequired Attributes:\n  * `port_list`\n\nOptional Attributes:\n  * `auto_negotiation`\n  * `breakout_port_id`\n  * `connected_device_type`\n  * `device_number`\n  * `fec`\n  * `slot_id`\n  * `user_labels`",
                                 "intersight_uri": "fabric/ServerRoles",
                                 "items": {
                                     "$ref": "#/components/schemas/port.port_role_servers"
@@ -14365,7 +14365,7 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "Auto",
-                        "description": "The default value is `Auto`.  Admin configured speed for the port channel.\n  * `Auto` - Admin configurable speed AUTO ( default ).\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
+                        "description": "The default value is `Auto`.  Admin configured speed for the port channel.\n  * `Auto` - Admin configurable speed AUTO.\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "Auto",
@@ -14412,7 +14412,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * `port_id\n\nOptional Attributes:\n  * `breakout_port_id`\n  * `slot_id",
+                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * `port_id\n\nOptional Attributes:\n  * `breakout_port_id`\n  * `slot_id`",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -14505,7 +14505,7 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "Auto",
-                        "description": "The default value is `Auto`.  Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO ( default ).\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
+                        "description": "The default value is `Auto`.  Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO.\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "Auto",
@@ -14549,7 +14549,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * `port_id\n\nOptional Attributes:\n  * `breakout_port_id`\n  * `slot_id",
+                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * `port_id\n\nOptional Attributes:\n  * `breakout_port_id`\n  * `slot_id`",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -14647,7 +14647,7 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "32Gbps",
-                        "description": "The default value is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `64Gbps` - Admin configurable speed 64Gbps.\n  * `Auto` - Admin configurable speed AUTO ( default ).",
+                        "description": "The default value is `32Gbps`.  Admin configured speed for the port.\n  * `16Gbps` - Admin configurable speed 16Gbps.\n  * `8Gbps` - Admin configurable speed 8Gbps.\n  * `32Gbps` - Admin configurable speed 32Gbps.\n  * `64Gbps` - Admin configurable speed 64Gbps.\n  * `Auto` - Admin configurable speed AUTO.",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "8Gbps",
@@ -14660,7 +14660,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * `port_id\n\nOptional Attributes:\n  * `breakout_port_id`\n  * `slot_id",
+                        "description": "List of interfaces to assign to the Port-Channel Policy.\n\nRequired Attributes:\n  * `port_id\n\nOptional Attributes:\n  * `breakout_port_id`\n  * `slot_id`",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -14736,7 +14736,7 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "Auto",
-                        "description": "The default value is `Auto`.  Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO ( default ).\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
+                        "description": "The default value is `Auto`.  Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO.\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "Auto",
@@ -14935,7 +14935,7 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "Auto",
-                        "description": "Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO ( default ).\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
+                        "description": "Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO.\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "Auto",
@@ -15068,7 +15068,7 @@
                     "admin_speed": {
                         "type": "string",
                         "default": "Auto",
-                        "description": "The default value is `Auto`.  Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO ( default ).\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
+                        "description": "The default value is `Auto`.  Admin configured speed for the port.\n  * `Auto` - Admin configurable speed AUTO.\n  * `1Gbps` - Admin configurable speed 1Gbps.\n  * `10Gbps` - Admin configurable speed 10Gbps.\n  * `25Gbps` - Admin configurable speed 25Gbps.\n  * `40Gbps` - Admin configurable speed 40Gbps.\n  * `100Gbps` - Admin configurable speed 100Gbps.",
                         "intersight_api": "AdminSpeed",
                         "enum": [
                             "Auto",
@@ -16095,7 +16095,7 @@
             },
             "profiles.name.prefix_suffix": {
                 "type": "object",
-                "description": "A list of prefixes/suffixes to add to the Profile/Template Names.  If `default` is defined that will be assigned to any profiles/templates that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `chassis`\n  * `default`\n  * `domain`\n  * `server",
+                "description": "A list of prefixes/suffixes to add to the Profile/Template Names.  If `default` is defined that will be assigned to any profiles/templates that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `chassis`\n  * `default`\n  * `domain`\n  * `server`",
                 "object_type": "not_applicable",
                 "title": "Profile Name Prefix/Suffix",
                 "properties": {
@@ -16673,7 +16673,7 @@
                     },
                     "identity_type": {
                         "type": "string",
-                        "description": "Type of Identity to Assign.  Options are:\n\n  * `ip`\n  * `iqn`\n  * `mac`\n  * `uuid`\n  * `wwnn`\n  * `wwpn",
+                        "description": "Type of Identity to Assign.  Options are:\n\n  * `ip`\n  * `iqn`\n  * `mac`\n  * `uuid`\n  * `wwnn`\n  * `wwpn`",
                         "enum": [
                             "ip",
                             "iqn",
@@ -16695,7 +16695,7 @@
                     },
                     "ip_type": {
                         "type": "string",
-                        "description": "Type of IP to assign.  Options are:\n\n  * `IPv4`\n  * `IPv6 - Note: IPv6 is only supported for Inband",
+                        "description": "Type of IP to assign.  Options are:\n\n  * `IPv4`\n  * `IPv6` - Note: IPv6 is only supported for Inband",
                         "enum": [
                             "IPv4",
                             "IPv6"
@@ -16704,7 +16704,7 @@
                     },
                     "management_type": {
                         "type": "string",
-                        "description": "Management Type for IMC Access Policy IP Assignment.  Options are:\n\n  * `Inband`\n  * `Outofband",
+                        "description": "Management Type for IMC Access Policy IP Assignment.  Options are:\n\n  * `Inband`\n  * `Outofband`",
                         "enum": [
                             "Inband",
                             "InBand",
@@ -16853,7 +16853,7 @@
             },
             "resource_group.resources": {
                 "additionalProperties": false,
-                "description": "List of devices to assign to the resource group.  Options are:\n\n  * `sub_targets`\n  * `targets",
+                "description": "List of devices to assign to the resource group.  Options are:\n\n  * `sub_targets`\n  * `targets`",
                 "properties": {
                     "sub_targets": {
                         "$ref": "#/components/schemas/resource_group.resources.sub_targets"
@@ -17173,7 +17173,7 @@
             },
             "san_connectivity.vhbas.placement": {
                 "type": "object",
-                "description": "Placement Settings for the virtual interface.\n\nRequired Attributes:\n  * `pci_order\n\nOptional Attributes:\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports",
+                "description": "Placement Settings for the virtual interface.\n\nRequired Attributes:\n  * `pci_order`\n\nOptional Attributes:\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports`",
                 "intersight_api": "Placement",
                 "object_type": "vnic.PlacementSettings",
                 "required": [
@@ -17388,7 +17388,7 @@
             },
             "san_connectivity.vhbas_from_template.placement": {
                 "type": "object",
-                "description": "Placement Settings for the vHBA created from a Template.\n\nRequired Attributes:\n  * `pci_order\n\nOptional Attributes:\n  * `automatic_pci_link_assignment`\n  * `automatic_slot_id_assignment`\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports",
+                "description": "Placement Settings for the vHBA created from a Template.\n\nRequired Attributes:\n  * `pci_order`\n\nOptional Attributes:\n  * `automatic_pci_link_assignment`\n  * `automatic_slot_id_assignment`\n  * `pci_links`\n  * `slot_ids`\n  * `switch_ids`\n  * `uplink_ports`",
                 "intersight_api": "Placement",
                 "object_type": "vnic.PlacementSettings",
                 "required": [
@@ -18515,7 +18515,7 @@
             },
             "server_pool_qualification.hardware_qualifiers.gpu.number_of_gpus": {
                 "type": "object",
-                "description": "The qualification of resources is based on number of GPUs between minimum and maximum value.\n\nRequired Attributes:\n  * `minimum`\n  * `maximum",
+                "description": "The qualification of resources is based on number of GPUs between minimum and maximum value.\n\nRequired Attributes:\n  * `minimum`\n  * `maximum`",
                 "intersight_api": "GpuControllersRange",
                 "object_type": "resource.GpuControllersRangeFilter",
                 "required": [
@@ -18637,7 +18637,7 @@
             },
             "server_pool_qualification.hardware_qualifiers.network_adapter.number_of_network_adapters": {
                 "type": "object",
-                "description": "The qualification of resources is based on the number of network adapters in the servers between minimum and maximum value.\n\nRequired Attributes:\n  * `minimum`\n  * `maximum",
+                "description": "The qualification of resources is based on the number of network adapters in the servers between minimum and maximum value.\n\nRequired Attributes:\n  * `minimum`\n  * `maximum`",
                 "intersight_api": "AdaptorsRange",
                 "object_type": "resource.AdaptorsRangeFilter",
                 "required": [
@@ -18764,7 +18764,7 @@
                     },
                     "chassis_slot_qualifier": {
                         "type": "array",
-                        "description": "The qualification of resources based on the chassis/slot values.\n\nRequired Attributes:\n  * `chassis_ids\n\nOptional Attributes:\n  * `slot_ids",
+                        "description": "The qualification of resources based on the chassis/slot values.\n\nRequired Attributes:\n  * `chassis_ids\n\nOptional Attributes:\n  * `slot_ids`",
                         "items": {
                             "$ref": "#/components/schemas/server_pool_qualification.server_qualifiers.blade_server.chassis_slot_qualifier"
                         },
@@ -18808,7 +18808,7 @@
                     },
                     "slot_ids": {
                         "type": "array",
-                        "description": "The qualification of servers based on the chassis identifiers.\n\nRequired Attributes:\n  * `minimum`\n  * `maximum",
+                        "description": "The qualification of servers based on the chassis identifiers.\n\nRequired Attributes:\n  * `minimum`\n  * `maximum`",
                         "items": {
                             "$ref": "#/components/schemas/server_pool_qualification.server_qualifiers.blade_server.chassis_slot_qualifier.slot_ids"
                         },
@@ -19747,7 +19747,7 @@
                     },
                     "virtual_drives": {
                         "type": "array",
-                        "description": "The list of virtual drives and the disk groups that need to be created through this policy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `boot_drive`\n  * `expand_to_available`\n  * `size`\n  * `virtual_drive_policy",
+                        "description": "The list of virtual drives and the disk groups that need to be created through this policy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `boot_drive`\n  * `expand_to_available`\n  * `size`\n  * `virtual_drive_policy`",
                         "intersight_api": "ObjectType",
                         "items": {
                             "$ref": "#/components/schemas/storage.drive_groups.virtual_drives"
@@ -19828,7 +19828,7 @@
             },
             "storage.drive_groups.manual_drive_group": {
                 "type": "object",
-                "description": "This drive group is created by specifying the drive slots to be used.\n\nRequired Attributes:\n  * `drive_array_spans\n\nOptional Attributes:\n  * `dedicated_hot_spares",
+                "description": "This drive group is created by specifying the drive slots to be used.\n\nRequired Attributes:\n  * `drive_array_spans\n\nOptional Attributes:\n  * `dedicated_hot_spares`",
                 "intersight_api": "ManualDriveGroup",
                 "object_type": "storage.ManualDriveGroup",
                 "required": [
@@ -19930,7 +19930,7 @@
             },
             "storage.m2_raid_configuration": {
                 "type": "object",
-                "description": "This models the options for creating a virtual drive on M.2 RAID controller.\n\nRequired Attributes:\n  * `name`\n  * `slot",
+                "description": "This models the options for creating a virtual drive on M.2 RAID controller.\n\nRequired Attributes:\n  * `name`\n  * `slot`",
                 "intersight_api": "M2VirtualDrive",
                 "object_type": "storage.M2VirtualDriveConfig",
                 "required": [
@@ -19964,7 +19964,7 @@
             },
             "storage.single_drive_raid0_configuration": {
                 "type": "object",
-                "description": "This models a Single Drive RAID Configuration for creation of on RAID0 virtual drive per physical drive and occupying the full disk space on the same.\n\nRequired Attributes:\n  * `drive_slots`\n  * `virtual_drive_policy",
+                "description": "This models a Single Drive RAID Configuration for creation of on RAID0 virtual drive per physical drive and occupying the full disk space on the same.\n\nRequired Attributes:\n  * `drive_slots`\n  * `virtual_drive_policy`",
                 "intersight_api": "Raid0Drive",
                 "object_type": "storage.R0Drive",
                 "required": [
@@ -19990,7 +19990,7 @@
             },
             "storage.virtual_drive_policy": {
                 "type": "object",
-                "description": "This models the manual drive selection configuration.\n\nOptional Attributes:\n  * `access_policy`\n  * `drive_cache`\n  * `read_policy`\n  * `strip_size`\n  * `write_policy",
+                "description": "This models the manual drive selection configuration.\n\nOptional Attributes:\n  * `access_policy`\n  * `drive_cache`\n  * `read_policy`\n  * `strip_size`\n  * `write_policy`",
                 "intersight_api": "VirtualDrivePolicy",
                 "object_type": "storage.VirtualDrivePolicy",
                 "required": [],
