@@ -7362,7 +7362,7 @@
                     "device_type": {
                         "type": "string",
                         "default": "local_disk",
-                        "description": "The Boot Order Type to Assign to the Boot Device.  Allowed Values are:`\n  * `flex_mmc - UCS Standalone Only`\n  * `http_boot`\n  * `iscsi_boot`\n  * `local_cdd`\n  * `local_disk`\n  * `nvme`\n  * `pch_storage`\n  * `pxe_boot`\n  * `san_boot`\n  * `sd_card`\n  * `uefi_shell`\n  * `usb`\n  * `virtual_media",
+                        "description": "The Boot Order Type to Assign to the Boot Device.  Allowed Values are:\n  * `flex_mmc` - UCS Standalone Only\n  * `http_boot`\n  * `iscsi_boot`\n  * `local_cdd`\n  * `local_disk`\n  * `nvme`\n  * `pch_storage`\n  * `pxe_boot`\n  * `san_boot`\n  * `sd_card`\n  * `uefi_shell`\n  * `usb`\n  * `virtual_media`",
                         "intersight_api": "ObjectType",
                         "enum": [
                             "flex_mmc",
@@ -7401,7 +7401,7 @@
                     "interface_source": {
                         "type": "string",
                         "default": "",
-                        "description": "The default value is `name` when `device_type` is `http_boot` or `pxe_boot`.  Lists the supported Interface Source for device. Supported values are:`\n  * `name` - Use interface name to select virtual ethernet interface.\n  * `mac` - Use MAC address to select virtual ethernet interface.\n  * `port` - Use port to select virtual ethernet interface.",
+                        "description": "The default value is `name` when `device_type` is `http_boot` or `pxe_boot`.  Lists the supported Interface Source for device. Supported values are:\n  * `name` - Use interface name to select virtual ethernet interface.\n  * `mac` - Use MAC address to select virtual ethernet interface.\n  * `port` - Use port to select virtual ethernet interface.",
                         "intersight_api": "InterfaceSource",
                         "enum": [
                             "name",
@@ -7720,7 +7720,7 @@
                             },
                             "certificates": {
                                 "type": "array",
-                                "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:`\n  * `type`\n  * `variable_id\n\nNote: The variable_id must be equal to `var.cert_mgmt_certificate_<variable_id>` and `var.cert_mgmt_private_key_<variable_id>`\n\nIMC Certificate Optional Attributes:\n  * `cert_type: KMIPClient - Set KMIP certificate on the selected end point`\n  * `enabled\n\nRootCA Certificate Required Attributes are:`\n  * `type`\n  * `name`\n  * `variable_id\n\nNote: The variable_id must be equal to `var.cert_mgmt_certificate_<variable_id>`\n\nRootCA Certificate Optional Attributes:\n  * `enabled",
+                                "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:\n  * `type`\n  * `variable_id`\n\nNote: The `variable_id` must be equal to `var.cert_mgmt_certificate_<variable_id>` and `var.cert_mgmt_private_key_<variable_id>`\n\nIMC Certificate Optional Attributes:\n  * `cert_type: KMIPClient - Set KMIP certificate on the selected end point`\n  * `enabled`\n\nRootCA Certificate Required Attributes are:\n  * `type`\n  * `name`\n  * `variable_id`\n\nNote: The variable_id must be equal to `var.cert_mgmt_certificate_<variable_id>`\n\nRootCA Certificate Optional Attributes:\n  * `enabled`",
                                 "items": {
                                     "$ref": "#/components/schemas/certificate_management.certificates"
                                 },
@@ -7890,7 +7890,7 @@
             },
             "drive_security.remote_key_management": {
                 "type": "object",
-                "description": "Models the remote key configuration required for the drive security.\n\nRequired Attributes:\n  * `assigned_sensitive_data`\n  * `primary_server`\n  * `server_public_root_ca_certificate\n\nOptional Attributes:\n  * `current_security_key_passphrase`\n  * `enable_authentication`\n  * `secondary_server",
+                "description": "Models the remote key configuration required for the drive security.\n\nRequired Attributes:\n  * `assigned_sensitive_data`\n  * `primary_server`\n  * `server_public_root_ca_certificate`\n\nOptional Attributes:\n  * `current_security_key_passphrase`\n  * `enable_authentication`\n  * `secondary_server`",
                 "intersight_api": "RemoteKey",
                 "object_type": "storage.RemoteKeySetting",
                 "required": [
@@ -8242,7 +8242,7 @@
             },
             "ethernet_adapter.interrupt_settings": {
                 "type": "object",
-                "description": "Ethernet Adapter Policy - Interupt Settings.  Otpions are:`\n  * `coalescing_type`\n  * `interrupts`\n  * `mode`\n  * `timer",
+                "description": "Ethernet Adapter Policy - Interupt Settings.  Otpions are:\n  * `coalescing_type`\n  * `interrupts`\n  * `mode`\n  * `timer",
                 "intersight_api": "InterruptSettings",
                 "object_type": "vnic.EthInterruptSettings",
                 "required": [],
@@ -8321,7 +8321,7 @@
             },
             "ethernet_adapter.receive_side_scaling": {
                 "type": "object",
-                "description": "Ethernet Adapter Policy - Receive Side Scaling Settings.  Options are:\n\n  * `enable_ipv4_hash`\n  * `enable_ipv6_extensions_hash`\n  * `enable_ipv6_hash`\n  * `enable_receive_side_scaling`\n  * `enable_tcp_and_ipv4_hash`\n  * `enable_tcp_and_ipv6_extensions_hash`\n  * `enable_tcp_and_ipv6_hash`\n  * `enable_udp_and_ipv4_hash`\n  * `enable_udp_and_ipv6_hash",
+                "description": "Ethernet Adapter Policy - Receive Side Scaling Settings.  Options are:\n\n  * `enable_ipv4_hash`\n  * `enable_ipv6_extensions_hash`\n  * `enable_ipv6_hash`\n  * `enable_receive_side_scaling`\n  * `enable_tcp_and_ipv4_hash`\n  * `enable_tcp_and_ipv6_extensions_hash`\n  * `enable_tcp_and_ipv6_hash`\n  * `enable_udp_and_ipv4_hash`\n  * `enable_udp_and_ipv6_hash`",
                 "intersight_api": "RssHashSettings",
                 "object_type": "vnic.RssHashSettings",
                 "required": [],
@@ -9362,7 +9362,7 @@
             },
             "firmware.advanced_mode": {
                 "type": "object",
-                "description": "The components to be excluded in the server upgrade via policy.\n\nOptional Attributes:\n  * `exclude_drives: false`\n  * `exclude_drives_except_boot_drives: false`\n  * `exclude_storage_controllers: false`\n  * `exclude_storage_sasexpander: false`\n  * `exclude_storage_u2: false",
+                "description": "The components to be excluded in the server upgrade via policy.\n\nOptional Attributes:\n  * `exclude_drives`\n  * `exclude_drives_except_boot_drives`\n  * `exclude_storage_controllers`\n  * `exclude_storage_sasexpander`\n  * `exclude_storage_u2`",
                 "intersight_api": "ExcludeComponentList",
                 "object_type": "ExcludeComponentList",
                 "required": [],
@@ -9584,7 +9584,7 @@
                 "title": "global_settings"
             },
             "imc_access": {
-                "description": "Enables you to manage and configure your network through mapping of IP pools to the server profile. This policy allows you to configure a VLAN and associate it with an IP address through the IP pool address.  In-Band IP address, Out-of-Band IP address, or both In-Band and Out-of-Band IP addresses can be configured using IMC Access Policy and are supported on the following:`\n  * `Drive Security, SNMP, Syslog, and vMedia policies`\n  * `vKVM, IPMI, SOL, and vMedia policies using vKVM client",
+                "description": "Enables you to manage and configure your network through mapping of IP pools to the server profile. This policy allows you to configure a VLAN and associate it with an IP address through the IP pool address.  In-Band IP address, Out-of-Band IP address, or both In-Band and Out-of-Band IP addresses can be configured using IMC Access Policy and are supported on the following:`\n  * Drive Security, SNMP, Syslog, and vMedia policies\n  * vKVM, IPMI, SOL, and vMedia policies using vKVM client",
                 "intersight_type": "policies",
                 "intersight_uri": "access/Policies",
                 "object_type": "access.Policy",
@@ -10875,7 +10875,7 @@
             },
             "lan_connectivity.vnics.sriov": {
                 "type": "object",
-                "description": "Single Root Input Output Virtualization Settings that enable one physical ethernet socket to appear as multiple NICs to the hypervisor.\n\nNote: If this is a vnic_from_template and Connection Settings (SR-IOV|usNIC|VMQ) have been configured in the template, you cannot configure with the vnic_from_template as well.\n\nRequired Attributes:\n  * `enabled\n\nOptional Attributes:\n  * `completion_queue_count_per_vf`\n  * `interrupt_count_per_vf`\n  * `number_of_vfs`\n  * `receive_queue_count_per_vf`\n  * `transmit_queue_count_per_vf",
+                "description": "Single Root Input Output Virtualization Settings that enable one physical ethernet socket to appear as multiple NICs to the hypervisor.\n\nNote: If this is a vnic_from_template and Connection Settings (SR-IOV|usNIC|VMQ) have been configured in the template, you cannot configure with the vnic_from_template as well.\n\nRequired Attributes:\n  * `enabled`\n\nOptional Attributes:\n  * `completion_queue_count_per_vf`\n  * `interrupt_count_per_vf`\n  * `number_of_vfs`\n  * `receive_queue_count_per_vf`\n  * `transmit_queue_count_per_vf`",
                 "intersight_api": "SriovSettings",
                 "object_type": "vnic.SriovSettings",
                 "required": [
@@ -10971,7 +10971,7 @@
             },
             "lan_connectivity.vnics.vmq": {
                 "type": "object",
-                "description": "Virtual Machine Queue Settings for the virtual interface that allow efficient transfer of network traffic to the guest OS.\n\nOptional Attributes:\n  * `enable_virtual_machine_multi_queue`\n  * `enabled`\n  * `number_of_interrupts`\n  * `number_of_sub_vnics`\n  * `number_of_virtual_machine_queues`\n  * `vmmq_adapter_policy",
+                "description": "Virtual Machine Queue Settings for the virtual interface that allow efficient transfer of network traffic to the guest OS.\n\nOptional Attributes:\n  * `enable_virtual_machine_multi_queue`\n  * `enabled`\n  * `number_of_interrupts`\n  * `number_of_sub_vnics`\n  * `number_of_virtual_machine_queues`\n  * `vmmq_adapter_policy`",
                 "intersight_api": "VmqSettings",
                 "object_type": "vnic.VmqSettings",
                 "required": [],
@@ -12137,7 +12137,7 @@
             },
             "mac_sec.mac_sec_fallback_key_chain.add_key.key_lifetime": {
                 "type": "object",
-                "description": "Key Lifetime attributes for the fallback key.\n\nRequired Attributes:\n  * `always_active\n\nOptional Attributes:\n  * `end_time`\n  * `start_time`\n  * `timezone\n\nNote:  If `always_active` is true the rest of the attributes are ignored.  If `always_active` is false, start_time is required.  If end_time is not defined when always_active is true the lifetime is set to infinite.",
+                "description": "Key Lifetime attributes for the fallback key.\n\nRequired Attributes:\n  * `always_active`\n\nOptional Attributes:\n  * `end_time`\n  * `start_time`\n  * `timezone`\n\nNote:  If `always_active` is true the rest of the attributes are ignored.  If `always_active` is false, start_time is required.  If end_time is not defined when always_active is true the lifetime is set to infinite.",
                 "intersight_api": "key_lifetime",
                 "object_type": "fabric.SecKeyChain",
                 "required": [
@@ -12259,7 +12259,7 @@
             },
             "mac_sec.mac_sec_primary_key_chain.add_key.key_lifetime": {
                 "type": "object",
-                "description": "Key Lifetime attributes for the primary key.\n\nRequired Attributes:\n  * `always_active\n\nOptional Attributes:\n  * `end_time`\n  * `start_time`\n  * `timezone\n\nNote:  If `always_active` is true the rest of the attributes are ignored.  If `always_active` is false, start_time is required.  If end_time is not defined when always_active is true the lifetime is set to infinite.",
+                "description": "Key Lifetime attributes for the primary key.\n\nRequired Attributes:\n  * `always_active`\n\nOptional Attributes:\n  * `end_time`\n  * `start_time`\n  * `timezone`\n\nNote:  If `always_active` is true the rest of the attributes are ignored.  If `always_active` is false, start_time is required.  If end_time is not defined when always_active is true the lifetime is set to infinite.",
                 "intersight_api": "key_lifetime",
                 "object_type": "fabric.SecKeyChain",
                 "required": [
@@ -12682,7 +12682,7 @@
                             },
                             "namespaces": {
                                 "type": "array",
-                                "description": "The list of Persistent Memory Namespace spec that need to be created through this policy.  Namespace is a partition made in one or more Persistent Memory Regions. You can create a namespace in Raw or Block mode.\nRequired Attributes are:`\n  * `capacity`\n  * `name`\n\nOptional Attributes are:`\n  * `mode`\n  * `socket_id`\n  * `socket_memory_id",
+                                "description": "The list of Persistent Memory Namespace spec that need to be created through this policy.  Namespace is a partition made in one or more Persistent Memory Regions. You can create a namespace in Raw or Block mode.\nRequired Attributes are:\n  * `capacity`\n  * `name`\n\nOptional Attributes are:\n  * `mode`\n  * `socket_id`\n  * `socket_memory_id`",
                                 "items": {
                                     "$ref": "#/components/schemas/persistent_memory.namespaces"
                                 },
@@ -12854,7 +12854,7 @@
                         "type": "array"
                     },
                     "certificate_management": {
-                        "description": "Allows you to specify the certificate and private key-pair details for an external certificate.\nNote: Currently, Cisco Intersight supports Certificate Management of IMC Certificates only.\n\nRequired Attributes:\n  * `assigned_sensitive_data`\n  * `certificate`\n  * `name`\n  * `private_key\n\nOptional Attributes:\n  * `enabled`\n  * `description`\n  * `tags`",
+                        "description": "Allows you to specify the certificate and private key-pair details for an external certificate.\n\nNote: Currently, Cisco Intersight supports Certificate Management of IMC Certificates only.\n\nRequired Attributes:\n  * `assigned_sensitive_data`\n  * `certificate`\n  * `name`\n  * ``private_key`\n\nOptional Attributes:\n  * `enabled`\n  * `description`\n  * `tags`",
                         "intersight_uri": "certificatemanagement/Policies",
                         "items": {
                             "$ref": "#/components/schemas/certificate_management"
@@ -12864,7 +12864,7 @@
                         "type": "array"
                     },
                     "device_connector": {
-                        "description": "Device Connector Policy lets you choose the Configuration from Intersight only option to control configuration changes allowed from Cisco IMC. The Configuration from Intersight only option is enabled by default. You will observe the following changes when you deploy the Device Connector policy in Intersight:`\n  * Validation tasks will fail:\n    * If Intersight Read-only mode is enabled in the claimed device.\n    * If the firmware version of the Cisco UCS Standalone C-Series Servers is lower than 4.0(1).\n  * If Intersight Read-only mode is enabled, firmware upgrades will be successful only when performed from Intersight. Firmware upgrade performed locally from Cisco IMC will fail.\n  * IPMI over LAN privileges will be reset to read-only level if Configuration from Intersight only is enabled through the Device Connector policy, or if the same configuration is enabled in the Device Connector in Cisco IMC.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `configuration_from_intersight_only`\n  * `description`\n  * `tags`",
+                        "description": "Device Connector Policy lets you choose the Configuration from Intersight only option to control configuration changes allowed from Cisco IMC. The Configuration from Intersight only option is enabled by default. You will observe the following changes when you deploy the Device Connector policy in Intersight:`\n\n  * Validation tasks will fail:\n    - If Intersight Read-only mode is enabled in the claimed device.\n    - If the firmware version of the Cisco UCS Standalone C-Series Servers is lower than 4.0(1).\n  * If Intersight Read-only mode is enabled, firmware upgrades will be successful only when performed from Intersight. Firmware upgrade performed locally from Cisco IMC will fail.\n  * IPMI over LAN privileges will be reset to read-only level if Configuration from Intersight only is enabled through the Device Connector policy, or if the same configuration is enabled in the Device Connector in Cisco IMC.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `configuration_from_intersight_only`\n  * `description`\n  * `tags`",
                         "intersight_uri": "deviceconnector/Policies",
                         "items": {
                             "$ref": "#/components/schemas/device_connector"
@@ -12884,7 +12884,7 @@
                         "type": "array"
                     },
                     "ethernet_adapter": {
-                        "description": "An Ethernet adapter policy governs the host-side behavior of the adapter, including how the adapter handles traffic. For each VIC Virtual Ethernet Interface, you can configure various features like Virtual Extensible LAN (VXLAN), Network Virtualization using Generic Routing Encapsulation (NVGRE), Accelerated Receive Flow Steering (ARFS), Interrupt settings, and TCP Offload settings.\nThe Ethernet Adapter policy include the recommended settings for the virtual Ethernet interface, for each supported server operating system. Operating systems are sensitive to the settings in these policies. In general, the storage vendors require non-default adapter settings. You can find the details of these required settings on the support list provided by those vendors.\nIMPORTANT NOTE: If GENEVE Offload is Enabled be sure to Read the Following Guidance: https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/b_Intersight_Managed_Mode_Configuration_Guide/b_intersight_managed_mode_guide_chapter_0110.html#reference_ofm_khm_5jb\n\nRequired Attributes:\n  * `name`\n\nRecommended Attribute:\n\n `adapter_template`\n\nOptional Attributes:\n  * `completion`\n  * `description`\n  * `enable_accelerated_receive_flow_steering`\n  * `enable_advanced_filter`\n  * `enable_ether_channel_pinning`\n  * `enable_geneve_offload`\n  * `enable_interrupt_scaling`\n  * `enable_nvgre_offload`\n  * `enable_precision_time_protocol`\n  * `enable_vxlan_offload`\n  * `interrupt_settings`\n  * `receive`\n  * `receive_side_scaling`\n  * `roce_settings`\n  * `tags`\n  * `tcp_offload`\n  * `transmit`\n  * `uplink_failback_timeout`",
+                        "description": "An Ethernet adapter policy governs the host-side behavior of the adapter, including how the adapter handles traffic. For each VIC Virtual Ethernet Interface, you can configure various features like Virtual Extensible LAN (VXLAN), Network Virtualization using Generic Routing Encapsulation (NVGRE), Accelerated Receive Flow Steering (ARFS), Interrupt settings, and TCP Offload settings.\n\nThe Ethernet Adapter policy include the recommended settings for the virtual Ethernet interface, for each supported server operating system. Operating systems are sensitive to the settings in these policies. In general, the storage vendors require non-default adapter settings. You can find the details of these required settings on the support list provided by those vendors.\n\nIMPORTANT NOTE: If GENEVE Offload is Enabled be sure to Read the Following Guidance: https://www.cisco.com/c/en/us/td/docs/unified_computing/Intersight/b_Intersight_Managed_Mode_Configuration_Guide/b_intersight_managed_mode_guide_chapter_0110.html#reference_ofm_khm_5jb\n\nRequired Attributes:\n  * `name`\n\nRecommended Attribute:\n\n `adapter_template`\n\nOptional Attributes:\n  * `completion`\n  * `description`\n  * `enable_accelerated_receive_flow_steering`\n  * `enable_advanced_filter`\n  * `enable_ether_channel_pinning`\n  * `enable_geneve_offload`\n  * `enable_interrupt_scaling`\n  * `enable_nvgre_offload`\n  * `enable_precision_time_protocol`\n  * `enable_vxlan_offload`\n  * `interrupt_settings`\n  * `receive`\n  * `receive_side_scaling`\n  * `roce_settings`\n  * `tags`\n  * `tcp_offload`\n  * `transmit`\n  * `uplink_failback_timeout`",
                         "intersight_uri": "vnic/EthAdapterPolicies",
                         "items": {
                             "$ref": "#/components/schemas/ethernet_adapter"
@@ -12934,7 +12934,7 @@
                         "type": "array"
                     },
                     "fc_zone": {
-                        "description": "This policy allows you to set up access control between hosts and storage devices.\n  * Certain points to be noted when creating the FC Zone policy:`\n  * Deploying a storage VSAN using a domain profile, for the first time, clears all the unmanaged zones from the Fabric Interconnect.\n  * SAN boot targets with a storage VSAN have a zone entry in the Fabric Interconnect.\n  * A one-time SAN boot with a storage VSAN has a zone entry in the Fabric Interconnect.\n  * Editing the FC Zone policy causes the server profile status to be changed to Pending Changes.\n  * When the Fabric Interconnect is rebooted, there is a replay of zones in the configuration.\n  * Detection of configuration drift is not supported for FC Zone policy.\n\nRequired Attributes:\n  * `name`\n  * `targets`\n\nOptional Attributes:\n  * `description`\n  * `fc_target_zoning_type`\n  * `tags`",
+                        "description": "This policy allows you to set up access control between hosts and storage devices.\n\n  * Certain points to be noted when creating the FC Zone policy:`\n  * Deploying a storage VSAN using a domain profile, for the first time, clears all the unmanaged zones from the Fabric Interconnect.\n  * SAN boot targets with a storage VSAN have a zone entry in the Fabric Interconnect.\n  * A one-time SAN boot with a storage VSAN has a zone entry in the Fabric Interconnect.\n  * Editing the FC Zone policy causes the server profile status to be changed to Pending Changes.\n  * When the Fabric Interconnect is rebooted, there is a replay of zones in the configuration.\n  * Detection of configuration drift is not supported for FC Zone policy.\n\nRequired Attributes:\n  * `name`\n  * `targets`\n\nOptional Attributes:\n  * `description`\n  * `fc_target_zoning_type`\n  * `tags`",
                         "intersight_uri": "fabric/FcZonePolicies",
                         "items": {
                             "$ref": "#/components/schemas/fc_zone"
@@ -12997,7 +12997,7 @@
                         "type": "array"
                     },
                     "imc_access": {
-                        "description": "Enables you to manage and configure your network through mapping of IP pools to the server profile. This policy allows you to configure a VLAN and associate it with an IP address through the IP pool address.  In-Band IP address, Out-of-Band IP address, or both In-Band and Out-of-Band IP addresses can be configured using IMC Access Policy and are supported on the following:`\n  * Drive Security, SNMP, Syslog, and vMedia policies`\n  * vKVM, IPMI, SOL, and vMedia policies using vKVM client\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `inband_ip_pool`\n  * `inband_vlan_id`\n  * `inband_vlan_id`\n  * `ipv4_address_configuration`\n  * `ipv6_address_configuration`\n  * `out_of_band_ip_pool`\n  * `tags`",
+                        "description": "Enables you to manage and configure your network through mapping of IP pools to the server profile. This policy allows you to configure a VLAN and associate it with an IP address through the IP pool address.  In-Band IP address, Out-of-Band IP address, or both In-Band and Out-of-Band IP addresses can be configured using IMC Access Policy and are supported on the following:`\n\n  * Drive Security, SNMP, Syslog, and vMedia policies\n  * vKVM, IPMI, SOL, and vMedia policies using vKVM client\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `inband_ip_pool`\n  * `inband_vlan_id`\n  * `inband_vlan_id`\n  * `ipv4_address_configuration`\n  * `ipv6_address_configuration`\n  * `out_of_band_ip_pool`\n  * `tags`",
                         "intersight_uri": "access/Policies",
                         "items": {
                             "$ref": "#/components/schemas/imc_access"
@@ -13007,7 +13007,7 @@
                         "type": "array"
                     },
                     "ipmi_over_lan": {
-                        "description": "Defines the protocols for interfacing with a service processor that is embedded in a server platform. The Intelligent Platform Management Interface (IPMI) enables an operating system to obtain information about the system health and control system hardware and directs the Cisco IMC to perform the required actions. You can create an IPMI Over LAN policy to manage the IPMI messages through Cisco Intersight. You can assign these user roles to an IPMI user per session:`\n  * `admin` — IPMI users can perform all available actions. If you select this option, IPMI users with the `Administrator` user role can create admin, user, and read-only sessions on this server.\n  * ``read-only` — Can view information but cannot make any changes. IPMI users with the `Administrator`, `Operator`, or `User` user roles can only create read-only IPMI sessions, regardless of their other IPMI privileges.\n  * `user` — IPMI users can perform some functions but cannot perform administrative tasks. If you select this option, IPMI users with the `Administrator` or `Operator` user role can create user and read-only sessions on this server.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `enabled`\n  * `privilege`\n  * `tags`",
+                        "description": "Defines the protocols for interfacing with a service processor that is embedded in a server platform. The Intelligent Platform Management Interface (IPMI) enables an operating system to obtain information about the system health and control system hardware and directs the Cisco IMC to perform the required actions. You can create an IPMI Over LAN policy to manage the IPMI messages through Cisco Intersight. You can assign these user roles to an IPMI user per session:`\n  * `admin` — IPMI users can perform all available actions. If you select this option, IPMI users with the `Administrator` user role can create admin, user, and read-only sessions on this server.\n  * `read-only` — Can view information but cannot make any changes. IPMI users with the `Administrator`, `Operator`, or `User` user roles can only create read-only IPMI sessions, regardless of their other IPMI privileges.\n  * `user` — IPMI users can perform some functions but cannot perform administrative tasks. If you select this option, IPMI users with the `Administrator` or `Operator` user role can create user and read-only sessions on this server.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `enabled`\n  * `privilege`\n  * `tags`",
                         "intersight_uri": "ipmioverlan/Policies",
                         "items": {
                             "$ref": "#/components/schemas/ipmi_over_lan"
@@ -13027,7 +13027,7 @@
                         "type": "array"
                     },
                     "iscsi_boot": {
-                        "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:`\n  * iSCSI Static Target Policy\u2014When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * `iSCSI Adapter Policy\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * `Creating an IQN Pool\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `tags`\n  * `target_source_type`",
+                        "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy\u2014When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `tags`\n  * `target_source_type`",
                         "intersight_uri": "vnic/IscsiBootPolicies",
                         "items": {
                             "$ref": "#/components/schemas/iscsi_boot"
@@ -13233,7 +13233,7 @@
                         "type": "array"
                     },
                     "smtp": {
-                        "description": "Sets the state of the SMTP client in the managed device. You can specify the preferred settings for outgoing communication and select the fault severity level to report and the mail recipients.\n\nRequired Attributes:\n  * `mail_alert_recipients`\n  * `name`\n  * `smtp_server_address\n\nOptional Attributes:\n  * `description`\n  * `enable_smtp`\n  * `minimum_severity`\n  * `smtp_alert_sender_address`\n  * `smtp_port`\n  * `tags`",
+                        "description": "Sets the state of the SMTP client in the managed device. You can specify the preferred settings for outgoing communication and select the fault severity level to report and the mail recipients.\n\nRequired Attributes:\n  * `mail_alert_recipients`\n  * `name`\n  * `smtp_server_address`\n\nOptional Attributes:\n  * `description`\n  * `enable_smtp`\n  * `minimum_severity`\n  * `smtp_alert_sender_address`\n  * `smtp_port`\n  * `tags`",
                         "intersight_uri": "smtp/Policies",
                         "items": {
                             "$ref": "#/components/schemas/smtp"
@@ -13377,7 +13377,7 @@
             },
             "policy.name.prefix_suffix": {
                 "type": "object",
-                "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `adapter_configuration`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `flow_control`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `multicast`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `sd_card`\n  * `serial_over_lan`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan",
+                "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `adapter_configuration`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `flow_control`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `multicast`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `sd_card`\n  * `serial_over_lan`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
                 "object_type": "not_applicable",
                 "title": "Policy Name Prefix/Suffix",
                 "properties": {
@@ -14014,7 +14014,7 @@
             "pools": {
                 "type": "object",
                 "additionalProperties": false,
-                "description": "Pools are the basic building blocks for uniquely identifying hardware resources. As the basis for the UCS management model, they allow Service Profiles to be associated with any blade server, while still providing the exact same ID and presentation to the upstream LAN or SAN. If a pool is actively associated with a profile, the pool cannot be deleted.\nOptions are:\n\n  * `ip`\n  * `iqn`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `resource`\n  * `uuid`\n  * `wwnn`\n  * `wwpn`",
+                "description": "Pools are the basic building blocks for uniquely identifying hardware resources. As the basis for the UCS management model, they allow Service Profiles to be associated with any blade server, while still providing the exact same ID and presentation to the upstream LAN or SAN. If a pool is actively associated with a profile, the pool cannot be deleted.\n\nOptions are:\n  * `ip`\n  * `iqn`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `resource`\n  * `uuid`\n  * `wwnn`\n  * `wwpn`",
                 "properties": {
                     "ip": {
                         "description": "An IP pool is a sequential range of IP addresses within a certain network. You can assign multiple pool blocks within a pool configuration.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `assignment_order`\n  * `description`\n  * `ipv4_blocks`\n  * `ipv4_configuration`\n  * `ipv6_blocks`\n  * `ipv6_configuration`\n  * `tags`\nNote: For each Address Family IPv4/IPv6, both ipv(4|6)_blocks and ipv(4|6)_configuration must be defined.",
@@ -14763,7 +14763,7 @@
                     },
                     "interfaces": {
                         "type": "array",
-                        "description": "list of interfaces {breakout_port_id/port_id/slot_id} to assign to the Port-Channel Policy.\n  * `breakout_port_id: Default is `0`.  Breakout port Identifier of the Switch Interface.  When a port is not configured as a breakout port, the aggregatePortId is set to 0, and unused.  When a port is configured as a breakout port, the 'aggregatePortId' port number as labeled on the equipment, e.g. the id of the port on the switch.\n  * `port_id - Port ID to Assign to the LAN Port-Channel Policy.\n  * `slot_id: Default is `1`.  Slot Identifier of the Switch/FEX/Chassis Interface.",
+                        "description": "list of interfaces {breakout_port_id/port_id/slot_id} to assign to the Port-Channel Policy.\n\n  * `breakout_port_id`: Default is `0`.  Breakout port Identifier of the Switch Interface.  When a port is not configured as a breakout port, the aggregatePortId is set to 0, and unused.  When a port is configured as a breakout port, the 'aggregatePortId' port number as labeled on the equipment, e.g. the id of the port on the switch.\n  * `port_id` - Port ID to Assign to the LAN Port-Channel Policy.\n  * `slot_id`: Default is `1`.  Slot Identifier of the Switch/FEX/Chassis Interface.",
                         "intersight_api": "Ports",
                         "items": {
                             "$ref": "#/components/schemas/port.port_channels.interfaces"
@@ -15725,7 +15725,7 @@
                 "description": "Profiles in Cisco Intersight assign the Policy Configurations to UCS chassis/domains/servers, Policy-based configuration with Chassis/Domain/Server Profiles is a Cisco Intersight Essentials functionality.\nOptions are:\n\n  * `chassis`\n  * `domain`\n  * `name`_prefix`\n  * `name`_suffix`\n  * `server`",
                 "properties": {
                     "chassis": {
-                        "description": "A UCS Chassis profile enables to create and associate chassis policies to an Intersight Managed Mode (IMM) claimed chassis. When a chassis profile is associated to a chassis, Cisco Intersight automatically configures the chassis to match the configuration specified in the policies of the chassis profile. The chassis-related policies can be attached to the profile either at the time of creation or later.\n\nImportant:`\n  * The chassis profile feature is available in Cisco Intersight only if:\n     - You have installed the Cisco Intersight Essentials License.\n     - You are either an Account Administrator or Server Administrator.\n  * Policies that are attached to a chassis profile can be created ahead of creating a profile or during the creation of the profile.\n  * If chassis polices are changed after deployment, the chassis profile will be set in Pending Changes state and you must manually re-associate the changed policies to chassis.\n  * Chassis policies will be applied to both the input/output modules (IFMs/IOMs) in a chassis. The chassis policies association workflow will fail if the policy cannot be applied to one of the IFMs/IOMs.\n\nRequired Base Attributes:`\n  * `action`\n  * `attach_template`\n  * `targets`\n\nOptional Base Attributes:`\n  * `tags`\n  * `ucs_chassis_profile_template`\n\n#=======================================\n# Chassis Configuration\n#=======================================`\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`",
+                        "description": "A UCS Chassis profile enables to create and associate chassis policies to an Intersight Managed Mode (IMM) claimed chassis. When a chassis profile is associated to a chassis, Cisco Intersight automatically configures the chassis to match the configuration specified in the policies of the chassis profile. The chassis-related policies can be attached to the profile either at the time of creation or later.\n\nImportant:\n  * The chassis profile feature is available in Cisco Intersight only if:\n     - You have installed the Cisco Intersight Essentials License.\n     - You are either an Account Administrator or Server Administrator.\n  * Policies that are attached to a chassis profile can be created ahead of creating a profile or during the creation of the profile.\n  * If chassis polices are changed after deployment, the chassis profile will be set in Pending Changes state and you must manually re-associate the changed policies to chassis.\n  * Chassis policies will be applied to both the input/output modules (IFMs/IOMs) in a chassis. The chassis policies association workflow will fail if the policy cannot be applied to one of the IFMs/IOMs.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n\nOptional Base Attributes:\n  * `tags`\n  * `ucs_chassis_profile_template`\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `imc_access_policy`\n  * `power_policy`\n  * `snmp_policy`\n  * `thermal_policy`",
                         "intersight_uri": "chassis/Profiles",
                         "items": {
                             "$ref": "#/components/schemas/profiles.chassis"
@@ -15735,7 +15735,7 @@
                         "type": "array"
                     },
                     "domain": {
-                        "description": "A UCS Domain Profile configures a Fabric Interconnect pair through reusable policies, allows for configuration of the ports and port channels, and configures the VLANs and VSANs in the network. It defines the characteristics of, and configures ports on Fabric Interconnects. You can create a UCS Domain profile and associate it with a Fabric Interconnect Domain. The Domain-related policies can be attached to the profile either at the time of creation or later. One UCS Domain profile can be assigned to one Fabric Interconnect Domain.\n\nImportant:`\n  * You can use a single port policy per UCS Domain profile or a port-policy per FI.\n  * Policies that are attached to a UCS Domain profile can be created ahead of creating a profile or during the creation of the profile.\n  * Policies that are attached to a UCS Domain and the global policies of all UCS Domain Profiles associated with a specific UCS Domain are shared.\n\nRequired Base Attributes:`\n  * `action`\n  * `name`\n  * `serial_numbers`\n\nOptional Base Attributes:`\n  * `attach_template`\n  * `description`\n  * `tags`\n  * `user_label`\n  * `ucs_domain_profile_template` - to assign to a template\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================`\n  * `vlan_policies` - required (If not attached to a domain template) - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================`\n  * `port_policies` - required (If not attached to a domain template)\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================`\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================`\n  * `switch_control_policy`\n  * `system_qos_policy` - required (If not attached to a domain template)",
+                        "description": "A UCS Domain Profile configures a Fabric Interconnect pair through reusable policies, allows for configuration of the ports and port channels, and configures the VLANs and VSANs in the network. It defines the characteristics of, and configures ports on Fabric Interconnects. You can create a UCS Domain profile and associate it with a Fabric Interconnect Domain. The Domain-related policies can be attached to the profile either at the time of creation or later. One UCS Domain profile can be assigned to one Fabric Interconnect Domain.\n\nImportant:\n  * You can use a single port policy per UCS Domain profile or a port-policy per FI.\n  * Policies that are attached to a UCS Domain profile can be created ahead of creating a profile or during the creation of the profile.\n  * Policies that are attached to a UCS Domain and the global policies of all UCS Domain Profiles associated with a specific UCS Domain are shared.\n\nRequired Base Attributes:\n  * `action`\n  * `name`\n  * `serial_numbers`\n\nOptional Base Attributes:\n  * `attach_template`\n  * `description`\n  * `tags`\n  * `user_label`\n  * `ucs_domain_profile_template` - to assign to a template\n\n#=======================================\n# VLAN & VSAN Configuration\n#=======================================\n  * `vlan_policies` - required (If not attached to a domain template) - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n  * `vsan_policies` - A list of one or two VSAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Ports Configuration\n#=======================================\n  * `port_policies` - required (If not attached to a domain template)\n\n#=======================================\n# UCS Domain Configuration - Management\n#=======================================\n  * `certificate_management_policy`\n  * `ldap_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n\n#=======================================\n# UCS Domain Configuration - Network\n#=======================================\n  * `switch_control_policy`\n  * `system_qos_policy` - required (If not attached to a domain template)",
                         "intersight_uri": "fabric/SwitchClusterProfiles",
                         "items": {
                             "$ref": "#/components/schemas/profiles.domain"
@@ -15751,7 +15751,7 @@
                         "$ref": "#/components/schemas/profiles.name.prefix_suffix"
                     },
                     "server": {
-                        "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * Compute Policies — BIOS, Boot Order, and Virtual Media.\n  * Network Policies — Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies—SD Card and Storage policies`\n  * Management Policies—Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nIMPORTANT:`\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have installed the Cisco Intersight Essentials License.\n\nRequired Base Attributes:`\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment under the targets:`\n  * `domain_name`\n\nOptional Attributes:\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_template` - For backward compatibility.  Use ucs_server_profile_template is preferred`\n  * `ucs_server_profile_template`\n\n#=======================================\n# Compute Configuration\n#=======================================`\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only`\n  * `power_policy` - FIAttached Only`\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================`\n  * `certificate_management_policy` - FIAttached Only\n  * `device_connector_policy` - Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy` - Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================`\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================`\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
+                        "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:`\n  * Compute Policies — BIOS, Boot Order, and Virtual Media.\n  * Network Policies — Adapter Configuration, iSCSI Boot, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create Ethernet Network Policy, Ethernet Adapter Policy, and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create Fibre Channel Network Policy, Fibre Channel Adapter Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies — SD Card and Storage policies`\n  * Management Policies — Device Connector, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, Certificate Management, and Virtual KVM policies\n\nIMPORTANT:`\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have installed the Cisco Intersight Essentials License.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment under the targets:\n  * `domain_name`\n\nOptional Attributes:\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_template` - For backward compatibility.  Use ucs_server_profile_template is preferred`\n  * `ucs_server_profile_template`\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `persistent_memory_policy` - Standalone Only`\n  * `power_policy` - FIAttached Only`\n  * `thermal_policy`\n  * `uuid_pool` - FIAttached Only`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy` - FIAttached Only\n  * `device_connector_policy` - Standalone Only\n  * `imc_access_policy` - FIAttached Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy - Standalone Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - Standalone Only\n  * `ntp_policy` - Standalone Only\n  * `serial_over_lan_policy`\n  * `smtp_policy` - Standalone Only\n  * `snmp_policy`\n  * `ssh_policy` - Standalone Only`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy` - Standalone Only\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                         "intersight_uri": "server/Profiles",
                         "items": {
                             "$ref": "#/components/schemas/profiles.server"
@@ -16581,7 +16581,7 @@
                             },
                             "reservations": {
                                 "type": "array",
-                                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * `ip_type - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name",
+                                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * `ip_type - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name`",
                                 "items": {
                                     "$ref": "#/components/schemas/profiles.server.targets.reservations"
                                 },
@@ -16616,7 +16616,7 @@
             },
             "profiles.server.targets.pre_assign": {
                 "type": "object",
-                "description": "Enabled the Pre-Assignment of a Server Profile to either a Chassis/Slot or using the Serial Number.  * Note - If using Chassis/Slot make sure you have defined the domain_name as well to the Server Profile Section.\nFor Chassis/Slot assignment:`\n  * `chassis`\n  * `slot\n\nFor Serial Pre-Assignment:`\n  * `serial_number",
+                "description": "Enabled the Pre-Assignment of a Server Profile to either a Chassis/Slot or using the Serial Number.  * Note - If using Chassis/Slot make sure you have defined the domain_name as well to the Server Profile Section.\nFor Chassis/Slot assignment:`\n  * `chassis`\n  * `slot`\n\nFor Serial Pre-Assignment:`\n  * `serial_number`",
                 "intersight_api": "ServerPreAssignBySlot",
                 "object_type": "server.ServerAssignTypeSlot",
                 "title": "pre_assign",
@@ -16653,7 +16653,7 @@
                 }
             },
             "profiles.server.targets.reservations": {
-                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * `ip_type - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name",
+                "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * `ip_type - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name`",
                 "object_type": "not_applicable",
                 "required": [
                     "identity",
@@ -16751,7 +16751,7 @@
                             "resource_type": {
                                 "type": "string",
                                 "default": "Server",
-                                "description": "The type of the resource present in the pool, example 'server' its a combination of Blade or RackUnit.\n  * `None - The resource cannot consider for Resource Pool.\n  * `Server - Resource Pool holds the server kind of resources, example - RackServer, Blade. (default)",
+                                "description": "The type of the resource present in the pool, example 'server' its a combination of Blade or RackUnit.\n  * `None` - The resource cannot consider for Resource Pool.\n  * `Server` - Resource Pool holds the server kind of resources, example - RackServer, Blade. (default)",
                                 "intersight_api": "ResourceType",
                                 "enum": [
                                     "None",
@@ -16958,7 +16958,7 @@
                             "vhba_placement_mode": {
                                 "type": "string",
                                 "default": "custom",
-                                "description": "The mode used for placement of vNICs on network adapters. It can either be Auto or Custom.\n  * `auto - The placement of the vNICs / vHBAs on network adapters is automatically determined by the system.\n  * `custom (Default) - The placement of the vNICs / vHBAs on network adapters is manually chosen by the user.",
+                                "description": "The mode used for placement of vNICs on network adapters. It can either be Auto or Custom.\n  * `auto` - The placement of the vNICs / vHBAs on network adapters is automatically determined by the system.\n  * `custom` - The placement of the vNICs / vHBAs on network adapters is manually chosen by the user.",
                                 "intersight_api": "PlacementMode",
                                 "enum": [
                                     "auto",
@@ -16968,7 +16968,7 @@
                             },
                             "vhbas": {
                                 "type": "array",
-                                "description": "List of vHBAs to add to the SAN Connectivity Policy.\n\nRequired Attributes:\n  * `name`s`\n  * `fibre_channel_adapter_policy`\n  * `fibre_channel_network_policies`\n  * `fibre_channel_qos_policy`\n  * `placement\n\nOptional Attributes:\n  * `fc_zone_policies`\n  * `persistent_lun_bindings`\n  * `pin_group_names`\n  * `vhba_type`\n  * `wwpn_pools`\n  * `wwpn_static_addresses",
+                                "description": "List of vHBAs to add to the SAN Connectivity Policy.\n\nRequired Attributes:\n  * `name`s`\n  * `fibre_channel_adapter_policy`\n  * `fibre_channel_network_policies`\n  * `fibre_channel_qos_policy`\n  * `placement`\n\nOptional Attributes:\n  * `fc_zone_policies`\n  * `persistent_lun_bindings`\n  * `pin_group_names`\n  * `vhba_type`\n  * `wwpn_pools`\n  * `wwpn_static_addresses`",
                                 "intersight_uri": "vnic/FcIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/san_connectivity.vhbas"
@@ -16978,7 +16978,7 @@
                             },
                             "vhbas_from_template": {
                                 "type": "array",
-                                "description": "List of vHBAs to add to the SAN Connectivity Policy that will use a vHBA template.\n\nRequired Attributes:\n  * `name`\n  * `placement`\n  * `vhba_template\n\nOptional Attributes:\n  * `fc_zone_policies - If Allow Override Enabled on the template`\n  * `fibre_channel_adapter_policy - If Allow Override Enabled on the template`\n  * `fibre_channel_network_policy - If Allow Override Enabled on the template`\n  * `pin_group_name - If Allow Override Enabled on the template`\n  * `wwpn_pool - If Allow Override Enabled on the template`\n  * `wwpn_static_address",
+                                "description": "List of vHBAs to add to the SAN Connectivity Policy that will use a vHBA template.\n\nRequired Attributes:\n  * `name`\n  * `placement`\n  * `vhba_template`\n\nOptional Attributes:\n  * `fc_zone_policies - If Allow Override Enabled on the template`\n  * `fibre_channel_adapter_policy - If Allow Override Enabled on the template`\n  * `fibre_channel_network_policy - If Allow Override Enabled on the template`\n  * `pin_group_name - If Allow Override Enabled on the template`\n  * `wwpn_pool - If Allow Override Enabled on the template`\n  * `wwpn_static_address`",
                                 "intersight_uri": "vnic/FcIfs",
                                 "items": {
                                     "$ref": "#/components/schemas/san_connectivity.vhbas"
@@ -17592,7 +17592,7 @@
                             "baud_rate": {
                                 "type": "integer",
                                 "default": 115200,
-                                "description": "The default value is `115200`.  Baud Rate used for Serial Over LAN communication.\n  * `9600` - Use baud rate 9600 for communication.\n  * `19200` - Use baud rate 19200 for communication.\n  * `38400` - Use baud rate 38400 for communication.\n  * `57600` - Use baud rate 57600 for communication.\n  * `115200` - Use baud rate 115200 for communication.",
+                                "description": "The default value is `115200`.  Baud Rate used for Serial Over LAN communication.\n  * `9600`   - Use baud rate 9600 for communication.\n  * `19200`  - Use baud rate 19200 for communication.\n  * `38400`  - Use baud rate 38400 for communication.\n  * `57600`  - Use baud rate 57600 for communication.\n  * `115200` - Use baud rate 115200 for communication.",
                                 "intersight_api": "BaudRate",
                                 "enum": [
                                     9600,
@@ -17635,7 +17635,7 @@
                 ]
             },
             "server_pool_qualification": {
-                "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
+                "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
                 "intersight_type": "policies",
                 "intersight_uri": "resourcepool/QualificationPolicies",
                 "object_type": "resourcepool.QualificationPolicy",
@@ -17652,7 +17652,7 @@
                     },
                     {
                         "type": "object",
-                        "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
+                        "description": "A server will be included in the resource pool if it matches the conditions of all the qualifiers present in the policy. The qualifiers are of four types:`\n  * `Domain` — All FI-attached servers in any domain that match the provided Fabric Interconnect PID and domain name qualify under this type.\n  * `Server` — All blade and/or rack servers that match the provided server IDs, PIDs, tags, user labels, and chassis IDs qualify under this type.\n  * `Tag` — All servers that match any of the provided server tags, domain profile, and chassis tags qualify under this type. Domain profile and chassis tags are applicable only for FI-attached servers.\n  * `Hardware` — All servers with hardware components that match the provided CPU, memory, GPU, and Network adapters qualify under this type.\n\nThis policy is applicable for Intersight Managed Mode and Standalone servers.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `domain_qualifiers`\n  * `hardware_qualifiers`\n  * `server_qualifiers`\n  * `tag_qualifiers`\n  * `tags`",
                         "required": [],
                         "title": "server_pool_qualification - Server Pool Qualification - Intersight Uri: resourcepool/QualificationPolicies",
                         "properties": {
@@ -19211,7 +19211,7 @@
                             "minimum_severity": {
                                 "type": "string",
                                 "default": "critical",
-                                "description": "The default value is `critical`.  Minimum fault severity level to receive email notifications. Email notifications are sent for all faults whose severity is equal to or greater than the chosen level.\n  * `critical` - Minimum severity to report is critical.\n  * `condition` - Minimum severity to report is informational.\n  * `warning` - Minimum severity to report is warning.\n  * `minor` - Minimum severity to report is minor.\n  * `major` - Minimum severity to report is major.",
+                                "description": "The default value is `critical`.  Minimum fault severity level to receive email notifications. Email notifications are sent for all faults whose severity is equal to or greater than the chosen level.\n  * `critical`  - Minimum severity to report is critical.\n  * `condition` - Minimum severity to report is informational.\n  * `warning`   - Minimum severity to report is warning.\n  * `minor`     - Minimum severity to report is minor.\n  * `major`     - Minimum severity to report is major.",
                                 "intersight_api": "MinSeverity",
                                 "enum": [
                                     "critical",
@@ -19618,7 +19618,7 @@
                             },
                             "drive_groups": {
                                 "type": "array",
-                                "description": "A reusable RAID drive group configuration that specifies a pool of drives and a set of virtual drives that are to be created using this pool of drives.\n\n  * `name`\nOptional Attributes are:`\n  * `automatic_drive_group`\n  * `manual_drive_group`\n  * `raid_level`\n  * `secure_drive_group`\n  * `virtual_drives",
+                                "description": "A reusable RAID drive group configuration that specifies a pool of drives and a set of virtual drives that are to be created using this pool of drives.\n\n  * `name`\nOptional Attributes are:\n  * `automatic_drive_group`\n  * `manual_drive_group`\n  * `raid_level`\n  * `secure_drive_group`\n  * `virtual_drives`",
                                 "intersight_api": "drive_groups",
                                 "items": {
                                     "$ref": "#/components/schemas/storage.drive_groups"
@@ -19848,7 +19848,7 @@
                     },
                     "drive_array_spans": {
                         "type": "array",
-                        "description": "Enter list of Disk IDs separated by comma or hypen. Sample format is 1, 3 or 4-6, 8. Non spanned RAID levels like RAID0, RAID1, RAID5 and RAID6 expect a single group of disks whereas spanned RAID levels need multiple groups of disks with each group representing a span group. Non spanned RAID levels expect one span group and spanned RAID levels accept minimum 2 span groups and up to 8.\n\nRequired Attributes:\n  * `slots",
+                        "description": "Enter list of Disk IDs separated by comma or hypen. Sample format is 1, 3 or 4-6, 8. Non spanned RAID levels like RAID0, RAID1, RAID5 and RAID6 expect a single group of disks whereas spanned RAID levels need multiple groups of disks with each group representing a span group. Non spanned RAID levels expect one span group and spanned RAID levels accept minimum 2 span groups and up to 8.\n\nRequired Attributes:\n  * `slots`",
                         "intersight_api": "SpanGroups",
                         "items": {
                             "$ref": "#/components/schemas/storage.drive_groups.manual_drive_group.drive_array_spans"
@@ -19999,7 +19999,7 @@
                     "access_policy": {
                         "type": "string",
                         "default": "Default",
-                        "description": "The default value is `Default`.  Access policy that host has on this virtual drive.\n  * `Default - Use platform default access mode.\n  * `ReadWrite - Enables host to perform read-write on the VD.\n  * `ReadOnly - Host can only read from the VD.\n  * `Blocked - Host can neither read nor write to the VD.",
+                        "description": "The default value is `Default`.  Access policy that host has on this virtual drive.\n  * `Default` - Use platform default access mode.\n  * `ReadWrite` - Enables host to perform read-write on the VD.\n  * `ReadOnly` - Host can only read from the VD.\n  * `Blocked` - Host can neither read nor write to the VD.",
                         "intersight_api": "AccessPolicy",
                         "enum": [
                             "Default",
@@ -20012,7 +20012,7 @@
                     "drive_cache": {
                         "type": "string",
                         "default": "Default",
-                        "description": "The default value is `Default`.  Disk cache policy for the virtual drive.\n  * `Default - Use platform default drive cache mode.\n  * `NoChange - Drive cache policy is unchanged.\n  * `Enable - Enables IO caching on the drive.\n  * `Disable - Disables IO caching on the drive.",
+                        "description": "The default value is `Default`.  Disk cache policy for the virtual drive.\n  * `Default` - Use platform default drive cache mode.\n  * `NoChange` - Drive cache policy is unchanged.\n  * `Enable` - Enables IO caching on the drive.\n  * `Disable` - Disables IO caching on the drive.",
                         "intersight_api": "DriveCache",
                         "enum": [
                             "Default",
@@ -20025,7 +20025,7 @@
                     "read_policy": {
                         "type": "string",
                         "default": "Default",
-                        "description": "The default value is `Default`.  Read ahead mode to be used to read data from this virtual drive.\n  * `Default - Use platform default read ahead mode.\n  * `ReadAhead - Use read ahead mode for the policy.\n  * `NoReadAhead - Do not use read ahead mode for the policy.",
+                        "description": "The default value is `Default`.  Read ahead mode to be used to read data from this virtual drive.\n  * `Default` - Use platform default read ahead mode.\n  * `ReadAhead` - Use read ahead mode for the policy.\n  * `NoReadAhead` - Do not use read ahead mode for the policy.",
                         "intersight_api": "ReadPolicy",
                         "enum": [
                             "Default",
@@ -20037,7 +20037,7 @@
                     "strip_size": {
                         "type": "integer",
                         "default": 64,
-                        "description": "The default value is `Default`.  Desired strip size - Allowed values are 64, 128, 256, 512, 1024.\n  * `64 - Number of bytes in a strip is 64 Kibibytes.\n  * `128 - Number of bytes in a strip is 128 Kibibytes.\n  * `256 - Number of bytes in a strip is 256 Kibibytes.\n  * `512 - Number of bytes in a strip is 512 Kibibytes.\n  * `1024 - Number of bytes in a strip is 1024 Kibibytes or 1 Mebibyte.",
+                        "description": "The default value is `Default`.  Desired strip size - Allowed values are 64, 128, 256, 512, 1024.\n  * `64` - Number of bytes in a strip is 64 Kibibytes.\n  * `128` - Number of bytes in a strip is 128 Kibibytes.\n  * `256` - Number of bytes in a strip is 256 Kibibytes.\n  * `512` - Number of bytes in a strip is 512 Kibibytes.\n  * `1024` - Number of bytes in a strip is 1024 Kibibytes or 1 Mebibyte.",
                         "intersight_api": "StripSize",
                         "enum": [
                             64,
@@ -20051,7 +20051,7 @@
                     "write_policy": {
                         "type": "string",
                         "default": "Default",
-                        "description": "The default value is `Default`.  Write mode to be used to write data to this virtual drive.\n  * `Default - Use platform default write mode.\n  * `WriteThrough - Data is written through the cache and to the physical drives. Performance is improved, because subsequent reads of that data can be satisfied from the cache.\n  * `WriteBackGoodBbu - Data is stored in the cache, and is only written to the physical drives when space in the cache is needed. Virtual drives requesting this policy fall back to Write Through caching when the battery backup unit (BBU) cannot guarantee the safety of the cache in the event of a power failure.\n  * `AlwaysWriteBack - With this policy, write caching remains Write Back even if the battery backup unit is defective or discharged.",
+                        "description": "The default value is `Default`.  Write mode to be used to write data to this virtual drive.\n  * `Default` - Use platform default write mode.\n  * `WriteThrough` - Data is written through the cache and to the physical drives. Performance is improved, because subsequent reads of that data can be satisfied from the cache.\n  * `WriteBackGoodBbu` - Data is stored in the cache, and is only written to the physical drives when space in the cache is needed. Virtual drives requesting this policy fall back to Write Through caching when the battery backup unit (BBU) cannot guarantee the safety of the cache in the event of a power failure.\n  * `AlwaysWriteBack` - With this policy, write caching remains Write Back even if the battery backup unit is defective or discharged.",
                         "intersight_api": "WritePolicy",
                         "enum": [
                             "Default",
@@ -21574,7 +21574,7 @@
                     "file_location": {
                         "type": "string",
                         "default": "https://server.example.com/os.iso",
-                        "description": "The remote file location path for the virtual media mapping. Accepted formats are:`\n  * `HDD` for CIFS: cifs://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for CIFS: cifs://hostname-or-IP/filePath/fileName.iso`\n  * `HDD` for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.iso`\n  * `HDD` for NFS: nfs://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for NFS: nfs://hostname-or-IP/filePath/fileName.iso",
+                        "description": "The remote file location path for the virtual media mapping. Accepted formats are:\n  * `HDD` for CIFS: cifs://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for CIFS: cifs://hostname-or-IP/filePath/fileName.iso`\n  * `HDD` for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for HTTP/S: http[s]://hostname-or-IP/filePath/fileName.iso`\n  * `HDD` for NFS: nfs://hostname-or-IP/filePath/fileName.img`\n  * `CDD` for NFS: nfs://hostname-or-IP/filePath/fileName.iso",
                         "intersight_api": "FileLocation",
                         "minLength": 1,
                         "maxLength": 512,
@@ -21584,7 +21584,7 @@
                     "mount_options": {
                         "type": "string",
                         "default": "",
-                        "description": "Mount options for the Virtual Media mapping. The field can be left blank or filled in a comma separated list with the following options.\n\nFor NFS, supported options are:`\n  * `ro`\n  * `rw`\n  * `nolock`\n  * `noexec`\n  * `soft`\n  * `port=VALUE`\n  * `timeo=VALUE`\n  * `retry=VALUE`\n\nFor CIFS, supported options are:`\n  * `soft`\n  * `nounix`\n  * `noserverino`\n  * `guest`\nNote: For CIFS version less than 3.0, `vers=VALUE` is mandatory. e.g. `vers=2`.\n\nFor HTTP/HTTPS, the only supported option is:`\n  * `noauto`",
+                        "description": "Mount options for the Virtual Media mapping. The field can be left blank or filled in a comma separated list with the following options.\n\nFor NFS, supported options are:\n  * `ro`\n  * `rw`\n  * `nolock`\n  * `noexec`\n  * `soft`\n  * `port=VALUE`\n  * `timeo=VALUE`\n  * `retry=VALUE`\n\nFor CIFS, supported options are:\n  * `soft`\n  * `nounix`\n  * `noserverino`\n  * `guest`\nNote: For CIFS version less than 3.0, `vers=VALUE` is mandatory. e.g. `vers=2`.\n\nFor HTTP/HTTPS, the only supported option is:`\n  * `noauto`",
                         "intersight_api": "MountOptions",
                         "minLength": 1,
                         "maxLength": 64,
@@ -21960,7 +21960,7 @@
                             },
                             "vsans": {
                                 "type": "array",
-                                "description": "List of VSANs to add to the VSAN Policy.  Required Attributes are:`\n  * `name`\n  * `vsan_id`\n\nOptional Attributes:\n  * `default_zoning`\n  * `fcoe_vlan_id`\n  * ``vsan_scope`",
+                                "description": "List of VSANs to add to the VSAN Policy.  Required Attributes are:\n  * `name`\n  * `vsan_id`\n\nOptional Attributes:\n  * `default_zoning`\n  * `fcoe_vlan_id`\n  * ``vsan_scope`",
                                 "intersight_uri": "fabric/Vsans",
                                 "items": {
                                     "$ref": "#/components/schemas/vsan.vsans"
