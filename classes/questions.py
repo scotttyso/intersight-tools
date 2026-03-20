@@ -2419,7 +2419,7 @@ class prompt_user(object):
     # Function - Prompt user for Timezone
     #=========================================================================
     def for_timezone(kwargs):
-        timezones    = deepcopy(kwargs.ezdata.ntp.allOf[1].properties.timezone.enum)
+        timezones    = deepcopy(kwargs.ezdata.abstract_timezone.properties.timezone.enum)
         tz_regions   = list(set([e.split('/')[0] for e in timezones]))
         kwargs.jdata = DotMap(
             default     = sorted(tz_regions)[0],

@@ -41,6 +41,7 @@
             "abstract_pool": {
                 "type": "object",
                 "description": "",
+                "object_type": "pool.AbstractPool",
                 "required": [
                     "name"
                 ],
@@ -10005,7 +10006,7 @@
                                 "type": "integer",
                                 "default": 1,
                                 "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  i.e. `var.ipmi_key`.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use “00” to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.",
-                                "intersight_api": "not_applicable",
+                                "intersight_api": "EncryptionKey",
                                 "minimum": 1,
                                 "maximum": 64,
                                 "title": "encryption_key"
@@ -13377,7 +13378,7 @@
             },
             "policy.name.prefix_suffix": {
                 "type": "object",
-                "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `adapter_configuration`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `flow_control`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `multicast`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `sd_card`\n  * `serial_over_lan`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
+                "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `multicast`\n  * `network_connectivity`\n  * `ntp`\n  * `pcie_connectivity`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `schedule_policy`\n  * `sd_card`\n  * `serial_over_lan`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
                 "object_type": "not_applicable",
                 "title": "Policy Name Prefix/Suffix",
                 "properties": {
@@ -13390,6 +13391,16 @@
                         "maxLength": 12,
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "adapter_configuration"
+                    },
+                    "auditd": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the AuditD Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "auditd"
                     },
                     "bios": {
                         "type": "string",
@@ -13601,6 +13612,16 @@
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "iscsi_boot"
                     },
+                    "id_mapping": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the ID Mapping Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "id_mapping"
+                    },
                     "iscsi_static_target": {
                         "type": "string",
                         "default": "",
@@ -13711,6 +13732,16 @@
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "ntp"
                     },
+                    "pcie_connectivity": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to the PCIe Connectivity Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "pcie_connectivity"
+                    },
                     "persistent_memory": {
                         "type": "string",
                         "default": "",
@@ -13750,6 +13781,16 @@
                         "maxLength": 12,
                         "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
                         "title": "san_connectivity"
+                    },
+                    "schedule_policy": {
+                        "type": "string",
+                        "default": "",
+                        "description": "A value to add to Schedule Policy names.",
+                        "intersight_api": "not_applicable",
+                        "minLength": 0,
+                        "maxLength": 12,
+                        "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                        "title": "schedule_policy"
                     },
                     "scrub": {
                         "type": "string",
@@ -21692,11 +21733,17 @@
                 "object_type": "fabric.Vlan",
                 "required": [
                     "name",
-                    "multicast_policy",
                     "vlan_list"
                 ],
                 "title": "vlans - Fabric Vlan - Intersight Uri: fabric/Vlans",
                 "properties": {
+                    "auto_allow_on_cluster_links": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "The default value is `false`.  Enable this option to automatically allow the VLAN on inter-cluster links. To configure disjoint Layer 2 VLANs, 'Disable' must be specified together with 'AutoAllowOnUplinks.' Note that 'AutoAllowOnClusterLinks' cannot be enabled for the default VLAN 1 or the native VLAN.",
+                        "intersight_api": "AutoAllowOnClusterLinks",
+                        "title": "auto_allow_on_cluster_links"
+                    },
                     "auto_allow_on_uplinks": {
                         "type": "boolean",
                         "default": false,

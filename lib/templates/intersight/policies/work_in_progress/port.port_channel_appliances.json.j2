@@ -1,44 +1,37 @@
 {
-    "AdminSpeed": "Auto",
+    "AdminSpeed": "{{ admin_speed | default('Auto') }}",
     "EthNetworkControlPolicy": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6722338e6f62693001e98766",
-        "ObjectType": "fabric.EthNetworkControlPolicy",
-        "link": "https://intersight.com/api/v1/fabric/EthNetworkControlPolicies/6722338e6f62693001e98766"
+        "Moid": "{{ ethernet_network_control_policy_moid }}",
+        "ObjectType": "fabric.EthNetworkControlPolicy"
     },
     "EthNetworkGroupPolicy": {
-        "ClassId": "mo.MoRef",
-        "Moid": "690e0f2b6f6269300155718a",
+        "Moid": "{{ ethernet_network_group_policy_moid }}",
         "ObjectType": "fabric.EthNetworkGroupPolicy",
         "link": "https://intersight.com/api/v1/fabric/EthNetworkGroupPolicies/690e0f2b6f6269300155718a"
     },
-    "Fec": "Auto",
+    "Fec": "{{ fec | default('Auto') }}",
     "LinkAggregationPolicy": null,
-    "Mode": "trunk",
-    "PcId": 1,
+    "Mode": "{{ mode | default('trunk') }}",
+    "PcId": {{ pc_id | default(1) }},
     "PortPolicy": {
-        "ClassId": "mo.MoRef",
-        "Moid": "6985ee9e6f6269300156060c",
-        "ObjectType": "fabric.PortPolicy",
-        "link": "https://intersight.com/api/v1/fabric/PortPolicies/6985ee9e6f6269300156060c"
+        "Moid": "{{ port_policy_moid}}",
+        "ObjectType": "fabric.PortPolicy"
     },
     "Ports": [
         {
             "AggregatePortId": 0,
-            "ClassId": "fabric.PortIdentifier",
             "ObjectType": "fabric.PortIdentifier",
             "PortId": 47,
             "SlotId": 1
         },
         {
             "AggregatePortId": 0,
-            "ClassId": "fabric.PortIdentifier",
             "ObjectType": "fabric.PortIdentifier",
             "PortId": 48,
             "SlotId": 1
         }
     ],
-    "Priority": "Best Effort",
+    "Priority": "{{ priority | default('Best Effort') }}",
 {% if tags is defined %}
     "Tags": [
   {%- for tag in tags -%}
@@ -51,5 +44,5 @@
 {%- else %}
     "Tags": [],
 {%- endif %}
-    "UserLabel": ""
+    "UserLabel": "{{ user_label | default('') }}"
 }

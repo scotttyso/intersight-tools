@@ -1,0 +1,33 @@
+{
+    "AutoAllowOnClusterLinks": {{ auto_allow_on_cluster_links | default('false') }},
+    "AutoAllowOnUplinks": {{ auto_allow_on_uplinks | default('true') }},
+    "EthNetworkPolicy": {
+        "Moid": "{{ vlan_policy_moid }}",
+        "ObjectType": "fabric.EthNetworkPolicy"
+    },
+    "IsNative": true,
+{%- if multicast_policy_moid is defined -%}
+    "MulticastPolicy": {
+        "Moid": "{{ multicast_policy_moid }}",
+        "ObjectType": "fabric.MulticastPolicy"
+    },
+{%- else -%}
+    "MulticastPolicy": null,
+{%- endif -%}
+    "Name": "{{ name }}",
+    "PrimaryVlanId": {{ primary_vlan_id | default(0) }},
+    "SharingType": "{{ sharing_type | default('None') }}",
+{% if tags is defined %}
+    "Tags": [
+  {%- for tag in tags -%}
+        {
+            "Key": "{{ tag.key }}",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+  {%- endfor -%}
+    ],
+{%- else %}
+    "Tags": [],
+{%- endif %}
+    "VlanId": {{ vlan_id }}
+}

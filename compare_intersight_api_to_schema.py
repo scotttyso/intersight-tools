@@ -13,7 +13,7 @@ try:
     from jinja2 import Template
     from json_ref_dict import materialize, RefDict
     from stringcase import pascalcase, snakecase
-    import argparse, json, os, re, urllib3, yaml
+    import argparse, json, jsonref, os, re, urllib3, yaml
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError as e:
     prRed(f'!!! ERROR !!!\n{e.__class__.__name__}')
@@ -157,7 +157,84 @@ def bios_templates(kwargs):
     else: pcolor.Yellow('None\n')
 
 def setup(kwargs):
-    ijson = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260114070309674.json'), encoding='utf8'))
+    depricated = DotMap({
+        'vnic.EthNetworkPolicy': ['TargetPlatform'],
+        'fabric.EthNetworkControlPolicy': ['NetworkPolicy'],
+    })
+    ignore_keys = ['AccountMoid', 'Ancestors', 'ClassId', 'CreateTime', 'Description', 'DomainGroupMoid', 'ModTime', 'Moid', 'Name', 'ObjectType',
+        'Organization', 'Owners', 'PermissionResources', 'Profiles', 'SharedScope', 'Tags']
+    idata = json.loads(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260220062446536.json'), encoding='utf8').read())
+    idata = DotMap(idata)
+    for k,v in kwargs.ezdata.items():
+        klist = []
+        vlist = list(v.keys())
+        if 'intersight_type' in vlist:
+            if 'allOf' in vlist: properties = v.allOf[1].properties
+            else: properties = v.properties
+            ezkeys = []
+            for e in properties.keys():
+                if type(properties[e].intersight_api) == str and re.search(r'ref:', properties[e].intersight_api):
+                    ezkeys.append(properties[e].intersight_api.split(':')[1])
+                else: ezkeys.append(properties[e].intersight_api)
+            ilist = []
+            for ik, iv in idata.components.schemas[v.object_type].allOf[1].properties.items():
+                if not ik in ezkeys and not ik in ignore_keys:
+                    if ik in depricated[v.object_type]: continue
+                    else: ilist.append(ik)
+            klist = {v.object_type: ilist}
+            if len(klist[v.object_type]) > 0: print(klist)
+    exit()
+    print(json.dumps(klist, indent=4))
+    exit()
+    idata = {'components': {'schemas': idata['components']['schemas']}}
+    idata = jsonref.loads(json.dumps(idata))
+    # idata = json.loads(json.dumps(idata))
+    print(idata['components']['schemas']['ippool.Pool'])
+    exit()
+    print(json.dumps(idata['components']['schemas']['ippool.Pool'], indent=4))
+    exit()
+    idata = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260220062446536.json'), encoding='utf8'))
+    idata = {'components': {'schemas': idata['components']['schemas']}}
+    for k,v in idata['components']['schemas'].items():
+        if 'allOf' in v.keys() and len(v['allOf']) > 1:
+            print(v)
+            idata['components']['schemas'][k] = v['allOf'][1]
+    
+    idata = DotMap(idata)
+    print(json.dumps(idata['components']['schemas']['ippool.Pool'].toDict(), indent=4))
+    exit()
+    intersight_json = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260220062446536.json'), encoding='utf8'))
+    print(intersight_json['components']['schemas']['ippool.Pool']['allOf'])
+    exit()
+    intersight_data = materialize(RefDict({'ippool.Pool': intersight_json['components']['schemas']['ippool.Pool']}))
+    exit()
+    pools_list = ['ip', 'iqn', 'mac', 'uuid', 'wwnn', 'wwpn']
+    policies_list = ['auditd', 'bios', 'device_connector', 'ethernet_network', 'ethernet_network_control', 'ethernet_network_group',
+        'ethernet_qos', 'fibre_channel_network', 'fibre_channel_qos', 'firmware', 'flow_control', 'ipmi_over_lan', 'iscsi_adapter',
+        'iscsi_static_target', 'memory', 'multicast', 'network_connectivity', 'ntp', 'port', 'power', 'scrub', 'serial_over_lan',
+        'smtp', 'ssh', 'switch_control', 'syslog', 'thermal', 'virtual_kvm', 'vlan']
+    profiles_list = ['chassis', 'domain', 'servers']
+    templates_list = profiles_list
+    idata = {}
+    for i in pools_list:
+        idata = idata | {kwargs.ezdata[i].object_type: {'allOf': intersight_json['components']['schemas'][kwargs.ezdata[i].object_type]['allOf']}}
+    for i in policies_list:
+        idata = idata | {kwargs.ezdata[i].object_type: {'allOf': intersight_json['components']['schemas'][kwargs.ezdata[i].object_type]['allOf']}}
+    idata = DotMap(materialize(RefDict(idata)))
+    print(json.dumps(idata, indent=4))
+    exit()
+    for i in pools_list:
+        print(kwargs.ezdata[i].object_type)
+        idata = materialize(RefDict(intersight_json['components']['schemas'][kwargs.ezdata[i].object_type]['allOf']))
+        print(json.dumps(idata, indent=4))
+        exit()
+        pk = list(kwargs.ezdata[i].keys())
+        if 'allOf' in pk:
+            pcolor.LightGray(f'{"="*20} {f'{i.upper()}'} {"="*20}')
+            # pcolor.Yellow(json.dumps(kwargs.ezdata[i].allOf[1].properties.toDict(), indent=4))
+        else: print(f'{"="*20} {f'{i.upper()} no allOf'} {"="*20}')
+
+    exit()
     bios_json = DotMap(ijson['components']['schemas']['bios.Policy']['allOf'][1]['properties'])
     bios_data = deepcopy(kwargs.ezdata.bios.allOf[1])
     for k, v in kwargs.ezdata.bios.allOf[1].properties.items():

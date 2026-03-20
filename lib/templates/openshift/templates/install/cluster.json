@@ -11,6 +11,6 @@
     "name": "{{ cluster_name }}",
     "network_type": "{{ network_type | default('OVNKubernetes') }}",
     "ntp": "{{ ntp_servers }}",
-    "openshift_version": "{{ cluster_version | default('4.19.16') }}",
+    "openshift_version": "{{ cluster_version | default('4.20.15') }}",
     "service_network_cidr": "{{ service_network_cidr | default('172.132.0.0/16') }}"
 }
