@@ -1,0 +1,28 @@
+{
+  "Description": "flow-ctrl Flow Control Policy",
+  "Name": "flow-ctrl",
+  "ObjectType": "fabric.FlowControlPolicy",
+  "Organization": {
+    "Moid": "6505cc486972653201c3bc8a",
+    "ObjectType": "organization.Organization"
+  },
+  "PriorityFlowControlMode": "auto",
+  "ReceiveDirection": "Disabled",
+  "SendDirection": "Disabled",
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ]
+}

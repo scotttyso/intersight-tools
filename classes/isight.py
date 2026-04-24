@@ -11,7 +11,7 @@ try:
     from intersight_auth import IntersightAuth, repair_pem
     from operator import itemgetter
     from stringcase import pascalcase, snakecase
-    import base64, json, numpy, os, re, requests, time, urllib3
+    import base64, jinja2, json, numpy, os, re, requests, time, urllib3
 except ImportError as e:
     prRed(f'classes/isight.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f" Module {e.name} is required to run this script")
@@ -1142,17 +1142,16 @@ class imm(object):
     #=========================================================================
     # Function - BIOS Policy Modification
     #=========================================================================
-    def bios(self, api_body, item, kwargs):
-        if api_body.get('bios_template'):
-            btemplate = kwargs.ezdata['bios.template'].properties
-            if '-tpm' in (api_body['bios_template']).lower():
-                api_body = btemplate.tpm.toDict() | btemplate[(item.bios_template.replace('-tpm', '')).replace('-Tpm', '')].toDict() | api_body
-                #api_body = dict(api_body, **btemplate[(item.bios_template.replace('-tpm', '')).replace('-Tpm', '')].toDict(), **btemplate.tpm.toDict())
+    def bios(self, item, kwargs):
+        ikeys = item.keys()
+        if 'bios_template' in ikeys:
+            btemplates = kwargs.ezdata['intersight.bios.templates'].properties
+            btemplate  = btemplates[item.bios_template.replace('-tpm', '').replace('-Tpm', '')]
+            if '-tpm' in (item.bios_template).lower():
+                item = btemplate | btemplates.tpm | item
             else:
-                api_body = btemplate.tpm_disabled.toDict() | btemplate[item.bios_template].toDict() | api_body
-                #api_body = dict(api_body, **btemplate[item.bios_template].toDict(), **btemplate.tpm_disabled.toDict())
-            api_body.pop('bios_template')
-        return api_body
+                item = btemplate | item
+        return item
 
     #=========================================================================
     # Function - Boot Order Policy Modification
@@ -1379,104 +1378,119 @@ class imm(object):
     # Function - Add Organization Key Map to Dictionaries
     #=========================================================================
     def compare_body_result(self, api_body, result):
-        none_type = type(None)
-        pindex    = False
-        rkeys     = list(result.keys())
-        if api_body.get('PolicyBucket'):
-            api_body['PolicyBucket'] = sorted(api_body['PolicyBucket'], key=lambda ele: ele['ObjectType'])
-            result['PolicyBucket']   = sorted(result['PolicyBucket'], key=lambda ele: ele['ObjectType'])
-        patch_return = False
-        for k, v in api_body.items():
-            if type(v) == dict:
-                for a,b in v.items():
-                    if type(b) == list:
-                        count = 0
-                        for e in b:
-                            if type(e) == dict:
-                                for c,d in e.items():
-                                    if len(result[k][a]) - 1 < count:
-                                        if pindex == True: pcolor.Yellow('Index 11')
-                                        patch_return = True
-                                    elif not result[k][a][count][c] == d:
-                                        if pindex == True: pcolor.Yellow('Index 12')
-                                        patch_return = True
-                            else:
-                                if len(result[k][a]) - 1 < count:
-                                    if pindex == True: pcolor.Yellow('Index 13')
-                                    patch_return = True
-                                elif not result[k][a][count] == e:
-                                    if pindex == True: pcolor.Yellow('Index 14')
-                                    patch_return = True
-                    else:
-                        if not k in rkeys:
-                            if pindex == True: pcolor.Yellow('Index 15')
-                            patch_return = True
-                        elif type(result[k]) == none_type:
-                            if pindex == True: pcolor.Yellow('Index 16')
-                            patch_return = True
-                        else: 
-                            kkeys = list(result[k].keys())
-                            if   not a in kkeys:
-                                if pindex == True: pcolor.Yellow('Index 17')
-                                patch_return = True
-                            elif not result[k][a] == b:
-                                if pindex == True: pcolor.Yellow('Index 18')
-                                patch_return = True
-            elif k == 'Tags':
-                for e in v:
-                    if not e in result[k]:
-                        if pindex == True: pcolor.Yellow('Index 19')
-                        patch_return = True
-            elif type(v) == list:
-                count = 0
-                for e in v:
-                    if type(e) == dict:
-                        for a,b in e.items():
-                            if type(b) == dict:
-                                for c,d in b.items():
-                                    if len(result[k]) - 1 < count:
-                                        if pindex == True: pcolor.Yellow('Index 20')
-                                        patch_return = True
-                                    elif not result[k][count][a][c] == d:
-                                        if pindex == True: pcolor.Yellow('Index 21')
-                                        patch_return = True
-                            elif type(b) == list:
-                                scount = 0
-                                for s in b:
-                                    if type(s) == dict:
-                                        for g,h in s.items():
-                                            if len(result[k]) - 1 < count:
-                                                if pindex == True: pcolor.Yellow('Index 22')
-                                                patch_return = True
-                                            elif not result[k][count][a][scount][g] == h:
-                                                if pindex == True: pcolor.Yellow('Index 23')
-                                                patch_return = True
-                                    scount += 1
-                            else:
-                                if 'Password' in a: count = count
-                                elif len(result[k]) - 1 < count:
-                                    if pindex == True: pcolor.Yellow('Index 24')
-                                    patch_return = True
-                                elif not result[k][count][a] == b:
-                                    if pindex == True: pcolor.Yellow('Index 25')
-                                    patch_return = True
-                    elif type(e) == list:
-                        pcolor.Red(e)
-                        pcolor.Red('compare_body_result; not accounted for')
-                        sys.exit(1)
-                    else:
-                        if len(result[k]) - 1 < count:
-                            if pindex == True: pcolor.Yellow('Index 26')
-                            patch_return = True
-                        elif not result[k][count] == e:
-                            if pindex == True: pcolor.Yellow('Index 27')
-                            patch_return = True
-                    count += 1
-            else:
-                if not result[k] == v:
-                    if pindex == True: pcolor.Yellow('Index 28')
-                    patch_return = True
-        return patch_return
+        expected = deepcopy(api_body)
+        current  = deepcopy(result)
+        differences = []
+
+        def list_sort_key(value):
+            try:
+                return json.dumps(value, sort_keys=True)
+            except TypeError:
+                return str(value)
+
+        def normalize_for_compare(value):
+            if isinstance(value, dict):
+                return {k: normalize_for_compare(v) for k, v in value.items()}
+            if isinstance(value, list):
+                normalized_list = [normalize_for_compare(v) for v in value]
+                return sorted(normalized_list, key=list_sort_key)
+            return value
+
+        expected = normalize_for_compare(expected)
+        current  = normalize_for_compare(current)
+
+        def format_value(value):
+            try:
+                text = json.dumps(value, sort_keys=True)
+            except TypeError:
+                text = str(value)
+            if len(text) > 180:
+                return f"{text[:177]}..."
+            return text
+
+        def record_diff(path, expected_value, current_value, reason='value mismatch'):
+            differences.append(
+                f"{path or '<root>'}: {reason} | expected={format_value(expected_value)} | current={format_value(current_value)}"
+            )
+
+        def values_differ(v1, v2, path='', key_name=''):
+            changed = False
+            if isinstance(v1, dict):
+                if not isinstance(v2, dict):
+                    record_diff(path, v1, v2, 'type mismatch')
+                    return True
+                for k, v in v1.items():
+                    k_path = f'{path}.{k}' if path else k
+                    if k not in v2:
+                        record_diff(k_path, v, None, 'missing key')
+                        changed = True
+                        continue
+                    if values_differ(v, v2[k], k_path, k):
+                        changed = True
+
+                return changed
+
+            if isinstance(v1, list):
+                if not isinstance(v2, list):
+                    record_diff(path, v1, v2, 'type mismatch')
+                    return True
+                if len(v2) < len(v1):
+                    record_diff(path, v1, v2, 'list length/type mismatch')
+                    changed = True
+                for idx, item in enumerate(v1):
+                    if idx >= len(v2):
+                        break
+                    idx_path = f'{path}[{idx}]' if path else f'[{idx}]'
+                    if values_differ(item, v2[idx], idx_path, key_name):
+                        changed = True
+                return changed
+
+            if 'Password' in key_name:
+                return False
+            if v1 != v2:
+                record_diff(path, v1, v2)
+                return True
+            return False
+
+        changed = values_differ(expected, current)
+        if changed and len(differences) > 0:
+            pcolor.Yellow(f'   - Differences found for `{self.type}` -> name: {api_body["Name"]} ({len(differences)}):')
+            max_show = 1024
+            for diff in differences[:max_show]:
+                pcolor.Yellow(f'     * {diff}')
+            if len(differences) > max_show:
+                pcolor.Yellow(f'     * ... {len(differences) - max_show} additional differences omitted')
+        return changed
+
+    #=========================================================================
+    # Function - Create API Request Body
+    #=========================================================================
+    def create_api_body(self, item, np, ns, kwargs):
+        if re.fullmatch(policy_specific_regex, self.type):
+            item = eval(f'imm(self.type).{self.type}(item, kwargs)')
+
+        item  = self.merge_tags(item, kwargs)
+        pdata = kwargs.ezdata[f"intersight.{self.type}"].intersight_type
+        
+        template_dir  = os.path.join(kwargs.script_path, 'classes', 'templates', 'intersight', f'{pdata}')
+        template_name = f'{self.type}.json.j2'
+        template_env  = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=False)
+
+        render_item = item.toDict() if hasattr(item, 'toDict') else item
+        rendered    = template_env.get_template(template_name).render(
+            item=render_item,
+            isight=kwargs.isight,
+            name_prefix=np,
+            name_suffix=ns,
+            organization=kwargs.org,
+            org_moids=kwargs.org_moids,
+        )
+        api_body = json.loads(rendered)
+        if type(api_body) != dict:
+            policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
+            pcolor.Red(f'!!! ERROR !!! {policy_title} template did not render to a dictionary payload.')
+            len(False); sys.exit(1)
+        return api_body
 
     #=========================================================================
     # Function: Deploy Configuration to Intersight
@@ -1487,27 +1501,32 @@ class imm(object):
         # Create YAML Files
         #=====================================================================
         orgs = kwargs.orgs
-        ezfunctions.create_yaml(orgs, kwargs)
+        #ezfunctions.create_yaml(orgs, kwargs)
         #=====================================================================
         # Build Lists from ezdata
         #=====================================================================
         kwargs.policies_list  = []
         kwargs.pools_list     = []
-        kwargs.profiles_list  = ['domain', 'chassis', 'server']
+        kwargs.profiles_list  = ['domain', 'chassis', 'server', 'unified_edge']
         kwargs.templates_list = kwargs.profiles_list
         for k, v in kwargs.ezdata.items():
-            if v.intersight_type == 'policies' and not '.' in k: kwargs.policies_list.append(k)
-            elif v.intersight_type == 'pools' and not '.' in k: kwargs.pools_list.append(k)
+            if v.intersight_type == 'policies':
+                ptype = k.replace('intersight.', '')
+                if not '.' in ptype: kwargs.policies_list.append(ptype)
+            elif v.intersight_type == 'pools':
+                ptype = k.replace('intersight.', '')
+                if not '.' in ptype: kwargs.pools_list.append(ptype)
         iboot_index = kwargs.policies_list.index('iscsi_boot')
         for e in ['vnic_template', 'vhba_template', 'iscsi_static_target']:
             kwargs.policies_list.remove(e)
             kwargs.policies_list.insert(iboot_index, e)
+        print(json.dumps(kwargs.policies_list, indent=4))
+        exit()
         #=====================================================================
         # Pools/Policies/Profiles/Templates
         #=====================================================================
         for e in ['pools', 'policies', 'templates', 'profiles']:
             for ptype in kwargs[f'{e}_list']:
-            #for ptype in kwargs[f'{e}_list']:
                 for org in orgs:
                     kwargs.org = org
                     pkeys = list(kwargs.imm_dict.orgs[org][e].keys())
@@ -2059,6 +2078,63 @@ class imm(object):
         return api_body
 
     #=========================================================================
+    # Function - Merge Tags from Global Settings, Item, and Script
+    #=========================================================================
+    def merge_tags(self, item, kwargs):
+        def as_tag_list(value):
+            if value is None:
+                return []
+            if isinstance(value, list):
+                return value
+            if isinstance(value, DotMap):
+                return [value]
+            if isinstance(value, dict):
+                return [value]
+            return []
+
+        gs = kwargs.intersight.get('global_settings') if kwargs.get('intersight') else None
+        global_tags = as_tag_list(gs.get('tags')) if gs else []
+        if isinstance(item, dict):
+            item_tags = as_tag_list(item.get('tags'))
+        else:
+            item_tags = as_tag_list(item.get('tags')) if hasattr(item, 'get') else as_tag_list(getattr(item, 'tags', None))
+
+        include_script_tags = True
+        if gs and gs.get('include_script_tags') is False:
+            include_script_tags = False
+        script_tags = as_tag_list(kwargs.ez_tags) if include_script_tags and kwargs.get('ez_tags') else []
+
+        merged_tags = []
+        seen_tags = set()
+        for tag in global_tags + item_tags + script_tags:
+            try:
+                tag_obj = tag.toDict() if hasattr(tag, 'toDict') else deepcopy(tag)
+            except Exception:
+                tag_obj = deepcopy(tag)
+            if isinstance(tag_obj, DotMap):
+                tag_obj = tag_obj.toDict()
+            if not isinstance(tag_obj, dict):
+                continue
+            tag_key = json.dumps(tag_obj, sort_keys=True, default=str)
+            if tag_key in seen_tags:
+                continue
+            seen_tags.add(tag_key)
+            merged_tags.append(tag_obj)
+
+        if isinstance(item, dict):
+            item['tags'] = merged_tags
+        else:
+            item.tags = merged_tags
+
+        # Keep a predictable shape for template rendering when no tags are defined.
+        if isinstance(item, dict) and item.get('tags') is None:
+            item['tags'] = []
+        elif not isinstance(item, dict) and getattr(item, 'tags', None) is None:
+            item.tags = []
+
+        return item
+
+    #=========================================================================
     # Function - Network Connectivity Policy Modification
     #=========================================================================
     def network_connectivity(self, api_body, item, kwargs):
@@ -2090,7 +2166,7 @@ class imm(object):
         #=====================================================================
         # Load Variables and Send Begin Notification
         #=====================================================================
-        validating.begin_section(self.type, 'Install')
+        validating.begin_section(kwargs.org, self.type, 'Install')
         server_profiles       = deepcopy(kwargs.imm_dict.orgs[kwargs.org].wizard.server_profiles)
         install_flag          = False
         kwargs.models         = sorted(list(numpy.unique(numpy.array([e.model for e in server_profiles]))))
@@ -2264,7 +2340,7 @@ class imm(object):
         #=====================================================================
         # Send End Notification and return kwargs
         #=====================================================================
-        validating.end_section(self.type, 'Install')
+        validating.end_section(kwargs.org, self.type, 'Install')
         if os_install_fail_count > 0:
             pcolor.Yellow(names)
             pcolor.Yellow(install_pmoids)
@@ -2285,13 +2361,14 @@ class imm(object):
         # Send Begin Notification and Load Variables
         #=====================================================================
         ptitle = ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
-        validating.begin_section(ptitle, 'policies')
-        idata = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
+        validating.begin_section(kwargs.org, ptitle, 'policies')
+        print()
+        idata = DotMap(dict(pair for d in kwargs.ezdata[f"intersight.{self.type}"].allOf for pair in d.properties.items()))
         pdict = deepcopy(kwargs.imm_dict.orgs[kwargs.org].policies[self.type])
         if self.type == 'port': policies = list({v.names[0]:v for v in pdict}.values())
         elif self.type == 'firmware_authenticate':
             kwargs = imm(self.type).firmware_authenticate(kwargs)
-            validating.end_section(ptitle, 'policies')
+            validating.end_section(kwargs.org, ptitle, 'policies')
             return kwargs
         else: policies = list({v.name:v for v in pdict}.values())
         kwargs.idata = idata
@@ -2320,7 +2397,8 @@ class imm(object):
         # If Modified, Patch the Policy via the Intersight API
         #=====================================================================
         def policies_to_api(api_body, kwargs):
-            kwargs.uri   = kwargs.ezdata[self.type].intersight_uri
+            kwargs.uri   = kwargs.ezdata[f"intersight.{self.type}"].intersight_uri
+            check_flag = getattr(kwargs.args, 'check', False)
             if not api_body.get('Description'):
                 policy_title = ezfunctions.mod_pol_description((self.type.replace('_', ' ')).capitalize())
                 api_body['Description'] = f'{api_body["Name"]} {policy_title} Policy.'
@@ -2329,11 +2407,19 @@ class imm(object):
                 patch_policy = imm(self.type).compare_body_result(api_body, kwargs.policy_results[indx])
                 api_body['pmoid']  = kwargs.isight[kwargs.org].policies[self.type][api_body['Name']]
                 if patch_policy == True:
+                    if check_flag == True:
+                        pcolor.Cyan(f"     * In non-Check Mode: Org: `{kwargs.org}`; would update {ptitle} Policy: `{api_body['Name']}`."\
+                                    f"  Moid: `{api_body['pmoid']}`")
+                    else:
+                        kwargs.bulk_list.append(deepcopy(api_body))
+                        kwargs.pmoids[api_body['Name']].moid = api_body['pmoid']
+                else: pcolor.Cyan(f"     * Skipping Org: `{kwargs.org}`; {ptitle} Policy: `{api_body['Name']}` - Moid: `{api_body['pmoid']}`."\
+                                  f"  Intersight Matches Configuration.")
+            else:
+                if check_flag == True:
+                    pcolor.Cyan(f"     * In non-Check Mode: Org: `{kwargs.org}`; would create new {ptitle} Policy: `{api_body['Name']}`.")
+                else:
                     kwargs.bulk_list.append(deepcopy(api_body))
-                    kwargs.pmoids[api_body['Name']].moid = api_body['pmoid']
-                else: pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {ptitle} Policy: `{api_body['Name']}`.  Intersight Matches Configuration."\
-                                  f"  Moid: {api_body['pmoid']}")
-            else: kwargs.bulk_list.append(deepcopy(api_body))
             return kwargs
         #=====================================================================
         # Loop through Policy Items
@@ -2346,21 +2432,20 @@ class imm(object):
                     #=========================================================
                     # Construct api_body Payload
                     #=========================================================
-                    api_body = deepcopy({'Name':f'{np}{names[x]}{ns}','ObjectType':kwargs.ezdata[self.type].object_type})
+                    api_body = deepcopy({'Name':f'{np}{names[x]}{ns}','ObjectType':kwargs.ezdata[f"intersight.{self.type}"].object_type})
                     api_body = imm(self.type).build_api_body(api_body, idata, item, kwargs)
                     kwargs = policies_to_api(api_body, kwargs)
             else:
                 #=============================================================
                 # Construct api_body Payload
                 #=============================================================
-                api_body = deepcopy({'ObjectType':kwargs.ezdata[self.type].object_type})
-                api_body = imm(self.type).build_api_body(api_body, idata, item, kwargs)
+                api_body = imm(self.type).create_api_body(item, np, ns, kwargs)
                 kwargs   = policies_to_api(api_body, kwargs)
         #=====================================================================
         # POST Bulk Request if Post List > 0
         #=====================================================================
         if len(kwargs.bulk_list) > 0:
-            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
+            kwargs.uri = kwargs.ezdata[f"intersight.{self.type}"].intersight_uri
             kwargs     = imm(self.type).bulk_request(kwargs)
             for e in kwargs.results: kwargs.isight[kwargs.org].policies[self.type][e.Body.Name] = e.Body.Moid
         #=====================================================================
@@ -2390,7 +2475,7 @@ class imm(object):
         #=====================================================================
         # Send End Notification and return kwargs
         #=====================================================================
-        validating.end_section(ptitle, 'policies')
+        validating.end_section(kwargs.org, ptitle, 'policies')
         return kwargs
 
     #=========================================================================
@@ -2433,7 +2518,7 @@ class imm(object):
         # Send Begin Notification and Load Variables
         #=====================================================================
         ptitle = ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
-        validating.begin_section(ptitle, 'pool')
+        validating.begin_section(kwargs.org, ptitle, 'pool')
         kwargs.bulk_list = []
         idata = DotMap(dict(pair for d in kwargs.ezdata[self.type].allOf for pair in d.properties.items()))
         pools = list({v['name']:v for v in kwargs.imm_dict.orgs[kwargs.org].pools[self.type]}.values())
@@ -2495,7 +2580,7 @@ class imm(object):
         #=====================================================================
         # Send End Notification and return kwargs
         #=====================================================================
-        validating.end_section(ptitle, 'pool')
+        validating.end_section(kwargs.org, ptitle, 'pool')
         return kwargs
 
     #=========================================================================
@@ -2710,7 +2795,7 @@ class imm(object):
         profile_type, dtype = self.type.split('.')
         if 'template' in self.type: ptitle = ezfunctions.mod_pol_description((f'{dtype} Profile').title())
         else: ptitle = ezfunctions.mod_pol_description(dtype.title())
-        validating.begin_section(ptitle, profile_type)
+        validating.begin_section(kwargs.org, ptitle, profile_type)
         kkeys = list(kwargs.keys())
         if not 'object_type_map' in kkeys:
             for k, v in kwargs.ezdata.items():
@@ -2865,7 +2950,7 @@ class imm(object):
         #========================================================
         # End Function and return kwargs
         #========================================================
-        validating.end_section(ptitle, profile_type)
+        validating.end_section(kwargs.org, ptitle, profile_type)
         return kwargs
 
     #=========================================================================
@@ -4227,14 +4312,14 @@ def api_get(empty, names, otype, kwargs):
         kwargs.glist[org].names.append(policy)
     orgs = list(kwargs.glist.keys()); results = []; pmoids  = DotMap()
     for org in orgs:
-        kwargs = kwargs | DotMap(names = kwargs.glist[org].names, org = org, method = 'get', uri = kwargs.ezdata[otype].intersight_uri)
+        kwargs = kwargs | DotMap(names = kwargs.glist[org].names, org = org, method = 'get', uri = kwargs.ezdata[f"intersight.{otype}"].intersight_uri)
         kwargs = api(otype).calls(kwargs)
         if empty == False and kwargs.results == []: empty_results(kwargs)
         else:
-            if kwargs.ezdata[otype].get('intersight_type'):
+            if kwargs.ezdata[f"intersight.{otype}"].get('intersight_type'):
                 for k, v in kwargs.pmoids.items():
                     ntype = (otype.replace('profiles.', '')).replace('templates.', '') if re.search('(profiles|templates)\\.', otype) else otype
-                    kwargs.isight[org][kwargs.ezdata[otype].intersight_type][ntype][k] = v.moid
+                    kwargs.isight[org][kwargs.ezdata[f"intersight.{otype}"].intersight_type][ntype][k] = v.moid
             if len(kwargs.results) > 0: results.extend(kwargs.results); pmoids = DotMap(dict(pmoids.toDict(), **kwargs.pmoids.toDict()))
     kwargs.org = original_org; kwargs.pmoids  = pmoids; kwargs.results = results
     return kwargs

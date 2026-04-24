@@ -1,0 +1,14 @@
+{
+    "DefaultZoning": "Disabled",
+    "FcNetworkPolicy": {
+        "Moid": "64679e716f62693001033422",
+        "ObjectType": "fabric.FcNetworkPolicy"
+    },
+    "FcZoneSharingMode": "",
+    "FcoeVlan": 100,
+    "Name": "vsan-100",
+    "ObjectType": "fabric.Vsan",
+    "Tags": [],
+    "VsanId": 100,
+    "VsanScope": "Storage"
+}

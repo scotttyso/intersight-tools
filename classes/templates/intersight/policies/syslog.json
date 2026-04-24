@@ -1,0 +1,46 @@
+{
+  "Description": "syslog Policy",
+  "LocalClients": [
+    {
+      "MinSeverity": "warning",
+      "ObjectType": "syslog.LocalFileLoggingClient"
+    }
+  ],
+  "Name": "syslog",
+  "ObjectType": "syslog.Policy",
+  "Organization": {
+    "Moid": "639ffbbe6972652d3243d65f",
+    "ObjectType": "organization.Organization"
+  },
+  "RemoteClients": [
+    {
+      "Enabled": true,
+      "Facility": "",
+      "Hostname": "10.101.128.24",
+      "MinSeverity": "informational",
+      "ObjectType": "syslog.RemoteLoggingClient",
+      "Port": 514,
+      "Protocol": "udp",
+      "VrfName": ""
+    },
+    {
+      "Enabled": true,
+      "Facility": "",
+      "Hostname": "10.101.128.25",
+      "MinSeverity": "informational",
+      "ObjectType": "syslog.RemoteLoggingClient",
+      "Port": 514,
+      "Protocol": "udp",
+      "VrfName": ""
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "ezci",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "3.1.2"
+    }
+  ]
+}

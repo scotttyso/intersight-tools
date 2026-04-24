@@ -130,19 +130,17 @@ def base_script_settings(kwargs):
     #=========================================================================
     # Import Stored Parameters and Add to kwargs
     #=========================================================================
-    ezdata = json.load(open(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), encoding='utf8'))
+    ezdata = json.load(open(os.path.join(kwargs.script_path, 'schema', 'cisco-ai-pods.json'), encoding='utf8'))
     ezdata.pop('$ref')
-    with open(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'w') as f: json.dump(ezdata, f, indent=4)
-    ezdata = materialize(RefDict(os.path.join(kwargs.script_path, 'variables', 'temp.json'), 'r', encoding='utf8'))
-    if os.path.exists(os.path.join(kwargs.script_path, 'variables', 'temp.json')):
-        os.remove(os.path.join(kwargs.script_path, 'variables', 'temp.json'))
-    script_tag          = script_name.replace('ez', 'easy-')
-    kwargs.ez_tags      = [{'Key':'Module','Value':script_tag},{'Key':'Version','Value':ezdata['version']}]
-    kwargs.ezdata       = DotMap(ezdata['components']['schemas'])
-    kwargs.ez_scripts   = DotMap(ezdata['components']['scripts'])
-    kwargs.ez_templates = DotMap(ezdata['components']['templates'])
-    kwargs.ezwizard     = DotMap(ezdata['components']['wizard'])
-    kwargs.ez_wizard    = DotMap(ezdata['components']['wizard'])
+    with open(os.path.join(kwargs.script_path, 'schema', 'temp.json'), 'w') as f: json.dump(ezdata, f, indent=4)
+    ezdata = materialize(RefDict(os.path.join(kwargs.script_path, 'schema', 'temp.json'), 'r', encoding='utf8'))
+    if os.path.exists(os.path.join(kwargs.script_path, 'schema', 'temp.json')):
+        os.remove(os.path.join(kwargs.script_path, 'schema', 'temp.json'))
+    script_tag     = script_name.replace('ez', 'easy-')
+    kwargs.ez_tags = [{'key':'Provisioned via -','value':script_tag},{'key':f'{script_tag} version -','value':ezdata['version']}]
+    kwargs.ezdata  = DotMap(ezdata['definitions'])
+    # kwargs.ezwizard     = DotMap(ezdata['wizard'])
+    # kwargs.ez_wizard    = DotMap(ezdata['wizard'])
     #=========================================================================
     # Get Intersight Configuration
     # - apikey
@@ -835,38 +833,59 @@ def intersight_config(kwargs):
 #=============================================================================
 # Function - Load Previous YAML Files
 #=============================================================================
-def load_previous_configurations(kwargs):
-    ezvars    = kwargs.ezdata.ezimm_class.properties
-    vclasses  = kwargs.ezdata.ezimm_class.properties.classes.enum
-    dir_check = 0
-    if os.path.isdir(kwargs.args.dir):
-        dir_list = os.listdir(kwargs.args.dir)
-        for i in dir_list:
-            if i == 'templates':  dir_check += 1
-            elif i == 'policies': dir_check += 1
-            elif i == 'pools':    dir_check += 1
-            elif i == 'profiles': dir_check += 1
-            elif i == 'wizard': dir_check += 1
-    if dir_check > 0:
-        for item in vclasses:
-            dest_dir = ezvars[item].directory
-            if os.path.isdir(os.path.join(kwargs.args.dir, dest_dir)):
-                dir_list = os.listdir(os.path.join(kwargs.args.dir, dest_dir))
-                for i in dir_list:
-                    if os.path.isfile(os.path.join(kwargs.args.dir, dest_dir, i)) and re.search('.*yaml$', i):
-                        yfile = open(os.path.join(kwargs.args.dir, dest_dir, i), 'r')
-                        data = yaml.safe_load(yfile)
-                        if not data == None:
-                            for key, value in data.items():
-                                if not kwargs.imm_dict.orgs.get(key): kwargs.imm_dict.orgs[key] = {}
-                                if type(value) == dict:
-                                    for k, v in value.items():
-                                        if not kwargs.imm_dict.orgs[key].get(k): kwargs.imm_dict.orgs[key][k] = {}
-                                        kwargs.imm_dict.orgs[key][k].update(deepcopy(v))
-                                elif type(value) == str or type(value) == bool or type(value) == list: kwargs.imm_dict.orgs[key] = value
-                                else:
-                                    pcolor.Yellow(f'failed to match type {type(value)}')
-                                    len(False); sys.exit(1)
+def load_configurations(kwargs):
+    def deep_merge_dicts(dest, src):
+        for key, value in src.items():
+            if key in dest and isinstance(dest[key], dict) and isinstance(value, dict):
+                deep_merge_dicts(dest[key], value)
+            elif key in dest and isinstance(dest[key], list) and isinstance(value, list):
+                dest[key].extend(deepcopy(value))
+            else:
+                dest[key] = deepcopy(value)
+        return dest
+
+    def collect_ezai_files(root_dir):
+        file_list = []
+        for current_root, _, files in os.walk(root_dir):
+            for file_name in files:
+                if file_name.endswith('ezai.yaml'):
+                    file_list.append(os.path.join(current_root, file_name))
+        return sorted(file_list)
+
+    load_dir = kwargs.args.dir
+    if not os.path.isdir(load_dir):
+        return kwargs
+
+    for key in ['intersight', 'openshift', 'pure_storage']:
+        if not kwargs.get(key):
+            kwargs[key] = DotMap()
+
+    ezai_files = collect_ezai_files(load_dir)
+    for file_path in ezai_files:
+        with open(file_path, 'r', encoding='utf-8') as yfile:
+            data = yaml.safe_load(yfile)
+        if not data or not isinstance(data, dict):
+            continue
+        for top_key in ['intersight', 'openshift', 'pure_storage']:
+            if data.get(top_key) and isinstance(data[top_key], dict):
+                deep_merge_dicts(kwargs[top_key], data[top_key])
+
+    # Backward compatibility for existing workflows that consume kwargs.imm_dict.orgs.
+    if kwargs.intersight.get('organizations') and isinstance(kwargs.intersight.organizations, dict):
+        if not kwargs.imm_dict.get('orgs'):
+            kwargs.imm_dict.orgs = DotMap()
+        deep_merge_dicts(kwargs.imm_dict.orgs, kwargs.intersight.organizations)
+
+    # Debug dump for loaded configuration state.
+    # pcolor.Cyan(f'\n--- Loaded {len(ezai_files)} ezai.yaml file(s) from {load_dir} ---')
+    # print(json.dumps({
+    #     'loaded_files': ezai_files,
+    #     'intersight': kwargs.intersight,
+    #     'openshift': kwargs.openshift,
+    #     'pure_storage': kwargs.pure_storage,
+    # }, indent=4, default=str))
+    # sys.exit(0)
+
     # Return kwargs
     return kwargs
 

@@ -52,14 +52,14 @@ def bios_keys(kwargs):
     kwargs.uri      = kwargs.ezdata.bios.intersight_uri
     kwargs          = isight.api('multi_org').calls(kwargs)
     api_docs        = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi.json'), 'r', encoding='utf8'))
-    intersight_bios = DotMap(api_docs['components']['schemas'])['bios.Policy'].allOf[1].properties
+    intersight_bios = DotMap(api_docs['components']['schemas']['bios.Policy']['allOf'][1]['properties'])
     bios            = DotMap()
     defaults        = DotMap()
     for k in list(kwargs.results[0].keys()):
         if not k in bios_keys:
             bios[snakecase(k)] = DotMap(
-                type = 'string', default = intersight_bios[k].default, description = f'Default is `platform-default`.  {intersight_bios[k].description}',
-                intersight_api = k, enum = intersight_bios[k].enum, title = snakecase(k))
+                default = intersight_bios[k].default, description = f'The default value is `platform-default`.  {intersight_bios[k].description}',
+                enum = intersight_bios[k].enum, intersight_api = k, title = snakecase(k), type = 'string')
             defaults[snakecase(k)] = intersight_bios[k].default
     pcolor.LightGray(f'{"-"*54}')
     pcolor.Yellow('New Keys:\n')
@@ -76,11 +76,11 @@ def bios_keys(kwargs):
     if rcount == 0: pcolor.Yellow('None')
     pcolor.LightGray(f'\n{"-"*54}')
     pcolor.Yellow('Description Keys:\n')
-    descr = kwargs.ezdata.bios.allOf[1].description
+    descr = kwargs.ezdata['policies'].properties.bios.description
     dsplit = descr.split('\n')
     dkeys = []
     for e in dsplit:
-        if re.search(r'\* ([a-zA-Z0-9\_]+)$', e): dkeys.append(re.search(r'\* ([a-zA-Z0-9\_]+)$', e).group(1))
+        if re.search(r'\* \`([a-zA-Z0-9\_]+)`$', e): dkeys.append(re.search(r'\* \`([a-zA-Z0-9\_]+)`$', e).group(1))
     keys.remove('bios_template')
     for e in keys:
         if not e in dkeys: pcolor.Yellow(e)
@@ -126,7 +126,7 @@ def bios_templates(kwargs):
     kwargs.org    = 'default'
     kwargs.uri    = kwargs.ezdata.bios.intersight_uri
     kwargs        = isight.api('multi_org').calls(kwargs)
-    templates     = list(kwargs.ez_templates.bios.properties.keys())
+    templates     = list(kwargs.ezdata['intersight.bios.templates'].properties.keys())
     for e in list(kwargs.results):
         if e.Organization.Moid == '5ddfd9ff6972652d31ee6582':
             jdict = DotMap(); ydict = DotMap()
@@ -138,7 +138,7 @@ def bios_templates(kwargs):
                 bios_json[e.Name] = jdict
                 bios_yaml[e.Name] = ydict
             elif e.Name in templates:
-                tkeys = list(kwargs.ez_templates.bios.properties[e.Name])
+                tkeys = list(kwargs.ezdata['intersight.bios.templates'].properties[e.Name])
                 tdict = deepcopy(jdict)
                 match_false = False
                 for a,b in jdict.items():
@@ -186,27 +186,27 @@ def setup(kwargs):
     exit()
     print(json.dumps(klist, indent=4))
     exit()
-    idata = {'components': {'schemas': idata['components']['schemas']}}
+    idata = {'components': {'schemas': idata['definitions']}}
     idata = jsonref.loads(json.dumps(idata))
     # idata = json.loads(json.dumps(idata))
-    print(idata['components']['schemas']['ippool.Pool'])
+    print(idata['definitions']['ippool.Pool'])
     exit()
-    print(json.dumps(idata['components']['schemas']['ippool.Pool'], indent=4))
+    print(json.dumps(idata['definitions']['ippool.Pool'], indent=4))
     exit()
     idata = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260220062446536.json'), encoding='utf8'))
-    idata = {'components': {'schemas': idata['components']['schemas']}}
-    for k,v in idata['components']['schemas'].items():
+    idata = {'components': {'schemas': idata['definitions']}}
+    for k,v in idata['definitions'].items():
         if 'allOf' in v.keys() and len(v['allOf']) > 1:
             print(v)
-            idata['components']['schemas'][k] = v['allOf'][1]
+            idata['definitions'][k] = v['allOf'][1]
     
     idata = DotMap(idata)
-    print(json.dumps(idata['components']['schemas']['ippool.Pool'].toDict(), indent=4))
+    print(json.dumps(idata['definitions']['ippool.Pool'].toDict(), indent=4))
     exit()
     intersight_json = json.load(open(os.path.join(kwargs.script_path, 'variables', 'intersight-openapi-v3-1.0.11-20260220062446536.json'), encoding='utf8'))
-    print(intersight_json['components']['schemas']['ippool.Pool']['allOf'])
+    print(intersight_json['definitions']['ippool.Pool']['allOf'])
     exit()
-    intersight_data = materialize(RefDict({'ippool.Pool': intersight_json['components']['schemas']['ippool.Pool']}))
+    intersight_data = materialize(RefDict({'ippool.Pool': intersight_json['definitions']['ippool.Pool']}))
     exit()
     pools_list = ['ip', 'iqn', 'mac', 'uuid', 'wwnn', 'wwpn']
     policies_list = ['auditd', 'bios', 'device_connector', 'ethernet_network', 'ethernet_network_control', 'ethernet_network_group',
@@ -217,25 +217,25 @@ def setup(kwargs):
     templates_list = profiles_list
     idata = {}
     for i in pools_list:
-        idata = idata | {kwargs.ezdata[i].object_type: {'allOf': intersight_json['components']['schemas'][kwargs.ezdata[i].object_type]['allOf']}}
+        idata = idata | {kwargs.ezdata[i].object_type: {'allOf': intersight_json['definitions'][kwargs.ezdata[i].object_type]['allOf']}}
     for i in policies_list:
-        idata = idata | {kwargs.ezdata[i].object_type: {'allOf': intersight_json['components']['schemas'][kwargs.ezdata[i].object_type]['allOf']}}
+        idata = idata | {kwargs.ezdata[i].object_type: {'allOf': intersight_json['definitions'][kwargs.ezdata[i].object_type]['allOf']}}
     idata = DotMap(materialize(RefDict(idata)))
     print(json.dumps(idata, indent=4))
     exit()
     for i in pools_list:
         print(kwargs.ezdata[i].object_type)
-        idata = materialize(RefDict(intersight_json['components']['schemas'][kwargs.ezdata[i].object_type]['allOf']))
+        idata = materialize(RefDict(intersight_json['definitions'][kwargs.ezdata[i].object_type]['allOf']))
         print(json.dumps(idata, indent=4))
         exit()
         pk = list(kwargs.ezdata[i].keys())
-        if 'allOf' in pk:
-            pcolor.LightGray(f'{"="*20} {f'{i.upper()}'} {"="*20}')
-            # pcolor.Yellow(json.dumps(kwargs.ezdata[i].allOf[1].properties.toDict(), indent=4))
-        else: print(f'{"="*20} {f'{i.upper()} no allOf'} {"="*20}')
+        # if 'allOf' in pk:
+        #     # pcolor.LightGray(f'{"="*20} {f'{i.upper()}'} {"="*20}')
+        #     pcolor.Yellow(json.dumps(kwargs.ezdata[i].allOf[1].properties.toDict(), indent=4))
+        # else: print(f'{"="*20} {f'{i.upper()} no allOf'} {"="*20}')
 
     exit()
-    bios_json = DotMap(ijson['components']['schemas']['bios.Policy']['allOf'][1]['properties'])
+    bios_json = DotMap(ijson['definitions']['bios.Policy']['allOf'][1]['properties'])
     bios_data = deepcopy(kwargs.ezdata.bios.allOf[1])
     for k, v in kwargs.ezdata.bios.allOf[1].properties.items():
         if not re.search('bios_template', k):
@@ -351,9 +351,9 @@ def main():
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
     kwargs = isight.api('organization').all_organizations(kwargs)
-    setup(kwargs)
-    # bios_templates(kwargs)
-    # bios_keys(kwargs)
+    # setup(kwargs)
+    bios_keys(kwargs)
+    bios_templates(kwargs)
 
 if __name__ == '__main__':
     main()

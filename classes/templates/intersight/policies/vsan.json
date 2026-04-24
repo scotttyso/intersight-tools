@@ -1,0 +1,19 @@
+{
+  "Description": "vsan-100 VSAN Policy",
+  "EnableTrunking": false,
+  "Name": "vsan-100",
+  "ObjectType": "fabric.FcNetworkPolicy",
+  "Organization": {
+    "Moid": "639ffbbe6972652d3243d65f",
+    "ObjectType": "organization.Organization"
+  },
+  "Tags": [
+    {
+      "Key": "ezci",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "3.1.2"
+    }
+  ]
+}

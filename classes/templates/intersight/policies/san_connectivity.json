@@ -1,0 +1,26 @@
+{
+    "Description": "scp-vic-gen4:mlom San Connectivity Policy",
+    "Name": "scp-vic-gen4:mlom",
+    "ObjectType": "vnic.SanConnectivityPolicy",
+    "Organization": {
+        "Moid": "639ffbbe6972652d3243d65f",
+        "ObjectType": "organization.Organization"
+    },
+    "PlacementMode": "custom",
+    "StaticWwnnAddress": "",
+    "Tags": [
+        {
+            "Key": "ezci",
+            "Propagated": false,
+            "SysTag": false,
+            "Type": "KeyValue",
+            "Value": "3.1.2"
+        }
+    ],
+    "TargetPlatform": "FIAttached",
+    "WwnnAddressType": "POOL",
+    "WwnnPool": {
+        "Moid": "6467a417696275310148c6da",
+        "ObjectType": "fcpool.Pool"
+    }
+}

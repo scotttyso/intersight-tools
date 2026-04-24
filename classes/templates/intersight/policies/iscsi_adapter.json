@@ -1,0 +1,28 @@
+{
+  "ConnectionTimeOut": 15,
+  "Description": "adapter iSCSI Adapter Policy",
+  "DhcpTimeout": 60,
+  "LunBusyRetryCount": 15,
+  "Name": "adapter",
+  "ObjectType": "vnic.IscsiAdapterPolicy",
+  "Organization": {
+    "Moid": "5ddea1e16972652d32b6493a",
+    "ObjectType": "organization.Organization"
+  },
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "Description": "target iSCSI Static Target Policy",
+  "IpAddress": "198.18.32.60",
+  "IscsiIpType": "IPv4",
+  "Lun": {
+    "Bootable": true,
+    "LunId": 0,
+    "ObjectType": "vnic.Lun"
+  },
+  "Name": "target",
+  "ObjectType": "vnic.IscsiStaticTargetPolicy",
+  "Organization": {
+    "Moid": "5ddea1e16972652d32b6493a",
+    "ObjectType": "organization.Organization"
+  },
+  "Port": 3260,
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ],
+  "TargetName": "iqn.1984-12.com.cisco:lnx1"
+}

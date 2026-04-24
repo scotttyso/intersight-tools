@@ -174,7 +174,7 @@ class main_menu(object):
                 kwargs.args.load_config = True
             elif kwargs.args.load_config == True: load_config = True
             if load_config == True and kwargs.args.load_config == True:
-                kwargs = DotMap(ezfunctions.load_previous_configurations(kwargs))
+                kwargs = DotMap(ezfunctions.load_configurations(kwargs))
         return kwargs
 
     #=========================================================================

@@ -1,0 +1,28 @@
+{
+  "Description": "ssh SSH Policy",
+  "Enabled": true,
+  "Name": "ssh",
+  "ObjectType": "ssh.Policy",
+  "Organization": {
+    "Moid": "5ddea1e16972652d32b6493a",
+    "ObjectType": "organization.Organization"
+  },
+  "Port": 22,
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ],
+  "Timeout": 1800
+}

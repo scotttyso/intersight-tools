@@ -1,0 +1,42 @@
+{
+  "AdminSpeed": "32Gbps",
+  "FillPattern": "Idle",
+  "ObjectType": "fabric.FcUplinkPcRole",
+  "PcId": 1,
+  "PortPolicy": {
+    "Moid": "6605c55a6f62693001b4e1c0",
+    "ObjectType": "fabric.PortPolicy"
+  },
+  "Ports": [
+    {
+      "AggregatePortId": 0,
+      "ObjectType": "fabric.PortIdentifier",
+      "PortId": 1,
+      "SlotId": 1
+    },
+    {
+      "AggregatePortId": 0,
+      "ObjectType": "fabric.PortIdentifier",
+      "PortId": 3,
+      "SlotId": 1
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241004054146474"
+    }
+  ],
+  "UserLabel": "",
+  "VsanId": 100
+}

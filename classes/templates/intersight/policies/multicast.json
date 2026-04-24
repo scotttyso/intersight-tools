@@ -1,0 +1,23 @@
+{
+  "Description": "mcast Multicast Policy",
+  "Name": "mcast",
+  "ObjectType": "fabric.MulticastPolicy",
+  "Organization": {
+    "Moid": "639ffbbe6972652d3243d65f",
+    "ObjectType": "organization.Organization"
+  },
+  "QuerierIpAddress": "",
+  "QuerierIpAddressPeer": "",
+  "QuerierState": "Disabled",
+  "SnoopingState": "Enabled",
+  "SrcIpProxy": "Enabled",
+  "Tags": [
+    {
+      "Key": "ezci",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "3.1.2"
+    }
+  ]
+}

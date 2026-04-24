@@ -1,0 +1,46 @@
+{
+  "Description": "fw-domain-servers Firmware Policy",
+  "ExcludeComponentList": [
+    "none"
+  ],
+  "ModelBundleCombo": [
+    {
+      "BundleVersion": "4.3(2.240009)",
+      "ModelFamily": "UCSC-C240-M5",
+      "ObjectType": "firmware.ModelBundleVersion"
+    },
+    {
+      "BundleVersion": "5.2(0.230127)",
+      "ModelFamily": "UCSB-B200-M5",
+      "ObjectType": "firmware.ModelBundleVersion"
+    },
+    {
+      "BundleVersion": "5.2(2.240053)",
+      "ModelFamily": "UCSX-210C-M6",
+      "ObjectType": "firmware.ModelBundleVersion"
+    }
+  ],
+  "Name": "fw-domain-servers",
+  "ObjectType": "firmware.Policy",
+  "Organization": {
+    "Moid": "6505cc486972653201c3bc8a",
+    "ObjectType": "organization.Organization"
+  },
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ],
+  "TargetPlatform": "FIAttached"
+}

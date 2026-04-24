@@ -1,0 +1,25 @@
+{
+  "Description": "mgmt Ethernet Network Group Policy",
+  "Name": "mgmt",
+  "ObjectType": "fabric.EthNetworkGroupPolicy",
+  "Organization": {
+    "Moid": "639ffbbe6972652d3243d65f",
+    "ObjectType": "organization.Organization"
+  },
+  "Tags": [
+    {
+      "Key": "ezci",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "3.1.2"
+    }
+  ],
+  "VlanSettings": {
+    "AllowedVlans": "1001",
+    "NativeVlan": 1001,
+    "ObjectType": "fabric.VlanSettings",
+    "QinqEnabled": false,
+    "QinqVlan": 2
+  }
+}

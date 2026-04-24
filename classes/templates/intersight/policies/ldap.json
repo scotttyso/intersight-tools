@@ -1,0 +1,69 @@
+{
+  "BaseProperties": {
+    "Attribute": "memberof",
+    "BaseDn": "DC=rich,DC=ciscolabs,DC=com",
+    "BindDn": "CN=Tyson Scott,OU=Cisco Employees,DC=rich,DC=ciscolabs,DC=com",
+    "BindMethod": "ConfiguredCredentials",
+    "Domain": "rich.ciscolabs.com",
+    "EnableEncryption": false,
+    "EnableGroupAuthorization": false,
+    "EnableNestedGroupSearch": true,
+    "Filter": "sAMAccountName=$userid",
+    "GroupAttribute": "memberof",
+    "IsPasswordSet": true,
+    "NestedGroupSearchDepth": 128,
+    "ObjectType": "iam.LdapBaseProperties",
+    "Timeout": 0
+  },
+  "Description": "RICH LDAP Policy",
+  "DnsParameters": {
+    "ObjectType": "iam.LdapDnsParameters",
+    "SearchDomain": "",
+    "SearchForest": "",
+    "Source": "Extracted"
+  },
+  "EnableDns": false,
+  "Enabled": true,
+  "Groups": [
+    {
+      "Moid": "674641356275723101b044e0",
+      "ObjectType": "iam.LdapGroup",
+      "link": "https://us-east-1.intersight.com/api/v1/iam/LdapGroups/674641356275723101b044e0"
+    }
+  ],
+  "Name": "RICH",
+  "ObjectType": "iam.LdapPolicy",
+  "Organization": {
+    "Moid": "6505cc486972653201c3bc8a",
+    "ObjectType": "organization.Organization"
+  },
+  "Providers": [
+    {
+      "Moid": "67476e6562757231018ae17d",
+      "ObjectType": "iam.LdapProvider",
+      "link": "https://us-east-1.intersight.com/api/v1/iam/LdapProviders/67476e6562757231018ae17d"
+    },
+    {
+      "Moid": "67476e6662757231018ae193",
+      "ObjectType": "iam.LdapProvider",
+      "link": "https://us-east-1.intersight.com/api/v1/iam/LdapProviders/67476e6662757231018ae193"
+    }
+  ],
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ],
+  "UserSearchPrecedence": "LDAPUserDb"
+}

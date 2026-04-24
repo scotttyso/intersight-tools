@@ -89,7 +89,7 @@ def main():
     #=========================================================================
     # Load Previous Configurations
     #=========================================================================
-    kwargs = DotMap(ezfunctions.load_previous_configurations(kwargs))
+    kwargs = DotMap(ezfunctions.load_configurations(kwargs))
     #=========================================================================
     # Process the YAML input File
     #=========================================================================

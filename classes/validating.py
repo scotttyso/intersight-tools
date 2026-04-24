@@ -35,10 +35,10 @@ def begin_loop(ptype1, ptype2):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
-def begin_section(ptype1, ptype2):
+def begin_section(org, ptype1, ptype2):
     ptype1 = mod_pol_description((' '.join(ptype1.split('_'))).title())
     pcolor.LightGray(f'\n{"-"*108}\n')
-    pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.\n")
+    pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments for Org: `{org}`.\n")
 
 def completed_item(ptype, kwargs):
     iresults = kwargs.api_results
@@ -120,9 +120,9 @@ def error_file_location(varName, varValue):
 def end_loop(ptype1, ptype2):
     pcolor.LightPurple(f"\n   Completed {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.")
 
-def end_section(ptype1, ptype2):
+def end_section(org, ptype1, ptype2):
     ptype1 = mod_pol_description((' '.join(ptype1.split('_'))).title())
-    pcolor.LightPurple(f"\n   Completed {ptype1} {' '.join(ptype2.split('_')).title()} Deployments.")
+    pcolor.LightPurple(f"\n   Completed {ptype1} {' '.join(ptype2.split('_')).title()} Deployments for Org: `{org}`.")
 
 def error_policy_doesnt_exist(parent_type, parent_name, ptype, pname):
     if re.search('chassis|domain|server|switch', parent_type):

@@ -1,0 +1,29 @@
+{
+  "BaudRate": 115200,
+  "ComPort": "com0",
+  "Description": "sol Serial over LAN Policy",
+  "Enabled": true,
+  "Name": "sol",
+  "ObjectType": "sol.Policy",
+  "Organization": {
+    "Moid": "6505cc486972653201c3bc8a",
+    "ObjectType": "organization.Organization"
+  },
+  "SshPort": 2400,
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ]
+}

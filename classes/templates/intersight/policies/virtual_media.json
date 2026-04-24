@@ -1,0 +1,45 @@
+{
+  "Description": "vmedia Virtual Media Policy",
+  "Enabled": true,
+  "Encryption": true,
+  "LowPowerUsb": true,
+  "Mappings": [
+    {
+      "AuthenticationProtocol": "none",
+      "DeviceType": "cdd",
+      "FileLocation": "https://198.18.1.1/vmware.iso",
+      "HostName": "",
+      "IsPasswordSet": false,
+      "MountOptions": "noauto",
+      "MountProtocol": "https",
+      "ObjectType": "vmedia.Mapping",
+      "RemoteFile": "",
+      "RemotePath": "",
+      "SanitizedFileLocation": "198.18.1.1/vmware.iso",
+      "Username": "",
+      "VolumeName": "https-map"
+    }
+  ],
+  "Name": "vmedia",
+  "ObjectType": "vmedia.Policy",
+  "Organization": {
+    "Moid": "5ddea1e16972652d32b6493a",
+    "ObjectType": "organization.Organization"
+  },
+  "Tags": [
+    {
+      "Key": "Module",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "easy-imm"
+    },
+    {
+      "Key": "Version",
+      "Propagated": false,
+      "SysTag": false,
+      "Type": "KeyValue",
+      "Value": "4.2.11-20241017091918219"
+    }
+  ]
+}
