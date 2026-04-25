@@ -1,0 +1,76 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "adapter.ConfigPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "Settings": [
+{% if item.add_vic_adapter_configuration is defined and item.add_vic_adapter_configuration | length > 0 %}
+{% for vic in item.add_vic_adapter_configuration %}
+{% set _phy_mode = vic.enable_physical_nic_mode | default(false) | lower %}
+    {
+      "DceInterfaceSettings": [
+        {
+          "FecMode": "{{ vic.dce_interface_settings.dce_interface_1_fec_mode | default('cl91') }}",
+          "InterfaceId": 0,
+          "ObjectType": "adapter.DceInterfaceSettings"
+        },
+        {
+          "FecMode": "{{ vic.dce_interface_settings.dce_interface_2_fec_mode | default('cl91') }}",
+          "InterfaceId": 1,
+          "ObjectType": "adapter.DceInterfaceSettings"
+        },
+        {
+          "FecMode": "{{ vic.dce_interface_settings.dce_interface_3_fec_mode | default('cl91') }}",
+          "InterfaceId": 2,
+          "ObjectType": "adapter.DceInterfaceSettings"
+        },
+        {
+          "FecMode": "{{ vic.dce_interface_settings.dce_interface_4_fec_mode | default('cl91') }}",
+          "InterfaceId": 3,
+          "ObjectType": "adapter.DceInterfaceSettings"
+        }
+      ],
+      "EthSettings": {
+        "LldpEnabled": {% if _phy_mode == true %}false{% else %}{{ vic.enable_lldp | default(true) | lower }}{% endif %},
+        "ObjectType": "adapter.EthSettings"
+      },
+      "FcSettings": {
+        "FipEnabled": {% if _phy_mode == true %}false{% else %}{{ vic.enable_fip | default(true) | lower }}{% endif %},
+        "ObjectType": "adapter.FcSettings"
+      },
+      "ObjectType": "adapter.AdapterConfig",
+      "PhysicalNicModeSettings": {
+        "ObjectType": "adapter.PhysicalNicModeSettings",
+        "PhyNicEnabled": {{ _phy_mode}}
+      },
+      "PortChannelSettings": {
+        "Enabled": {% if _phy_mode == true %}false{% else %}{{ vic.enable_port_channel | default(true) | lower }}{% endif %},
+        "ObjectType": "adapter.PortChannelSettings"
+      },
+      "SlotId": "{{ vic.pci_slot | default('MLOM') }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

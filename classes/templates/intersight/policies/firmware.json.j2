@@ -1,0 +1,55 @@
+{
+{% set _exclude_drives = item.advanced_mode | default({}).exclude_drives | default(false) %}
+{% set _exclude_storage_controllers = item.advanced_mode | default({}).exclude_storage_controllers | default(false) %}
+  "Description": "{{ item.description | default('') }}",
+  "ExcludeComponentList": [
+{% set comma = joiner(", ") %}
+{% if _exclude_drives %}
+    {{ comma() }}"local-disk"
+{% endif %}
+{% if _exclude_storage_controllers %}
+    {{ comma() }}"storage-controller"
+{% endif %}
+{% if _exclude_drives == false and _exclude_storage_controllers == false %}
+    "none"
+{% endif %}
+  ],
+  "ModelBundleCombo": [
+{% if item.model_bundle_version | default([]) | length > 0 %}
+{% for bundle in item.model_bundle_version %}
+{% for model in bundle.server_models %}
+    {
+      "BundleVersion": "{{ bundle.firmware_version }}",
+      "ModelFamily": "{{ model }}",
+      "ObjectType": "firmware.ModelBundleVersion"
+    }{% if not loop.last or not loop.parent.last %},{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "firmware.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('FIAttached') }}"
+}

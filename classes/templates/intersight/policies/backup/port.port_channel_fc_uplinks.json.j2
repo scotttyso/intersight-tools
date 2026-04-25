@@ -1,0 +1,44 @@
+{
+  "AdminSpeed": "32Gbps",
+  "FillPattern": "Idle",
+  "ObjectType": "fabric.FcUplinkPcRole",
+  "PcId": 1,
+  "PortPolicy": {
+    "Moid": "6605c55a6f62693001b4e1c0",
+    "ObjectType": "fabric.PortPolicy"
+  },
+  "Ports": [
+    {
+      "AggregatePortId": 0,
+      "ObjectType": "fabric.PortIdentifier",
+      "PortId": 1,
+      "SlotId": 1
+    },
+    {
+      "AggregatePortId": 0,
+      "ObjectType": "fabric.PortIdentifier",
+      "PortId": 3,
+      "SlotId": 1
+    }
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UserLabel": "",
+  "VsanId": 100
+}

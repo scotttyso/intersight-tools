@@ -1,0 +1,69 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "ErrorDetectionTimeout": 2000,
+  "ErrorRecoverySettings": {
+    "Enabled": false,
+    "IoRetryCount": 8,
+    "IoRetryTimeout": 5,
+    "LinkDownTimeout": 30000,
+    "ObjectType": "vnic.FcErrorRecoverySettings",
+    "PortDownTimeout": 10000
+  },
+  "FlogiSettings": {
+    "ObjectType": "vnic.FlogiSettings",
+    "Retries": 8,
+    "Timeout": 4000
+  },
+  "InterruptSettings": {
+    "Mode": "MSIx",
+    "ObjectType": "vnic.FcInterruptSettings"
+  },
+  "IoThrottleCount": 512,
+  "LunCount": 1024,
+  "LunQueueDepth": 20,
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "vnic.FcAdapterPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PlogiSettings": {
+    "ObjectType": "vnic.PlogiSettings",
+    "Retries": 8,
+    "Timeout": 20000
+  },
+  "ResourceAllocationTimeout": 10000,
+  "RxQueueSettings": {
+    "Count": 1,
+    "ObjectType": "vnic.FcQueueSettings",
+    "RingSize": 64
+  },
+  "ScsiQueueSettings": {
+    "Count": 1,
+    "ObjectType": "vnic.ScsiQueueSettings",
+    "RingSize": 512
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TxQueueSettings": {
+    "Count": 1,
+    "ObjectType": "vnic.FcQueueSettings",
+    "RingSize": 64
+  }
+}

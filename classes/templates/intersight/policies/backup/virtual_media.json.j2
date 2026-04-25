@@ -1,0 +1,49 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "Enabled": true,
+  "Encryption": true,
+  "LowPowerUsb": true,
+  "Mappings": [
+    {
+      "AuthenticationProtocol": "none",
+      "DeviceType": "cdd",
+      "FileLocation": "https://198.18.1.1/vmware.iso",
+      "HostName": "",
+      "IsPasswordSet": false,
+      "MountOptions": "noauto",
+      "MountProtocol": "https",
+      "ObjectType": "vmedia.Mapping",
+      "RemoteFile": "",
+      "RemotePath": "",
+      "SanitizedFileLocation": "198.18.1.1/vmware.iso",
+      "Username": "",
+      "VolumeName": "https-map"
+    }
+  ],
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "vmedia.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+    "Tags": [
+{% for tag in item.tags %}
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+        {
+            "Key": "{{ tag.key }}",
+            "Type": "PathTag"
+        }{% if not loop.last %},{% endif %}
+{% else %}
+        {
+            "Key": "{{ tag.key }}",
+            "Type": "KeyValue",
+            "Value": "{{ tag.value }}"
+        }{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+    ]
+{% else %}
+    "Tags": []
+{% endif %}
+}

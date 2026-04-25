@@ -1375,7 +1375,7 @@ class imm(object):
         return kwargs
 
     #=========================================================================
-    # Function - Add Organization Key Map to Dictionaries
+    # Function - Compare Body Result for Differences
     #=========================================================================
     def compare_body_result(self, api_body, result):
         expected = deepcopy(api_body)
@@ -1388,11 +1388,19 @@ class imm(object):
             except TypeError:
                 return str(value)
 
-        def normalize_for_compare(value):
+        def normalize_for_compare(value, path=''):
             if isinstance(value, dict):
-                return {k: normalize_for_compare(v) for k, v in value.items()}
+                return {
+                    k: normalize_for_compare(v, f'{path}.{k}' if path else k)
+                    for k, v in value.items()
+                }
             if isinstance(value, list):
-                normalized_list = [normalize_for_compare(v) for v in value]
+                normalized_list = [
+                    normalize_for_compare(v, f'{path}[{idx}]' if path else f'[{idx}]')
+                    for idx, v in enumerate(value)
+                ]
+                if self.type == 'boot_order' and path == 'BootDevices':
+                    return normalized_list
                 return sorted(normalized_list, key=list_sort_key)
             return value
 
@@ -3629,31 +3637,25 @@ class imm(object):
     # Function - System QoS Policy Modification
     #=========================================================================
     def system_qos(self, api_body, item, kwargs):
-        item = item
-        if api_body.get('configure_recommended_classes'):
-            if api_body['configure_recommended_classes'] == True:
-                api_body['Classes'] = kwargs.ezdata['system_qos.classes_recommended'].classes
-            api_body.pop('configure_recommended_classes')
-        elif api_body.get('configure_default_classes'):
-            if api_body['configure_default_classes'] == True:
-                api_body['Classes'] = kwargs.ezdata['system_qos.classes_default'].classes
-            api_body.pop('configure_default_classes')
-        elif api_body.get('configure_recommended_classes') == None and (api_body.get('Classes') == None or len(api_body.get('Classes')) == 0):
-            api_body['Classes'] = kwargs.ezdata['system_qos.classes_default'].classes
-        if api_body.get('jumbo_mtu'):
-            for x in range(0, len(api_body['Classes'])):
-                if api_body['Classes'][x].get('Priority'):
-                    api_body['Classes'][x]['Name'] = api_body['Classes'][x]['Priority']; api_body['Classes'][x].pop('Priority')
-                if api_body['jumbo_mtu'] == True: api_body['Classes'][x]['Mtu'] = 9216
-                else: api_body['Classes'][x]['Mtu'] = 9216
-                if api_body['Classes'][x]['Name'] == 'FC': api_body['Classes'][x]['Mtu'] = 2240
-            api_body.pop('jumbo_mtu')
-        classes = api_body['Classes']
-        api_body['Classes'] = []
-        for e in classes:
-            if type(e) == dict: api_body['Classes'].append(e)
-            else: api_body['Classes'].append(e.toDict())
-        api_body['Classes'] = sorted(api_body['Classes'], key=lambda ele: ele['Name'])
+        if not type(item.target_platform) == str: item.target_platform = "UCS Domain"
+        if not type(item.classes) == list: item.classes = []
+        if not type(item.jumbo_mtu) == bool: item.jumbo_mtu = False
+        if item.configure_recommended_classes == True:
+            item.classes = kwargs.ezdata['intersight.system_qos.templates'].properties[f'recommended_classes_{(item.target_platform).lower().replace(" ", "_")}']
+        elif item.configure_default_classes == True:
+            item.classes = kwargs.ezdata['intersight.system_qos.templates'].properties[f'default_classes_{(item.target_platform).lower().replace(" ", "_")}']
+        elif len(item.classes) == 0:
+            item.classes = kwargs.ezdata['intersight.system_qos.templates'].properties[f'default_classes_{(item.target_platform).lower().replace(" ", "_")}']
+        weight_total = 0
+        for x in range(0, len(item.classes)):
+            if item.classes[x].priority == 'Fc': item.classes[x].mtu = 2240
+            elif item.jumbo_mtu == True: item.classes[x].mtu = 9216
+            else: item.classes[x].mtu = 1500
+            if type(item.classes[x].weight) == int: weight_total += item.classes[x].weight
+            else: item.classes[x].weight = 1; weight_total += 1
+        for x in range(0, len(item.classes)):
+            item.classes[x].bandwidth_percent = int((item.classes[x].weight / weight_total) * 100)
+        item.classes = sorted(item.classes, key=lambda ele: ele['priority'])
         return api_body
 
     #=========================================================================

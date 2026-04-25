@@ -89,7 +89,6 @@
     "CiscoOpromLaunchOptimization": "{{ item.cisco_oprom_launch_optimization | default('platform-default') }}",
     "CiscoXgmiMaxSpeed": "{{ item.cisco_xgmi_max_speed | default('platform-default') }}",
     "CkeLowPolicy": "{{ item.cke_low_policy | default('platform-default') }}",
-    "ClassId": "bios.Policy",
     "ClosedLoopThermThrotl": "{{ item.closed_loop_therm_throtl | default('platform-default') }}",
     "CmciEnable": "{{ item.cmci_enable | default('platform-default') }}",
     "ConfigTdp": "{{ item.config_tdp | default('platform-default') }}",
@@ -106,7 +105,7 @@
     "CrfastgoConfig": "{{ item.crfastgo_config | default('platform-default') }}",
     "DcpmmFirmwareDowngrade": "{{ item.dcpmm_firmware_downgrade | default('platform-default') }}",
     "DemandScrub": "{{ item.demand_scrub | default('platform-default') }}",
-    "Description": "",
+    "Description": "{{ item.description | default('') }}",
     "DfxOsbEn": "{{ item.dfx_osb_en | default('platform-default') }}",
     "DirectCacheAccess": "{{ item.direct_cache_access | default('platform-default') }}",
     "DmaCtrlOptIn": "{{ item.dma_ctrl_opt_in | default('platform-default') }}",
@@ -193,7 +192,6 @@
     "OperationMode": "{{ item.operation_mode | default('platform-default') }}",
     "OptimizedPowerMode": "{{ item.optimized_power_mode | default('platform-default') }}",
     "Organization": {
-        "ClassId": "mo.MoRef",
         "Moid": "{{ org_moids[organization].moid }}",
         "ObjectType": "organization.Organization"
     },
@@ -460,11 +458,14 @@
 {% else %}
         {
             "Key": "{{ tag.key }}",
+            "Type": "KeyValue",
             "Value": "{{ tag.value }}"
         }{% if not loop.last %},{% endif %}
 {% endif %}
 {% endfor %}
     ],
+{% else %}
+    "Tags": [],
 {% endif %}
     "TerminalType": "{{ item.terminal_type | default('platform-default') }}",
     "TpmControl": "{{ item.tpm_control | default('platform-default') }}",

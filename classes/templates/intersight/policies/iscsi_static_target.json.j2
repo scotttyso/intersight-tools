@@ -1,0 +1,36 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "IpAddress": "{{ item.ip_address | default('198.18.32.60') }}",
+  "IscsiIpType": "{{ item.ip_protocol | default('IPv4') }}",
+  "Lun": {
+    "Bootable": {{ item.lun_bootable | default(true) | lower }},
+    "LunId": {{ item.lun_id | default(0) }},
+    "ObjectType": "vnic.Lun"
+  },
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "vnic.IscsiStaticTargetPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "Port": {{ item.port | default(3260) }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetName": "{{ item.target_name | default('iqn.1984-12.com.cisco:lnx1') }}"
+}

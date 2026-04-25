@@ -1,0 +1,51 @@
+{
+  "Classes": [
+{% if item.classes | length > 0 %}
+{% for class in item.classes %}
+    {
+      "AdminState": "{{ class.state | default('Disabled') }}",
+      "BandwidthPercent": "{{ class.bandwidth_percent | default(0) }}",
+      "Cos": "{{ class.cos | default(255) }}",
+      "Mtu": "{{ class.mtu | default(1500) }}",
+      "MulticastOptimize": {% if class.priority | default('Gold') == 'Silver' %}true{% else %}false{% endif %},
+      "Name": "{{ class.priority | default('Best Effort') }}",
+      "ObjectType": "fabric.QosClass",
+      "PacketDrop": {% if class.priority | default('Gold') == 'Fc' %}false{% else %}{{ class.packet_drop | default(true) | lower }}{% endif %},
+      "Weight": "{{ class.weight | default(5) }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.SystemQosPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PfcWatchdog": {
+    "IsWatchdogEnabled": {{ item.priority_flow_control_watchdog_configuration | default({}).watchdog_enabled | default(true) | lower }},
+    "ObjectType": "fabric.PfcWatchDog",
+    "ShutdownMultiplier": {{ item.priority_flow_control_watchdog_configuration | default({}).shutdown_multiplier | default(1) }},
+    "WatchdogInterval": {{ item.priority_flow_control_watchdog_configuration | default({}).watchdog_interval | default(500) }}
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}"
+}

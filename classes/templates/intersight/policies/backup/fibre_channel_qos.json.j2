@@ -1,0 +1,32 @@
+{
+  "Burst": 10240,
+  "Cos": 3,
+  "Description": "{{ item.description | default('') }}",
+  "MaxDataFieldSize": 2112,
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "vnic.FcQosPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "Priority": "FC",
+  "RateLimit": 0,
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

@@ -1,0 +1,36 @@
+{
+  "AutoAllowOnClusterLinks": false,
+  "AutoAllowOnUplinks": true,
+  "EthNetworkPolicy": {
+    "Moid": "646799616f62693001ff962d",
+    "ObjectType": "fabric.EthNetworkPolicy"
+  },
+  "IsNative": true,
+  "MulticastPolicy": {
+    "Moid": "646799466f62693001ff829d",
+    "ObjectType": "fabric.MulticastPolicy"
+  },
+  "Name": "default",
+  "ObjectType": "fabric.Vlan",
+  "PrimaryVlanId": 0,
+  "SharingType": "None",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "VlanId": 1
+}

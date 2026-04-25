@@ -1,0 +1,48 @@
+{
+{% if item.target_platform | default('Unified Edge') == 'UCS Domain' and item.aes_primary_key is defined %}
+  "AesPrimaryKey": "{{ item.aes_primary_key }}",
+{% endif %}
+  "Description": "{{ item.description | default('') }}",
+  "EnableJumboFrame": {% if item.target_platform | default('UCS Domain') == 'Unified Edge' %}"{{ item.enable_jumbo_frame | default(false) | lower }}"{% else %}false{% endif %},
+  "EthernetSwitchingMode": "{{ item.switching_mode_ethernet | default('end-host') }}",
+  "FabricPcVhbaReset": "{{ item.fabric_port_channel_vhba_reset | default('Disabled') }}",
+  "FcSwitchingMode": "{{ item.switching_mode_fc | default('end-host') }}",
+  "MacAgingSettings": {
+    "MacAgingOption": "{{ item.mac_address_table_aging | default('Default') }}",
+    "MacAgingTime": "{{ item.mac_aging_time | default(14500) }}",
+    "ObjectType": "fabric.MacAgingSettings"
+  },
+  "MacLearningSettings": null,
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.SwitchControlPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "ReservedVlanStartId": 3915,
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}",
+  "UdldSettings": {
+    "MessageInterval": {{ item.udld_global_settings | default({}) | .message_interval | default(15) }},
+    "ObjectType": "fabric.UdldGlobalSettings",
+    "RecoveryAction": "{{ item.udld_global_settings | default({}) | .recovery_action | default('reset') }}"
+  },
+  "VlanPortOptimizationEnabled": {{ item.vlan_port_count_optimization | default(false) | lower }}
+}

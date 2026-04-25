@@ -1,0 +1,33 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "EnableLocalServerVideo": {{ item.enable_local_server_video | default(true) | lower }},
+  "EnableVideoEncryption": {{ item.enable_video_encryption | default(true) | lower }},
+  "Enabled": {{ item.enable_virtual_kvm | default(true) | lower }},
+  "MaximumSessions": {{ item.maximum_sessions | default(4) }},
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "kvm.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "RemotePort": {{ item.remote_port | default(2068) }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TunneledKvmEnabled": {{ item.tunneled_kvm_enabled | default(false) | lower }}
+}

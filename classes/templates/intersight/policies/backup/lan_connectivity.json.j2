@@ -1,0 +1,33 @@
+{
+  "AzureQosEnabled": false,
+  "Description": "{{ item.description | default('') }}",
+  "IqnAllocationType": "None",
+  "IqnPool": null,
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "vnic.LanConnectivityPolicy",
+  "Organization": {
+    "Moid": "639ffbbe6972652d3243d65f",
+    "ObjectType": "organization.Organization"
+  },
+  "PlacementMode": "custom",
+  "StaticIqnName": "",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('FIAttached') }}"
+}

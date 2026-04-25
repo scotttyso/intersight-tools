@@ -1,0 +1,31 @@
+{
+  "DefaultZoning": "Disabled",
+  "FcNetworkPolicy": {
+    "Moid": "64679e716f62693001033422",
+    "ObjectType": "fabric.FcNetworkPolicy"
+  },
+  "FcZoneSharingMode": "",
+  "FcoeVlan": 100,
+  "Name": "vsan-100",
+  "ObjectType": "fabric.Vsan",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "VsanId": 100,
+  "VsanScope": "Storage"
+}

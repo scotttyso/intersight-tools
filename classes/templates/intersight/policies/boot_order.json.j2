@@ -1,0 +1,131 @@
+{% macro bootloader_block(device) -%}
+"Bootloader": {
+  "Description": "{{ device.bootloader | default({}).description | default('') }}",
+  "Name": "{{ device.bootloader | default({}).name | default('') }}",
+  "ObjectType": "boot.Bootloader",
+  "Path": "{{ device.bootloader | default({}).path | default('') }}"
+},
+{%- endmacro %}
+{
+  "BootDevices": [
+{% if item.boot_devices | default([]) | length > 0 %}
+{% for device in item.boot_devices %}
+    {
+      "Enabled": {{ device.enabled | default(true) | lower }},
+      "Name": "{{ device.device_name }}",
+{% if device.device_type | default('None') == "flex_mmc" %}
+      "ObjectType": "boot.FlexMmc",
+      "Subtype": "{{ device.subtype | default('flex-flash') }}"
+{% elif device.device_type | default('None') == "http_boot" %}
+{% set ip_config = device.ip_config_type | default('DHCP') %}
+{% set uri = device.uri | default('https://www.example.com')%}
+      "InterfaceName": "{{ device.interface_name | default('') }}",
+      "InterfaceSource": "{{ device.interface_source | default('name') }}",
+      "IpConfigType": "{{ ip_config }}",
+      "IpType": "{{ device.ip_type | default('IPv4') }}",
+      "MacAddress": "{{ device.mac_address | default('') }}",
+      "ObjectType": "boot.Http",
+      "Port": {{ device.port | default(-1) }},
+      "Protocol": {% if 'https' | lower in uri %}"HTTPS"{% else %}"HTTP"{% endif %},
+      "Slot": "{{ device.slot | default('MLOM') }}",
+      "StaticIpV4Settings": {
+        "DnsIp": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).dns_ip | default('') }}"{% endif %},
+        "GatewayIp":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).gateway_ip | default('') }}"{% endif %},
+        "Ip":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).static_ip | default('') }}"{% endif %},
+        "NetworkMask": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).network_mask | default('') }}"{% endif %},
+        "ObjectType": "boot.StaticIpV4Settings"
+      },
+      "StaticIpV6Settings": {
+        "DnsIp": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).dns_ip | default('') }}"{% endif %},
+        "GatewayIp":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).gateway_ip | default('') }}"{% endif %},
+        "Ip":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).static_ip | default('') }}"{% endif %},
+        "PrefixLength": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).prefix_length | default('') }}"{% endif %},
+        "ObjectType": "boot.StaticIpV6Settings"
+      },
+      "Uri": "{{ uri }}"
+{% elif device.device_type | default('None') == "iscsi_boot" %}
+      {{ bootloader_block(device) | indent(6, true) }}
+      "InterfaceName": "{{ device.interface_name | default('') }}",
+      "InterfaceSource": "{{ device.interface_source | default('name') }}",
+      "IpType": "{{ device.ip_type | default('IPv4') }}",
+      "MacAddress": "{{ device.mac_address | default('') }}",
+      "ObjectType": "boot.Pxe",
+      "Port": {{ device.port | default(0) }},
+      "Slot": "{{ device.slot | default('MLOM') }}"
+{% elif device.device_type | default('None') == "local_cdd" %}
+      "ObjectType": "boot.LocalCdd"
+{% elif device.device_type | default('None') == "local_disk" %}
+      {{ bootloader_block(device) | indent(6, true) }}
+      "ObjectType": "boot.LocalDisk",
+      "Slot": "{{ device.slot | default('MSTOR-RAID') }}"
+{% elif device.device_type | default('None') == "nvme" %}
+      {{ bootloader_block(device) | indent(6, true) }}
+      "Lun": {{ device.lun | default(0) }},
+      "ObjectType": "boot.PchStorage"
+{% elif device.device_type | default('None') == "pch_storage" %}
+      {{ bootloader_block(device) | indent(6, true) }}
+      "Lun": {{ device.lun | default(0) }},
+      "ObjectType": "boot.PchStorage"
+{% elif device.device_type | default('None') == "pxe_boot" %}
+      "InterfaceName": "{{ device.interface_name | default('') }}",
+      "InterfaceSource": "{{ device.interface_source | default('name') }}",
+      "IpType": "{{ device.ip_type | default('IPv4') }}",
+      "MacAddress": "{{ device.mac_address | default('') }}",
+      "ObjectType": "boot.Pxe",
+      "Port": {{ device.port | default(-1) }},
+      "Slot": "{{ device.slot | default('MLOM') }}"
+{% elif device.device_type | default('None') == "san_boot" %}
+      {{ bootloader_block(device) | indent(6, true) }}
+      "InterfaceName": "{{ device.interface_name | default('') }}",
+      "Lun": {{ device.lun | default(0) }},
+      "ObjectType": "boot.San",
+      "Slot": "{{ device.slot | default('MLOM') }}",
+      "Wwpn": "{{ device.target_wwpn | default('00:00:00:00:00:00:00:00') }}"
+{% elif device.device_type | default('None') == "sd_card" %}
+      {{ bootloader_block(device) | indent(6, true) }}
+      "Lun": {{ device.lun | default(0) }},
+      "ObjectType": "boot.SdCard",
+      "Subtype": "{{ device.subtype | default('SDCARD') }}"
+{% elif device.device_type | default('None') == 'uefi_shell' %}
+      "ObjectType": "boot.UefiShell"
+{% elif device.device_type | default('None') == "usb" %}
+      "ObjectType": "boot.Usb",
+      "Subtype": "{{ device.subtype | default('usb-cd') }}"
+{% elif device.device_type | default('None') == "virtual_media" %}
+      "ObjectType": "boot.VirtualMedia",
+      "Subtype": "{{ device.subtype | default('kvm-mapped-dvd') }}"
+{% endif %}
+        }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "ConfiguredBootMode": "{{ item.boot_mode | default('Uefi') }}",
+  "Description": "{{ item.description | default('') }}",
+{% set san_boot_count = item.boot_devices | default([]) | selectattr('device_type', 'equalto', 'san_boot') | list | length %}
+  "EnableBootMigrationSupport": {% if san_boot_count > 0 %}{{ item.persist_os_recovery_key | default(false) | lower }}{% else %}false{% endif %},
+  "EnforceUefiSecureBoot": {{ item.enable_secure_boot | default(false) | lower }},
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "boot.PrecisionPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

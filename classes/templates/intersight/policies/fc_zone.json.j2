@@ -1,0 +1,41 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "FcTargetMembers": [
+{% if item.targets | length > 0 %}
+{% for member in item.targets %}
+      {
+        "Name": "{{ member.name | default('missing_name') }}",
+        "ObjectType": "fabric.FcZoneMember",
+        "SwitchId": "{{ member.switch_id | default('A') }}",
+        "VsanId": {{ member.vsan_id | default(3914) }},
+        "Wwpn": "{{ member.wwpn | default('00:00:00:00:00:00:00:00') }}"
+      }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "FcTargetZoningType": "{{ item.fc_target_zoning_type | default('SIMT') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.FcZonePolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

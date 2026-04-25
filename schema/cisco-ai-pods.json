@@ -10011,17 +10011,6 @@
                     "title": "port",
                     "type": "integer"
                 },
-                "protocol": {
-                    "default": "",
-                    "description": "The default value is ``.  The default value is `HTTPS` when `device_type` is `http_boot`.  Protocol to be used for HTTP boot. HTTPS require root certificate for authentication.\n  * `HTTPS` - Secure HTTP protocol, certificate required for authentication.\n  * `HTTP` - HTTP protocol without security certificate requirement.",
-                    "enum": [
-                        "HTTP",
-                        "HTTPS"
-                    ],
-                    "intersight_api": "IpConfigType",
-                    "title": "protocol",
-                    "type": "string"
-                },
                 "slot": {
                     "default": "MSTOR-RAID",
                     "description": "The default value is `MSTOR-RAID`.  Options for `iscsi_boot`, `pxe_boot` and `san_boot` are 1-255, MLOM, L1, L2.  `scsi_boot` and `pxe_boot` also support L and OCP.  For `local_disk` values can be 1-205, FMEZZ1-SAS, HBA, M, MRAID, MRAID1, MRAID2, MSTOR-RAID, SAS, RAID.",
@@ -11950,8 +11939,8 @@
                             "type": "integer"
                         },
                         "qinq_vlan": {
-                            "default": 0,
-                            "description": "The default value is `0`.  The VLAN ID for VIC QinQ (802.1Q-in-802.1Q) Tunneling.  Any value other than 0 will enable QnQ Tunneling.",
+                            "default": 2,
+                            "description": "The default value is `2`.  The VLAN ID for VIC QinQ (802.1Q-in-802.1Q) Tunneling.  Any value other than 0 will enable QnQ Tunneling.",
                             "intersight_api": "$ref:VlanSettings:fabric.VlanSettings:QinqVlan",
                             "maximum": 4093,
                             "minimum": 1,
@@ -27441,7 +27430,8 @@
             },
             "required": [
                 "priority",
-                "state"
+                "state",
+                "weight"
             ],
             "title": "Class",
             "type": "object"
@@ -27497,7 +27487,8 @@
             },
             "required": [
                 "priority",
-                "state"
+                "state",
+                "weight"
             ],
             "title": "Class",
             "type": "object"
@@ -27547,7 +27538,7 @@
             "required": [],
             "title": "system_qos_templates",
             "properties": {
-                "default_classes_domain": {
+                "default_classes_ucs_domain": {
                     "description": "Template class values used when configure_default_classes is enabled.",
                     "classes": [
                         {
@@ -27579,7 +27570,7 @@
                         }
                     ]
                 },
-                "recommended_classes_domain": {
+                "recommended_classes_ucs_domain": {
                     "description": "Template class values used when configure_recommended_classes is enabled.",
                     "classes": [
                         {

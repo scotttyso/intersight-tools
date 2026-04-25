@@ -1,0 +1,33 @@
+{
+  "Burst": {{ item.burst | default(10240) }},
+  "Cos": {{ item.class_of_service | default(0) }},
+  "Description": "{{ item.description | default('') }}",
+  "Mtu": {{ item.mtu | default(1500) }},
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "vnic.EthQosPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "Priority": "{{ item.priority | default('Bronze') }}",
+  "RateLimit": {{ item.rate_limit | default(0) }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TrustHostCos": {{ item.enable_trust_host_cos | default(false) | lower }}
+}

@@ -1,0 +1,48 @@
+{
+  "AddressType": {
+    "EnableIpV4": true,
+    "EnableIpV6": false,
+    "ObjectType": "access.AddressType"
+  },
+  "ConfigurationType": {
+    "ConfigureInband": true,
+    "ConfigureOutOfBand": true,
+    "ObjectType": "access.ConfigurationType"
+  },
+  "Description": "{{ item.description | default('') }}",
+  "InbandIpPool": {
+    "Moid": "64bf472269627531019f2166",
+    "ObjectType": "ippool.Pool"
+  },
+  "InbandVlan": 1001,
+  "InbandVrf": null,
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "access.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "OutOfBandIpPool": {
+    "Moid": "6467a419696275310148c749",
+    "ObjectType": "ippool.Pool"
+  },
+  "OutOfBandVrf": null,
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

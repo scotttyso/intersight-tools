@@ -1,0 +1,37 @@
+{
+  "CdpEnabled": {{ item.cdp_enabled | default(false) | lower }},
+  "Description": "{{ item.description | default('') }}",
+  "ForgeMac": "{{ item.mac_security_forge | default('allow') }}",
+  "LldpSettings": {
+    "ObjectType": "fabric.LldpSettings",
+    "ReceiveEnabled": {{ item.lldp_enable_receive | default(false) | lower }},
+    "TransmitEnabled": {{ item.lldp_enable_transmit | default(true) | lower }}
+  },
+  "MacRegistrationMode": "{{ item.mac_register_mode | default('nativeVlanOnly') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "NetworkPolicy": [],
+  "ObjectType": "fabric.EthNetworkControlPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UplinkFailAction": "{{ item.action_on_uplink_fail | default('linkDown') }}"
+}

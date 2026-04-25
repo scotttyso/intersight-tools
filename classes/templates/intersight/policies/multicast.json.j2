@@ -1,0 +1,32 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.MulticastPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "QuerierIpAddress": "{{ item.querier_ip_address | default('') }}",
+  "QuerierIpAddressPeer": "{{ item.querier_ip_address_peer | default('') }}",
+  "QuerierState": "{{ item.querier_state | default('Disabled') }}",
+  "SnoopingState": "{{ item.snooping_state | default('Enabled') }}",
+  "SrcIpProxy": "{{ item.source_ip_proxy_state | default('Enabled') }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}
