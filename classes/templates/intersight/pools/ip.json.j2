@@ -1,0 +1,108 @@
+{
+{% set _ipv4_blocks = item.ipv4_blocks | default([]) %}
+{% set _ipv6_blocks = item.ipv6_blocks | default([]) %}
+{% set _enable_block_level_subnet_config =
+  (_ipv4_blocks | selectattr('netmask', 'defined') | list | length > 0)
+  or
+  (_ipv6_blocks | selectattr('prefix', 'defined') | list | length > 0)
+%}
+  "AssignmentOrder": "{{  item.assignment_order | default('sequential') }}",
+  "Description": "{{ item.description | default('') }}",
+  "EnableBlockLevelSubnetConfig": {{ _enable_block_level_subnet_config | lower }},
+  "IpV4Blocks": [
+{% if _ipv4_blocks | length > 0 %}
+{% for block in _ipv4_blocks %}
+    {
+      "From": "{{ block.from | default('198.18.0.10') }}",
+{% if block.id_mapping_policy is defined %}
+{% set _name = block.id_mapping_policy.split('/')[-1] %}
+{% set _org  = block.id_mapping_policy.split('/')[0] if block.id_mapping_policy.split('/') | length > 1 else organization %}
+      "IdMappingPolicyMoid": "{{ isight[_org]['pools']['id_mapping'][_name] }}",
+{% else %}
+      "IdMappingPolicyMoid": "",
+{% endif %}
+      "IpV4Config": {
+        "Gateway": "{{ block.gateway | default('') }}",
+        "Netmask": "{{ block.netmask | default('') }}",
+        "ObjectType": "ippool.IpV4Config",
+        "PrimaryDns": "{{ block.primary_dns | default('') }}",
+        "SecondaryDns": "{{ block.secondary_dns | default('') }}"
+      },
+      "ObjectType": "ippool.IpV4Block",
+{% if block.to is defined %}
+      "To": "{{ block.to | default('198.18.0.190') }}"
+{% else %}
+      "Size": {{ block.size | default(32) }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "IpV4Config": {
+    "Gateway": "{{ (item.ipv4_configuration | default({})).gateway | default('') }}",
+    "Netmask": "{{ (item.ipv4_configuration | default({})).netmask | default('') }}",
+    "ObjectType": "ippool.IpV4Config",
+    "PrimaryDns": "{{ (item.ipv4_configuration | default({})).primary_dns | default('') }}",
+    "SecondaryDns": "{{ (item.ipv4_configuration | default({})).secondary_dns | default('') }}"
+  },
+  "IpV6Blocks": [
+{% if _ipv6_blocks | length > 0 %}
+{% for block in _ipv6_blocks %}
+    {
+      "From": "{{ block.from | default('2001:db8::10') }}",
+{% if block.id_mapping_policy is defined %}
+{% set _name = block.id_mapping_policy.split('/')[-1] %}
+{% set _org  = block.id_mapping_policy.split('/')[0] if block.id_mapping_policy.split('/') | length > 1 else organization %}
+      "IdMappingPolicyMoid": "{{ isight[_org]['pools']['id_mapping'][_name] }}",
+{% else %}
+      "IdMappingPolicyMoid": "",
+{% endif %}
+      "IpV6Config": {
+        "Gateway": "{{ block.gateway | default('') }}",
+        "ObjectType": "ippool.IpV6Config",
+        "Prefix": {{ block.prefix | default(0) }},
+        "PrimaryDns": "{{ block.primary_dns | default('') }}",
+        "SecondaryDns": "{{ block.secondary_dns | default('') }}"
+      },
+      "ObjectType": "ippool.IpV6Block",
+{% if block.to is defined %}
+      "To": "{{ block.to | default('2001:db8::250') }}"
+{% else %}
+      "Size": {{ block.size | default(255) }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "IpV6Config": {
+    "Gateway": "{{ (item.ipv6_configuration | default({})).gateway | default('') }}",
+    "ObjectType": "ippool.IpV6Config",
+    "Prefix": {{ (item.ipv6_configuration | default({})).prefix | default(0) }},
+    "PrimaryDns": "{{ (item.ipv6_configuration | default({})).primary_dns | default('') }}",
+    "SecondaryDns": "{{ (item.ipv6_configuration | default({})).secondary_dns | default('') }}"
+  },
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "ippool.Pool",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

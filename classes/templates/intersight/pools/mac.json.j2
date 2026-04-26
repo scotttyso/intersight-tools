@@ -1,0 +1,43 @@
+{
+  "AssignmentOrder": "{{  item.assignment_order | default('sequential') }}",
+  "Description": "{{ item.description | default('') }}",
+  "MacBlocks": [
+{% if item.mac_blocks is defined and item.mac_blocks | length > 0 %}
+{% for block in item.mac_blocks %}
+    {
+      "From": "{{ block.from | default('00:25:B5:0A:00:00') }}",
+      "ObjectType": "macpool.Block",
+{% if block.to is defined %}
+      "To": "{{ block.to | default('00:25:B5:0A:00:FF') }}"
+{% else %}
+      "Size": {{ block.size | default(255) }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "macpool.Pool",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

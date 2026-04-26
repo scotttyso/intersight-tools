@@ -1,0 +1,45 @@
+{
+  "AssignmentOrder": "{{  item.assignment_order | default('sequential') }}",
+  "Description": "{{ item.description | default('') }}",
+  "IqnSuffixBlocks": [
+{% if item.iqn_blocks is defined and item.iqn_blocks | length > 0 %}
+{% for block in item.iqn_blocks %}
+    {
+      "From": {{ block.from | default(0) }},
+      "ObjectType": "iqnpool.IqnSuffixBlock",
+      "Suffix": "{{ block.suffix | default('ucs-host') }}",
+{% if block.to is defined %}
+      "To": {{ block.to | default(255) }}
+{% else %}
+      "Size": {{ block.size | default(255) }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "iqnpool.Pool",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "Prefix": "{{ item.prefix | default('iqn.1984-12.com.cisco') }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

@@ -1,0 +1,51 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "pool.IdMappingPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "Selectors": [
+{% if item.resource_groups is defined and item.resource_groups | length > 0 %}
+{% set _rsg_moids_ns = namespace(values=[]) %}
+{% for rg in item.resource_groups %}
+{% set _rsg_moids_ns.values = _rsg_moids_ns.values + [rsg_moids[rg].moid] %}
+{% endfor %}
+{% set _rsg_selector_moids = _rsg_moids_ns.values | join("','") %}
+    {
+      "ObjectType": "resource.Selector",
+      "Selector": "/api/v1/resource/Groups?$filter=Moid in('{{ _rsg_selector_moids }}')"
+    }{% if item.organizations is defined and item.organizations | length > 0 %},{% endif%}
+{% endif %}
+{% if item.organizations is defined and item.organizations | length > 0 %}
+{% set _org_moids_ns = namespace(values=[]) %}
+{% for org in item.organizations %}
+{% set _org_moids_ns.values = _org_moids_ns.values + [org_moids[org].moid] %}
+{% endfor %}
+{% set _org_selector_moids = _org_moids_ns.values | join("','") %}
+    {
+      "ObjectType": "resource.Selector",
+      "Selector": "/api/v1/organization/Organizations?$filter=Moid in('{{ _org_selector_moids }}')"
+    }
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

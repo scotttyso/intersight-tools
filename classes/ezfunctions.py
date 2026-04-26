@@ -44,9 +44,7 @@ def base_arguments(parser):
     parser.add_argument(
         '-a', '--intersight-api-key-id', default = os.getenv('intersight_api_key_id'),
         help   = 'The Intersight API key id for HTTP signature scheme.')
-    parser.add_argument(
-        '-d', '--dir', default = 'Intersight',
-        help   = 'The Directory to use for the Creation of the YAML Configuration Files.')
+    parser.add_argument('-d', '--dir', default = 'Intersight', help   = 'The Directory to use for the Creation of the YAML Configuration Files.')
     parser.add_argument(
         '-dl', '--debug-level', default = 0,
         help ='Used for troubleshooting.  The Amount of Debug output to Show: '\
@@ -55,19 +53,16 @@ def base_arguments(parser):
             '6. Adds Results + Lower Options '\
             '7. Adds json payload + Lower Options '\
             'Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy')
-    parser.add_argument(
-        '-f', '--intersight-fqdn', default ='intersight.com',
-        help   = 'The Directory to use for the Creation of the YAML Configuration Files.')
-    parser.add_argument(
-        '-i', '--ignore-tls', action = 'store_false',
-        help   = 'Ignore TLS server-side certificate verification.  Default is False.')
-    parser.add_argument('-j', '--json-file', default = None, help   = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
+    parser.add_argument('-f', '--intersight-fqdn', default ='intersight.com', help = 'The Directory to use for the Creation of the YAML Configuration Files.')
+    parser.add_argument('-i', '--ignore-tls',      action = 'store_false',    help = 'Ignore TLS server-side certificate verification.  Default is False.')
+    parser.add_argument('-j', '--json-file',       default = None,            help = 'The IMM Transition Tool JSON Dump File to Convert to HCL.')
     parser.add_argument(
         '-k', '--intersight-secret-key', default = os.getenv('intersight_secret_key'),
         help   = 'Name of the file containing The Intersight secret key or contents of the secret key in environment.')
-    parser.add_argument('-rc', '--repository-check-skip', action = 'store_true', help   = 'Flag to Skip Repository URL Test for OS Install.')
-    parser.add_argument('-l',  '--load-config',      action = 'store_true', help   = 'Skip Wizard and Just Load Configuration Files.')
-    parser.add_argument('-y', '--yaml-file', default = None,  help = 'The input YAML File.')
+    parser.add_argument('-l',  '--load-config',           action = 'store_true', help = 'Skip Wizard and Just Load Configuration Files.')
+    parser.add_argument('-ni', '--non-interactive',       action = 'store_true', help = 'Run in non-interactive mode with default values (no prompts).')
+    parser.add_argument('-rc', '--repository-check-skip', action = 'store_true', help = 'Flag to Skip Repository URL Test for OS Install.')
+    parser.add_argument('-y', '--yaml-file',              default = None,        help = 'The input YAML File.')
     return parser
 
 #=============================================================================
@@ -136,11 +131,10 @@ def base_script_settings(kwargs):
     ezdata = materialize(RefDict(os.path.join(kwargs.script_path, 'schema', 'temp.json'), 'r', encoding='utf8'))
     if os.path.exists(os.path.join(kwargs.script_path, 'schema', 'temp.json')):
         os.remove(os.path.join(kwargs.script_path, 'schema', 'temp.json'))
-    script_tag     = script_name.replace('ez', 'easy-')
-    kwargs.ez_tags = [{'key':'Provisioned via -','value':script_tag},{'key':f'{script_tag} version -','value':ezdata['version']}]
-    kwargs.ezdata  = DotMap(ezdata['definitions'])
-    # kwargs.ezwizard     = DotMap(ezdata['wizard'])
-    # kwargs.ez_wizard    = DotMap(ezdata['wizard'])
+    script_tag      = script_name.replace('ez', 'easy-')
+    kwargs.ez_tags  = [{'key':'Provisioned via -','value':script_tag},{'key':f'{script_tag} version -','value':ezdata['version']}]
+    kwargs.ezdata   = DotMap(ezdata['definitions'])
+    kwargs.ezwizard = DotMap(ezdata['wizard'])
     #=========================================================================
     # Get Intersight Configuration
     # - apikey
@@ -1018,28 +1012,6 @@ def mod_pol_description(pol_description):
     pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
     pdescr = (((pdescr.replace('Vnics', 'vNICs')).replace('Vhbas', 'vHBAs')).replace('Vlan', 'VLAN')).replace('Os Install', 'OS')
     return pdescr
-
-#=============================================================================
-# Function - Change Policy Description to Sentence
-#=============================================================================
-def name_prefix_suffix(policy, kwargs):
-    if   re.search('^ip|iqn|mac|resource|uuid|wwnn|wwpn$', policy): ptype = 'pools'
-    elif re.search('^profiles.(chassis|domain|server)$', policy): ptype = 'profiles'
-    elif re.search('^templates.(chassis|domain|server)$', policy): ptype = 'templates'
-    else: ptype = 'policies'
-    args  = DotMap(name_prefix = '', name_suffix = '')
-    pkeys = list(kwargs.imm_dict.orgs[kwargs.org][ptype].keys())
-    for e in ['name_prefix', 'name_suffix']:
-        if e in pkeys:
-            nkeys = list(kwargs.imm_dict.orgs[kwargs.org][ptype][e].keys())
-            if policy in nkeys:
-                if len(kwargs.imm_dict.orgs[kwargs.org][ptype][e][policy]) > 0:
-                    args[e] = kwargs.imm_dict.orgs[kwargs.org][ptype][e][policy]
-            if args[e] == '':
-                if 'default' in nkeys:
-                    if len(kwargs.imm_dict.orgs[kwargs.org][ptype][e]['default']) > 0:
-                        args[e] = kwargs.imm_dict.orgs[kwargs.org][ptype][e]['default']
-    return args.name_prefix, args.name_suffix
 
 #=============================================================================
 # Function - Naming Rule

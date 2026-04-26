@@ -1,0 +1,44 @@
+{
+  "AssignmentOrder": "{{  item.assignment_order | default('sequential') }}",
+  "Description": "{{ item.description | default('') }}",
+  "IdBlocks": [
+{% if item.id_blocks is defined and item.id_blocks | length > 0 %}
+{% for block in item.id_blocks %}
+    {
+      "From": "{{ block.from | default('20:00:00:25:B5:00:00:00') }}",
+      "ObjectType": "fcpool.Block",
+{% if block.to is defined %}
+      "To": "{{ block.to | default('20:00:00:25:B5:00:00:FF') }}"
+{% else %}
+      "Size": {{ block.size | default(255) }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fcpool.Pool",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PoolPurpose": "WWNN",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

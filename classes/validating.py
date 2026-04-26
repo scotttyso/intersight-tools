@@ -16,29 +16,51 @@ except ImportError as e:
 
 oregex = re.compile('fabric.([a-zA-z]+(Mode|Role)|V[l|s]an)|vnic.(Eth|Fc)If|iam.EndPointUserRole|DriveGroup|Ldap(Group|Provider)')
 policy_regex = re.compile('(network_connectivity|ntp|port|snmp|switch_control|syslog|system_qos|vlan|vsan)')
+DESCRIPTION_WORD_MAP = {
+    'Fiattached': 'FIAttached',
+    'Fc': 'FC',
+    'Id': 'ID',
+    'Imc': 'IMC',
+    'Ip': 'IP',
+    'Ipmi': 'IPMI',
+    'Iqn': 'IQN',
+    'Iscsi': 'iSCSI',
+    'Lan': 'LAN',
+    'Ldap': 'LDAP',
+    'Mac': 'MAC',
+    'Ntp': 'NTP',
+    'San': 'SAN',
+    'Sd': 'SD',
+    'Smtp': 'SMTP',
+    'Snmp': 'SNMP',
+    'Ssh': 'SSH',
+    'Uuid': 'UUID',
+    'Vhbas': 'vHBAs',
+    'Vlan': 'VLAN',
+    'Vnics': 'vNICs',
+    'Vsan': 'VSAN',
+    'Wwnn': 'WWNN',
+    'Wwpn': 'WWPN',
+}
 
 #=============================================================================
 # Function - Change Policy Description to Sentence
 #=============================================================================
 def mod_pol_description(pol_description):
-    pdescr = str.title(pol_description.replace('_', ' '))
-    pdescr = (((pdescr.replace('Fiattached', 'FIAttached')).replace('Imc', 'IMC')).replace('Mac', 'MAC')).replace('Uuid', 'UUID')
-    pdescr = (((pdescr.replace('Iscsi', 'iSCSI')).replace('Fc', 'FC')).replace('San', 'SAN')).replace('Lan', 'LAN')
-    pdescr = (((pdescr.replace('Ipmi', 'IPMI')).replace('Ip', 'IP')).replace('Iqn', 'IQN')).replace('Ldap', 'LDAP')
-    pdescr = (((pdescr.replace('Ntp', 'NTP')).replace('Sd', 'SD')).replace('Smtp', 'SMTP')).replace('Snmp', 'SNMP')
-    pdescr = (((pdescr.replace('Ssh', 'SSH')).replace('Wwnn', 'WWNN')).replace('Wwpn', 'WWPN')).replace('Vsan', 'VSAN')
-    pdescr = ((pdescr.replace('Vnics', 'vNICs')).replace('Vhbas', 'vHBAs')).replace('Vlan', 'VLAN')
-    return pdescr
+    words = str.title(pol_description.replace('_', ' ')).split()
+    return ' '.join(DESCRIPTION_WORD_MAP.get(word, word) for word in words)
 
-# Errors & Notifications
+#=============================================================================
+# Notifications
+#=============================================================================
 def begin_loop(ptype1, ptype2):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
-def begin_section(org, ptype1, ptype2):
-    ptype1 = mod_pol_description((' '.join(ptype1.split('_'))).title())
+def begin_section(org, resource, resource_type):
+    ptype1 = mod_pol_description((' '.join(resource.split('_'))).title())
     pcolor.LightGray(f'\n{"-"*108}\n')
-    pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(ptype2.split('_')).title()} Deployments for Org: `{org}`.\n")
+    pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(resource_type.split('_')).title()} Deployments for Organization: `{org}`.\n")
 
 def completed_item(ptype, kwargs):
     iresults = kwargs.api_results
@@ -111,18 +133,21 @@ def deploy_notification(profile, profile_type):
     pcolor.LightPurple(f'   Deploy Action Still ongoing for {profile_type} Profile {profile}')
     pcolor.LightGray(f'\n{"-"*108}\n')
 
+def end_loop(ptype1, ptype2):
+    pcolor.LightPurple(f"\n   Completed {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.")
+
+def end_section(org, resource, resource_type):
+    ptype1 = mod_pol_description((' '.join(resource.split('_'))).title())
+    pcolor.LightPurple(f"\n  Completed {ptype1} {' '.join(resource_type.split('_')).title()} Deployments for Organization: `{org}`.")
+
+#=============================================================================
+# Errors
+#=============================================================================
 def error_file_location(varName, varValue):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.Yellow(f'  !!! ERROR !!! The "{varName}" "{varValue}"')
     pcolor.Yellow(f'  is invalid.  Please valid the Entry for "{varName}".')
     pcolor.LightGray(f'\n{"-"*108}\n')
-
-def end_loop(ptype1, ptype2):
-    pcolor.LightPurple(f"\n   Completed {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.")
-
-def end_section(org, ptype1, ptype2):
-    ptype1 = mod_pol_description((' '.join(ptype1.split('_'))).title())
-    pcolor.LightPurple(f"\n   Completed {ptype1} {' '.join(ptype2.split('_')).title()} Deployments for Org: `{org}`.")
 
 def error_policy_doesnt_exist(parent_type, parent_name, ptype, pname):
     if re.search('chassis|domain|server|switch', parent_type):
@@ -136,6 +161,14 @@ def error_policy_doesnt_exist(parent_type, parent_name, ptype, pname):
     pcolor.Yellow(f'   The Following {dtype} was attached to {parent_ptype} {parent_stype} `{parent_name}`, but it has not been created.')
     pcolor.Yellow(f'   {dtype} Type: {ptype}')
     pcolor.Yellow(f'   {dtype} Name: {pname}')
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    len(False); sys.exit(1)
+
+def error_organization(org):
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.Yellow(f'   !!! ERROR !!!')
+    pcolor.Yellow(f'   The organization was not found in Intersight, but it is referenced in the input file.')
+    pcolor.Yellow(f'   Organization: {org}')
     pcolor.LightGray(f'\n{"-"*108}\n')
     len(False); sys.exit(1)
 
@@ -228,8 +261,11 @@ def unmapped_keys(policy_type, name, key):
     print(f'   !!! ERROR !!!! For {policy_type}, {name}, unknown key {key}')
     print(f'\n{"-"*108}\n')
     len(False); sys.exit(1)
- 
+
+
+#=============================================================================
 # Validations
+#=============================================================================
 def boolean(var, kwargs):
     row_num = kwargs['row_num']
     ws = kwargs['ws']

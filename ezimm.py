@@ -535,7 +535,7 @@ def _handle_menu_shortcuts(kwargs: Any) -> tuple[bool, Any]:
     if kwargs.deployment_type == 'Deploy':
         kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
         kwargs = isight.api('organization').organizations(kwargs)
-        return True, isight.imm.deploy(kwargs)
+        return True, isight.imm('deployment').define_imm_functions_to_run(kwargs)
 
     return False, kwargs
 
@@ -593,7 +593,7 @@ def process_wizard(kwargs: Any) -> Any:
         kwargs = ezfunctions.terraform_provider_config(kwargs)
         kwargs = create_terraform_workspaces(kwargs.orgs, kwargs)
     elif re.search('Individual|Server', kwargs.deployment_type):
-        kwargs = isight.imm.deploy(kwargs)
+        kwargs = isight.imm('deployment').define_imm_functions_to_run(kwargs)
     return kwargs
 
 #=============================================================================

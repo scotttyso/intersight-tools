@@ -1,0 +1,60 @@
+{% set _spq = item.server_pool_qualification_policies | default([]) %}
+{% set _serials = item.static_resource_selection | default([]) %}
+{
+  "AssignmentOrder": "{{  item.assignment_order | default('sequential') }}",
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "resourcepool.Pool",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PoolType": {% if _serials | length > 0 and _spq | length > 0 %}"Hybrid"{% elif _serials | length > 0 %}"Static"{% else %}"Dynamic"{% endif %},
+  "QualificationPolicies": [
+{% if _spq | length > 0 %}
+{% for spq in _spq %}
+{% set _name = spq.split('/')[-1] %}
+{% set _org  = spq.split('/')[0] if spq.split('/') | length > 1 else organization %}
+    {
+      "ClassId": "mo.MoRef",
+      "spq": "{{ spq }}",
+      "Moid": "{{ isight[_org]['policies']['server_pool_qualification'][_name] }}",
+      "ObjectType": "resourcepool.QualificationPolicy"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "ResourcePoolParameters": {
+    "ClassId": "resourcepool.ServerPoolParameters",
+    "ManagementMode": "Intersight",
+    "ObjectType": "resourcepool.ServerPoolParameters",
+    "TargetPlatform": "{{ item.target_platform | default('FIAttached') }}"
+  },
+  "ResourceType": {% if item.target_platform | default('FIAttached') == 'UnifiedEdgeServer' %}"Mixed"{% else %}"Server"{% endif %},
+  "Selectors": [
+{% if _serials | length > 0 %}
+    {
+      "ObjectType": "resource.Selector",
+      "Selector": "/api/v1/compute/PhysicalSummaries?$filter=Serial in('{{ _serials | join("','") }}')"
+    }
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}
