@@ -108,6 +108,10 @@ def base_script_settings(kwargs):
     logging.basicConfig(filename=f'{dest_dir}{os.sep}{script_name}.log', filemode='a', format=FORMAT, level=logging.DEBUG )
     logger = logging.getLogger('openapi')
     #=========================================================================
+    # Mirror all print()/pcolor output to the log file
+    #=========================================================================
+    pcolor.init_log(os.path.join(dest_dir, dest_file))
+    #=========================================================================
     # Determine the Script Path
     #=========================================================================
     args_dict = vars(kwargs.args)

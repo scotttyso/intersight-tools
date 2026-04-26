@@ -1,4 +1,39 @@
-import re, shutil, textwrap
+import io, os, re, shutil, sys, textwrap
+
+_ANSI_ESCAPE = re.compile(r'\033\[[0-9;]*m')
+_log_file    = None  # set by init_log(); None means no file logging
+
+
+class TeeStream(io.TextIOBase):
+    """Wraps an existing stream, mirroring writes to a log file (ANSI-stripped)."""
+    def __init__(self, original, log_path):
+        self._original = original
+        self._log      = open(log_path, 'a', encoding='utf-8', buffering=1)
+
+    def write(self, text):
+        self._original.write(text)
+        self._log.write(_ANSI_ESCAPE.sub('', text))
+        return len(text)
+
+    def flush(self):
+        self._original.flush()
+        self._log.flush()
+
+    def fileno(self):  # keep isatty() working correctly
+        return self._original.fileno()
+
+    def isatty(self):
+        return False
+
+
+def init_log(log_path):
+    """Redirect sys.stdout through TeeStream so all print() and pcolor output
+    is mirrored to *log_path* (with ANSI codes stripped)."""
+    global _log_file
+    _log_file  = log_path
+    sys.stdout = TeeStream(sys.stdout, log_path)
+
+
 #=============================================================================
 # Functions: Print in Color
 #=============================================================================

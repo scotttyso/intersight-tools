@@ -1513,13 +1513,13 @@ class imm(object):
         validating.begin_section(kwargs.org, ptitle, self.category.title())
         pcolor.LightGray('')
         idata = DotMap(dict(pair for d in kwargs.ezdata[f"intersight.{self.type}"].allOf for pair in d.properties.items()))
-        pdict = deepcopy(kwargs.imm_dict.orgs[kwargs.org][self.category][self.type])
-        if self.type == 'port': reconsile_resources = list({v.names[0]:v for v in pdict}.values())
+        rdict = deepcopy(kwargs.imm_dict.orgs[kwargs.org][self.category][self.type])
+        if self.type == 'port': reconsile_resources = list({v.names[0]:v for v in rdict}.values())
         elif self.type == 'firmware_authenticate':
             kwargs = self.firmware_authenticate(kwargs)
             validating.end_section(kwargs.org, ptitle, self.category.title())
             return kwargs
-        else: reconsile_resources = list({v.name:v for v in pdict}.values())
+        else: reconsile_resources = list({v.name:v for v in rdict}.values())
         kwargs.idata = idata
         #=====================================================================
         # Get Existing Resources
@@ -1571,8 +1571,7 @@ class imm(object):
             else:
                 if check_flag == True:
                     pcolor.Cyan(f"     * Running Check Mode: Org: `{kwargs.org}`; Non-Check mode would create new {ptitle} Policy: `{api_body['Name']}`.")
-                else:
-                    kwargs.bulk_list.append(deepcopy(api_body))
+                else: kwargs.bulk_list.append(deepcopy(api_body))
             return kwargs
         #=====================================================================
         # Loop through Resource Items
@@ -1604,9 +1603,7 @@ class imm(object):
         #=====================================================================
         # Loop Thru Sub-Items
         #=====================================================================
-        pdict = reconsile_resources
-        if self.type == 'port': kwargs.resources = list({v['names'][0]:v for v in pdict}.values())
-        else: kwargs.resources = list({v['name']:v for v in pdict}.values())
+        kwargs.resources = reconsile_resources
         if 'port' == self.type:
             kwargs = self.port_modes(kwargs)
             kwargs = self.ports(kwargs)
@@ -2501,7 +2498,6 @@ class imm(object):
             item['tags'] = []
         elif not isinstance(item, dict) and getattr(item, 'tags', None) is None:
             item.tags = []
-
         return item
 
     #=============================================================================
@@ -4319,7 +4315,7 @@ class imm(object):
         return kwargs
 
 #=============================================================================
-# IMM Class
+# Software Repository Class
 #=============================================================================
 class software_repository(object):
     def __init__(self, type): self.type = type
