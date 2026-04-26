@@ -18538,10 +18538,10 @@
                     "uniqueItems": true
                 },
                 "name_prefix": {
-                    "$ref": "#/definitions/intersight.policy.name.prefix_suffix"
+                    "$ref": "#/definitions/intersight.policy.name_prefix"
                 },
                 "name_suffix": {
-                    "$ref": "#/definitions/intersight.policy.name.prefix_suffix"
+                    "$ref": "#/definitions/intersight.policy.name_suffix"
                 },
                 "netflow_configuration": {
                     "description": "This policy allows for detailed monitoring of network traffic flows, enabling security anomaly detection and performance analysis within the Intersight dashboard.  NetFlow collects IP traffic metadata to monitor bandwidth and analyze performance. It is configured within Intersight, defining collectors, exporters, and flow parameters to monitor traffic across the Fabric Interconnects.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `flow_definitions`\n  * `flow_exporters`\n  * `flow_monitors`\n  * `tags`",
@@ -18872,9 +18872,9 @@
             "title": "Intersight Policies",
             "type": "object"
         },
-        "intersight.policy.name.prefix_suffix": {
+        "intersight.policy.name_prefix": {
             "additionalProperties": false,
-            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n\n  * `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `multicast`\n  * `network_connectivity`\n  * `ntp`\n  * `pcie_connectivity`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `schedule_policy`\n  * `sd_card`\n  * `serial_over_lan`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
+            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n* `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `firmware_authenticate`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `mac_sec`\n  * `memory`\n  * `multicast`\n  * `netflow_configuration`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `scrub`\n  * `sd_card`\n  * `serial_over_lan`\n  * `server_pool_qualification`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
             "object_type": "not_applicable",
             "properties": {
                 "adapter_configuration": {
@@ -19651,6 +19651,795 @@
                     "maxLength": 12,
                     "minLength": 0,
                     "pattern": "^$|^[a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "vsan",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                }
+            },
+            "title": "Policy Name Prefix/Suffix",
+            "type": "object"
+        },
+        "intersight.policy.name_suffix": {
+            "additionalProperties": false,
+            "description": "A list of prefixes/suffixes to add to the Policy Names.  If `default` is defined that will be assigned to any policies that don't have a more specific prefix/suffix defined.\n Options are:\n* `adapter_configuration`\n  * `auditd`\n  * `bios`\n  * `boot_order`\n  * `certificate_management`\n  * `default`\n  * `device_connector`\n  * `drive_security`\n  * `ethernet_adapter`\n  * `ethernet_network`\n  * `ethernet_network_control`\n  * `ethernet_network_group`\n  * `ethernet_qos`\n  * `fc_zone`\n  * `fibre_channel_adapter`\n  * `fibre_channel_network`\n  * `fibre_channel_qos`\n  * `firmware`\n  * `firmware_authenticate`\n  * `flow_control`\n  * `id_mapping`\n  * `imc_access`\n  * `ipmi_over_lan`\n  * `iscsi_adapter`\n  * `iscsi_boot`\n  * `iscsi_static_target`\n  * `lan_connectivity`\n  * `ldap`\n  * `link_aggregation`\n  * `link_control`\n  * `local_user`\n  * `mac_sec`\n  * `memory`\n  * `multicast`\n  * `netflow_configuration`\n  * `network_connectivity`\n  * `ntp`\n  * `persistent_memory`\n  * `port`\n  * `power`\n  * `san_connectivity`\n  * `scrub`\n  * `sd_card`\n  * `serial_over_lan`\n  * `server_pool_qualification`\n  * `smtp`\n  * `snmp`\n  * `ssh`\n  * `storage`\n  * `switch_control`\n  * `syslog`\n  * `system_qos`\n  * `thermal`\n  * `vhba_template`\n  * `virtual_kvm`\n  * `virtual_media`\n  * `vlan`\n  * `vnic_template`\n  * `vsan`",
+            "object_type": "not_applicable",
+            "properties": {
+                "adapter_configuration": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Adapter Configuration Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "adapter_configuration",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "auditd": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the AuditD Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "auditd",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "bios": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the BIOS Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "bios",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "boot_order": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Boot Order Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "boot_order",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "certificate_management": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Certificate Management Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "certificate_management",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "default": {
+                    "default": "",
+                    "description": "The default value is ``.  A default prefix/suffix value to add to the all the policy names.  An individual policy prefix/suffix will override this.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "default",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "device_connector": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Device Connector Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "device_connector",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "drive_security": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Drive Security Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "drive_security",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ethernet_adapter": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Ethernet Adapter Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ethernet_adapter",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ethernet_network": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Ethernet Network Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ethernet_network",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ethernet_network_control": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Ethernet Network Control Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ethernet_network_control",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ethernet_network_group": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Ethernet Network Group Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ethernet_network_group",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ethernet_qos": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Ethernet QoS Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ethernet_qos",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "fc_zone": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the FC Zone Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "fc_zone",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "fibre_channel_adapter": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Fibre-Channel Adapter Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "fibre_channel_adapter",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "fibre_channel_network": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Fibre-Channel Network Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "fibre_channel_network",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "fibre_channel_qos": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Fibre-Channel QoS Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "fibre_channel_qos",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "firmware": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Firmware Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "firmware",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "flow_control": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Flow Control Policy names.",
+                    "intersight_api": "FlowControl",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "flow_control",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "id_mapping": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the ID Mapping Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "id_mapping",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "imc_access": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the IMC Access Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "imc_access",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ipmi_over_lan": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the IPMI over LAN Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ipmi_over_lan",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "iscsi_adapter": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the iSCSI Adapter Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "iscsi_adapter",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "iscsi_boot": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the iSCSI Boot Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "iscsi_boot",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "iscsi_static_target": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the iSCSI Static Target Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "iscsi_static_target",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "lan_connectivity": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the LAN Connectivity Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "lan_connectivity",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ldap": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the LDAP Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ldap",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "link_aggregation": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Link Aggregation Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "link_aggregation",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "link_control": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Link Control Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "link_control",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "local_user": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Local User Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "local_user",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "mac_sec": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to MacSec Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "mac_sec",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "memory": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to Memory Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "memory",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "multicast": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to Multicast Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "multicast",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "netflow_configuration": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the NetFlow Configuration Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "netflow_configuration",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "network_connectivity": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Network Connectivity Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "network_connectivity",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ntp": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the NTP Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ntp",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "pcie_connectivity": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the PCIe Connectivity Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "pcie_connectivity",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "persistent_memory": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Persistent Memory Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "persistent_memory",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "port": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Port Policy names.",
+                    "intersight_api": "Port",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "port",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "power": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Power Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "power",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "san_connectivity": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the SAN Connectivity Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "san_connectivity",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "schedule_policy": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to Schedule Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "schedule_policy",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "scrub": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to Scrub Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "scrub",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "sd_card": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the SD Card Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "sd_card",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "serial_over_lan": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Serial over LAN Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "serial_over_lan",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "server_pool_qualification": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Server Pool Qualification Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "server_pool_qualification",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "smtp": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the SMTP Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "smtp",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "snmp": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the SNMP Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "snmp",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "ssh": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the SSH Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "ssh",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "storage": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Storage Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "storage",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "switch_control": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Switch Control Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "switch_control",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "syslog": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Syslog Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "syslog",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "system_qos": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the System QoS Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "system_qos",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "thermal": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Thermal Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "thermal",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "vhba_template": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the vHBA Template name.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "virtual_kvm",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "virtual_kvm": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Virtual KVM Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "virtual_kvm",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "virtual_media": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the Virtual Media Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "virtual_media",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "vlan": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the VLAN Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "vlan",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "vnic_template": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the vNIC Template name.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
+                    "title": "virtual_kvm",
+                    "type": "string",
+                    "examples": [
+                        ""
+                    ]
+                },
+                "vsan": {
+                    "default": "",
+                    "description": "The default value is ``.  A value to add to the VSAN Policy names.",
+                    "intersight_api": "not_applicable",
+                    "maxLength": 12,
+                    "minLength": 0,
+                    "pattern": "^$|^[a-zA-Z0-9_\\.:-]{0,12}$",
                     "title": "vsan",
                     "type": "string",
                     "examples": [
