@@ -1,0 +1,36 @@
+{
+  "AllocatedBudget": {{ item.power_allocation | default(0) | int }},
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "DynamicRebalancing": {{ item.dynamic_power_rebalancing | default('Enabled', true) | tojson }},
+  "ExtendedPowerCapacity": {{ item.extended_power_capacity | default('Enabled', true) | tojson }},
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "power.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PowerPriority": {{ item.power_priority | default('Low', true) | tojson }},
+  "PowerProfiling": {{ item.power_profiling | default('Enabled', true) | tojson }},
+  "PowerRestoreState": {{ item.power_restore | default('AlwaysOff', true) | tojson }},
+  "PowerSaveMode": {{ item.power_save_mode | default('Enabled', true) | tojson }},
+  "ProcessorPackagePowerLimit": {{ item.processor_package_power_limit | default('Default', true) | tojson }},
+  "RedundancyMode": {{ item.power_redundancy | default('Grid', true) | tojson }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

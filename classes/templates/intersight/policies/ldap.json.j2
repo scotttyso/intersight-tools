@@ -1,0 +1,56 @@
+{
+  "BaseProperties": {
+    "Attribute": {{ ((item.search_parameters | default({})).get('attribute') | default('CiscoAvPair', true)) | tojson }},
+    "BaseDn": {{ ((item.base_settings | default({})).get('base_dn') | default('DC=example,DC=com', true)) | tojson }},
+    "BindDn": {{ ((item.binding_parameters | default({})).get('bind_dn') | default('CN=Tyson Scott,OU=Administrators,DC=example,DC=com', true)) | tojson }},
+    "BindMethod": {{ ((item.binding_parameters | default({})).get('bind_method') | default('ConfiguredCredentials', true)) | tojson }},
+    "Domain": {{ ((item.base_settings | default({})).get('domain') | default('example.com', true)) | tojson }},
+    "EnableEncryption": {{ item.enable_encryption | default(false, true) | tojson }},
+    "EnableGroupAuthorization": {{ item.enable_group_authorization | default(false, true) | tojson }},
+    "EnableNestedGroupSearch": true,
+    "Filter": {{ ((item.search_parameters | default({})).get('filter') | default('sAMAccountName=$userid', true)) | tojson }},
+    "GroupAttribute": {{ ((item.search_parameters | default({})).get('group_attribute') | default('memberof', true)) | tojson }},
+  {% set bind_method = (item.binding_parameters | default({})).get('bind_method') | default('ConfiguredCredentials', true) %}
+  {% set bind_password = (item.binding_parameters | default({})).get('password') | default('', true) %}
+  {% if bind_method == 'ConfiguredCredentials' and bind_password | length > 0 %}
+    "Password": {{ bind_password | tojson }},
+  {% endif %}
+    "NestedGroupSearchDepth": {{ item.nested_group_search_depth | default(128, true) | int }},
+    "ObjectType": "iam.LdapBaseProperties",
+    "Timeout": {{ (item.base_settings | default({})).get('timeout') | default(0, true) | int }}
+  },
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "DnsParameters": {
+    "ObjectType": "iam.LdapDnsParameters",
+    "SearchDomain": {{ ((item.ldap_from_dns | default({})).get('search_domain') | default('', true)) | tojson }},
+    "SearchForest": {{ ((item.ldap_from_dns | default({})).get('search_forest') | default('', true)) | tojson }},
+    "Source": {{ ((item.ldap_from_dns | default({})).get('source') | default('Extracted', true)) | tojson }}
+  },
+  "EnableDns": {% if item.ldap_from_dns is defined %}true{% else %}false{% endif %},
+  "Enabled": {{ item.enable_ldap | default(true, true) | tojson }},
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "iam.LdapPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UserSearchPrecedence": {{ (item.user_search_precedence | default('LocalUserDb', true)) | tojson }}
+}

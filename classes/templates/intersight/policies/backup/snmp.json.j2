@@ -1,31 +1,31 @@
 {
-  "AccessCommunityString": "",
-  "CommunityAccess": "Disabled",
-  "Description": "{{ item.description | default('') }}",
-  "Enabled": true,
-  "EngineId": "",
-  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "AccessCommunityString": {{ item.access_community_string | default('', true) | tojson }},
+  "CommunityAccess": {{ item.snmp_community_access | default('Disabled', true) | tojson }},
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "Enabled": {{ item.enable_snmp | default(true) | tojson }},
+  "EngineId": {{ item.snmp_engine_input_id | default('', true) | tojson }},
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "snmp.Policy",
   "Organization": {
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
-  "SnmpPort": 161,
+  "SnmpPort": {{ item.snmp_port | default(161) | int }},
   "SnmpTraps": [],
   "SnmpUsers": [],
-  "SysContact": "",
-  "SysLocation": "",
+  "SysContact": {{ item.system_contact | default('', true) | tojson }},
+  "SysLocation": {{ item.system_location | default('', true) | tojson }},
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
     {
 {% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "PathTag"
 {% else %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "KeyValue",
-      "Value": "{{ tag.value }}"
+      "Value": {{ tag.value | tojson }}
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}
@@ -33,7 +33,7 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "TrapCommunity": "",
+  "TrapCommunity": {{ item.trap_community_string | default('', true) | tojson }},
   "V2Enabled": false,
   "V3Enabled": false
 }

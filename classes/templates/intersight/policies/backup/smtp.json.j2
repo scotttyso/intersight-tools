@@ -1,36 +1,37 @@
 {
   "ApplianceAccount": null,
   "Certificate": null,
-  "Description": "{{ item.description | default('') }}",
+  "Description": {{ (item.description | default('', true)) | tojson }},
   "EnableAuth": false,
   "EnableTls": false,
-  "Enabled": true,
+  "Enabled": {{ item.enable_smtp | default(true) | tojson }},
   "IsAuthPasswordSet": false,
-  "MinSeverity": "critical",
-  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "MinSeverity": {{ item.minimum_severity | default('critical', true) | tojson }},
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "smtp.Policy",
   "Organization": {
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
-  "SenderEmail": "intersight@example.com",
-  "SmtpPort": 25,
+  "SenderEmail": {{ item.smtp_alert_sender_address | default('intersight@example.com', true) | tojson }},
+  "SmtpPort": {{ item.smtp_port | default(25) | int }},
   "SmtpRecipients": [
-    "admin@example.com",
-    "infra-ops@example.com"
+{% for recipient in item.mail_alert_recipients | default([]) %}
+    {{ recipient | tojson }}{% if not loop.last %},{% endif %}
+{% endfor %}
   ],
-  "SmtpServer": "mail.example.com",
+  "SmtpServer": {{ item.smtp_server_address | default('smtp.example.com', true) | tojson }},
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
     {
 {% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "PathTag"
 {% else %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "KeyValue",
-      "Value": "{{ tag.value }}"
+      "Value": {{ tag.value | tojson }}
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}

@@ -1,0 +1,33 @@
+{
+  "AggregatePortId": {{ item.breakout_port_id | default(0) }},
+  "AutoNegotiationDisabled": {{ item.auto_negotiation_disabled | default(false) | tojson }},
+  "Fec": {{ item.fec | default('Auto') | tojson }},
+  "ObjectType": "fabric.ServerRole",
+  "PortId": {{ item.port_id | default(1) }},
+  "PortPolicy": {
+    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
+  "PreferredDeviceId": {{ item.device_number | default(0) | int }},
+  "PreferredDeviceType": {{ item.connected_device_type | default('Auto') | tojson }},
+  "SlotId": {{ item.slot_id | default(1) }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UserLabel": {{ item.user_label | default('') | tojson }}
+}

@@ -2,21 +2,46 @@
 """EZIMM - 
 Use This Wizard to Create Terraform HCL configuration from Question and Answer or the IMM Transition Tool.
 It uses argparse to take in the following CLI arguments:
-    -a   or --intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
-    -d   or --dir:                   Base Directory to use for creation of the YAML Configuration Files.
-    -dl  or --debug-level:           The Debug Level to Run for Script Output
-                                       1. Shows the api request response status code
-                                       5. Shows URL String + Lower Options
-                                       6. Adds Results + Lower Options
-                                       7. Adds json payload + Lower Options
-                                     Note: payload shows as pretty and straight to check for stray object types like Dotmap and numpy
-    -f  or --intersight-fqdn:        The Intersight hostname for the API endpoint. The default is intersight.com.
-    -i  or --ignore-tls:             Ignore TLS server-side certificate verification.  Default is False.
-    -j  or --json_file:              IMM Transition JSON export to convert to HCL.
-    -l  or --load-config             Flag to Load Previously Saved YAML Configuration Files.
-    -k  or --intersight-secret-key:  Name of the file containing The Intersight secret key for the HTTP signature scheme.
-    -t  or --deployment-method:      Deployment Method.  Values are: Intersight or Terraform
-    -v  or --api-key-v3:             Flag for API Key Version 3.
+        Base arguments:
+            -a   or --intersight-api-key-id: The Intersight API key id for HTTP signature scheme.
+            -d   or --dir:                   Base directory used for YAML configuration files.
+            -dl  or --debug-level:           Debug output level.
+            -f   or --intersight-fqdn:       Intersight hostname. Default is intersight.com.
+            -i   or --ignore-tls:            Ignore TLS server-side certificate verification.
+            -j   or --json-file:             IMM Transition Tool JSON dump file to convert to HCL.
+            -k   or --intersight-secret-key: Intersight secret key file path or key content.
+            -l   or --load-config:           Skip wizard and load existing configuration files.
+            -ni  or --non-interactive:       Run in non-interactive mode with defaults.
+            -rc  or --repository-check-skip: Skip repository URL checks for OS install.
+            -y   or --yaml-file:             Input YAML file.
+
+        EZIMM-sensitive-variable arguments:
+            -alp  or --azure-stack-lcm-password
+            -ccp  or --cco-password
+            -ccu  or --cco-user
+            -dap  or --domain-administrator-password
+            -ilp  or --local-user-password-1
+            -ilp2 or --local-user-password-2
+            -imm  or --imm-transition-password
+            -isa  or --snmp-auth-password-1
+            -isp  or --snmp-privacy-password-1
+            -lap  or --local-administrator-password
+            -np   or --netapp-password
+            -nsa  or --netapp-snmp-auth
+            -nsp  or --netapp-snmp-priv
+            -nxp  or --nexus-password
+            -p    or --pure-storage-password
+            -psa  or --pure-storage-snmp-auth
+            -psp  or --pure-storage-snmp-priv
+            -pxp  or --proxy-password
+            -vep  or --vmware-esxi-password
+            -vvp  or --vmware-vcenter-password
+
+        EZIMM-specific arguments:
+            -check or --check:               Run in check mode.  The Model definitions will only be compared to the Intersight API.
+            -dm    or --deployment-method:   Deployment method values: Python or Terraform.
+            -dt    or --deployment-type:     Deployment type values: Convert, Deploy, Domain,
+                                                                             Individual, OSInstall, Server, StateUpdate, Exit.
 """
 #=============================================================================
 # Source Modules
@@ -42,6 +67,7 @@ def _load_dependencies() -> Tuple[Any, ...]:
     """Import runtime dependencies and return them as module-level bindings."""
     try:
         import argparse
+        import importlib
         import json
         import re
 

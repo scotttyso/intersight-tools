@@ -1,0 +1,43 @@
+{
+  "AzureQosEnabled": {{ item.enable_azure_stack_host_qos | default(false) | tojson }},
+  "Description": {{ (item.description | default('', true)) | tojson }},
+{% if item.iqn_pool is defined%}
+{% set _name = item.iqn_pool.split('/')[-1] %}
+{% set _org  = item.iqn_pool.split('/')[0] if item.iqn_pool.split('/') | length > 1 else organization %}
+  "IqnAddressType": "Pool",
+  "IqnPool": {
+    "Moid": "{{ isight[_org]['pools']['iqn'][_name] }}",
+    "ObjectType": "iqnpool.Pool"
+  }
+{% else %}
+  "IqnAddressType": {% if item.iqn_static_identifier is defined %}"Static"{% else %}"None"{% endif %},
+  "IqnPool": null
+{% endif %}
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "vnic.LanConnectivityPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PlacementMode": {{ item.vhba_placement_mode | default('custom', true) | tojson }},
+  "StaticIqnName": {{ (item.iqn_static_identifier | default('', true)) | tojson }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": {{ item.target_platform | default('FIAttached', true) | tojson }}
+}

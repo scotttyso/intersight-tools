@@ -1,0 +1,48 @@
+{
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "Enabled": {{ item.enable_virtual_media | default(true) | tojson }},
+  "Encryption": {{ item.enable_virtual_media_encryption | default(true) | tojson }},
+  "LowPowerUsb": {{ item.enable_low_power_usb | default(true) | tojson }},
+  "Mappings": [
+{% if item.add_virtual_media is defined and item.add_virtual_media | length > 0 %}
+{% for mapping in item.add_virtual_media %}
+{% set _auth = mapping.authentication_protocol | default('none', true) | tojson %}
+    {
+      "AuthenticationProtocol": {{ _auth }},
+      "DeviceType": {{ mapping.device_type | default('cdd') | tojson }},
+      "FileLocation": {{ mapping.file_location | default('https://server.example.com/os.iso') | tojson }},
+      "MountOptions": {{ mapping.mount_options | default('') | tojson }},
+      "MountProtocol": {{ mapping.protocol | default('https') | tojson }},
+{% if _auth != 'none' and mapping.password is defined  and mapping.password | length > 1 and mapping.username is defined and mapping.username | length > 1 %}
+      "Password": {{ mapping.password | default('') | tojson }},
+{% endif %}
+      "Username": {{ mapping.username | default('') | tojson }},
+      "VolumeName": {{ mapping.name | default('remote_map') | tojson }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "vmedia.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

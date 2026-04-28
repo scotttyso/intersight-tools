@@ -1,0 +1,114 @@
+{
+{% if item.ip_protocol | default ('IPv4') == 'IPv4' %}
+{% set _target = item.target_source_type | default('Static') == 'Auto' %}
+{% else %}
+{% set _target = 'Static' %}
+{% endif %}
+  "AutoTargetvendorName": {% if _target == 'Auto' %}{{ item.dhcp_vendor_id_iqn | default('', true) | tojson }}{% else %}""{% endif %},
+{% if _target == 'Static' and item.authentication | default('blank') == 'chap' and item.password is defined and item.password | length > 1 %}
+  "Chap": {
+    "Password": "{{ item.password }}",
+    "ObjectType": "vnic.IscsiAuthProfile",
+    "UserId": "{{ item.username | default('') }}"
+  },
+{% endif %}
+  "Description": {{ (item.description | default('', true)) | tojson }},
+{% if _target == 'Static' and item.initiator_ip_pool is defined %}
+{% set _name = item.initiator_ip_pool.split('/')[-1] %}
+{% set _org = item.initiator_ip_pool.split('/')[0] if item.initiator_ip_pool.split('/') | length > 1 else organization %}
+  "InitiatorIpPool": {
+    "Moid": "{{ isight[_org]['pools']['ip'][_name] }}",
+    "ObjectType": "ippool.Pool"
+  },
+{% else %}
+  "InitiatorIpPool": null,
+{% endif %}
+  "InitiatorIpSource": {% if _target == 'Auto' %}
+    "DHCP"
+{% elif item.initiator_ip_pool is defined %}
+    "Pool"
+{% elif item.initiator_static_ipv4_config is defined or item.initiator_static_ipv6_config is defined %}
+    "Static"
+{% else %}
+    "DHCP"
+{% endif %},
+  "InitiatorStaticIpV4Address": {{ (item.initiator_static_ipv4_config | default({})).get('ip_address') | default('', true) | tojson }},
+  "InitiatorStaticIpV4Config": {
+    "Gateway": {{ (item.initiator_static_ipv4_config | default({})).get('gateway') | default('', true) | tojson }},
+    "Netmask": {{ (item.initiator_static_ipv4_config | default({})).get('netmask') | default('', true) | tojson }},
+    "ObjectType": "ippool.IpV4Config",
+    "PrimaryDns": {{ (item.initiator_static_ipv4_config | default({})).get('primary_dns') | default('', true) | tojson }},
+    "SecondaryDns": {{ (item.initiator_static_ipv4_config | default({})).get('secondary_dns') | default('', true) | tojson }}
+  },
+  "InitiatorStaticIpV6Address": {{ (item.initiator_static_ipv6_config | default({})).get('ipv6_address') | default('', true) | tojson }},
+  "InitiatorStaticIpV6Config": {
+    "Gateway": {{ (item.initiator_static_ipv6_config | default({})).get('gateway') | default('', true) | tojson }},
+    "ObjectType": "ippool.IpV6Config",
+    "Prefix": {{ (item.initiator_static_ipv6_config | default({})).get('prefix') | default(0, true) | tojson }},
+    "PrimaryDns": {{ (item.initiator_static_ipv6_config | default({})).get('primary_dns') | default('', true) | tojson }},
+    "SecondaryDns": {{ (item.initiator_static_ipv6_config | default({})).get('secondary_dns') | default('', true) | tojson }}
+  },
+{% if item.iscsi_adapter_policy is defined %}
+{% set _name = item.iscsi_adapter_policy.split('/')[-1] %}
+{% set _org = item.iscsi_adapter_policy.split('/')[0] if item.iscsi_adapter_policy.split('/') | length > 1 else organization %}
+  "IscsiAdapterPolicy": {
+    "Moid": "{{ isight[_org]['policies']['iscsi_adapter'][_name] }}",
+    "ObjectType": "vnic.IscsiAdapterPolicy"
+  },
+{% else %}
+  "IscsiAdapterPolicy": null,
+{% endif %}
+  "IscsiIpType": {{ item.ip_protocol | default('IPv4') | tojson }},
+{% if _target == 'Static' and item.authentication | default('blank') == 'mutual_chap' and item.password is defined and item.password | length > 1 %}
+  "MutualChap": {
+    "Password": "{{ item.password }}",
+    "ObjectType": "vnic.IscsiAuthProfile",
+    "UserId": "{{ item.username | default('') }}"
+  },
+{% endif %}
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "vnic.IscsiBootPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if _target == 'Static' and item.primary_target_policy is defined %}
+{% set _name = item.primary_target_policy.split('/')[-1] %}
+{% set _org = item.primary_target_policy.split('/')[0] if item.primary_target_policy.split('/') | length > 1 else organization %}
+  "PrimaryTargetPolicy": {
+    "Moid": "{{ isight[_org]['policies']['iscsi_static_target'][_name] }}",
+    "ObjectType": "vnic.IscsiStaticTargetPolicy"
+  },
+{% else %}
+  "PrimaryTargetPolicy": null,
+{% endif %}
+{% if _target == 'Static' and item.secondary_target_policy is defined %}
+{% set _name = item.secondary_target_policy.split('/')[-1] %}
+{% set _org = item.secondary_target_policy.split('/')[0] if item.secondary_target_policy.split('/') | length > 1 else organization %}
+  "SecondaryTargetPolicy": {
+    "Moid": "{{ isight[_org]['policies']['iscsi_static_target'][_name] }}",
+    "ObjectType": "vnic.IscsiStaticTargetPolicy"
+  },
+{% else %}
+  "SecondaryTargetPolicy": null,
+{% endif %}
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetSourceType": "{{ _target }}"
+}

@@ -1,0 +1,43 @@
+{
+  "Description": "",
+  "Name": "dummy",
+  "ObjectType": "sdcard.Policy",
+  "Organization": {
+    "Moid": "5ddea1e16972652d32b6493a",
+    "ObjectType": "organization.Organization",
+    "link": "https://us-east-1.intersight.com/api/v1/organization/Organizations/5ddea1e16972652d32b6493a"
+  },
+  "Partitions": [
+    {
+      "ClassId": "sdcard.Partition",
+      "ObjectType": "sdcard.Partition",
+      "Type": "OS",
+      "VirtualDrives": [
+        {
+          "ClassId": "sdcard.OperatingSystem",
+          "Enable": false,
+          "Name": "Hypervisor",
+          "ObjectType": "sdcard.OperatingSystem"
+        }
+      ]
+    }
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

@@ -1,6 +1,6 @@
 {
   "Description": "{{ item.description | default('') }}",
-  "LockoutEnabled": {{ item.configuration_from_intersight_only | default(false) }},
+  "LockoutEnabled": {{ item.configuration_from_intersight_only | default(false) | tojson }},
   "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
   "ObjectType": "deviceconnector.Policy",
   "Organization": {

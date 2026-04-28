@@ -1,0 +1,72 @@
+{
+{% set v4config = item.ipv4_address_configuration | default (false) %}
+{% set v6config = item.ipv6_address_configuration | default (false) %}
+{% if item.inband_ip_pool is defined %}
+{% set _inb_name = item.inband_ip_pool.split('/')[-1] %}
+{% set _inb_org = item.inband_ip_pool.split('/')[0] if item.inband_ip_pool.split('/') | length > 1 else organization %}
+{% set _inb_data = children[_inb_org]['pools']['ip'][_inb_name] %}
+{% set _inb_ipv4 = _inb_data.IpV4Blocks | length > 0 %}
+{% set _inb_ipv6 = _inb_data.IpV6Blocks | length > 0 %}
+{% endif %}
+{% if item.out_of_band_ip_pool is defined %}
+{% set _oob_name = item.out_of_band_ip_pool.split('/')[-1] %}
+{% set _oob_org = item.out_of_band_ip_pool.split('/')[0] if item.out_of_band_ip_pool.split('/') | length > 1 else organization %}
+{% set _oob_data = children[_oob_org]['pools']['ip'][_oob_name] %}
+{% set _oob_ipv4 = _oob_data.IpV4Blocks | length > 0 %}
+{% set _oob_ipv6 = _oob_data.IpV6Blocks | length > 0 %}
+{% endif %}
+  "AddressType": {
+    "EnableIpV4": {% if v4config %}true{% elif _inb_ipv4 %}true{% else %}false{% endif %},
+    "EnableIpV6": {% if v6config %}true{% elif _inb_ipv6 %}true{% else %}false{% endif %},
+    "ObjectType": "access.AddressType"
+  },
+  "ConfigurationType": {
+    "ConfigureInband": {% if item.inband_ip_pool is defined %}true{% else %}false{% endif %},
+    "ConfigureOutOfBand": {% if item.out_of_band_ip_pool is defined %}true{% else %}false{% endif %},
+    "ObjectType": "access.ConfigurationType"
+  },
+  "Description": {{ (item.description | default('', true)) | tojson }},
+{% if item.inband_ip_pool is defined %}
+  "InbandIpPool": {
+    "Moid": "{{ isight[_inb_org]['pools']['ip'][_inb_name] }}",
+    "ObjectType": "ippool.Pool"
+  },
+{% else %}
+  "InbandIpPool": null,
+{% endif %}
+  "InbandVlan": {{ item.inband_vlan_id | default(0) | int }},
+  "InbandVrf": null,
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "access.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.out_of_band_ip_pool is defined %}
+  "OutOfBandIpPool": {
+    "Moid": "{{ isight[_oob_org]['pools']['ip'][_oob_name] }}",
+    "ObjectType": "ippool.Pool"
+  },
+{% else %}
+  "OutOfBandIpPool": null,
+{% endif %}
+  "OutOfBandVrf": null,
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

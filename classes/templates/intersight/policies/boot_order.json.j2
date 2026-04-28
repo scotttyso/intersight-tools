@@ -1,9 +1,9 @@
 {% macro bootloader_block(device) -%}
 "Bootloader": {
-  "Description": "{{ device.bootloader | default({}).description | default('') }}",
-  "Name": "{{ device.bootloader | default({}).name | default('') }}",
+      "Description": {{ (device.bootloader | default({})).get('description') | default('', true) | tojson }},
+      "Name": {{ (device.bootloader | default({})).get('name') | default('', true) | tojson }},
   "ObjectType": "boot.Bootloader",
-  "Path": "{{ device.bootloader | default({}).path | default('') }}"
+      "Path": {{ (device.bootloader | default({})).get('path') | default('', true) | tojson }}
 },
 {%- endmacro %}
 {
@@ -29,17 +29,17 @@
       "Protocol": {% if 'https' | lower in uri %}"HTTPS"{% else %}"HTTP"{% endif %},
       "Slot": "{{ device.slot | default('MLOM') }}",
       "StaticIpV4Settings": {
-        "DnsIp": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).dns_ip | default('') }}"{% endif %},
-        "GatewayIp":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).gateway_ip | default('') }}"{% endif %},
-        "Ip":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).static_ip | default('') }}"{% endif %},
-        "NetworkMask": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv4_config | default({}).network_mask | default('') }}"{% endif %},
+      "DnsIp": {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv4_config | default({})).get('dns_ip') | default('', true) | tojson }}{% endif %},
+      "GatewayIp":  {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv4_config | default({})).get('gateway_ip') | default('', true) | tojson }}{% endif %},
+      "Ip":  {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv4_config | default({})).get('static_ip') | default('', true) | tojson }}{% endif %},
+      "NetworkMask": {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv4_config | default({})).get('network_mask') | default('', true) | tojson }}{% endif %},
         "ObjectType": "boot.StaticIpV4Settings"
       },
       "StaticIpV6Settings": {
-        "DnsIp": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).dns_ip | default('') }}"{% endif %},
-        "GatewayIp":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).gateway_ip | default('') }}"{% endif %},
-        "Ip":  {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).static_ip | default('') }}"{% endif %},
-        "PrefixLength": {% if ip_config == 'DHCP' %}""{% else %}"{{ device.ipv6_config | default({}).prefix_length | default('') }}"{% endif %},
+      "DnsIp": {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv6_config | default({})).get('dns_ip') | default('', true) | tojson }}{% endif %},
+      "GatewayIp":  {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv6_config | default({})).get('gateway_ip') | default('', true) | tojson }}{% endif %},
+      "Ip":  {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv6_config | default({})).get('static_ip') | default('', true) | tojson }}{% endif %},
+      "PrefixLength": {% if ip_config == 'DHCP' %}""{% else %}{{ (device.ipv6_config | default({})).get('prefix_length') | default('', true) | tojson }}{% endif %},
         "ObjectType": "boot.StaticIpV6Settings"
       },
       "Uri": "{{ uri }}"

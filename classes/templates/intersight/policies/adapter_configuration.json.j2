@@ -9,7 +9,7 @@
   "Settings": [
 {% if item.add_vic_adapter_configuration is defined and item.add_vic_adapter_configuration | length > 0 %}
 {% for vic in item.add_vic_adapter_configuration %}
-{% set _phy_mode = vic.enable_physical_nic_mode | default(false) | lower %}
+{% set _phy_mode = vic.enable_physical_nic_mode | default(false) %}
     {
       "DceInterfaceSettings": [
         {
@@ -44,7 +44,7 @@
       "ObjectType": "adapter.AdapterConfig",
       "PhysicalNicModeSettings": {
         "ObjectType": "adapter.PhysicalNicModeSettings",
-        "PhyNicEnabled": {{ _phy_mode}}
+        "PhyNicEnabled": {{ _phy_mode | tojson }}
       },
       "PortChannelSettings": {
         "Enabled": {% if _phy_mode == true %}false{% else %}{{ vic.enable_port_channel | default(true) | lower }}{% endif %},

@@ -838,14 +838,14 @@
                     "maxLength": 74,
                     "title": "intersight_api_key_id"
                 },
-                "ipmi_key": {
+                "ipmi_encryption_key": {
                     "type": "string",
                     "default": "",
-                    "description": "IMPI Key for an IPMI Policy.",
+                    "description": "IPMI Encryption Key for an IPMI Policy.",
                     "pattern": "^[\\da-fA-F]{2,40}",
                     "minLength": 2,
                     "maxLength": 40,
-                    "title": "ipmi_key"
+                    "title": "ipmi_encryption_key"
                 },
                 "iscsi_boot_password": {
                     "type": "string",
@@ -14026,7 +14026,7 @@
                         },
                         "encryption_key": {
                             "default": 1,
-                            "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use “00” to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.  A number Between 1-64 to denote the variables ipmi_key_[1-64].  i.e. `export ipmi_key_1='cisco123'`.",
+                            "description": "The default value is `1`.  The Encryption Key Sensitive Variable Identifier.  The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use “00” to disable encryption key use. This configuration is supported by all standalone rack servers. FI-attached rack servers with firmware at minimum of 4.2.3a support this configuration. FI-attached blade servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.  A number Between 1-64 to denote the variables ipmi_encryption_key_[1-64].  i.e. `export ipmi_encryption_key_1='cisco123'`.",
                             "intersight_api": "EncryptionKey",
                             "maximum": 64,
                             "minimum": 1,
@@ -14284,8 +14284,22 @@
                             "title": "initiator_ip_source",
                             "type": "string"
                         },
+                        "ip_protocol": {
+                            "default": "IPv4",
+                            "description": "The default value is `IPv4`.  Type of the IP address requested for iSCSI vNIC - IPv4/IPv6.",
+                            "enum": [
+                                "IPv4",
+                                "IPv6"
+                            ],
+                            "intersight_api": "IscsiIpType",
+                            "title": "IP Protocol",
+                            "type": "string"
+                        },
                         "initiator_static_ipv4_config": {
                             "$ref": "#/definitions/intersight.iscsi_boot.initiator_static_ipv4_config"
+                        },
+                        "initiator_static_ipv6_config": {
+                            "$ref": "#/definitions/intersight.iscsi_boot.initiator_static_ipv6_config"
                         },
                         "iscsi_adapter_policy": {
                             "default": "default",
@@ -14362,8 +14376,140 @@
                         }
                     },
                     "required": [
-                        "name",
-                        "target_source_type"
+                        "name"
+                    ],
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "ip_protocol": {
+                                        "const": "IPv4"
+                                    }
+                                },
+                                "required": [
+                                    "ip_protocol"
+                                ]
+                            },
+                            "then": {
+                                "required": [
+                                    "target_source_type"
+                                ]
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "ip_protocol": {
+                                        "const": "IPv6"
+                                    }
+                                },
+                                "required": [
+                                    "ip_protocol"
+                                ]
+                            },
+                            "then": {
+                                "not": {
+                                    "anyOf": [
+                                        {
+                                            "required": [
+                                                "target_source_type"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "dhcp_vendor_id_iqn"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "ip_protocol": {
+                                        "const": "IPv4"
+                                    },
+                                    "target_source_type": {
+                                        "const": "Auto"
+                                    }
+                                },
+                                "required": [
+                                    "ip_protocol",
+                                    "target_source_type"
+                                ]
+                            },
+                            "then": {
+                                "not": {
+                                    "anyOf": [
+                                        {
+                                            "required": [
+                                                "authentication"
+                                            ]
+                                        },
+                                       {
+                                            "required": [
+                                                "initiator_ip_pool"
+                                            ]
+                                        },
+                                       {
+                                            "required": [
+                                                "initiator_ip_source"
+                                            ]
+                                        },
+                                       {
+                                            "required": [
+                                                "initiator_static_ipv4_config"
+                                            ]
+                                        },
+                                       {
+                                            "required": [
+                                                "initiator_static_ipv6_config"
+                                            ]
+                                        },
+                                       {
+                                            "required": [
+                                                "password"
+                                            ]
+                                        },
+                                       {
+                                            "required": [
+                                                "primary_target_policy"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "secondary_target_policy"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "username"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "target_source_type": {
+                                        "const": "Static"
+                                    }
+                                },
+                                "required": [
+                                    "target_source_type"
+                                ]
+                            },
+                            "then": {
+                                "not": {
+                                    "required": [
+                                        "dhcp_vendor_id_iqn"
+                                    ]
+                                }
+                            }
+                        }
                     ],
                     "title": "iscsi_boot",
                     "type": "object"
@@ -14374,7 +14520,8 @@
             "intersight_uri": "vnic/IscsiBootPolicies",
             "object_type": "vnic.IscsiBootPolicy",
             "target_platforms": [
-                "FIAttached"
+                "FIAttached",
+                "Standalone"
             ],
             "title": "iscsi_boot - iSCSI Boot - Intersight Uri: vnic/IscsiBootPolicies",
             "type": "object",
@@ -14387,50 +14534,42 @@
             "properties": {
                 "gateway": {
                     "default": "198.18.0.1",
-                    "description": "The default value is `198.18.0.1`.  Gateway to assign.  Example `198.18.0.1`.",
-                    "intersight_api": "Gateway",
-                    "maxLength": 15,
-                    "minLength": 7,
-                    "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-                    "title": "gateway",
-                    "type": "string",
+                    "description": "The default value is `198.18.0.1`.  Gateway to assign.",
                     "examples": [
                         "198.18.0.1"
-                    ]
+                    ],
+                    "intersight_api": "Gateway",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv4_address",
+                    "title": "gateway",
+                    "type": "string"
                 },
                 "ip_address": {
                     "default": "198.18.0.10",
-                    "description": "The default value is `198.18.0.10`.  The IPv4 address assigned to the iSCSI target.  Example `198.18.0.10`.",
-                    "intersight_api": "IpAddress",
-                    "maxLength": 15,
-                    "minLength": 7,
-                    "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-                    "title": "ip_address",
-                    "type": "string",
+                    "description": "The default value is `198.18.0.10`.  The IPv4 address assigned to the iSCSI target.",
                     "examples": [
                         "198.18.0.10"
-                    ]
+                    ],
+                    "intersight_api": "IpAddress",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv4_address",
+                    "title": "ip_address",
+                    "type": "string"
                 },
                 "netmask": {
                     "default": "255.255.255.0",
-                    "description": "The default value is `255.255.255.0`.  A subnet mask is a 32-bit number that masks an IP address and divides the IP address into network address and host address.  Example `255.255.255.0`.",
-                    "intersight_api": "Netmask",
-                    "maxLength": 15,
-                    "minLength": 7,
-                    "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-                    "title": "netmask",
-                    "type": "string",
+                    "description": "The default value is `255.255.255.0`.  A subnet mask is a 32-bit number that masks an IP address and divides the IP address into network address and host address.",
                     "examples": [
                         "255.255.255.0"
-                    ]
+                    ],
+                    "intersight_api": "Netmask",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv4_netmask",
+                    "title": "netmask",
+                    "type": "string"
                 },
                 "primary_dns": {
                     "default": "208.67.220.220",
                     "description": "The default value is `208.67.220.220`.  IP Address of the primary Domain Name System (DNS) server.  Example `208.67.220.220`.",
                     "intersight_api": "PrimaryDns",
-                    "maxLength": 15,
-                    "minLength": 7,
-                    "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv4_address",
                     "title": "primary_dns",
                     "type": "string",
                     "examples": [
@@ -14441,10 +14580,7 @@
                     "default": "208.67.222.222",
                     "description": "The default value is `208.67.222.222`.  IP Address of the secondary Domain Name System (DNS) server.  Example `208.67.222.222`.",
                     "intersight_api": "SecondaryDns",
-                    "maxLength": 15,
-                    "minLength": 7,
-                    "optional": true,
-                    "pattern": "^(([1-9]|[1-9][0-9]{1}|1[0-9]{2}|2[0-1][0-9]|22[0-3])\\.)(([01]?[0-9]?[0-9]|2([0-4][0-9]|5[0-5]))\\.){2}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv4_address",
                     "title": "secondary_dns",
                     "type": "string",
                     "examples": [
@@ -14458,6 +14594,75 @@
                 "netmask"
             ],
             "title": "initiator_static_ipv4_config - Initiator Static Ipv4 Config",
+            "type": "object"
+        },
+        "intersight.iscsi_boot.initiator_static_ipv6_config": {
+            "description": "IPV6 configurations such as Netmask, Gateway and DNS for iSCSI Initiator.\n\nRequired Attributes:\n  * `ip_address`\n  * `gateway`\n  * `netmask`\n\nOptional Attributes:\n  * `primary_dns`\n  * `secondary_dns`",
+            "intersight_api": "InitiatorStaticIpV6Config",
+            "object_type": "vnic.IscsiStaticIpv6Config",
+            "properties": {
+                "gateway": {
+                    "default": "2001::1",
+                    "description": "The default value is `2001::1`.  Gateway to assign.  Example `2001::1`.",
+                    "examples": [
+                        "2001::1"
+                    ],
+                    "intersight_api": "Gateway",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv6_address",
+                    "title": "gateway",
+                    "type": "string"
+                },
+                "ipv6_address": {
+                    "default": "2001::10",
+                    "description": "The default value is `2001::10`.  The IPv6 address assigned to the iSCSI target.",
+                    "examples": [
+                        "2001::10"
+                    ],
+                    "intersight_api": "InitiatorStaticIpV6Address",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv6_address",
+                    "title": "ipv6_address",
+                    "type": "string"
+                },
+                "prefix": {
+                    "default": 64,
+                    "description": "The default value is `64`.  The prefix length for the IPv6 address.",
+                    "examples": [
+                        64
+                    ],
+                    "intersight_api": "Prefix",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv6_prefix",
+                    "title": "prefix",
+                    "type": "integer"
+                },
+                "primary_dns": {
+                    "default": "2620:119:35::35",
+                    "description": "The default value is `2620:119:35::35`.  IP Address of the primary Domain Name System (DNS) server.",
+                    "examples": [
+                        "2620:119:35::35"
+                    ],
+                    "intersight_api": "PrimaryDns",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv6_address",
+                    "title": "primary_dns",
+                    "type": "string"
+                },
+                "secondary_dns": {
+                    "default": "2620:119:53::53",
+                    "description": "The default value is `2620:119:53::53`.  IP Address of the secondary Domain Name System (DNS) server.",
+                    "examples": [
+                        "2620:119:53::53"
+                    ],
+                    "intersight_api": "SecondaryDns",
+                    "$ref": "#/definitions/abstract.ip/properties/ipv6_address",
+                    "title": "secondary_dns",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "gateway",
+                "ipv6_address",
+                "prefix"
+            ],
+            "title": "initiator_static_ipv6_config - Initiator Static Ipv6 Config",
             "type": "object"
         },
         "intersight.iscsi_static_target": {
@@ -16353,8 +16558,8 @@
                     ]
                 },
                 "filter": {
-                    "default": "sAMAccountName",
-                    "description": "The default value is `sAMAccountName`.  Criteria to identify entries in search requests.",
+                    "default": "sAMAccountName=$userid",
+                    "description": "The default value is `sAMAccountName=$userid`.  Criteria to identify entries in search requests.",
                     "intersight_api": "Filter",
                     "maxLength": 64,
                     "minLength": 1,
@@ -16362,7 +16567,7 @@
                     "title": "filter",
                     "type": "string",
                     "examples": [
-                        "sAMAccountName"
+                        "sAMAccountName=$userid"
                     ]
                 },
                 "group_attribute": {
@@ -18408,7 +18613,7 @@
                     "uniqueItems": true
                 },
                 "iscsi_boot": {
-                    "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy—When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy—Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool—Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `tags`\n  * `target_source_type`",
+                    "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy—When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy—Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool—Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `initiator_static_ipv6_config`\n  * `tags`\n  * `target_source_type`",
                     "intersight_uri": "vnic/IscsiBootPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.iscsi_boot"
@@ -18609,7 +18814,7 @@
                     "uniqueItems": true
                 },
                 "power": {
-                    "description": "Enables the management of power for FI-attached servers and chassis. This policy allows you to set the power profiling the power priority of the server, and the power restore state of the system.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `dynamic_power_rebalancing`\n  * `extended_power_capacity`\n  * `power_allocation`\n  * `power_priority`\n  * `power_profiling`\n  * `power_redundancy`\n  * `power_restore`\n  * `power_save_mode`\n  * `processor_package_power_limit`\n  * `tags`",
+                    "description": "Enables the management of power for FI-attached servers and chassis. This policy allows you to set the power profiling the power priority of the server, and the power restore state of the system.\n\nRequired Attributes:\n  * `name`\n  * `target_platform`\n\nBase Optional Attributes:\n  * `description`\n  * `tags`\n\n###########################################\n# UCS Chassis Optional Attributes\n###########################################\n\n  * `extended_power_capacity`\n  * `dynamic_power_rebalancing`\n  * `power_redundancy`\n  * `power_save_mode`\n  * `power_allocation`\n\n###########################################\n# FIAttached Server Optional Attributes\n###########################################\n\nOptional Attributes:\n  * `power_priority`\n  * `power_restore`\n  * `processor_package_power_limit`\n\n\n###########################################\n# Standalone Server Optional Attributes\n###########################################\n\nOptional Attributes:\n  * `power_restore`\n  * `processor_package_power_limit`\n\n\n###########################################\n# Unified Edge Optional Attributes\n###########################################\n\nOptional Attributes:\n  * `power_allocation`\n  * `power_redundancy`\n\n\n##############################################\n# Unified Edge Server  Optional Attributes\n##############################################\n\nOptional Attributes:\n  * `power_profiling`\n  * `power_restore`\n\n\n###########################################\n# All Platforms Optional Attributes\n###########################################\n\nOptional Attributes:\n  * `dynamic_power_rebalancing`\n  * `extended_power_capacity`\n  * `power_allocation`\n  * `power_priority`\n  * `power_profiling`\n  * `power_redundancy`\n  * `power_restore`\n  * `power_save_mode`\n  * `processor_package_power_limit`",
                     "intersight_uri": "power/Policies",
                     "items": {
                         "$ref": "#/definitions/intersight.power"
@@ -21906,11 +22111,12 @@
             "properties": {
                 "custom_mode": {
                     "default": "FibreChannel",
-                    "description": "The default value is `FibreChannel`.  Custom Port Mode specified for the port range.\n  * `FibreChannel` - Fibre Channel Port Types.\n  * `BreakoutEthernet10G` - Breakout Ethernet 10G Port Type.\n  * `BreakoutEthernet25G` - Breakout Ethernet 25G Port Type.\n  * `BreakoutFibreChannel8G` - Breakout FibreChannel 8G Port Type.\n  * `BreakoutFibreChannel16G` - Breakout FibreChannel 16G Port Type.\n  * `BreakoutFibreChannel32G` - Breakout FibreChannel 32G Port Type.",
+                    "description": "The default value is `FibreChannel`.  Custom Port Mode specified for the port range.\n  * `FibreChannel` - Fibre Channel Port Types.\n  * `BreakoutEthernet10G` - Breakout Ethernet 10G Port Type.\n  * `BreakoutEthernet25G` - Breakout Ethernet 25G Port Type.\n  * `BreakoutEthernet100G` - Breakout Ethernet 100G Port Type.\n  * `BreakoutFibreChannel8G` - Breakout FibreChannel 8G Port Type.\n  * `BreakoutFibreChannel16G` - Breakout FibreChannel 16G Port Type.\n  * `BreakoutFibreChannel32G` - Breakout FibreChannel 32G Port Type.",
                     "enum": [
                         "FibreChannel",
                         "BreakoutEthernet10G",
                         "BreakoutEthernet25G",
+                        "BreakoutEthernet100G",
                         "BreakoutFibreChannel8G",
                         "BreakoutFibreChannel16G",
                         "BreakoutFibreChannel32G"
@@ -21920,18 +22126,18 @@
                     "type": "string"
                 },
                 "port_list": {
-                    "description": "List of Ports to reconfigure the Port Mode for.  The list should be the begging port and the ending port.",
+                    "description": "List of Ports to reconfigure the Port Mode for.  The list should be the beginning port and the ending port.",
                     "intersight_api": "not_applicable",
                     "items": {
                         "default": 1,
                         "description": "The default value is `1`.  Port Identifier of the Switch Interface.",
                         "intersight_api": "not_applicable",
-                        "maximum": 96,
+                        "maximum": 108,
                         "minimum": 1,
                         "title": "port_id",
                         "type": "integer"
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "title": "port_list - Port List",
                     "type": "array",
@@ -22003,25 +22209,12 @@
                             "default"
                         ]
                     },
-                    "maxItems": 255,
+                    "maxItems": 2,
                     "minItems": 1,
                     "objectType": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
                     "uniqueItems": true
-                },
-                "ethernet_network_group_policy": {
-                    "default": "default",
-                    "description": "The default value is `default`.  The Name of the Ethernet Network Group Policy to Assign. If this policy is originating from a shared organization, include the organization name with the policy via `org_name/policy_name`.",
-                    "intersight_api": "$ref:EthNetworkGroupPolicy:fabric.EthNetworkGroupPolicy:Moid",
-                    "maxLength": 129,
-                    "minLength": 1,
-                    "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
-                    "title": "ethernet_network_group_policy",
-                    "type": "string",
-                    "examples": [
-                        "default"
-                    ]
                 },
                 "fec": {
                     "default": "Auto",
@@ -22098,7 +22291,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "UserLabel",
                     "title": "User Labels",
@@ -22255,7 +22448,7 @@
                     "type": "integer"
                 },
                 "user_labels": {
-                    "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
+                    "description": "List of one or more User Labels to assocate to the port(s).  This can be one for each `port_policy` + `port_list`.  One if both Fabrics share the same User Label.",
                     "intersight_api": "UserLabel",
                     "items": {
                         "default": "",
@@ -22269,7 +22462,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "UserLabel",
                     "title": "User Labels",
@@ -22387,7 +22580,7 @@
                     "type": "integer"
                 },
                 "user_labels": {
-                    "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
+                    "description": "List of one or more User Labels to assocate to the port(s).  This can be one for each `port_policy` + `port_list`.  One if both Fabrics share the same User Label.",
                     "intersight_api": "UserLabel",
                     "items": {
                         "default": "",
@@ -22401,7 +22594,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "UserLabel",
                     "title": "User Labels",
@@ -22487,7 +22680,7 @@
                     "type": "integer"
                 },
                 "user_labels": {
-                    "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
+                    "description": "List of one or more User Labels to assocate to the port(s).  This can be one for each `port_policy` + `port_list`.  One if both Fabrics share the same User Label.",
                     "intersight_api": "UserLabel",
                     "items": {
                         "default": "",
@@ -22501,7 +22694,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "UserLabel",
                     "title": "User Labels",
@@ -22629,7 +22822,7 @@
                     "type": "integer"
                 },
                 "user_labels": {
-                    "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
+                    "description": "List of one or more User Labels to assocate to the port(s).  This can be one for each `port_policy` + `port_list`.  One if both Fabrics share the same User Label.",
                     "intersight_api": "UserLabel",
                     "items": {
                         "default": "",
@@ -22643,7 +22836,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "UserLabel",
                     "title": "User Labels",
@@ -22664,8 +22857,8 @@
             "object_type": "fabric.ServerRole",
             "properties": {
                 "auto_negotiation": {
-                    "default": true,
-                    "description": "The default value is `true`.  Auto negotiation configuration for server port. This configuration is required only for FEX Model N9K-C93180YC-FX3 connected with 100G speed port on UCS-FI-6536 and should be set as True.",
+                    "default": false,
+                    "description": "The default value is `false`.  Auto negotiation configuration for server port. This configuration is required only for FEX Model N9K-C93180YC-FX3 connected with 100G speed port on UCS-FI-6536 and should be set as True.",
                     "intersight_api": "AutoNegotiationDisabled",
                     "title": "auto_negotiation",
                     "type": "boolean"
@@ -22735,7 +22928,7 @@
                     "type": "integer"
                 },
                 "user_labels": {
-                    "description": "List of one or two User Labels to assocate to the port(s).  One if both Fabrics share the same User Label.",
+                    "description": "List of one or more User Labels to assocate to the port(s).  This can be one for each `port_policy` + `port_list`.  One if both Fabrics share the same User Label.",
                     "intersight_api": "UserLabel",
                     "items": {
                         "default": "",
@@ -22749,7 +22942,7 @@
                             ""
                         ]
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "UserLabel",
                     "title": "User Labels",
@@ -22769,130 +22962,426 @@
                     "$ref": "#/definitions/intersight.abstract.policy"
                 },
                 {
-                    "description": "Power Management policy models a configuration that can be applied to Chassis or Server to manage Power Related Features.",
-                    "properties": {
-                        "dynamic_power_rebalancing": {
-                            "default": "Enabled",
-                            "description": "The default value is `Enabled`.  Sets the Dynamic Power Rebalancing mode of the Chassis. If enabled, this mode allows the chassis to dynamically reallocate the power between servers depending on their power usage. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
-                            "enum": [
-                                "Enabled",
-                                "Disabled"
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "description": {},
+                                "dynamic_power_rebalancing": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Dynamic Power Rebalancing mode of the Chassis. If enabled, this mode allows the chassis to dynamically reallocate the power between servers depending on their power usage. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "DynamicRebalancing",
+                                    "title": "dynamic_power_rebalancing",
+                                    "type": "string"
+                                },
+                                "extended_power_capacity": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Extended Power Capacity of the Chassis. If Enabled, this mode allows chassis available power to be increased by borrowing power from redundant power supplies.  This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "ExtendedPowerCapacity",
+                                    "title": "extended_power_capacity",
+                                    "type": "string"
+                                },
+                                "name": {},
+                                "power_allocation": {
+                                    "default": 0,
+                                    "description": "The default value is `0`.  Sets the Allocated Power Budget of the Chassis (in Watts). This field is only supported for Cisco UCS X series Chassis.",
+                                    "intersight_api": "AllocatedBudget",
+                                    "maximum": 65535,
+                                    "minimum": 0,
+                                    "title": "power_allocation",
+                                    "type": "integer"
+                                },
+                                "power_priority": {
+                                    "default": "Low",
+                                    "description": "The default value is `Low`.  Sets the Power Priority of the Server. This priority is used to determine the initial power allocation for servers. This field is only supported for Cisco UCS X series servers.\n  * `Low` - Set the Power Priority to Low.\n  * `Medium` - Set the Power Priority to Medium.\n  * `High` - Set the Power Priority to High.",
+                                    "enum": [
+                                        "Low",
+                                        "Medium",
+                                        "High"
+                                    ],
+                                    "intersight_api": "PowerPriority",
+                                    "title": "power_priority",
+                                    "type": "string"
+                                },
+                                "power_profiling": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Power Profiling of the Server. If Enabled, this field allows the power manager to run power profiling  utility to determine the power needs of the server.  This field is only supported for Cisco UCS X series servers.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "PowerProfiling",
+                                    "title": "power_profiling",
+                                    "type": "string"
+                                },
+                                "power_redundancy": {
+                                    "default": "Grid",
+                                    "description": "The default value is `Grid`.  Sets the Power Redundancy Mode of the Chassis/Server.  Redundancy Mode determines the number of PSUs the chassis keeps as redundant.  N+2 mode is only supported for Cisco UCS X series Chassis.\n  * `Grid` - Grid Mode requires two power sources. If one source fails, the surviving PSUs connected to the other source provides power to the chassis.\n  * `NotRedundant` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements. No Redundant PSUs are maintained.\n  * `N+1` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus one additional PSU for redundancy.\n  * `N+2` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus two additional PSU for redundancy. This Mode is only supported for UCS X series Chassis.",
+                                    "enum": [
+                                        "Grid",
+                                        "NotRedundant",
+                                        "N+1",
+                                        "N+2"
+                                    ],
+                                    "intersight_api": "RedundancyMode",
+                                    "title": "power_redundancy",
+                                    "type": "string"
+                                },
+                                "power_restore": {
+                                    "default": "LastState",
+                                    "description": "The default value is `LastState`.  Sets the Power Restore State of the Server. In the absence of Intersight connectivity, the chassis will use this policy  to recover the host power after a power loss event.  This field is only supported for Cisco UCS X series servers.\n  * `AlwaysOff` - Set the Power Restore Mode to Off.\n  * `AlwaysOn` - Set the Power Restore Mode to On.\n  * `LastState` - Set the Power Restore Mode to LastState.",
+                                    "enum": [
+                                        "AlwaysOff",
+                                        "AlwaysOn",
+                                        "LastState"
+                                    ],
+                                    "intersight_api": "PowerRestoreState",
+                                    "title": "power_restore",
+                                    "type": "string"
+                                },
+                                "power_save_mode": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Power Save mode of the Chassis. If the requested power budget is less than available power capacity,  the additional PSUs not required to comply with redundancy policy are placed in Power Save mode. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `Disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "PowerSaveMode",
+                                    "title": "power_save_mode",
+                                    "type": "string"
+                                },
+                                "processor_package_power_limit": {
+                                    "default": "Default",
+                                    "description": "The default value is `Default`.  Sets the Processor Package Power Limit (PPL) of a server. PPL refers to the amount of power that a CPU can draw from the power supply. The Processor Package Power Limit (PPL) feature is currently available exclusively on Cisco UCS C225/C245 M8 servers.\n  * `Default` - Set the Package Power Limit to the platform defined default value.\n  * `Maximum` - Set the Package Power Limit to the platform defined maximum value.\n  * `Minimum` - Set the Package Power Limit to the platform defined minimum value.",
+                                    "enum": [
+                                        "Default",
+                                        "Maximum",
+                                        "Minimum"
+                                    ],
+                                    "intersight_api": "ProcessorPackagePowerLimit",
+                                    "title": "processor_package_power_limit",
+                                    "type": "string"
+                                },
+                                "tags": {},
+                                "target_platform": {
+                                    "const": "All",
+                                    "description": "The default value is `All`.  The platform for which the power policy is applicable.",
+                                    "enum": [
+                                        "All",
+                                        "Chassis",
+                                        "Standalone",
+                                        "FIAttached",
+                                        "Unified Edge",
+                                        "UnifiedEdgeServer"
+                                    ],
+                                    "intersight_api": "TargetPlatform",
+                                    "title": "target_platform",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "target_platform"
                             ],
-                            "intersight_api": "DynamicRebalancing",
-                            "title": "dynamic_power_rebalancing",
-                            "type": "string"
+                            "additionalProperties": false
                         },
-                        "extended_power_capacity": {
-                            "default": "Enabled",
-                            "description": "The default value is `Enabled`.  Sets the Extended Power Capacity of the Chassis. If Enabled, this mode allows chassis available power to be increased by borrowing power from redundant power supplies.  This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
-                            "enum": [
-                                "Enabled",
-                                "Disabled"
+                        {
+                            "properties": {
+                                "description": {},
+                                "name": {},
+                                "power_restore": {
+                                    "default": "LastState",
+                                    "description": "The default value is `LastState`.  Sets the Power Restore State of the Server. In the absence of Intersight connectivity, the chassis will use this policy  to recover the host power after a power loss event.  This field is only supported for Cisco UCS X series servers.\n  * `AlwaysOff` - Set the Power Restore Mode to Off.\n  * `AlwaysOn` - Set the Power Restore Mode to On.\n  * `LastState` - Set the Power Restore Mode to LastState.",
+                                    "enum": [
+                                        "AlwaysOff",
+                                        "AlwaysOn",
+                                        "LastState"
+                                    ],
+                                    "intersight_api": "PowerRestoreState",
+                                    "title": "power_restore",
+                                    "type": "string"
+                                },
+                                "processor_package_power_limit": {
+                                    "default": "Default",
+                                    "description": "The default value is `Default`.  Sets the Processor Package Power Limit (PPL) of a server. PPL refers to the amount of power that a CPU can draw from the power supply. The Processor Package Power Limit (PPL) feature is currently available exclusively on Cisco UCS C225/C245 M8 servers.\n  * `Default` - Set the Package Power Limit to the platform defined default value.\n  * `Maximum` - Set the Package Power Limit to the platform defined maximum value.\n  * `Minimum` - Set the Package Power Limit to the platform defined minimum value.",
+                                    "enum": [
+                                        "Default",
+                                        "Maximum",
+                                        "Minimum"
+                                    ],
+                                    "intersight_api": "ProcessorPackagePowerLimit",
+                                    "title": "processor_package_power_limit",
+                                    "type": "string"
+                                },
+                                "tags": {},
+                                "target_platform": {
+                                    "const": "Standalone",
+                                    "description": "The default value is `Standalone`.  The platform for which the power policy is applicable.",
+                                    "enum": [
+                                        "All",
+                                        "Chassis",
+                                        "Standalone",
+                                        "FIAttached",
+                                        "Unified Edge",
+                                        "UnifiedEdgeServer"
+                                    ],
+                                    "intersight_api": "TargetPlatform",
+                                    "title": "target_platform",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "target_platform"
                             ],
-                            "intersight_api": "ExtendedPowerCapacity",
-                            "title": "extended_power_capacity",
-                            "type": "string"
+                            "additionalProperties": false
                         },
-                        "power_allocation": {
-                            "default": 0,
-                            "description": "The default value is `0`.  Sets the Allocated Power Budget of the Chassis (in Watts). This field is only supported for Cisco UCS X series Chassis.",
-                            "intersight_api": "AllocatedBudget",
-                            "maximum": 65535,
-                            "minimum": 0,
-                            "title": "power_allocation",
-                            "type": "integer"
-                        },
-                        "power_priority": {
-                            "default": "Low",
-                            "description": "The default value is `Low`.  Sets the Power Priority of the Server. This priority is used to determine the initial power allocation for servers. This field is only supported for Cisco UCS X series servers.\n  * `Low` - Set the Power Priority to Low.\n  * `Medium` - Set the Power Priority to Medium.\n  * `High` - Set the Power Priority to High.",
-                            "enum": [
-                                "Low",
-                                "Medium",
-                                "High"
+                        {
+                            "properties": {
+                                "description": {},
+                                "name": {},
+                                "power_priority": {
+                                    "default": "Low",
+                                    "description": "The default value is `Low`.  Sets the Power Priority of the Server. This priority is used to determine the initial power allocation for servers. This field is only supported for Cisco UCS X series servers.\n  * `Low` - Set the Power Priority to Low.\n  * `Medium` - Set the Power Priority to Medium.\n  * `High` - Set the Power Priority to High.",
+                                    "enum": [
+                                        "Low",
+                                        "Medium",
+                                        "High"
+                                    ],
+                                    "intersight_api": "PowerPriority",
+                                    "title": "power_priority",
+                                    "type": "string"
+                                },
+                                "power_restore": {
+                                    "default": "LastState",
+                                    "description": "The default value is `LastState`.  Sets the Power Restore State of the Server. In the absence of Intersight connectivity, the chassis will use this policy  to recover the host power after a power loss event.  This field is only supported for Cisco UCS X series servers.\n  * `AlwaysOff` - Set the Power Restore Mode to Off.\n  * `AlwaysOn` - Set the Power Restore Mode to On.\n  * `LastState` - Set the Power Restore Mode to LastState.",
+                                    "enum": [
+                                        "AlwaysOff",
+                                        "AlwaysOn",
+                                        "LastState"
+                                    ],
+                                    "intersight_api": "PowerRestoreState",
+                                    "title": "power_restore",
+                                    "type": "string"
+                                },
+                                "processor_package_power_limit": {
+                                    "default": "Default",
+                                    "description": "The default value is `Default`.  Sets the Processor Package Power Limit (PPL) of a server. PPL refers to the amount of power that a CPU can draw from the power supply. The Processor Package Power Limit (PPL) feature is currently available exclusively on Cisco UCS C225/C245 M8 servers.\n  * `Default` - Set the Package Power Limit to the platform defined default value.\n  * `Maximum` - Set the Package Power Limit to the platform defined maximum value.\n  * `Minimum` - Set the Package Power Limit to the platform defined minimum value.",
+                                    "enum": [
+                                        "Default",
+                                        "Maximum",
+                                        "Minimum"
+                                    ],
+                                    "intersight_api": "ProcessorPackagePowerLimit",
+                                    "title": "processor_package_power_limit",
+                                    "type": "string"
+                                },
+                                "tags": {},
+                                "target_platform": {
+                                    "const": "FIAttached",
+                                    "description": "The default value is `FIAttached`.  The platform for which the power policy is applicable.",
+                                    "enum": [
+                                        "All",
+                                        "Chassis",
+                                        "Standalone",
+                                        "FIAttached",
+                                        "Unified Edge",
+                                        "UnifiedEdgeServer"
+                                    ],
+                                    "intersight_api": "TargetPlatform",
+                                    "title": "target_platform",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "target_platform"
                             ],
-                            "intersight_api": "PowerPriority",
-                            "title": "power_priority",
-                            "type": "string"
+                            "additionalProperties": false
                         },
-                        "power_profiling": {
-                            "default": "Enabled",
-                            "description": "The default value is `Enabled`.  Sets the Power Profiling of the Server. If Enabled, this field allows the power manager to run power profiling  utility to determine the power needs of the server.  This field is only supported for Cisco UCS X series servers.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
-                            "enum": [
-                                "Enabled",
-                                "Disabled"
+                        {
+                            "properties": {
+                                "description": {},
+                                "dynamic_power_rebalancing": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Dynamic Power Rebalancing mode of the Chassis. If enabled, this mode allows the chassis to dynamically reallocate the power between servers depending on their power usage. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "DynamicRebalancing",
+                                    "title": "dynamic_power_rebalancing",
+                                    "type": "string"
+                                },
+                                "extended_power_capacity": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Extended Power Capacity of the Chassis. If Enabled, this mode allows chassis available power to be increased by borrowing power from redundant power supplies.  This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "ExtendedPowerCapacity",
+                                    "title": "extended_power_capacity",
+                                    "type": "string"
+                                },
+                                "name": {},
+                                "power_allocation": {
+                                    "default": 0,
+                                    "description": "The default value is `0`.  Sets the Allocated Power Budget of the Chassis (in Watts). This field is only supported for Cisco UCS X series Chassis.",
+                                    "intersight_api": "AllocatedBudget",
+                                    "maximum": 65535,
+                                    "minimum": 0,
+                                    "title": "power_allocation",
+                                    "type": "integer"
+                                },
+                                "power_redundancy": {
+                                    "default": "Grid",
+                                    "description": "The default value is `Grid`.  Sets the Power Redundancy Mode of the Chassis/Server.  Redundancy Mode determines the number of PSUs the chassis keeps as redundant.  N+2 mode is only supported for Cisco UCS X series Chassis.\n  * `Grid` - Grid Mode requires two power sources. If one source fails, the surviving PSUs connected to the other source provides power to the chassis.\n  * `NotRedundant` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements. No Redundant PSUs are maintained.\n  * `N+1` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus one additional PSU for redundancy.\n  * `N+2` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus two additional PSU for redundancy. This Mode is only supported for UCS X series Chassis.",
+                                    "enum": [
+                                        "Grid",
+                                        "NotRedundant",
+                                        "N+1",
+                                        "N+2"
+                                    ],
+                                    "intersight_api": "RedundancyMode",
+                                    "title": "power_redundancy",
+                                    "type": "string"
+                                },
+                                "power_save_mode": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Power Save mode of the Chassis. If the requested power budget is less than available power capacity,  the additional PSUs not required to comply with redundancy policy are placed in Power Save mode. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `Disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "PowerSaveMode",
+                                    "title": "power_save_mode",
+                                    "type": "string"
+                                },
+                                "tags": {},
+                                "target_platform": {
+                                    "const": "Chassis",
+                                    "description": "The default value is `Chassis`.  The platform for which the power policy is applicable.",
+                                    "enum": [
+                                        "All",
+                                        "Chassis",
+                                        "Standalone",
+                                        "FIAttached",
+                                        "Unified Edge",
+                                        "UnifiedEdgeServer"
+                                    ],
+                                    "intersight_api": "TargetPlatform",
+                                    "title": "target_platform",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "target_platform"
                             ],
-                            "intersight_api": "PowerProfiling",
-                            "title": "power_profiling",
-                            "type": "string"
+                            "additionalProperties": false
                         },
-                        "power_redundancy": {
-                            "default": "Grid",
-                            "description": "The default value is `Grid`.  Sets the Power Redundancy Mode of the Chassis/Server.  Redundancy Mode determines the number of PSUs the chassis keeps as redundant.  N+2 mode is only supported for Cisco UCS X series Chassis.\n  * `Grid` - Grid Mode requires two power sources. If one source fails, the surviving PSUs connected to the other source provides power to the chassis.\n  * `NotRedundant` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements. No Redundant PSUs are maintained.\n  * `N+1` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus one additional PSU for redundancy.\n  * `N+2` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus two additional PSU for redundancy. This Mode is only supported for UCS X series Chassis.",
-                            "enum": [
-                                "Grid",
-                                "NotRedundant",
-                                "N+1",
-                                "N+2"
+                        {
+                            "properties": {
+                                "description": {},
+                                "name": {},
+                                "power_allocation": {
+                                    "default": 0,
+                                    "description": "The default value is `0`.  Sets the Allocated Power Budget of the Chassis (in Watts). This field is only supported for Cisco UCS X series Chassis.",
+                                    "intersight_api": "AllocatedBudget",
+                                    "maximum": 65535,
+                                    "minimum": 0,
+                                    "title": "power_allocation",
+                                    "type": "integer"
+                                },
+                                "power_redundancy": {
+                                    "default": "Grid",
+                                    "description": "The default value is `Grid`.  Sets the Power Redundancy Mode of the Chassis/Server.  Redundancy Mode determines the number of PSUs the chassis keeps as redundant.  N+2 mode is only supported for Cisco UCS X series Chassis.\n  * `Grid` - Grid Mode requires two power sources. If one source fails, the surviving PSUs connected to the other source provides power to the chassis.\n  * `NotRedundant` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements. No Redundant PSUs are maintained.\n  * `N+1` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus one additional PSU for redundancy.\n  * `N+2` - Power Manager turns on the minimum number of PSUs required to support chassis power requirements plus two additional PSU for redundancy. This Mode is only supported for UCS X series Chassis.",
+                                    "enum": [
+                                        "Grid",
+                                        "NotRedundant",
+                                        "N+1",
+                                        "N+2"
+                                    ],
+                                    "intersight_api": "RedundancyMode",
+                                    "title": "power_redundancy",
+                                    "type": "string"
+                                },
+                                "tags": {},
+                                "target_platform": {
+                                    "const": "Unified Edge",
+                                    "description": "The default value is `Unified Edge`.  The platform for which the power policy is applicable.",
+                                    "enum": [
+                                        "All",
+                                        "Chassis",
+                                        "Standalone",
+                                        "FIAttached",
+                                        "Unified Edge",
+                                        "UnifiedEdgeServer"
+                                    ],
+                                    "intersight_api": "TargetPlatform",
+                                    "title": "target_platform",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "target_platform"
                             ],
-                            "intersight_api": "RedundancyMode",
-                            "title": "power_redundancy",
-                            "type": "string"
+                            "additionalProperties": false
                         },
-                        "power_restore": {
-                            "default": "LastState",
-                            "description": "The default value is `LastState`.  Sets the Power Restore State of the Server. In the absence of Intersight connectivity, the chassis will use this policy  to recover the host power after a power loss event.  This field is only supported for Cisco UCS X series servers.\n  * `AlwaysOff` - Set the Power Restore Mode to Off.\n  * `AlwaysOn` - Set the Power Restore Mode to On.\n  * `LastState` - Set the Power Restore Mode to LastState.",
-                            "enum": [
-                                "AlwaysOff",
-                                "AlwaysOn",
-                                "LastState"
+                        {
+                            "properties": {
+                                "description": {},
+                                "name": {},
+                                "power_profiling": {
+                                    "default": "Enabled",
+                                    "description": "The default value is `Enabled`.  Sets the Power Profiling of the Server. If Enabled, this field allows the power manager to run power profiling  utility to determine the power needs of the server.  This field is only supported for Cisco UCS X series servers.\n  * `Enabled` - Set the value to Enabled.\n  * `disabled` - Set the value to Disabled.",
+                                    "enum": [
+                                        "Enabled",
+                                        "Disabled"
+                                    ],
+                                    "intersight_api": "PowerProfiling",
+                                    "title": "power_profiling",
+                                    "type": "string"
+                                },
+                                "power_restore": {
+                                    "default": "LastState",
+                                    "description": "The default value is `LastState`.  Sets the Power Restore State of the Server. In the absence of Intersight connectivity, the chassis will use this policy  to recover the host power after a power loss event.  This field is only supported for Cisco UCS X series servers.\n  * `AlwaysOff` - Set the Power Restore Mode to Off.\n  * `AlwaysOn` - Set the Power Restore Mode to On.\n  * `LastState` - Set the Power Restore Mode to LastState.",
+                                    "enum": [
+                                        "AlwaysOff",
+                                        "AlwaysOn",
+                                        "LastState"
+                                    ],
+                                    "intersight_api": "PowerRestoreState",
+                                    "title": "power_restore",
+                                    "type": "string"
+                                },
+                                "tags": {},
+                                "target_platform": {
+                                    "const": "UnifiedEdgeServer",
+                                    "description": "The default value is `UnifiedEdgeServer`.  The platform for which the power policy is applicable.",
+                                    "enum": [
+                                        "All",
+                                        "Chassis",
+                                        "Standalone",
+                                        "FIAttached",
+                                        "Unified Edge",
+                                        "UnifiedEdgeServer"
+                                    ],
+                                    "intersight_api": "TargetPlatform",
+                                    "title": "target_platform",
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "target_platform"
                             ],
-                            "intersight_api": "PowerRestoreState",
-                            "title": "power_restore",
-                            "type": "string"
-                        },
-                        "power_save_mode": {
-                            "default": "Enabled",
-                            "description": "The default value is `Enabled`.  Sets the Power Save mode of the Chassis. If the requested power budget is less than available power capacity,  the additional PSUs not required to comply with redundancy policy are placed in Power Save mode. This option is only supported for Cisco UCS X series Chassis.\n  * `Enabled` - Set the value to Enabled.\n  * `Disabled` - Set the value to Disabled.",
-                            "enum": [
-                                "Enabled",
-                                "Disabled"
-                            ],
-                            "intersight_api": "PowerSaveMode",
-                            "title": "power_save_mode",
-                            "type": "string"
-                        },
-                        "processor_package_power_limit": {
-                            "default": "Default",
-                            "description": "The default value is `Default`.  Sets the Processor Package Power Limit (PPL) of a server. PPL refers to the amount of power that a CPU can draw from the power supply. The Processor Package Power Limit (PPL) feature is currently available exclusively on Cisco UCS C225/C245 M8 servers.\n  * `Default` - Set the Package Power Limit to the platform defined default value.\n  * `Maximum` - Set the Package Power Limit to the platform defined maximum value.\n  * `Minimum` - Set the Package Power Limit to the platform defined minimum value.",
-                            "enum": [
-                                "Default",
-                                "Maximum",
-                                "Minimum"
-                            ],
-                            "intersight_api": "ProcessorPackagePowerLimit",
-                            "title": "processor_package_power_limit",
-                            "type": "string"
-                        },
-                        "target_platform": {
-                            "default": "",
-                            "description": "The default value is ``.  The platform for which the server profile is applicable. It can either be a server that is operating in standalone mode or which is attached to a Fabric Interconnect managed by Intersight.\n  * `Standalone` - Servers which are operating in standalone mode i.e. not connected to a Fabric Interconnected.\n  * `FIAttached` - Servers which are connected to a Fabric Interconnect that is managed by Intersight.",
-                            "enum": [
-                                "All",
-                                "Chassis",
-                                "Standalone",
-                                "FIAttached"
-                            ],
-                            "intersight_api": "TargetPlatform",
-                            "title": "target_platform",
-                            "type": "string"
+                            "additionalProperties": false
                         }
-                    },
-                    "required": [
-                        "power_redundancy",
-                        "target_platform"
-                    ],
-                    "title": "power - Power - Intersight Uri: power/Policies",
-                    "type": "object"
+                    ]
                 }
             ],
             "description": "Power Management policy models a configuration that can be applied to Chassis or Server to manage Power Related Features.",
@@ -22902,7 +23391,9 @@
             "target_platforms": [
                 "chassis",
                 "FIAttached",
-                "Standalone"
+                "Standalone",
+                "Unified Edge",
+                "UnifiedEdgeServer"
             ],
             "title": "power - Power - Intersight Uri: power/Policies",
             "type": "object",

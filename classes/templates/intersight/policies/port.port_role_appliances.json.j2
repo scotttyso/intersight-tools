@@ -1,0 +1,73 @@
+{
+  "AdminSpeed": {{ item.admin_speed | default('Auto') | tojson }},
+  "AggregatePortId": {{ item.breakout_port_id | default(0) }},
+{% if item.ethernet_network_control_policy is defined %}
+{% set _name = item.ethernet_network_control_policy.split('/')[-1] %}
+{% set _org = item.ethernet_network_control_policy.split('/')[0] if item.ethernet_network_control_policy.split('/') | length > 1 else organization %}
+  "EthNetworkControlPolicy": {
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_control'][_name] }}",
+    "ObjectType": "fabric.EthNetworkControlPolicy"
+  },
+{% else %}
+  "EthNetworkControlPolicy": null,
+{% endif %}
+{% if item.ethernet_network_group_policy is defined %}
+{% set _name = item.ethernet_network_group_policy.split('/')[-1] %}
+{% set _org = item.ethernet_network_group_policy.split('/')[0] if item.ethernet_network_group_policy.split('/') | length > 1 else organization %}
+  "EthNetworkGroupPolicy": {
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_group'][_name] }}",
+    "ObjectType": "fabric.EthNetworkGroupPolicy"
+  },
+{% else %}
+  "EthNetworkGroupPolicy": null,
+{% endif %}
+  "Fec": {{ item.fec | default('Auto') | tojson }},
+{% if item.flow_control_policy is defined %}
+{% set _name = item.flow_control_policy.split('/')[-1] %}
+{% set _org = item.flow_control_policy.split('/')[0] if item.flow_control_policy.split('/') | length > 1 else organization %}
+  "FlowControlPolicy": {
+    "Moid": "{{ isight[_org]['policies']['flow_control'][_name] }}",
+    "ObjectType": "fabric.FlowControlPolicy"
+  },
+{% else %}
+  "FlowControlPolicy": null,
+{% endif %}
+{% if item.link_control_policy is defined %}
+{% set _name = item.link_control_policy.split('/')[-1] %}
+{% set _org = item.link_control_policy.split('/')[0] if item.link_control_policy.split('/') | length > 1 else organization %}
+  "LinkControlPolicy": {
+    "Moid": "{{ isight[_org]['policies']['link_control'][_name] }}",
+    "ObjectType": "fabric.LinkControlPolicy"
+  },
+{% else %}
+  "LinkControlPolicy": null,
+{% endif %}
+  "Mode": {{ item.mode | default('access', true) | tojson }},
+  "ObjectType": "fabric.ApplianceRole",
+  "PortId": {{ item.port_id | default(1) }},
+  "PortPolicy": {
+    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
+  "Priority": {{ item.priority | default('Best Effort') | tojson }},
+  "SlotId": {{ item.slot_id | default(1) }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UserLabel": {{ item.user_label | default('') | tojson }}
+}

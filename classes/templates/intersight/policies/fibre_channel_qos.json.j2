@@ -1,39 +1,16 @@
 {
+  "Burst": {{ item.burst | default(10240) | int }},
+  "Cos": {{ item.class_of_service | default(3) | int }},
   "Description": {{ (item.description | default('', true)) | tojson }},
-  "LocalClients": [
-    {
-      "MinSeverity": "warning",
-      "ObjectType": "syslog.LocalFileLoggingClient"
-    }
-  ],
+  "MaxDataFieldSize": {{ item.max_data_field_size | default(2112) | int }},
   "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
-  "ObjectType": "syslog.Policy",
+  "ObjectType": "vnic.FcQosPolicy",
   "Organization": {
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
-  "RemoteClients": [
-    {
-      "Enabled": true,
-      "Facility": "",
-      "Hostname": "10.101.128.24",
-      "MinSeverity": "informational",
-      "ObjectType": "syslog.RemoteLoggingClient",
-      "Port": 514,
-      "Protocol": "udp",
-      "VrfName": ""
-    },
-    {
-      "Enabled": true,
-      "Facility": "",
-      "Hostname": "10.101.128.25",
-      "MinSeverity": "informational",
-      "ObjectType": "syslog.RemoteLoggingClient",
-      "Port": 514,
-      "Protocol": "udp",
-      "VrfName": ""
-    }
-  ],
+  "Priority": "FC",
+  "RateLimit": {{ item.rate_limit | default(0) | int }},
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}

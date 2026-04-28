@@ -1,6 +1,6 @@
 {
-  "Description": "{{ item.description | default('') }}",
-  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "resourcepool.QualificationPolicy",
   "Organization": {
     "Moid": "{{ org_moids[organization].moid }}",
@@ -137,12 +137,12 @@
 {% for tag in item.tags %}
     {
 {% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "PathTag"
 {% else %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "KeyValue",
-      "Value": "{{ tag.value }}"
+      "Value": {{ tag.value | tojson }}
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}

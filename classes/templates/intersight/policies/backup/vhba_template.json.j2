@@ -1,5 +1,5 @@
 {
-  "Description": "{{ item.description | default('') }}",
+  "Description": {{ (item.description | default('', true)) | tojson }},
   "EnableOverride": true,
   "FcAdapterPolicy": {
     "Moid": "65d3788cfccacb17015ccd69",
@@ -17,7 +17,7 @@
     "link": "https://us-east-1.intersight.com/api/v1/vnic/FcQosPolicies/65d3788cfccacb17015ccd0a"
   },
   "FcZonePolicies": [],
-  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "vnic.VhbaTemplate",
   "Organization": {
     "Moid": "{{ org_moids[organization].moid }}",
@@ -33,12 +33,12 @@
 {% for tag in item.tags %}
     {
 {% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "PathTag"
 {% else %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "KeyValue",
-      "Value": "{{ tag.value }}"
+      "Value": {{ tag.value | tojson }}
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}

@@ -3,7 +3,7 @@
   "AesPrimaryKey": "{{ item.aes_primary_key }}",
 {% endif %}
   "Description": "{{ item.description | default('') }}",
-  "EnableJumboFrame": {% if item.target_platform | default('UCS Domain') == 'Unified Edge' %}"{{ item.enable_jumbo_frame | default(false) | lower }}"{% else %}false{% endif %},
+  "EnableJumboFrame": {% if item.target_platform | default('UCS Domain') == 'Unified Edge' %}{{ item.enable_jumbo_frame | default(false) | tojson }}{% else %}false{% endif %},
   "EthernetSwitchingMode": "{{ item.switching_mode_ethernet | default('end-host') }}",
   "FabricPcVhbaReset": "{{ item.fabric_port_channel_vhba_reset | default('Disabled') }}",
   "FcSwitchingMode": "{{ item.switching_mode_fc | default('end-host') }}",
@@ -40,9 +40,9 @@
 {% endif %}
   "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}",
   "UdldSettings": {
-    "MessageInterval": {{ item.udld_global_settings | default({}) | .message_interval | default(15) }},
+    "MessageInterval": {{ (item.udld_global_settings | default({})).get('message_interval') | default(15) | int }},
     "ObjectType": "fabric.UdldGlobalSettings",
-    "RecoveryAction": "{{ item.udld_global_settings | default({}) | .recovery_action | default('reset') }}"
+    "RecoveryAction": {{ (item.udld_global_settings | default({})).get('recovery_action') | default('reset', true) | tojson }}
   },
-  "VlanPortOptimizationEnabled": {{ item.vlan_port_count_optimization | default(false) | lower }}
+  "VlanPortOptimizationEnabled": {{ item.vlan_port_count_optimization | default(false) | tojson }}
 }

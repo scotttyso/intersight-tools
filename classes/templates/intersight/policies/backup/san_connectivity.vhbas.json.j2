@@ -49,12 +49,12 @@
 {% for tag in item.tags %}
     {
 {% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "PathTag"
 {% else %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "KeyValue",
-      "Value": "{{ tag.value }}"
+      "Value": {{ tag.value | tojson }}
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}

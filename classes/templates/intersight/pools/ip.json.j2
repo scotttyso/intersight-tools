@@ -39,11 +39,11 @@
 {% endif %}
   ],
   "IpV4Config": {
-    "Gateway": "{{ (item.ipv4_configuration | default({})).gateway | default('') }}",
-    "Netmask": "{{ (item.ipv4_configuration | default({})).netmask | default('') }}",
+    "Gateway": "{{ (item.ipv4_configuration | default({})).get('gateway') | default('') }}",
+    "Netmask": "{{ (item.ipv4_configuration | default({})).get('netmask') | default('') }}",
     "ObjectType": "ippool.IpV4Config",
-    "PrimaryDns": "{{ (item.ipv4_configuration | default({})).primary_dns | default('') }}",
-    "SecondaryDns": "{{ (item.ipv4_configuration | default({})).secondary_dns | default('') }}"
+    "PrimaryDns": "{{ (item.ipv4_configuration | default({})).get('primary_dns') | default('') }}",
+    "SecondaryDns": "{{ (item.ipv4_configuration | default({})).get('secondary_dns') | default('') }}"
   },
   "IpV6Blocks": [
 {% if _ipv6_blocks | length > 0 %}
@@ -75,11 +75,11 @@
 {% endif %}
   ],
   "IpV6Config": {
-    "Gateway": "{{ (item.ipv6_configuration | default({})).gateway | default('') }}",
+    "Gateway": "{{ (item.ipv6_configuration | default({})).get('gateway') | default('') }}",
     "ObjectType": "ippool.IpV6Config",
-    "Prefix": {{ (item.ipv6_configuration | default({})).prefix | default(0) }},
-    "PrimaryDns": "{{ (item.ipv6_configuration | default({})).primary_dns | default('') }}",
-    "SecondaryDns": "{{ (item.ipv6_configuration | default({})).secondary_dns | default('') }}"
+    "Prefix": {{ (item.ipv6_configuration | default({})).get('prefix') | default(0) }},
+    "PrimaryDns": "{{ (item.ipv6_configuration | default({})).get('primary_dns') | default('') }}",
+    "SecondaryDns": "{{ (item.ipv6_configuration | default({})).get('secondary_dns') | default('') }}"
   },
   "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
   "ObjectType": "ippool.Pool",

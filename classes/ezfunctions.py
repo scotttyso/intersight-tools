@@ -16,9 +16,8 @@ try:
     from OpenSSL import crypto
     from pathlib import Path
     from stringcase import snakecase
-    import argparse, base64, ipaddress, itertools, jinja2, json, logging, os, pexpect, platform
+    import base64, importlib, importlib.util, ipaddress, itertools, jinja2, json, logging, os, pexpect, platform
     import pytz, re, requests, shutil, subprocess, stdiomask, string, textwrap, time, validators, yaml
-    import importlib
 except ImportError as e:
     prRed(f'classes/ezfunctions.py - !!! ERROR !!!\n{e.__class__.__name__}')
     prRed(f' Module {e.name} is required to run this script')
@@ -874,6 +873,32 @@ def load_configurations(kwargs):
             kwargs.imm_dict.orgs = DotMap()
         deep_merge_dicts(kwargs.imm_dict.orgs, kwargs.intersight.organizations)
 
+    # Validate required sensitive environment variables referenced by the loaded model.
+    try:
+        validator_path = os.path.join(kwargs.script_path, 'classes', 'validate_sensitive_variables.py')
+        module_name = 'validate_sensitive_variables'
+        spec = importlib.util.spec_from_file_location(module_name, validator_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f'Unable to load module spec from {validator_path}')
+        validator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(validator)
+        model = {
+            'intersight': kwargs.intersight.toDict() if hasattr(kwargs.intersight, 'toDict') else kwargs.intersight,
+            'openshift': kwargs.openshift.toDict() if hasattr(kwargs.openshift, 'toDict') else kwargs.openshift,
+            'pure_storage': kwargs.pure_storage.toDict() if hasattr(kwargs.pure_storage, 'toDict') else kwargs.pure_storage,
+        }
+        schema_path = Path(os.path.join(kwargs.script_path, 'schema', 'cisco-ai-pods.json'))
+        success, missing_vars, error_messages = validator.validate_all_sensitive_variables(model, schema_path)
+        if not success:
+            pcolor.Red(f'\n!!! ERROR !!! Missing {len(missing_vars)} sensitive environment variable(s).')
+            for message in error_messages:
+                pcolor.Red(message)
+            sys.exit(1)
+    except Exception as error:
+        pcolor.Red(f'\n!!! ERROR !!! validate_sensitive_variables failed during load_configurations: {error}')
+        pcolor.Red(f'ezfunctions.py line 893')
+        sys.exit(1)
+
     # Debug dump for loaded configuration state.
     # pcolor.Cyan(f'\n--- Loaded {len(ezai_files)} ezai.yaml file(s) from {load_dir} ---')
     # print(json.dumps({
@@ -1272,6 +1297,180 @@ def sensitive_var_value(kwargs):
         #=========================================================================
         if not kwargs.get('multi_line_input'): kwargs.var_value = os.environ.get(sensitive_var)
         else: kwargs.var_value = (os.environ.get(sensitive_var)).replace('\n', '\\n')
+    return kwargs
+
+#=============================================================================
+# Function - Prompt User for Sensitive Values Version 2
+#=============================================================================
+def sensitive_var_value_v2(kwargs, sensitive_var=None):
+    sensitive_var = sensitive_var if sensitive_var != None else kwargs.sensitive_var
+    kwargs.sensitive_var = sensitive_var
+    non_interactive = bool(getattr(getattr(kwargs, 'args', DotMap()), 'non_interactive', False))
+
+    def sensitive_props():
+        if kwargs.ezdata.get('abstract.sensitive_variables'):
+            return kwargs.ezdata['abstract.sensitive_variables'].properties
+        if kwargs.ezdata.get('sensitive_variables'):
+            return kwargs.ezdata.sensitive_variables.properties
+        return DotMap()
+
+    def schema_key_for_sensitive_var(var_name, props):
+        base_name = re.sub(r'_[0-9]+$', '', var_name)
+        if base_name in props:
+            return base_name
+        aliases = {
+            'bind_password': 'ldap_binding_password',
+            'binding_parameters_password': 'ldap_binding_password',
+            'ldap_binding_parameters_password': 'ldap_binding_password',
+            'community': 'snmp_community_string',
+            'ipmi_encryption_key': 'ipmi_key',
+            'snmp_auth_passphrase': 'snmp_password',
+            'snmp_privacy_passphrase': 'snmp_password',
+            'drive_security_current_security_key_passphrase': 'drive_security_passphrase',
+            'drive_security_new_security_key_passphrase': 'drive_security_passphrase',
+            'cert_mgmt_certificate': 'certificate',
+            'cert_mgmt_intermediate_certificate': 'certificate',
+            'cert_mgmt_private_key': 'private_key',
+        }
+        if aliases.get(base_name) and aliases[base_name] in props:
+            return aliases[base_name]
+        return None
+
+    sprops = sensitive_props()
+    undefined = False
+    ipmi_regex = r'^ipmi(_encryption)?_key(_[0-9]+)?$'
+    if re.search('^undefined_', sensitive_var):
+        undefined = True
+        sensitive_var = sensitive_var.replace('undefined_', '')
+    #=======================================================================================================
+    # Check to see if the Variable is already set in the Environment, and if not prompt the user for Input.
+    #=======================================================================================================
+    if os.environ.get(sensitive_var) is None:
+        if non_interactive:
+            pcolor.Red(f'\n!!! ERROR !!! Missing required environment variable `{sensitive_var}` in non-interactive mode.')
+            pcolor.Red(f'Set it before running: export {sensitive_var}="<value>"')
+            sys.exit(1)
+        pcolor.Cyan(f'\n{"-"*108}\n')
+        pcolor.Cyan(f'  The Script did not find {sensitive_var} as an `environment` variable.')
+        pcolor.Cyan(f'  To not be prompted for the value of `{kwargs.sensitive_var}` each time')
+        pcolor.Cyan(f'  add the following to your local environemnt:\n')
+        pcolor.Cyan(f'    - Linux: export {sensitive_var}="{kwargs.sensitive_var}_value"')
+        pcolor.Cyan(f'    - Windows: $env:{sensitive_var}="{kwargs.sensitive_var}_value"\n')
+    if os.environ.get(sensitive_var) is None and re.search(ipmi_regex, sensitive_var):
+        pcolor.Cyan(f'\n{"-"*108}\n\n  The ipmi_encryption_key Must be in Hexidecimal Format [a-fA-F0-9]')
+        pcolor.Cyan(f'  and no longer than 40 characters.\n')
+    if os.environ.get(sensitive_var) is None:
+        valid = False
+        while valid == False:
+            varValue = input('press enter to continue: ')
+            if varValue == '': valid = True
+        valid = False
+        while valid == False:
+            if kwargs.get('multi_line_input'):
+                pcolor.LightGray(f'Enter the value for {kwargs.sensitive_var}:')
+                lines = []
+                while True:
+                    line = stdiomask.getpass(prompt='')
+                    if line: lines.append(line)
+                    else: break
+                if not re.search('(certificate|private_key)', sensitive_var): secure_value = '\\n'.join(lines)
+                else: secure_value = '\n'.join(lines)
+            else:
+                valid_pass = False
+                while valid_pass == False:
+                    password1 = stdiomask.getpass(prompt=f'Enter the value for {kwargs.sensitive_var}: ')
+                    password2 = stdiomask.getpass(prompt=f'Re-Enter the value for {kwargs.sensitive_var}: ')
+                    if password1 == password2: secure_value = password1; valid_pass = True
+                    else: pcolor.Red('!!! ERROR !!! Sensitive Values did not match.  Please re-enter...')
+            #=========================================================================
+            # Validate Sensitive Passwords
+            #=========================================================================
+            #cert_regex = re.compile(r'^\-{5}BEGIN (CERTIFICATE|PRIVATE KEY)\-{5}.*\-{5}END (CERTIFICATE|PRIVATE KEY)\-{5}$')
+            if re.search('(certificate|private_key)', sensitive_var):
+                if os.path.isfile(secure_value): secure_value = open(secure_value, 'r').read()
+                try:
+                    sensitive_value = secure_value
+                    if os.path.isfile(secure_value): sensitive_value = open(secure_value).read()
+                    if re.search('certificate', sensitive_var):
+                        pem = crypto.load_certificate(crypto.FILETYPE_PEM, sensitive_value)
+                        expiration_date = pem.get_notAfter().decode('utf-8')
+                        formatted_date  = datetime.strptime(expiration_date, '%Y%m%d%H%M%SZ')
+                        pcolor.Cyan(f'{sensitive_var} Certficate Expiration is {formatted_date}')
+                        pem = True
+                    else: pem = RSA.RsaKey.has_private(RSA.import_key(sensitive_value))
+                except Exception as e:
+                    pcolor.Red(e)
+                    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')
+                    pcolor.Red(f'\n{"-"*108}\n')
+                    len(False); sys.exit(1)
+                if pem == True: valid = True
+                #if re.search(cert_regex, secure_value): valid = True
+                else:
+                    pcolor.Red(f'\n{"-"*108}\n\n  !!!Error!!!\n  Path: {sensitive_var}\n   does not seem to be valid.')
+                    pcolor.Red(f'\n{"-"*108}\n')
+            elif undefined == True: valid = True
+            elif re.search(ipmi_regex, sensitive_var): valid = validating.ipmi_key_check(secure_value)
+            else:
+                schema_key = schema_key_for_sensitive_var(sensitive_var, sprops)
+                if schema_key and sprops.get(schema_key):
+                    kwargs.jdata = sprops[schema_key]
+                    if schema_key == 'local_user_password' and kwargs.enforce_strong_password == True:
+                        kwargs.jdata.maxLength = 20
+                        valid = validate_strong_password(secure_value, kwargs)
+                    else:
+                        valid = validate_sensitive(secure_value, kwargs)
+                else:
+                    # If no schema key is found, preserve prior permissive behavior.
+                    valid = True
+        #=========================================================================
+        # Add Policy Variables to imm_dict
+        #=========================================================================
+        if kwargs.get('org'):
+            org = kwargs.org
+            if not kwargs.imm_dict.orgs.get(org):
+                kwargs.imm_dict.orgs[org] = DotMap()
+                if not kwargs.imm_dict.orgs[org].get('sensitive_vars'): kwargs.imm_dict.orgs[org].sensitive_vars = []
+                kwargs.imm_dict.orgs[org].sensitive_vars.append(sensitive_var)
+        #=========================================================================
+        # Add the Variable to the Environment
+        #=========================================================================
+        os.environ[sensitive_var] = '%s' % (secure_value)
+        kwargs.var_value = secure_value
+    else:
+        #=========================================================================
+        # Validate existing environment variable and return it
+        #=========================================================================
+        env_value = os.environ.get(sensitive_var)
+        valid = True
+        if undefined != True:
+            if re.search('(certificate|private_key)', sensitive_var):
+                try:
+                    sensitive_value = env_value
+                    if os.path.isfile(env_value): sensitive_value = open(env_value).read()
+                    if re.search('certificate', sensitive_var):
+                        crypto.load_certificate(crypto.FILETYPE_PEM, sensitive_value)
+                    else:
+                        RSA.RsaKey.has_private(RSA.import_key(sensitive_value))
+                except Exception:
+                    valid = False
+            elif re.search(ipmi_regex, sensitive_var):
+                valid = validating.ipmi_key_check(env_value)
+            else:
+                schema_key = schema_key_for_sensitive_var(sensitive_var, sprops)
+                if schema_key and sprops.get(schema_key):
+                    kwargs.jdata = sprops[schema_key]
+                    if schema_key == 'local_user_password' and kwargs.enforce_strong_password == True:
+                        kwargs.jdata.maxLength = 20
+                        valid = validate_strong_password(env_value, kwargs)
+                    else:
+                        valid = validate_sensitive(env_value, kwargs)
+
+        if valid == False:
+            pcolor.Red(f'\n!!! ERROR !!! Environment variable `{sensitive_var}` failed validation.')
+            sys.exit(1)
+
+        if not kwargs.get('multi_line_input'): kwargs.var_value = env_value
+        else: kwargs.var_value = env_value.replace('\n', '\\n')
     return kwargs
 
 #=============================================================================

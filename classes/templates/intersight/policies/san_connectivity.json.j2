@@ -1,0 +1,42 @@
+{
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "vnic.SanConnectivityPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PlacementMode": {{ item.vhba_placement_mode | default('custom', true) | tojson }},
+  "StaticWwnnAddress": {{ item.wwnn_static_address | default('', true) | tojson }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": {{ item.target_platform | default('FIAttached', true) | tojson }},
+{% if item.wwnn_pool is defined%}
+{% set _name = item.wwnn_pool.split('/')[-1] %}
+{% set _org  = item.wwnn_pool.split('/')[0] if item.wwnn_pool.split('/') | length > 1 else organization %}
+  "WwnnAddressType": "POOL",
+  "WwnnPool": {
+    "Moid": "{{ isight[_org]['pools']['wwnn'][_name] }}",
+    "ObjectType": "fcpool.Pool"
+  }
+{% else %}
+  "WwnnAddressType": {% if item.wwnn_static_address is defined %}"STATIC"{% else %}"POOL"{% endif %},
+  "WwnnPool": null
+{% endif %}
+}

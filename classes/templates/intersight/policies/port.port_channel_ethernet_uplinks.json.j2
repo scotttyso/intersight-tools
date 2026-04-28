@@ -1,0 +1,93 @@
+{
+  "AdminSpeed": {{ item.admin_speed | default('Auto') | tojson }},
+  "EthNetworkGroupPolicy": [
+{% if item.ethernet_network_group_policies is defined and item.ethernet_network_group_policies | length > 0 %}
+{% for _engp in item.ethernet_network_group_policies %}
+{% set _name = _engp.split('/')[-1] %}
+{% set _org = _engp.split('/')[0] if _engp.split('/') | length > 1 else organization %}
+  {
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_group'][_name] }}",
+    "ObjectType": "fabric.EthNetworkGroupPolicy"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Fec": {{ item.fec | default('Auto') | tojson }},
+{% if item.flow_control_policy is defined %}
+{% set _name = item.flow_control_policy.split('/')[-1] %}
+{% set _org = item.flow_control_policy.split('/')[0] if item.flow_control_policy.split('/') | length > 1 else organization %}
+  "FlowControlPolicy": {
+    "Moid": "{{ isight[_org]['policies']['flow_control'][_name] }}",
+    "ObjectType": "fabric.FlowControlPolicy"
+  },
+{% else %}
+  "FlowControlPolicy": null,
+{% endif %}
+{% if item.link_aggregation_policy is defined %}
+{% set _name = item.link_aggregation_policy.split('/')[-1] %}
+{% set _org = item.link_aggregation_policy.split('/')[0] if item.link_aggregation_policy.split('/') | length > 1 else organization %}
+  "LinkAggregationPolicy": {
+    "Moid": "{{ isight[_org]['policies']['link_aggregation'][_name] }}",
+    "ObjectType": "fabric.LinkAggregationPolicy"
+  },
+{% else %}
+  "LinkAggregationPolicy": null,
+{% endif %}
+{% if item.link_control_policy is defined %}
+{% set _name = item.link_control_policy.split('/')[-1] %}
+{% set _org = item.link_control_policy.split('/')[0] if item.link_control_policy.split('/') | length > 1 else organization %}
+  "LinkControlPolicy": {
+    "Moid": "{{ isight[_org]['policies']['link_control'][_name] }}",
+    "ObjectType": "fabric.LinkControlPolicy"
+  },
+{% else %}
+  "LinkControlPolicy": null,
+{% endif %}
+{% if item.mac_sec_policy is defined %}
+{% set _name = item.mac_sec_policy.split('/')[-1] %}
+{% set _org = item.mac_sec_policy.split('/')[0] if item.mac_sec_policy.split('/') | length > 1 else organization %}
+  "MacSecPolicy": {
+    "Moid": "{{ isight[_org]['policies']['mac_sec'][_name] }}",
+    "ObjectType": "fabric.MacSecPolicy"
+  },
+{% else %}
+  "MacSecPolicy": null,
+{% endif %}
+  "ObjectType": "fabric.UplinkPcRole",
+  "PcId": {{ item.pc_id | default(1) }},
+  "PortPolicy": {
+    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
+  "Ports": [
+{% if item.interfaces is defined and item.interfaces | length > 0 %}
+{% for interface in item.interfaces %}
+    {
+      "AggregatePortId": {{ interface.breakout_port_id | default(0)}},
+      "ObjectType": "fabric.PortIdentifier",
+      "PortId": {{ interface.port_id }},
+      "SlotId": {{ interface.slot_id | default(1) }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UserLabel": {{ item.user_label | default('') | tojson }}
+}

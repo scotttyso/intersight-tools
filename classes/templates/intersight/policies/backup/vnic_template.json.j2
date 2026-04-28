@@ -4,7 +4,7 @@
     "Source": "vnic",
     "Value": "mgmt"
   },
-  "Description": "{{ item.description | default('') }}",
+  "Description": {{ (item.description | default('', true)) | tojson }},
   "EnableOverride": true,
   "EthAdapterPolicy": {
     "Moid": "65d3788bfccacb17015cca9d",
@@ -56,12 +56,12 @@
 {% for tag in item.tags %}
     {
 {% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "PathTag"
 {% else %}
-      "Key": "{{ tag.key }}",
+      "Key": {{ tag.key | tojson }},
       "Type": "KeyValue",
-      "Value": "{{ tag.value }}"
+      "Value": {{ tag.value | tojson }}
 {% endif %}
     }{% if not loop.last %},{% endif %}
 {% endfor %}

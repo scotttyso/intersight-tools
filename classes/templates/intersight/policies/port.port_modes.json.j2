@@ -1,0 +1,29 @@
+{
+  "CustomMode": {{ item.custom_mode | default('FibreChannel') | tojson }},
+  "ObjectType": "fabric.PortMode",
+  "PortIdEnd": {% if item.port_id is defined and item.port_id | length > 1 %}{{ item.port_id[1] }}{% else %}8{% endif %},
+  "PortIdStart": {% if item.port_id is defined and item.port_id | length > 1 %}{{ item.port_id[0] }}{% else %}1{% endif %},
+  "PortPolicy": {
+    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
+  "SlotId": 1,
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}
