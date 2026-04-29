@@ -6,16 +6,20 @@
 {% set _name = item.link_control_policy.split('/')[-1] %}
 {% set _org = item.link_control_policy.split('/')[0] if item.link_control_policy.split('/') | length > 1 else organization %}
   "LinkControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['link_control'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['link_control'][_name].moid }}",
     "ObjectType": "fabric.LinkControlPolicy"
   },
 {% else %}
   "LinkControlPolicy": null,
 {% endif %}
   "ObjectType": "fabric.FcoeUplinkRole",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PortId": {{ item.port_id | default(1) }},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "SlotId": {{ item.slot_id | default(1) }},
@@ -37,5 +41,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "UserLabel": {{ item.user_label | default('') | tojson }}
+  "UserLabel": {{ item.user_label | default('', true) | tojson }}
 }

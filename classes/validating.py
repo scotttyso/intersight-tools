@@ -63,33 +63,38 @@ def begin_section(org, resource, resource_type):
     pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(resource_type.split('_')).title()} Deployments for Organization: `{org}`.\n")
 
 def completed_item(ptype, kwargs):
-    iresults = kwargs.api_results
+    iresults = DotMap(kwargs.api_results)
+    ikeys = list(iresults.keys())
     method = kwargs.method
     name   = None
     pmoid  = iresults.Moid
+    psplit = kwargs.intersight_object_map[iresults.ObjectType].split('.')
+    if len(psplit) > 2: policy_name = psplit[1]
+    else: policy_name = psplit[-1]
+    ptitle = mod_pol_description((' '.join(policy_name.split('_'))).title())
     if   'vnic.EthIf' == iresults.ObjectType: name = f"vNIC {iresults.Name}"
     elif 'vnic.FcIf' == iresults.ObjectType:  name = f"vHBA {iresults.Name}"
     elif 'asset.DeviceClaim' == iresults.ObjectType:  name = f"Claiming Server `{iresults.SerialNumber}` Registration"
-    elif 'autosupport' == ptype:        name = "AutoSupport"
-    elif iresults.get('PcId'):          name = f"PC {iresults['PcId']}"
-    elif iresults.get('PortId'):        name = f"Port {iresults['PortId']}"
-    elif iresults.get('PortIdStart'):   name = f"PortIdStart {iresults['PortIdStart']}"
-    elif iresults.get('VirtualDrives'): name = f"DriveGroup {iresults['Name']}"
-    elif iresults.get('VlanId'):        name = f"VLAN {iresults['VlanId']}"
-    elif iresults.get('VsanId'):        name = f"VSAN {iresults['VsanId']}"
-    elif 'user_role' in ptype:          name = f"Role for {ptype}"
-    elif 'upgrade' in ptype:     name = f".  Performing Firmware Upgrade on {kwargs.serial} - {kwargs.server} Server Profile"
-    elif iresults.get('UserId'):        name = f"{iresults['UserId']} CCO User Authentication"
-    elif 'eula' in ptype:        name = f"Account EULA Acceptance"
-    elif iresults.get('Action'):
-        if iresults['Action'] == 'Deploy': name = f"Deploy Profile {pmoid}"
+    elif 'autosupport' == ptype:   name = "AutoSupport"
+    elif 'PcId' in ikeys:          name = f"{ptitle} - PortChannel `{iresults.PcId}`"
+    elif 'PortId' in ikeys:        name = f"{ptitle} - Port `{iresults.PortId}`"
+    elif 'PortIdStart' in ikeys:   name = f"{ptitle} - PortIdStart `{iresults.PortIdStart}`"
+    elif 'VirtualDrives' in ikeys: name = f"{ptitle} - DriveGroup `{iresults.Name}`"
+    elif 'VlanId' in ikeys:        name = f"VLAN `{iresults.VlanId}`"
+    elif 'VsanId' in ikeys:        name = f"VSAN `{iresults.VsanId}`"
+    elif 'user_role' in ptype:     name = f"Role for {ptype}"
+    elif 'upgrade' in ptype:       name = f".  Performing Firmware Upgrade on {kwargs.serial} - {kwargs.server} Server Profile"
+    elif 'UserId' in ikeys:        name = f"{iresults.UserId} CCO User Authentication"
+    elif 'eula' in ptype:          name = f"Account EULA Acceptance"
+    elif 'Action' in ikeys:
+        if iresults.Action == 'Deploy': name = f"Deploy Profile {pmoid}"
         else: name = iresults['Name']
-    elif iresults.get('ScheduledActions'): name = f"Activating Profile {pmoid}"
-    elif iresults.get('Targets'):          name = iresults['Targets'][0]['Name']
-    elif 'update_tags' in ptype:           name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
-    elif iresults.get('Identity'):         name = f"Reservation: `{iresults.Identity}`"
-    elif iresults.get('Name'):             name = iresults['Name']
-    elif iresults.get('EndPointRole'):
+    elif 'ScheduledActions' in ikeys: name = f"Activating Profile {pmoid}"
+    elif 'Targets' in ikeys:          name = iresults['Targets'][0]['Name']
+    elif 'update_tags' in ptype:      name = f"Tags updated for Physical Server attached to {kwargs.tag_server_profile}"
+    elif 'Identity' in ikeys:         name = f"Reservation: `{iresults.Identity}`"
+    elif 'Name' in ikeys:             name = iresults['Name']
+    elif 'EndPointRole' in ikeys:
         users = DotMap()
         for k,v in kwargs.user_moids.items(): users[v.moid] = k
         name = list(users.values())[list(users.keys()).index(iresults.EndPointUser.Moid)]
@@ -100,21 +105,15 @@ def completed_item(ptype, kwargs):
         print(kwargs.parent_type)
         print('missing definition')
         len(False); sys.exit(1)
-    if re.search(oregex, iresults.get('ObjectType')):
-        parent_title = ((kwargs.parent_key.replace('_', ' ')).title())
-        parent_title = mod_pol_description(parent_title)
-        parents      = DotMap()
-        for k,v in kwargs.isight[kwargs.org].policies[kwargs.parent_key].items(): parents[v] = k
-        if 'an_connectivity' in kwargs.parent_key: kwargs.parent_name = parents[iresults[f'{pascalcase(kwargs.parent_key)}Policy'].Moid]
-        elif kwargs.parent_key == 'local_user': kwargs.parent_name = parents[iresults[f'EndPointUserPolicy'].Moid]
-        elif kwargs.parent_key == 'port':       kwargs.parent_name = parents[iresults[f'PortPolicy'].Moid]
-        elif kwargs.parent_key == 'vlan':       kwargs.parent_name = parents[iresults[f'EthNetworkPolicy'].Moid]
-        elif kwargs.parent_key == 'vsan':       kwargs.parent_name = parents[iresults[f'FcNetworkPolicy'].Moid]
-        else: kwargs.parent_name = list(parents.values())[list(parents.keys()).index(iresults.Parent.Moid)]
+    if 'Parent' in ikeys:
+        parent_policy  = kwargs.intersight_object_map[iresults.ObjectType].split('.')[0]
+        parent_type  = kwargs.ezdata[f'intersight.{parent_policy}'].intersight_type
+        parent_name  = kwargs.intersight_api[kwargs.org][parent_type][parent_policy][iresults.Parent.Moid]
+        parent_title = mod_pol_description((kwargs.parent_key.replace('_', ' ')).title())
         if method == 'post':
-            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
         else:
-            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Org: {kwargs.org} > {parent_title} `{kwargs.parent_name}`: {name} - Moid: {pmoid}')
+            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
         if method == 'post': pcolor.Green(f'{" "*6}* Completed {method.upper()} for {ptype} {name}.')
@@ -122,11 +121,11 @@ def completed_item(ptype, kwargs):
     elif 'Claiming' in name: pcolor.Green(f'{" "*6}- Completed POST for {name} - Moid: {pmoid}')
     elif 'Reservation' in name: pcolor.Green(f'{" "*6}- Completed POST for {name} - Moid: {pmoid}')
     elif 'bulk/MoMergers' == kwargs.uri:
-        if method == 'post': pcolor.Green(f'{" "*6}- Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'{" "*4}- Completed Bulk Merger {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'{" "*6}- Completed Bulk Merger {method.upper()} for Organization: `{kwargs.org}` > Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'{" "*4}- Completed Bulk Merger {method.upper()} for Organization: `{kwargs.org}` > Name: {name} - Moid: {pmoid}')
     else:
-        if method == 'post': pcolor.Green(f'{" "*6}- Completed {method.upper()} for Org: {kwargs.org} Name: {name} - Moid: {pmoid}')
-        else: pcolor.LightPurple(f'{" "*6}- Completed {method.upper()} for Org: {kwargs.org} > Name: {name} - Moid: {pmoid}')
+        if method == 'post': pcolor.Green(f'{" "*6}- Completed {method.upper()} for Organization: `{kwargs.org}` Name: {name} - Moid: {pmoid}')
+        else: pcolor.LightPurple(f'{" "*6}- Completed {method.upper()} for Organization: `{kwargs.org}` > Name: {name} - Moid: {pmoid}')
 
 def deploy_notification(profile, profile_type):
     pcolor.LightGray(f'\n{"-"*108}\n')

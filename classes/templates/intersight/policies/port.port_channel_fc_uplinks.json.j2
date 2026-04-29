@@ -2,9 +2,13 @@
   "AdminSpeed": {{ item.admin_speed | default('32Gbps') | tojson }},
   "FillPattern": {{ item.fill_pattern | default('Idle') | tojson }},
   "ObjectType": "fabric.FcUplinkPcRole",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PcId": {{ item.pc_id | default(1) }},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "Ports": [
@@ -37,6 +41,6 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "UserLabel": {{ item.user_label | default('') | tojson }},
+  "UserLabel": {{ item.user_label | default('', true) | tojson }},
   "VsanId": {{ item.vsan_id | default(100) | int }}
 }

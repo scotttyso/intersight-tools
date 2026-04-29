@@ -3,9 +3,13 @@
   "AggregatePortId": {{ item.breakout_port_id | default(0) }},
   "FillPattern": {{ item.fill_pattern | default('Idle') | tojson }},
   "ObjectType": "fabric.FcUplinkRole",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PortId": {{ item.port_id | default(1) }},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "SlotId": {{ item.slot_id | default(1) }},
@@ -27,6 +31,6 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "UserLabel": {{ item.user_label | default('') | tojson }},
+  "UserLabel": {{ item.user_label | default('', true) | tojson }},
   "VsanId": {{ item.vsan_id | default(1) | int }}
 }

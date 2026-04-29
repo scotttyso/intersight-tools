@@ -1,0 +1,26 @@
+{
+    "AccountTypeUserDefined": false,
+    "ChangePassword": false,
+    "Enabled": true,
+    "EndPointRole": [
+        {
+            "Moid": "59684dcb5e468000016525c8",
+            "ObjectType": "iam.EndPointRole"
+        }
+    ],
+    "EndPointUser": {
+        "Moid": "65a5b04b6275723101f57675",
+        "ObjectType": "iam.EndPointUser"
+    },
+    "EndPointUserPolicy": {
+        "Moid": "65d3788b6275723101a96930",
+        "ObjectType": "iam.EndPointUserPolicy"
+    },
+    "IsPasswordSet": true,
+    "ObjectType": "iam.EndPointUserRole",
+    "Parent": {
+        "Moid": "65d3788b6275723101a96930",
+        "ObjectType": "iam.EndPointUserPolicy"
+    },
+    "Tags": []
+}

@@ -3,9 +3,13 @@
   "AutoNegotiationDisabled": {{ item.auto_negotiation_disabled | default(false) | tojson }},
   "Fec": {{ item.fec | default('Auto') | tojson }},
   "ObjectType": "fabric.ServerRole",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PortId": {{ item.port_id | default(1) }},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "PreferredDeviceId": {{ item.device_number | default(0) | int }},
@@ -29,5 +33,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "UserLabel": {{ item.user_label | default('') | tojson }}
+  "UserLabel": {{ item.user_label | default('', true) | tojson }}
 }

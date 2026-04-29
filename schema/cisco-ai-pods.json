@@ -22613,7 +22613,7 @@
                         "title": "vsan_id",
                         "type": "integer"
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "VsanId",
                     "title": "vsan_ids - VSAN Identifiers",
@@ -22713,7 +22713,7 @@
                         "title": "vsan_id",
                         "type": "integer"
                     },
-                    "maxItems": 2,
+                    "maxItems": 160,
                     "minItems": 1,
                     "object_type": "VsanId",
                     "title": "vsan_ids - VSAN Identifiers",

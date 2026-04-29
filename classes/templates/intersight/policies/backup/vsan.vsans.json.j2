@@ -8,6 +8,10 @@
   "FcoeVlan": 100,
   "Name": "vsan-100",
   "ObjectType": "fabric.Vsan",
+  "Parent": {
+    "Moid": "64679e716f62693001033422",
+    "ObjectType": "fabric.FcNetworkPolicy"
+  },
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}

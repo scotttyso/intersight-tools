@@ -1,10 +1,14 @@
 {
   "CustomMode": {{ item.custom_mode | default('FibreChannel') | tojson }},
   "ObjectType": "fabric.PortMode",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PortIdEnd": {% if item.port_id is defined and item.port_id | length > 1 %}{{ item.port_id[1] }}{% else %}8{% endif %},
   "PortIdStart": {% if item.port_id is defined and item.port_id | length > 1 %}{{ item.port_id[0] }}{% else %}1{% endif %},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "SlotId": 1,

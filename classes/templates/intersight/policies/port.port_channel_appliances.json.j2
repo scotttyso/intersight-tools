@@ -4,7 +4,7 @@
 {% set _name = item.ethernet_network_control_policy.split('/')[-1] %}
 {% set _org = item.ethernet_network_control_policy.split('/')[0] if item.ethernet_network_control_policy.split('/') | length > 1 else organization %}
   "EthNetworkControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['ethernet_network_control'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_control'][_name].moid }}",
     "ObjectType": "fabric.EthNetworkControlPolicy"
   },
 {% else %}
@@ -14,7 +14,7 @@
 {% set _name = item.ethernet_network_group_policy.split('/')[-1] %}
 {% set _org = item.ethernet_network_group_policy.split('/')[0] if item.ethernet_network_group_policy.split('/') | length > 1 else organization %}
   "EthNetworkGroupPolicy": {
-    "Moid": "{{ isight[_org]['policies']['ethernet_network_group'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_group'][_name].moid }}",
     "ObjectType": "fabric.EthNetworkGroupPolicy"
   },
 {% else %}
@@ -29,7 +29,7 @@
 {% set _name = item.link_aggregation_policy.split('/')[-1] %}
 {% set _org = item.link_aggregation_policy.split('/')[0] if item.link_aggregation_policy.split('/') | length > 1 else organization %}
   "LinkAggregationPolicy": {
-    "Moid": "{{ isight[_org]['policies']['link_aggregation'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['link_aggregation'][_name].moid }}",
     "ObjectType": "fabric.LinkAggregationPolicy"
   },
 {% else %}
@@ -37,9 +37,13 @@
 {% endif %}
   "Mode": {{ item.mode | default('trunk', true) | tojson }},
   "ObjectType": "fabric.AppliancePcRole",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PcId": {{ item.pc_id | default(1) }},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "Ports": [
@@ -73,5 +77,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "UserLabel": {{ item.user_label | default('') | tojson }}
+  "UserLabel": {{ item.user_label | default('', true) | tojson }}
 }

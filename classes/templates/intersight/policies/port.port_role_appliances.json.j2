@@ -5,7 +5,7 @@
 {% set _name = item.ethernet_network_control_policy.split('/')[-1] %}
 {% set _org = item.ethernet_network_control_policy.split('/')[0] if item.ethernet_network_control_policy.split('/') | length > 1 else organization %}
   "EthNetworkControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['ethernet_network_control'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_control'][_name].moid }}",
     "ObjectType": "fabric.EthNetworkControlPolicy"
   },
 {% else %}
@@ -15,7 +15,7 @@
 {% set _name = item.ethernet_network_group_policy.split('/')[-1] %}
 {% set _org = item.ethernet_network_group_policy.split('/')[0] if item.ethernet_network_group_policy.split('/') | length > 1 else organization %}
   "EthNetworkGroupPolicy": {
-    "Moid": "{{ isight[_org]['policies']['ethernet_network_group'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['ethernet_network_group'][_name].moid }}",
     "ObjectType": "fabric.EthNetworkGroupPolicy"
   },
 {% else %}
@@ -26,7 +26,7 @@
 {% set _name = item.flow_control_policy.split('/')[-1] %}
 {% set _org = item.flow_control_policy.split('/')[0] if item.flow_control_policy.split('/') | length > 1 else organization %}
   "FlowControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['flow_control'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['flow_control'][_name].moid }}",
     "ObjectType": "fabric.FlowControlPolicy"
   },
 {% else %}
@@ -36,7 +36,7 @@
 {% set _name = item.link_control_policy.split('/')[-1] %}
 {% set _org = item.link_control_policy.split('/')[0] if item.link_control_policy.split('/') | length > 1 else organization %}
   "LinkControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['link_control'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['link_control'][_name].moid }}",
     "ObjectType": "fabric.LinkControlPolicy"
   },
 {% else %}
@@ -44,9 +44,13 @@
 {% endif %}
   "Mode": {{ item.mode | default('access', true) | tojson }},
   "ObjectType": "fabric.ApplianceRole",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.PortPolicy"
+  },
   "PortId": {{ item.port_id | default(1) }},
   "PortPolicy": {
-    "Moid": "{{ isight[organization]['policies']['port'][item.parent] }}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.PortPolicy"
   },
   "Priority": {{ item.priority | default('Best Effort') | tojson }},
@@ -69,5 +73,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "UserLabel": {{ item.user_label | default('') | tojson }}
+  "UserLabel": {{ item.user_label | default('', true) | tojson }}
 }

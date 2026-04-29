@@ -138,6 +138,10 @@ def base_script_settings(kwargs):
     kwargs.ez_tags  = [{'key':'Provisioned via -','value':script_tag},{'key':f'{script_tag} version -','value':ezdata['version']}]
     kwargs.ezdata   = DotMap(ezdata['definitions'])
     kwargs.ezwizard = DotMap(ezdata['wizard'])
+    kwargs.intersight_object_map = DotMap()
+    for k,v in kwargs.ezdata.items():
+        vkeys = list(v.keys())
+        if 'intersight.' in k and 'object_type' in vkeys: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.', '')
     #=========================================================================
     # Get Intersight Configuration
     # - apikey
