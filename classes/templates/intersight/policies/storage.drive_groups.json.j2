@@ -1,0 +1,62 @@
+{
+  "ManualDriveGroup": {
+    "DedicatedHotSpares": "{{ item.dedicated_hot_spares | default('', true) | tojson }}",
+    "ObjectType": "storage.ManualDriveGroup",
+    "SpanGroups": [
+{% if item.drive_array_spans is defined and item.drive_array_spans | length > 0 %}
+{% for span in item.drive_array_spans %}
+      {
+        "ObjectType": "storage.SpanDrives",
+        "Slots": {{ span.slots | tojson }}
+      }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ item.name | default('default') | tojson }}",
+  "ObjectType": "storage.DriveGroup",
+  "Parent": {
+    "Moid": "{{ item.parent}}",
+    "ObjectType": "storage.StoragePolicy"
+  },
+  "RaidLevel": "{{ item.raid_level | default('Raid0') | tojson }}",
+  "SecureDriveGroup": {{ item.secure_drive_group | default(false) | bool | tojson }},
+  "StoragePolicy": {
+    "Moid": "{{ item.parent}}",
+    "ObjectType": "storage.StoragePolicy"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "VirtualDrives": [
+    {
+      "BootDrive": true,
+      "ExpandToAvailable": true,
+      "Name": "vd0",
+      "ObjectType": "storage.VirtualDriveConfiguration",
+      "Size": 0,
+      "VirtualDrivePolicy": {
+        "AccessPolicy": "Default",
+        "DriveCache": "Default",
+        "ObjectType": "storage.VirtualDrivePolicy",
+        "ReadPolicy": "Default",
+        "StripSize": 64,
+        "WritePolicy": "Default"
+      }
+    }
+  ]
+}

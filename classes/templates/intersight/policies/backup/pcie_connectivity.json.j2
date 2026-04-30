@@ -3,21 +3,16 @@
   "Name": "SystemDefault",
   "ObjectType": "compute.PcieConnectivityPolicy",
   "Organization": {
-    "ClassId": "mo.MoRef",
-    "Moid": "5ddfd9ff6972652d31ee6582",
-    "ObjectType": "organization.Organization",
-    "link": "https://us-east-1.intersight.com/api/v1/organization/Organizations/5ddfd9ff6972652d31ee6582"
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
   },
   "PcieZones": [
     {
-      "ClassId": "compute.PcieZone",
       "ObjectType": "compute.PcieZone",
       "PcieEndpoints": [
         {
-          "ClassId": "compute.GpuConfig",
           "GpuPropFilters": [
             {
-              "ClassId": "compute.GpuPropFilter",
               "Count": 1,
               "Model": "Any",
               "ObjectType": "compute.GpuPropFilter"
@@ -29,33 +24,27 @@
         {
           "AdapterUnitPropFilters": [
             {
-              "ClassId": "compute.AdapterUnitPropFilter",
               "Count": 1,
               "Model": "Any",
               "ObjectType": "compute.AdapterUnitPropFilter"
             }
           ],
-          "ClassId": "compute.AdapterUnitConfig",
           "ObjectType": "compute.AdapterUnitConfig",
           "PcieEndpointType": "Adapter"
         }
       ],
       "RootPcieEndpoint": {
-        "ClassId": "compute.CpuConfig",
         "CpuId": "Any",
         "ObjectType": "compute.CpuConfig",
         "RootPcieEndpointType": "CPU"
       }
     },
     {
-      "ClassId": "compute.PcieZone",
       "ObjectType": "compute.PcieZone",
       "PcieEndpoints": [
         {
-          "ClassId": "compute.GpuConfig",
           "GpuPropFilters": [
             {
-              "ClassId": "compute.GpuPropFilter",
               "Count": 1,
               "Model": "Any",
               "ObjectType": "compute.GpuPropFilter"
@@ -66,7 +55,6 @@
         }
       ],
       "RootPcieEndpoint": {
-        "ClassId": "compute.CpuConfig",
         "CpuId": "Any",
         "ObjectType": "compute.CpuConfig",
         "RootPcieEndpointType": "CPU"

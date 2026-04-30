@@ -1,0 +1,41 @@
+{
+  "Enabled": {{ item.enabled | default(true) | bool }},
+  "EndPointRole": [
+    {
+      "Moid": "{{ item.end_point_role }}",
+      "ObjectType": "iam.EndPointRole"
+    }
+  ],
+  "EndPointUser": {
+    "Moid": "{{ item.end_point_user }}",
+    "ObjectType": "iam.EndPointUser"
+  },
+  "EndPointUserPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.EndPointUserPolicy"
+  },
+  "ObjectType": "iam.EndPointUserRole",
+  "Password": "{{ item.password }}",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.EndPointUserPolicy"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

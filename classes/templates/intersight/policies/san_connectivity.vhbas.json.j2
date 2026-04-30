@@ -1,0 +1,105 @@
+{
+{% if item.fibre_channel_adapter_policy is defined %}
+{% set _name = item.fibre_channel_adapter_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_adapter_policy.split('/')[0] if item.fibre_channel_adapter_policy.split('/') | length > 1 else organization %}
+  "FcAdapterPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_adapter'][_name].moid }}",
+    "ObjectType": "vnic.FcAdapterPolicy"
+  },
+{% else %}
+  "FcAdapterPolicy": null,
+{% endif %}
+{% if item.fibre_channel_network_policy is defined %}
+{% set _name = item.fibre_channel_network_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_network_policy.split('/')[0] if item.fibre_channel_network_policy.split('/') | length > 1 else organization %}
+  "FcNetworkPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_network'][_name].moid }}",
+    "ObjectType": "vnic.FcNetworkPolicy"
+  },
+{% else %}
+  "FcNetworkPolicy": null,
+{% endif %}
+{% if item.fibre_channel_qos_policy is defined %}
+{% set _name = item.fibre_channel_qos_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_qos_policy.split('/')[0] if item.fibre_channel_qos_policy.split('/') | length > 1 else organization %}
+  "FcQosPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_qos'][_name].moid }}",
+    "ObjectType": "vnic.FcQosPolicy"
+  },
+{% else %}
+  "FcQosPolicy": null,
+{% endif %}
+  "FcZonePolicies": [
+{% if item.fibre_channel_zone_policies is defined and item.fibre_channel_zone_policies | length > 0 %}
+{% for _fczp in item.fibre_channel_zone_policies %}
+{% set _name = _fczp.split('/')[-1] %}
+{% set _org = _fczp.split('/')[0] if _fczp.split('/') | length > 1 else organization %}
+  {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_zone'][_name].moid }}",
+    "ObjectType": "vnic.FcZonePolicy"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": "{{ item.name }}",
+  "ObjectType": "vnic.FcIf",
+  "Order": {{ (item.placement | default({})).get('pci_order') | default(0) | int }},
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "vnic.SanConnectivityPolicy"
+  },
+  "PersistentBindings": {{ item.persistent_lun_bindings | default(false) | bool }},
+  "PinGroupName": "{{ item.pin_group_name | default('') }}",
+  "Placement": {
+    "AutoPciLink": {{ (item.placement | default({})).get('automatic_pci_link_assignment') | default(false) | bool }},
+    "AutoSlotId": {{ (item.placement | default({})).get('automatic_slot_id_assignment') | default(false) | bool }},
+{% if (item.placement | default({})).get('automatic_slot_id_assignment') | default(false) %}
+    "Id": "",
+{% else %}
+    "Id": "{{ (item.placement | default({})).get('slot_id') | default('MLOM') }}",
+{% endif %}
+    "ObjectType": "vnic.PlacementSettings",
+{% if (item.placement | default({})).get('automatic_pci_link_assignment') | default(false) %}
+{% else %}
+    "PciLink": {{ (item.placement | default({})).get('pci_link') | default(0) | int }},
+{% endif %}
+    "PciLinkAssignmentMode": "Custom",
+    "SwitchId": {% if item.target_platform | default('Standalone') == 'FIAttached' %}"{{ (item.placement | default({})).get('switch_id') | default('A') }}"{% else %}"None"{% endif %},
+    "Uplink": {{ (item.placement | default({})).get('uplink_port') | default(0) | int }}
+  },
+  "SanConnectivityPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "vnic.SanConnectivityPolicy"
+  },
+  "StaticWwpnAddress": "{{ item.wwpn_static_address | default('') }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "Type": "{{ item.vhba_type | default('fc-initiator') }}",
+  "WwpnAddressType": {% if item.wwpn_static_address is defined and item.wwpn_static_address | length > 0 %}"STATIC"{% else %}"POOL"{% endif %},
+{% if item.wwpn_pool is defined %}
+{% set _name = item.wwpn_pool.split('/')[-1] %}
+{% set _org = item.wwpn_pool.split('/')[0] if item.wwpn_pool.split('/') | length > 1 else organization %}
+  "WwpnPool": {
+    "Moid": "{{ isight[_org]['pools']['wwpn_pool'][_name].moid }}",
+    "ObjectType": "fcpool.Pool"
+  }
+{% else %}
+  "WwpnPool": null
+{% endif %}
+}

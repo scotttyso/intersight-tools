@@ -1,0 +1,83 @@
+{
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "EnableOverride": {{ item.allow_override | default(false) | bool }},
+{% if item.fibre_channel_adapter_policy is defined %}
+{% set _name = item.fibre_channel_adapter_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_adapter_policy.split('/')[0] if item.fibre_channel_adapter_policy.split('/') | length > 1 else organization %}
+  "FcAdapterPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_adapter'][_name].moid }}",
+    "ObjectType": "vnic.FcAdapterPolicy"
+  },
+{% else %}
+  "FcAdapterPolicy": null,
+{% endif %}
+{% if item.fibre_channel_network_policy is defined %}
+{% set _name = item.fibre_channel_network_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_network_policy.split('/')[0] if item.fibre_channel_network_policy.split('/') | length > 1 else organization %}
+  "FcNetworkPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_network'][_name].moid }}",
+    "ObjectType": "vnic.FcNetworkPolicy"
+  },
+{% else %}
+  "FcNetworkPolicy": null,
+{% endif %}
+{% if item.fibre_channel_qos_policy is defined %}
+{% set _name = item.fibre_channel_qos_policy.split('/')[-1] %}
+{% set _org = item.fibre_channel_qos_policy.split('/')[0] if item.fibre_channel_qos_policy.split('/') | length > 1 else organization %}
+  "FcQosPolicy": {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_qos'][_name].moid }}",
+    "ObjectType": "vnic.FcQosPolicy"
+  },
+{% else %}
+  "FcQosPolicy": null,
+{% endif %}
+  "FcZonePolicies": [
+{% if item.fibre_channel_zone_policies is defined and item.fibre_channel_zone_policies | length > 0 %}
+{% for _fczp in item.fibre_channel_zone_policies %}
+{% set _name = _fczp.split('/')[-1] %}
+{% set _org = _fczp.split('/')[0] if _fczp.split('/') | length > 1 else organization %}
+  {
+    "Moid": "{{ isight[_org]['policies']['fibre_channel_zone'][_name].moid }}",
+    "ObjectType": "vnic.FcZonePolicy"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "vnic.VhbaTemplate",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PeerVhbaName": "",
+  "PersistentBindings": false,
+  "PinGroupName": "",
+  "ScpUsageCount": 1,
+  "SwitchId": "A",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TemplateActions": [],
+  "Type": "fc-initiator",
+  "UpdateStatus": "OK",
+  "UsageCount": 1,
+  "WwpnPool": {
+    "Moid": "65d3788b69627531014e8cef",
+    "ObjectType": "fcpool.Pool"
+  }
+}

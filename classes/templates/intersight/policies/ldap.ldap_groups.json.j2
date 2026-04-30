@@ -1,0 +1,38 @@
+{
+  "Domain": "{{ item.domain | default('') | tojson }}",
+  "EndPointRole": [
+    {
+      "Moid": "{{ item.end_point_role }}",
+      "ObjectType": "iam.EndPointRole"
+    }
+  ],
+  "GroupDn": "{{ item.group_dn | default('CN=Administrators,OU=Users,DC=example,DC=com') | tojson }}",
+  "LdapPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.LdapPolicy"
+  },
+  "Name": "{{ item.name | default('administrators') | tojson }}",
+  "ObjectType": "iam.LdapGroup",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.LdapPolicy"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

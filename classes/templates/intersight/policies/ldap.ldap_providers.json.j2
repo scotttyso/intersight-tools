@@ -1,17 +1,15 @@
 {
-  "DefaultZoning": "Disabled",
-  "FcNetworkPolicy": {
-    "Moid": "64679e716f62693001033422",
-    "ObjectType": "fabric.FcNetworkPolicy"
+  "LdapPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.LdapPolicy"
   },
-  "FcZoneSharingMode": "",
-  "FcoeVlan": 100,
-  "Name": "vsan-100",
-  "ObjectType": "fabric.Vsan",
+  "ObjectType": "iam.LdapProvider",
   "Parent": {
-    "Moid": "64679e716f62693001033422",
-    "ObjectType": "fabric.FcNetworkPolicy"
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.LdapPolicy"
   },
+  "Port": {{ item.port | default(389) | int }},
+  "Server": "{{ item.server | default('ldap.example.com') | tojson }}",
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
@@ -30,6 +28,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "VsanId": 100,
-  "VsanScope": "Storage"
+  "Vendor": "{{ item.vendor | default('OpenLDAP') | tojson }}"
 }

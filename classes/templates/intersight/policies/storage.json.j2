@@ -1,0 +1,56 @@
+{
+  "ControllerAttachedNvmeSlots": {{ (item.hybrid_slot_configuration | default({})).get('controller_attached_nvme_slots') | default('', true) | tojson }},
+  "DefaultDriveMode": {{ item.default_drive_state | default('UnconfiguredGood', true) | tojson }},
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "DirectAttachedNvmeSlots": {{ (item.hybrid_slot_configuration | default({})).get('direct_attached_nvme_slots') | default('', true) | tojson }},
+  "GlobalHotSpares": {{ item.global_hot_spares | default('', true) | tojson }},
+  "M2VirtualDrive": {
+    "ControllerSlot": "{{ (item.m2_raid_configuration | default({})).get('slot') | default('MSTOR-RAID-1', true) | tojson }}",
+    "Enable": {% if item.m2_raid_configuration is defined and item.m2_raid_configuration is not none %}true{% else %}false{% endif %},
+    "Name": "{{ (item.m2_raid_configuration | default({})).get('name') | default('', true) | tojson }}",
+    "ObjectType": "storage.M2VirtualDriveConfig"
+  },
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "storage.StoragePolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% set _vdp = (item.single_drive_raid0_configuration | default({})).get('virtual_drive_policy') | default({}, true) %}
+  "Raid0Drive": {
+    "DriveSlots": "{{ (item.single_drive_raid0_configuration | default({})).get('drive_slots') | default('', true) | tojson }}",
+    "DriveSlotsList": "",
+    "Enable": {% if item.single_drive_raid0_configuration is defined and item.single_drive_raid0_configuration is not none %}true{% else %}false{% endif %},
+    "ObjectType": "storage.R0Drive",
+    "VirtualDrivePolicy": {
+      "AccessPolicy": "{{ _vdp.get('access_policy', 'Default') | tojson }}",
+      "DriveCache": "{{ _vdp.get('drive_cache', 'Default') | tojson }}",
+      "ObjectType": "storage.VirtualDrivePolicy",
+      "ReadPolicy": "{{ _vdp.get('read_policy', 'Default') | tojson }}",
+      "StripSize": {{ _vdp.get('strip_size', 64) | tojson }},
+      "WritePolicy": "{{ _vdp.get('write_policy', 'Default') | tojson }}"
+    }
+  },
+  "RaidAttachedNvmeSlots": "",
+  "SecureJbods": {{ item.secure_jbod_disk_slots | default('', true) | tojson }},
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "UnusedDisksState": {{ item.unused_disks_state | default('NoChange', true) | tojson }},
+  "UseJbodForVdCreation": {{ item.use_jbod_for_vd_creation | default(false) | tojson }}
+}

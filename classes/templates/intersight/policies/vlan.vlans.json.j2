@@ -1,0 +1,46 @@
+{
+  "AutoAllowOnClusterLinks": {{ item.auto_allow_on_cluster_links | default(false) | bool }},
+  "AutoAllowOnUplinks": {{ item.auto_allow_on_uplinks | default(true) | bool }},
+  "EthNetworkPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.EthNetworkPolicy"
+  },
+  "IsNative": {{ item.is_native | default(false) | bool }},
+{% if item.multicast_policy is defined %}
+{% set _name = item.multicast_policy.split('/')[-1] %}
+{% set _org = item.multicast_policy.split('/')[0] if item.multicast_policy.split('/') | length > 1 else organization %}
+  "MulticastPolicy": {
+    "Moid": "{{ isight[_org]['policies']['multicast'][_name].moid }}",
+    "ObjectType": "fabric.MulticastPolicy"
+  },
+{% else %}
+  "MulticastPolicy": null,
+{% endif %}
+  "Name": "{{ item.name | default('Vlan') }}",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "fabric.EthNetworkPolicy"
+  },
+  "ObjectType": "fabric.Vlan",
+  "PrimaryVlanId": {{ item.primary_vlan_id | default(0) | int }},
+  "SharingType": "{{ item.sharing_type | default('None') }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "VlanId": {{ item.vlan_id | default(1) | int }},
+}

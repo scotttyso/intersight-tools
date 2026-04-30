@@ -1445,7 +1445,10 @@ class imm(object):
         #=====================================================================
         # Validate the Sub Resources are defined or get Moids
         #=====================================================================
-        if re.search('id_mapping|imc_access|ip|iscsi_boot|(l|s)an_connectivity|port|resource|(vhba|vnic)_template', self.type):
+        regex1  = re.compile(r'id_mapping|imc_access|ip|iscsi_boot|(l|s)an_connectivity|port|resource|(vhba|vnic)_template|vlan', re.IGNORECASE)
+        regex2  = re.compile(r'(profile|template).(chassis|domain|server)', re.IGNORECASE)
+        regcomb = re.compile('|'.join([regex1.pattern, regex2.pattern]), re.IGNORECASE)
+        if re.search(regcomb, self.type):
             kwargs.cp = DotMap()
             updated_resources = []
             for e in reconsile_resources:
@@ -1652,29 +1655,29 @@ class imm(object):
         #=====================================================================
         # Build Lists from ezdata
         #=====================================================================
-        kwargs.policies_list = []
+        kwargs.resources_list = []
         kwargs.pools_list    = []
         kwargs.profiles_list = []
         for k, v in kwargs.ezdata.items():
             if v.intersight_type == 'policies':
                 ptype = k.replace('intersight.', '')
-                if not '.' in ptype: kwargs.policies_list.append(ptype)
+                if not '.' in ptype: kwargs.resources_list.append(ptype)
             elif v.intersight_type == 'pools':
                 ptype = k.replace('intersight.', '')
                 if not '.' in ptype: kwargs.pools_list.append(ptype)
             elif v.intersight_type == 'profiles':
                 ptype = k.replace('intersight.profiles.', '')
                 if not '.' in ptype: kwargs.profiles_list.append(ptype)
-        iboot_index = kwargs.policies_list.index('iscsi_boot') if 'iscsi_boot' in kwargs.policies_list else len(kwargs.policies_list)
+        iboot_index = kwargs.resources_list.index('iscsi_boot') if 'iscsi_boot' in kwargs.resources_list else len(kwargs.resources_list)
         ip_index    = kwargs.pools_list.index('ip') if 'ip' in kwargs.pools_list else len(kwargs.pools_list)
         for e in ['vnic_template', 'vhba_template', 'iscsi_static_target']:
-            if e in kwargs.policies_list:
-                kwargs.policies_list.remove(e)
-                kwargs.policies_list.insert(iboot_index, e)
+            if e in kwargs.resources_list:
+                kwargs.resources_list.remove(e)
+                kwargs.resources_list.insert(iboot_index, e)
                 iboot_index += 1
         for e in ['id_mapping', 'server_pool_qualification']:
-            if e in kwargs.policies_list:
-                kwargs.policies_list.remove(e)
+            if e in kwargs.resources_list:
+                kwargs.resources_list.remove(e)
                 kwargs.pools_list.insert(ip_index, e)
                 ip_index += 1
         kwargs.templates_list = list(kwargs.profiles_list)
@@ -1744,7 +1747,7 @@ class imm(object):
         #=====================================================================
         # Get Storage Policies
         #=====================================================================
-        for e in kwargs.policies:
+        for e in kwargs.resources:
             ekeys = list(e.keys()); spolicy = np + e.name + ns
             if 'drive_groups' in ekeys: kwargs.names.append(kwargs.isight[kwargs.org].policies['storage'][spolicy])
         if len(kwargs.names) > 0:
@@ -1788,7 +1791,7 @@ class imm(object):
         # Create API Body for Storage Drive Groups
         #=====================================================================
         parent_type = 'Storage Policy'
-        for e in kwargs.policies:
+        for e in kwargs.resources:
             ekeys = list(e.keys())
             if 'drive_groups' in ekeys:
                 for d in e.drive_groups: kwargs = drive_group_function(e, d, kwargs)
@@ -2232,7 +2235,7 @@ class imm(object):
         ezdata = kwargs.ezdata[self.type]
         kwargs.group_post_list = []; kwargs.server_post_list = []; role_names = []; kwargs.cp = DotMap()
         np, ns = self.name_prefix_suffix('ldap', kwargs)
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             if i.get('ldap_groups'):
                 kwargs.parent_name = f'{np}{i.name}{ns}'
                 for e in i.ldap_groups: role_names.append(e.role)
@@ -2256,7 +2259,7 @@ class imm(object):
         #=====================================================================
         # Construct API Body LDAP Policies
         #=====================================================================
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             kwargs.parent_key  = self.type.split('.')[0]
             kwargs.parent_name = f'{np}{i.name}{ns}'
             kwargs.parent_type = 'LDAP Policy'
@@ -3585,7 +3588,7 @@ class imm(object):
         #=====================================================================
         names = []; kwargs.bulk_list = []; role_names = []; kwargs.cp = DotMap()
         ezdata = kwargs.ezdata[self.type]
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             if i.get('users'):
                 for e in i.users: names.append(e.username); role_names.append(e.role)
         if len(names) > 0:
@@ -3599,7 +3602,7 @@ class imm(object):
             kwargs             = api('iam_role').calls(kwargs)
             kwargs.role_moids  = kwargs.pmoids
             kwargs.role_results= kwargs.results
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             if i.get('users'):
                 if len(names) > 0:
                     kwargs.names = [v.moid for k, v in kwargs.user_moids.items()]
@@ -3627,7 +3630,7 @@ class imm(object):
         kwargs.user_moids = DotMap(dict(kwargs.user_moids, **kwargs.pmoids))
         kwargs.bulk_list = []
         np, ns = self.name_prefix_suffix('local_user', kwargs)
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             kwargs.parent_key  = self.type.split('.')[0]
             kwargs.parent_name = f'{np}{i.name}{ns}'
             kwargs.parent_type = 'Local User Policy'
@@ -3735,6 +3738,9 @@ class imm(object):
     # Function - Assign VLANs to VLAN Policies
     #=========================================================================
     def vlans(self, kwargs):
+        org = kwargs.org
+        np, ns = self.name_prefix_suffix(org, kwargs)
+        ezdata = kwargs.ezdata[self.type]
         #=====================================================================
         # Loop Through VLAN Lists to Create api_body(s)
         #=====================================================================
@@ -3777,7 +3783,7 @@ class imm(object):
         # Get Multicast Policies
         #=====================================================================
         mcast_names = []
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             if i.get('vlans'):
                 for e in i.vlans:
                     org, policy = imm('multicast').determine_resource_org(e.multicast_policy, kwargs)
@@ -3790,7 +3796,7 @@ class imm(object):
         #=====================================================================
         kwargs.bulk_list = []
         np, ns = self.name_prefix_suffix('vlan', kwargs)
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             kwargs.bulk_list = []
             vnames           = []
             kwargs.parent_key  = self.type.split('.')[0]
@@ -3952,7 +3958,7 @@ class imm(object):
         # Get Policies and Pools
         #=====================================================================
         kwargs.cp = DotMap()
-        for item in kwargs.policies:
+        for item in kwargs.resources:
             for i in item[vtype]:
                 kwargs = imm(self.type).existing_check(i, kwargs)
         for e in list(kwargs.cp.keys()):
@@ -3963,7 +3969,7 @@ class imm(object):
         #=====================================================================
         # Create API Body for vHBAs/vNICs
         #=====================================================================
-        for item in kwargs.policies:
+        for item in kwargs.resources:
             np, ns = self.name_prefix_suffix(self.type.split('.')[0], kwargs)
             kwargs.parent_name = f'{np}{item.name}{ns}'
             kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
@@ -4071,7 +4077,7 @@ class imm(object):
         #=====================================================================
         kwargs.bulk_list = []
         np, ns = self.name_prefix_suffix('vsan', kwargs)
-        for i in kwargs.policies:
+        for i in kwargs.resources:
             ikeys  = list(i.keys())
             vnames = []
             kwargs.parent_key  = self.type.split('.')[0]
