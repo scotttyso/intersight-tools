@@ -8,14 +8,14 @@
   },
   "PasswordProperties": {
     "ClassId": "iam.EndPointPasswordProperties",
-    "EnablePasswordExpiry": {{ (item.password_properties | default({})).get('enable_password_expiry') | default(false) | tojson }},
-    "EnforceStrongPassword": {{ (item.password_properties | default({})).get('enforce_strong_password') | default(true) | tojson }},
-    "ForceSendPassword": {{ (item.password_properties | default({})).get('always_send_user_password') | default(false) | tojson }},
-    "GracePeriod": {{ (item.password_properties | default({})).get('grace_period') | default(1) | int }},
-    "NotificationPeriod": {{ (item.password_properties | default({})).get('notification_period') | default(15) | int }},
+    "EnablePasswordExpiry": {{ (item.password_properties | default({})).get('enable_password_expiry', false) | tojson }},
+    "EnforceStrongPassword": {{ (item.password_properties | default({})).get('enforce_strong_password', true) | tojson }},
+    "ForceSendPassword": {{ (item.password_properties | default({})).get('always_send_user_password', false) | tojson }},
+    "GracePeriod": {{ (item.password_properties | default({})).get('grace_period', 1) | int }},
+    "NotificationPeriod": {{ (item.password_properties | default({})).get('notification_period', 15) | int }},
     "ObjectType": "iam.EndPointPasswordProperties",
-    "PasswordExpiryDuration": {{ (item.password_properties | default({})).get('password_expiry_duration') | default(90) | int }},
-    "PasswordHistory": {{ (item.password_properties | default({})).get('password_history') | default(0) | int }}
+    "PasswordExpiryDuration": {{ (item.password_properties | default({})).get('password_expiry_duration', 90) | int }},
+    "PasswordHistory": {{ (item.password_properties | default({})).get('password_history', 0) | int }}
   },
 {% if item.tags | length > 0 %}
   "Tags": [

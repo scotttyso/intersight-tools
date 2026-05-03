@@ -1,6 +1,6 @@
 {
-{% set _exclude_drives = (item.advanced_mode | default({})).get('exclude_drives') | default(false) %}
-{% set _exclude_storage_controllers = (item.advanced_mode | default({})).get('exclude_storage_controllers') | default(false) %}
+{% set _exclude_drives = (item.advanced_mode | default({})).get('exclude_drives', false) %}
+{% set _exclude_storage_controllers = (item.advanced_mode | default({})).get('exclude_storage_controllers', false) %}
   "Description": "{{ item.description | default('') }}",
   "ExcludeComponentList": [
 {% set comma = joiner(", ") %}

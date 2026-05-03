@@ -3,16 +3,16 @@
   "ErrorDetectionTimeout": {{ item.error_detection_timeout | default(2000) | int }},
   "ErrorRecoverySettings": {
     "Enabled": {{ (item.error_recovery | default({})).get('enable_fcp_error_recovery') | default(false, true) | tojson }},
-    "IoRetryCount": {{ (item.error_recovery | default({})).get('port_down_io_retry') | default(8) | int }},
-    "IoRetryTimeout": {{ (item.error_recovery | default({})).get('io_retry_timeout') | default(5) | int }},
-    "LinkDownTimeout": {{ (item.error_recovery | default({})).get('link_down_timeout') | default(30000) | int }},
+    "IoRetryCount": {{ (item.error_recovery | default({})).get('port_down_io_retry', 8) | int }},
+    "IoRetryTimeout": {{ (item.error_recovery | default({})).get('io_retry_timeout', 5) | int }},
+    "LinkDownTimeout": {{ (item.error_recovery | default({})).get('link_down_timeout', 30000) | int }},
     "ObjectType": "vnic.FcErrorRecoverySettings",
-    "PortDownTimeout": {{ (item.error_recovery | default({})).get('port_down_timeout') | default(10000) | int }}
+    "PortDownTimeout": {{ (item.error_recovery | default({})).get('port_down_timeout', 10000) | int }}
   },
   "FlogiSettings": {
     "ObjectType": "vnic.FlogiSettings",
-    "Retries": {{ (item.flogi | default({})).get('retries') | default(8) | int }},
-    "Timeout": {{ (item.flogi | default({})).get('timeout') | default(4000) | int }}
+    "Retries": {{ (item.flogi | default({})).get('retries', 8) | int }},
+    "Timeout": {{ (item.flogi | default({})).get('timeout', 4000) | int }}
   },
   "InterruptSettings": {
     "Mode": {{ (item.interrupt_settings | default({})).get('mode') | default('MSIx', true) | tojson }},
@@ -29,19 +29,19 @@
   },
   "PlogiSettings": {
     "ObjectType": "vnic.PlogiSettings",
-    "Retries": {{ (item.plogi | default({})).get('retries') | default(8) | int }},
-    "Timeout": {{ (item.plogi | default({})).get('timeout') | default(20000) | int }}
+    "Retries": {{ (item.plogi | default({})).get('retries', 8) | int }},
+    "Timeout": {{ (item.plogi | default({})).get('timeout', 20000) | int }}
   },
   "ResourceAllocationTimeout": {{ item.resource_allocation_timeout | default(10000) | int }},
   "RxQueueSettings": {
     "Count": 1,
     "ObjectType": "vnic.FcQueueSettings",
-    "RingSize": {{ (item.receive | default({})).get('ring_size') | default(64) | int }}
+    "RingSize": {{ (item.receive | default({})).get('ring_size', 64) | int }}
   },
   "ScsiQueueSettings": {
-    "Count": {{ (item.scsi_io | default({})).get('queue_count') | default(1) | int }},
+    "Count": {{ (item.scsi_io | default({})).get('queue_count', 1) | int }},
     "ObjectType": "vnic.ScsiQueueSettings",
-    "RingSize": {{ (item.scsi_io | default({})).get('ring_size') | default(512) | int }}
+    "RingSize": {{ (item.scsi_io | default({})).get('ring_size', 512) | int }}
   },
 {% if item.tags | length > 0 %}
   "Tags": [
@@ -64,6 +64,6 @@
   "TxQueueSettings": {
     "Count": 1,
     "ObjectType": "vnic.FcQueueSettings",
-    "RingSize": {{ (item.transmit | default({})).get('ring_size') | default(64) | int }}
+    "RingSize": {{ (item.transmit | default({})).get('ring_size', 64) | int }}
   }
 }

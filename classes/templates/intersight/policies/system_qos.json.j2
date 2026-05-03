@@ -24,10 +24,10 @@
     "ObjectType": "organization.Organization"
   },
   "PfcWatchdog": {
-    "IsWatchdogEnabled": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_enabled') | default(true) | tojson }},
+    "IsWatchdogEnabled": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_enabled', true) | tojson }},
     "ObjectType": "fabric.PfcWatchDog",
-    "ShutdownMultiplier": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('shutdown_multiplier') | default(1) | int }},
-    "WatchdogInterval": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_interval') | default(500) | int }}
+    "ShutdownMultiplier": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('shutdown_multiplier', 1) | int }},
+    "WatchdogInterval": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_interval', 500) | int }}
   },
 {% if item.tags | length > 0 %}
   "Tags": [

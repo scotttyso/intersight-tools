@@ -19,7 +19,7 @@
     "ObjectType": "storage.StoragePolicy"
   },
   "RaidLevel": "{{ item.raid_level | default('Raid0') | tojson }}",
-  "SecureDriveGroup": {{ item.secure_drive_group | default(false) | bool | tojson }},
+  "SecureDriveGroup": {{ item.secure_drive_group | default(false) | tojson }},
   "StoragePolicy": {
     "Moid": "{{ item.parent}}",
     "ObjectType": "storage.StoragePolicy"

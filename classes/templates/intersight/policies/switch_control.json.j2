@@ -40,7 +40,7 @@
 {% endif %}
   "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}",
   "UdldSettings": {
-    "MessageInterval": {{ (item.udld_global_settings | default({})).get('message_interval') | default(15) | int }},
+    "MessageInterval": {{ (item.udld_global_settings | default({})).get('message_interval', 15) | int }},
     "ObjectType": "fabric.UdldGlobalSettings",
     "RecoveryAction": {{ (item.udld_global_settings | default({})).get('recovery_action') | default('reset', true) | tojson }}
   },

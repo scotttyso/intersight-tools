@@ -80,8 +80,8 @@ def completed_item(ptype, kwargs):
     elif 'PortId' in ikeys:        name = f"{ptitle} - Port `{iresults.PortId}`"
     elif 'PortIdStart' in ikeys:   name = f"{ptitle} - PortIdStart `{iresults.PortIdStart}`"
     elif 'VirtualDrives' in ikeys: name = f"{ptitle} - DriveGroup `{iresults.Name}`"
-    elif 'VlanId' in ikeys:        name = f"VLAN `{iresults.VlanId}`"
-    elif 'VsanId' in ikeys:        name = f"VSAN `{iresults.VsanId}`"
+    elif 'VlanId' in ikeys:        name = f"{ptitle} - VLAN `{iresults.VlanId}`"
+    elif 'VsanId' in ikeys:        name = f"{ptitle} - VSAN `{iresults.VsanId}`"
     elif 'user_role' in ptype:     name = f"Role for {ptype}"
     elif 'upgrade' in ptype:       name = f".  Performing Firmware Upgrade on {kwargs.serial} - {kwargs.server} Server Profile"
     elif 'UserId' in ikeys:        name = f"{iresults.UserId} CCO User Authentication"
@@ -106,10 +106,10 @@ def completed_item(ptype, kwargs):
         print('missing definition')
         len(False); sys.exit(1)
     if 'Parent' in ikeys:
-        parent_policy  = kwargs.intersight_object_map[iresults.ObjectType].split('.')[0]
-        parent_type  = kwargs.ezdata[f'intersight.{parent_policy}'].intersight_type
-        parent_name  = kwargs.intersight_api[kwargs.org][parent_type][parent_policy][iresults.Parent.Moid]
-        parent_title = mod_pol_description((kwargs.parent_key.replace('_', ' ')).title())
+        parent_policy = kwargs.intersight_object_map[iresults.ObjectType].split('.')[0]
+        parent_type   = kwargs.ezdata[f'intersight.{parent_policy}'].intersight_type
+        parent_name   = kwargs.intersight_api[kwargs.org][parent_type][parent_policy][iresults.Parent.Moid]
+        parent_title  = mod_pol_description((parent_policy.replace('_', ' ')).title())
         if method == 'post':
             pcolor.Green(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
         else:

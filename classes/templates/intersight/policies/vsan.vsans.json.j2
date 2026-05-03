@@ -5,7 +5,7 @@
     "ObjectType": "fabric.FcNetworkPolicy"
   },
   "FcZoneSharingMode": "",
-  "FcoeVlan": {{ item.fcoe_vlan | default(3096) | int }},
+  "FcoeVlan": {{ item.fcoe_vlan | default(item.vsan_id) | int }},
   "Name": "{{ item.name | default('default') }}",
   "ObjectType": "fabric.Vsan",
   "Parent": {

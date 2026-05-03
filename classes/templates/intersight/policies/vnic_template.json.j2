@@ -5,7 +5,7 @@
     "Value": {% if item.cdn_value is defined %}{{ item.cdn_value | tojson }}{% else %}{{ item.name | tojson }}{% endif %}
   },
   "Description": {{ (item.description | default('', true)) | tojson }},
-  "EnableOverride": {{ item.allow_override | default(false) | bool }},
+  "EnableOverride": {{ item.allow_override | default(false) | tojson }},
 {% if item.ethernet_adapter_policy is defined %}
 {% set _name = item.ethernet_adapter_policy.split('/')[-1] %}
 {% set _org = item.ethernet_adapter_policy.split('/')[0] if item.ethernet_adapter_policy.split('/') | length > 1 else organization %}
@@ -58,7 +58,7 @@
 {% endfor %}
 {% endif %}
   ],
-  "FailoverEnabled": {{ item.enable_failover | default(false) | bool }},
+  "FailoverEnabled": {{ item.enable_failover | default(false) | tojson }},
 {% if item.iscsi_boot_policy is defined %}
 {% set _name = item.iscsi_boot_policy.split('/')[-1] %}
 {% set _org = item.iscsi_boot_policy.split('/')[0] if item.iscsi_boot_policy.split('/') | length > 1 else organization %}
@@ -69,11 +69,11 @@
 {% else %}
   "IscsiBootPolicy": null,
 {% endif %}
-{% if item.mac_pool is defined %}
-{% set _name = item.mac_pool.split('/')[-1] %}
-{% set _org = item.mac_pool.split('/')[0] if item.mac_pool.split('/') | length > 1 else organization %}
+{% if item.mac_address_pool is defined %}
+{% set _name = item.mac_address_pool.split('/')[-1] %}
+{% set _org = item.mac_address_pool.split('/')[0] if item.mac_address_pool.split('/') | length > 1 else organization %}
   "MacPool": {
-    "Moid": "{{ isight[_org]['pools']['mac_pool'][_name].moid }}",
+    "Moid": "{{ isight[_org]['pools']['mac'][_name].moid }}",
     "ObjectType": "macpool.Pool"
   },
 {% else %}
@@ -97,18 +97,17 @@
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
-  "PeerVnicName": "",
-  "PinGroupName": "",
+  "PinGroupName": {{ item.pin_group_name | default('') | tojson }},
   "SriovSettings": {
-    "CompCountPerVf": {{ (item.sriov | default({})).get('completion_queue_count_per_vf') | default(5) | int }},
+    "CompCountPerVf": {{ (item.sriov | default({})).get('completion_queue_count_per_vf', 5) | int }},
     "Enabled": {% if item.sriov is defined and item.sriov is not none %}true{% else %}false{% endif %},
-    "IntCountPerVf": {{ (item.sriov | default({})).get('interrupt_count_per_vf') | default(8) | int }},
+    "IntCountPerVf": {{ (item.sriov | default({})).get('interrupt_count_per_vf', 8) | int }},
     "ObjectType": "vnic.SriovSettings",
-    "RxCountPerVf": {{ (item.sriov | default({})).get('receive_queue_count_per_vf') | default(4) | int }},
-    "TxCountPerVf": {{ (item.sriov | default({})).get('transmit_queue_count_per_vf') | default(1) | int }},
-    "VfCount": {{ (item.sriov | default({})).get('number_of_vfs') | default(64) | int }}
+    "RxCountPerVf": {{ (item.sriov | default({})).get('receive_queue_count_per_vf', 4) | int }},
+    "TxCountPerVf": {{ (item.sriov | default({})).get('transmit_queue_count_per_vf', 1) | int }},
+    "VfCount": {{ (item.sriov | default({})).get('number_of_vfs', 64) | int }}
   },
-  "SwitchId": "A",
+  "SwitchId": {{ item.placement_switch_id | default('A') | tojson }},
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
@@ -128,8 +127,8 @@
   "Tags": [],
 {% endif %}
   "UsnicSettings": {
-    "Cos": {{ (item.usnic | default({})).get('class_of_service') | default(5) | int }},
-    "Count": {{ (item.usnic | default({})).get('number_of_usnics') | default(0) | int }},
+    "Cos": {{ (item.usnic | default({})).get('class_of_service', 5) | int }},
+    "Count": {{ (item.usnic | default({})).get('number_of_usnics', 0) | int }},
     "ObjectType": "vnic.UsnicSettings",
 {% if item.usnic is defined and item.usnic.get('usnic_adapter_policy') | length > 0 %}
 {% set _name = item.usnic.get('usnic_adapter_policy').split('/')[-1] %}
@@ -141,10 +140,10 @@
   },
   "VmqSettings": {
     "Enabled": {% if item.vmq is defined and item.vmq is not none %}true{% else %}false{% endif %},
-    "MultiQueueSupport": {{ (item.vmq | default({})).get('enable_virtual_machine_multi_queue') | default(false) | bool }},
-    "NumInterrupts": {{ (item.vmq | default({})).get('number_of_interrupts') | default(16) | int }},
-    "NumSubVnics": {{ (item.vmq | default({})).get('number_of_sub_vnics') | default(64) | int }},
-    "NumVmqs": {{ (item.vmq | default({})).get('number_of_virtual_machine_queues') | default(4) | int }},
+    "MultiQueueSupport": {{ (item.vmq | default({}, true)).get('enable_virtual_machine_multi_queue', false) | tojson }},
+    "NumInterrupts": {{ (item.vmq | default({}, true)).get('number_of_interrupts', 16) | int }},
+    "NumSubVnics": {{ (item.vmq | default({}, true)).get('number_of_sub_vnics', 64) | int }},
+    "NumVmqs": {{ (item.vmq | default({}, true)).get('number_of_virtual_machine_queues', 4) | int }},
     "ObjectType": "vnic.VmqSettings",
 {% if item.vmq is defined and item.vmq.get('vmmq_adapter_policy') | length > 0 %}
 {% set _name = item.vmq.get('vmmq_adapter_policy').split('/')[-1] %}

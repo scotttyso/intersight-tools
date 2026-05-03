@@ -2,7 +2,7 @@
   "Description": {{ (item.description | default('', true)) | tojson }},
   "LocalClients": [
     {
-      "MinSeverity": "{{ (item.local_logging | default ({}).get('minimum_severity', 'warning')) | tojson }}",
+      "MinSeverity": {{ ((item.local_logging | default({})).get('minimum_severity', 'warning')) | tojson }},
       "ObjectType": "syslog.LocalFileLoggingClient"
     }
   ],

@@ -10,7 +10,7 @@ try:
     from dotmap import DotMap
     from intersight_auth import IntersightAuth, repair_pem
     from operator import itemgetter
-    from stringcase import pascalcase, snakecase
+    from stringcase import snakecase
     import base64, jinja2, json, numpy, os, re, requests, time, urllib3
 except ImportError as e:
     prRed(f'classes/isight.py - !!! ERROR !!!\n{e.__class__.__name__}')
@@ -20,7 +20,7 @@ except ImportError as e:
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 serial_regex = re.compile('^[A-Z]{3}[2-3][\\d]([0][1-9]|[1-4][0-9]|[5][0-3])[\\dA-Z]{4}$')
 part1 = 'bios|(ethernet|fibre_channel)_adapter|drive_security'
-part2 = 'ipmi_over_lan|iscsi_boot|ldap|snmp|storage|system_qos|(vhba|vnic)_template'
+part2 = 'ipmi_over_lan|iscsi_boot|ldap|snmp|storage|system_qos'
 policy_specific_regex = re.compile(f'^{part1}|{part2}$')
 
 #=============================================================================
@@ -159,7 +159,12 @@ class api(object):
                     )
                     continue
                 if 'Name' in ikeys and type(self.category) == str and type(kwargs.org) == str:
-                    ptype  = kwargs.intersight_object_map[i.ObjectType]
+                    # fcpool.Pool backs both wwnn and wwpn; keep the requested
+                    # pool type to avoid collapsing both into a single key.
+                    if self.category == 'pools' and i.ObjectType == 'fcpool.Pool' and self.type in ['wwnn', 'wwpn']:
+                        ptype = self.type
+                    else:
+                        ptype = kwargs.intersight_object_map[i.ObjectType]
                     kwargs = check_for_dotmap_key(kwargs)
                     iname = i.Name
                     kwargs.intersight_api[kwargs.org][self.category][ptype][iname] = DotMap(moid = i.Moid, result = i, tags = i.Tags)
@@ -394,13 +399,14 @@ class api(object):
                     if re.search('^(organization|resource_groups)$', self.type): api_filter = f"Name in ('{names}')"
                     elif 'ancestors'    == self.type:         api_filter = f"Ancestors/any(t:t/Moid in ('{names}'))"
                     elif 'asset_target' == self.type:         api_filter = f"TargetId in ('{names}')"
-                    elif 'connectivity.vhbas' in self.type:   api_filter = f"Name in ('{names}') and SanConnectivityPolicy/Moid eq '{kwargs.pmoid}'"
-                    elif 'connectivity.vnics' in self.type:   api_filter = f"Name in ('{names}') and LanConnectivityPolicy/Moid eq '{kwargs.pmoid}'"
+                    elif 'connectivity.vhbas' in self.type:   api_filter = f"SanConnectivityPolicy/Moid in ('{names}')"
+                    elif 'connectivity.vnics' in self.type:   api_filter = f"LanConnectivityPolicy/Moid in ('{names}')"
                     elif 'hcl_status' == self.type:           api_filter = f"ManagedObject/Moid in ('{names}')"
                     elif 'iam_role' == self.type:             api_filter = f"Name in ('{names}') and Type eq 'IMC'"
                     elif 'iqn_pool_leases' == self.type:      api_filter = f"AssignedToEntity.Moid in ('{names}')"
                     elif 'multi_org' in self.type:            api_filter = f"Organization.Moid in ('{names}')"
-                    elif 'parent_moids' in self.type:         api_filter = f"{kwargs.parent}.Moid in ('{names}')"
+                    elif re.search('ldap.ldap_', self.type):  api_filter = f"LdapPolicy/Moid in ('{names}')"
+                    elif 'parent_moids' in self.type:         api_filter = f"{kwargs.parent}/Moid in ('{names}')"
                     elif 'port.port_' in self.type:           api_filter = f"PortPolicy/Moid in ('{names}')"
                     elif 'profile_moid' == self.type:         api_filter = f"Profile.Moid in ('{names}')"
                     elif re.search(regex1, self.type):        api_filter = f"Moid in ('{names}')"
@@ -408,13 +414,13 @@ class api(object):
                     elif 'registered_device' in self.type:    api_filter = f"RegisteredDevice.Moid in ('{names}')"
                     elif 'reservations' in self.type:         api_filter = f"Identity in ('{names}')"
                     elif 'serial_number' == self.type:        api_filter = f"Serial in ('{names}')"
-                    elif 'storage.drive_groups' == self.type: api_filter = f"Name in ('{names}') and StoragePolicy.Moid eq '{kwargs.pmoid}'"
+                    elif 'storage.drive_groups' == self.type: api_filter = f"StoragePolicy/Moid in ('{names}')"
                     elif 'switch' == self.type:               api_filter = f"Name in ('{names}') and SwitchClusterProfile.Moid eq '{kwargs.pmoid}'"
                     elif 'switch_profiles' == self.type:      api_filter = f"SwitchClusterProfile.Moid in ('{names}')"
                     elif 'sw_profile_templates' == self.type: api_filter = f"SwitchClusterProfileTemplate.Moid in ('{names}')"
                     elif 'user_role' == self.type:            api_filter = f"EndPointUser.Moid in ('{names}') and EndPointUserPolicy.Moid eq '{kwargs.pmoid}'"
-                    elif 'vlan.vlans' == self.type:           api_filter = f"VlanId in ({names}) and EthNetworkPolicy.Moid eq '{kwargs.pmoid}'"
-                    elif 'vsan.vsans' == self.type:           api_filter = f"VsanId in ({names}) and FcNetworkPolicy.Moid eq '{kwargs.pmoid}'"
+                    elif 'vlan.vlans' == self.type:           api_filter = f"EthNetworkPolicy/Moid in ('{names}')"
+                    elif 'vsan.vsans' == self.type:           api_filter = f"FcNetworkPolicy/Moid in ('{names}')"
                     elif 'wwnn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWNN' and AssignedToEntity.Moid in ('{names}')"
                     elif 'wwpn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWPN' and AssignedToEntity.Moid in ('{names}')"
                     else: api_filter = f"Name in ('{names}') and Organization.Moid eq '{org_moid}'"
@@ -1262,6 +1268,40 @@ class imm(object):
         return item
 
     #=========================================================================
+    # Function - Assign Children Resources to Parent Resources
+    #=========================================================================
+    def children_check_parent(self, child_type, kwargs):
+        org = kwargs.org
+        np, ns = self.name_prefix_suffix(self.type, kwargs)
+        #=====================================================================
+        # Get Existing Assignments for Each Parent Policy.
+        # Skip if No Parent Policies Exist or if Running in Check Mode.
+        #=====================================================================
+        continue_count = 0
+        ikeys = list(kwargs.intersight_api[org][self.category][self.type].keys())
+        pcategory = self.category.replace('_', ' ').title()
+        ptitle    = ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
+        for e in kwargs.resources:
+            ekeys = list(e.keys())
+            if f"{np}{e.name}{ns}" in ikeys and child_type in ekeys: continue_count += 1
+            elif child_type in ekeys and kwargs.args.check == True:
+                pcolor.Cyan(f"\n     * Running in Check Mode")
+                pcolor.Cyan(f"       - Skipping {ptitle} {pcategory} Children Retrieval for Org: {org} > {ptitle}:")
+                pcolor.Cyan(f"         because `{np}{e.name}{ns}` parent {ptitle} doesn't exists in Intersight.")
+            elif child_type in ekeys:
+                pcolor.Cyan(f"       - Skipping {ptitle} {pcategory} Children Retrieval for Org: {org} > {ptitle}:")
+                pcolor.Cyan(f"         because `{np}{e.name}{ns}` parent {ptitle} doesn't exist in Intersight.")
+        #=====================================================================
+        # See if Children are already in Intersight
+        #=====================================================================
+        if continue_count > 0:
+            names = []
+            for e in kwargs.resources:
+                names.append(kwargs.intersight_api[org][self.category][self.type][np + e.name + ns].moid)
+            kwargs = imm(f'{self.type}.{child_type}', category=self.category).api_get(True, names, f'{self.type}.{child_type}', kwargs)
+        return continue_count
+
+    #=========================================================================
     # Function - Compare Body Result for Differences
     #=========================================================================
     def children_compare_api_body(self, api_body, kwargs):
@@ -1271,7 +1311,8 @@ class imm(object):
         elif 'port_role' in self.type: pkey = 'PortId'
         elif 'provider' in self.type: pkey = 'Server'
         elif 'vlans' in self.type: pkey = 'VlanId'
-        elif 'vsan' in self.type: pkey = 'VsanId'
+        elif 'vsans' in self.type: pkey = 'VsanId'
+        elif 'server' in self.type: pkey = 'Server'
         elif re.search('groups|users|vnic|vhbas', self.type): pkey = 'Name'
         akeys        = list(api_body.keys())
         check_flag   = getattr(kwargs.args, 'check', False)
@@ -1286,29 +1327,61 @@ class imm(object):
             api_body['Description'] = f'{api_body["Name"]} {policy_title} {self.category.capitalize()}.'
         parent_title = ezfunctions.mod_pol_description(parent_type.replace('_', ' ').title())
         category     = self.category.replace('ies', 'y').replace('pools', 'pool').title()
-        ptitle     = parent_title + category
-        child_dict = kwargs.intersight_api[org][self.category][parent_type][parent_name][child_type]
-        ikeys      = list(child_dict.keys())
-        pval       = api_body[pkey] if re.search('groups|users|vnic|vhbas', self.type) else str(api_body[pkey])
+        ptitle       = parent_title + ' ' + category
+        child_dict   = kwargs.intersight_api[org][self.category][parent_type][parent_name][child_type]
+        ikeys        = list(child_dict.keys())
+        pval         = api_body[pkey] if re.search('groups|users|vnic|vhbas', self.type) else str(api_body[pkey])
         if pval in ikeys:
             resource     = child_dict[pval].result
             patch_policy = self.compare_body_result(api_body, resource)
             api_body['pmoid'] = child_dict[pval].moid
             pmoid = api_body['pmoid']
-            pname = api_body[pkey]
             if patch_policy == True:
                 if check_flag == True:
                     pcolor.Cyan(f"     * Running Check Mode: Organization: `{org}`;")
-                    pcolor.Cyan(f"       Non-Check mode would update {ptitle}: `{parent_name}` - {child_title}: `{api_body[pkey]}`.")
-                    pcolor.Cyan(f"       Moid: `{pmoid}`")
+                    pcolor.Cyan(f"       Non-Check mode would update {ptitle}: `{parent_name}` - {child_title}: `{api_body[pkey]}`.  Moid: `{pmoid}`")
                 else: kwargs.bulk_list.append(deepcopy(api_body))
             else:
-                pcolor.Cyan(f"     * Skipping Organization: `{org}`; {ptitle}: `{parent_name}` - {child_title}: `{api_body[pkey]}`")
-                pcolor.Cyan(f"        - Moid: `{pmoid}`.  Intersight Matches Configuration.")
+                pcolor.Cyan(f"     * Skipping Organization: `{org}`; {ptitle}: `{parent_name}` - {child_title}: `{api_body[pkey]}`"\
+                            f"  Moid: `{pmoid}`.  Intersight Matches Configuration.")
         else:
             if check_flag == True:
                 pcolor.Cyan(f"     * Running Check Mode: Organization: `{org}`; Non-Check mode would create new {ptitle}: `{parent_name}` - {child_title}: `{api_body[pkey]}`.")
             else: kwargs.bulk_list.append(deepcopy(api_body))
+        return kwargs
+
+    #=========================================================================
+    # Function - Assign Children Resources to Parent Resources
+    #=========================================================================
+    def children_resources(self, child_type, kwargs):
+        continue_count = self.children_check_parent(child_type, kwargs)
+        if continue_count == 0: return kwargs
+        #=====================================================================
+        # See if Children are already in Intersight
+        #=====================================================================
+        org = kwargs.org
+        np, ns = self.name_prefix_suffix(self.type, kwargs)
+        names = []
+        for e in kwargs.resources:
+            names.append(kwargs.intersight_api[org][self.category][self.type][np + e.name + ns].moid)
+        kwargs = imm(f'{self.type}.{child_type}', category=self.category).api_get(True, names, f'{self.type}.{child_type}', kwargs)
+        #=====================================================================
+        # Create API Body for Sub Items and Compare to Existing API Results.
+        # If Differences or No Existing Resource, Append to Bulk List for
+        # POST/PATCH.  If No Differences, Skip.
+        #=====================================================================
+        kwargs.bulk_list = []
+        for e in kwargs.resources:
+            ekeys = list(e.keys())
+            if child_type in ekeys:
+                for item in e[child_type]:
+                    item.parent = kwargs.intersight_api[org][self.category][self.type][np + e.name + ns].moid
+                    np = ''; ns = ''
+                    api_body = imm(f'{self.type}.{child_type}', category=self.category).create_api_body(item, np, ns, kwargs)
+                    kwargs   = imm(f'{self.type}.{child_type}', category=self.category).children_compare_api_body(api_body, kwargs)
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = kwargs.ezdata[f"intersight.{self.type}.{child_type}"].intersight_uri
+            kwargs     = imm(f'{self.type}.{child_type}', category=self.category).create_bulk_request(kwargs)
         return kwargs
 
     #=========================================================================
@@ -1459,8 +1532,8 @@ class imm(object):
                 for e in list(kwargs.cp.keys()):
                     if len(kwargs.cp[e].names) > 0:
                         names  = list(numpy.unique(numpy.array(kwargs.cp[e].names)))
-                        if 'pool' in e: kwargs = imm(e, category='pools').api_get(False, names, e, kwargs)
-                        else: kwargs = imm(e, category=self.category).api_get(False, names, e, kwargs)
+                        category = kwargs.cp[e].get('category', self.category)
+                        kwargs = imm(e, category=category).api_get(False, names, e, kwargs)
         #=====================================================================
         # If Modified, Patch the Resource via the Intersight API
         #=====================================================================
@@ -1473,9 +1546,9 @@ class imm(object):
                 api_body['Description'] = f'{api_body["Name"]} {ptitle} {self.category.capitalize()}.'
             if api_body['Name'] in kwargs.intersight_api[kwargs.org][self.category][self.type]:
                 intersight_api = kwargs.intersight_api[kwargs.org][self.category][self.type][api_body['Name']]
-                patch_policy = imm(self.type).compare_body_result(api_body, intersight_api.result)
+                patch_resource = imm(self.type).compare_body_result(api_body, intersight_api.result)
                 api_body['pmoid']  = intersight_api.moid
-                if patch_policy == True:
+                if patch_resource == True:
                     if check_flag == True:
                         pcolor.Cyan(f"     * Running Check Mode: Org: `{kwargs.org}`; Non-Check mode would update {ptitle} {category}: `{api_body['Name']}`."\
                                     f"  Moid: `{api_body['pmoid']}`")
@@ -1519,13 +1592,9 @@ class imm(object):
         #=====================================================================
         kwargs.resources = reconsile_resources
         if 'port' == self.type: kwargs = self.port_children(kwargs)
-        elif re.search('local_user|storage|v(l|s)an', self.type):
-            sub_list = ['local_user.users', 'storage.drive_groups', 'vlan.vlans', 'vsan.vsans']
-            for e in sub_list:
-                a, b = e.split('.')
-                if a == self.type: kwargs = getattr(self, b)(kwargs)
-        elif re.search('(l|s)an_connectivity', self.type):
-            sub_list = ['lan_connectivity.vnics', 'lan_connectivity.vnics_from_template', 'san_connectivity.vhbas', 'san_connectivity.vhbas_from_template']
+        elif re.search(r'^ldap|local_user||(l|s)an_connectivity|storage|v(l|s)an$', self.type):
+            sub_list = ['lan_connectivity.vnics', 'lan_connectivity.vnics_from_template', 'ldap.ldap_groups', 'ldap.ldap_servers', 'local_user.users',
+                'san_connectivity.vhbas', 'san_connectivity.vhbas_from_template', 'storage.drive_groups', 'vlan.vlans', 'vsan.vsans']
             for e in sub_list:
                 a, b = e.split('.')
                 if a == self.type:
@@ -1533,7 +1602,7 @@ class imm(object):
                     for i in kwargs.resources:
                         ikeys = list(i.keys())
                         if b in ikeys: scount += 1
-                    if scount > 0: kwargs = getattr(self, 'vnic')(kwargs)
+                    if scount > 0: kwargs = getattr(self, b)(kwargs)
         #=====================================================================
         # Send End Notification and return kwargs
         #=====================================================================
@@ -1555,7 +1624,6 @@ class imm(object):
 
         render_item = item.toDict() if hasattr(item, 'toDict') else item
         rendered    = template_env.get_template(template_name).render(
-            children=kwargs.children,
             item=render_item,
             isight=kwargs.intersight_api,
             name_prefix=np,
@@ -1655,29 +1723,29 @@ class imm(object):
         #=====================================================================
         # Build Lists from ezdata
         #=====================================================================
-        kwargs.resources_list = []
+        kwargs.policies_list = []
         kwargs.pools_list    = []
         kwargs.profiles_list = []
         for k, v in kwargs.ezdata.items():
             if v.intersight_type == 'policies':
                 ptype = k.replace('intersight.', '')
-                if not '.' in ptype: kwargs.resources_list.append(ptype)
+                if not '.' in ptype: kwargs.policies_list.append(ptype)
             elif v.intersight_type == 'pools':
                 ptype = k.replace('intersight.', '')
                 if not '.' in ptype: kwargs.pools_list.append(ptype)
             elif v.intersight_type == 'profiles':
                 ptype = k.replace('intersight.profiles.', '')
                 if not '.' in ptype: kwargs.profiles_list.append(ptype)
-        iboot_index = kwargs.resources_list.index('iscsi_boot') if 'iscsi_boot' in kwargs.resources_list else len(kwargs.resources_list)
+        iboot_index = kwargs.policies_list.index('iscsi_boot') if 'iscsi_boot' in kwargs.policies_list else len(kwargs.policies_list)
         ip_index    = kwargs.pools_list.index('ip') if 'ip' in kwargs.pools_list else len(kwargs.pools_list)
         for e in ['vnic_template', 'vhba_template', 'iscsi_static_target']:
-            if e in kwargs.resources_list:
-                kwargs.resources_list.remove(e)
-                kwargs.resources_list.insert(iboot_index, e)
+            if e in kwargs.policies_list:
+                kwargs.policies_list.remove(e)
+                kwargs.policies_list.insert(iboot_index, e)
                 iboot_index += 1
         for e in ['id_mapping', 'server_pool_qualification']:
-            if e in kwargs.resources_list:
-                kwargs.resources_list.remove(e)
+            if e in kwargs.policies_list:
+                kwargs.policies_list.remove(e)
                 kwargs.pools_list.insert(ip_index, e)
                 ip_index += 1
         kwargs.templates_list = list(kwargs.profiles_list)
@@ -1741,67 +1809,7 @@ class imm(object):
     # Function - Assign Drive Groups to Storage Policies
     #=========================================================================
     def drive_groups(self, kwargs):
-        kwargs.bulk_list = []; kwargs.names = []
-        ezdata = kwargs.ezdata[self.type]
-        np, ns = self.name_prefix_suffix('storage', kwargs)
-        #=====================================================================
-        # Get Storage Policies
-        #=====================================================================
-        for e in kwargs.resources:
-            ekeys = list(e.keys()); spolicy = np + e.name + ns
-            if 'drive_groups' in ekeys: kwargs.names.append(kwargs.isight[kwargs.org].policies['storage'][spolicy])
-        if len(kwargs.names) > 0:
-            kwargs = kwargs | DotMap(method = 'get', parent = 'StoragePolicy', uri = kwargs.ezdata[self.type].intersight_uri)
-            kwargs = api('parent_moids').calls(kwargs)
-            drive_groups = DotMap(); storage = DotMap()
-            for k,v in kwargs.isight[kwargs.org].policies['storage'].items(): storage[v] = k
-            for e in kwargs.results:
-                drive_groups[storage[e.StoragePolicy.Moid]][e.Name] = e
-        #=====================================================================
-        # Function - Create API Body for Storage Drive Groups
-        #=====================================================================
-        def drive_group_function(storage, d, kwargs):
-            e = storage; storage_policy = np + e.name + ns
-            storage_moid = kwargs.isight[kwargs.org].policies['storage'][storage_policy]
-            api_body     = {'ObjectType':ezdata.object_type}
-            # api_body     = imm(self.type).build_api_body(api_body, ezdata.properties, d, kwargs)
-            api_body.pop('Organization')
-            api_body.update({'StoragePolicy':{'Moid':storage_moid,'ObjectType':'storage.StoragePolicy'}})
-            for x in range(0,len(api_body['VirtualDrives'])):
-                vd = api_body['VirtualDrives'][x]
-                if not vd.get('VirtualDrivePolicy'):
-                    vd['VirtualDrivePolicy'] = {'ObjectType':'storage.VirtualDrivePolicy'}
-                else: vd['VirtualDrivePolicy'].update({'ObjectType':'storage.VirtualDrivePolicy'})
-                vp = vd['VirtualDrivePolicy']
-                for k,v in kwargs.ezdata['storage.virtual_drive_policy'].properties.items():
-                    if not vp.get(v.intersight_api): vp[v.intersight_api] = v.default
-            #=================================================================
-            # Add api_body to bulk_list if necessary
-            #=================================================================
-            if not drive_groups[storage_policy].get(d.name): kwargs.bulk_list.append(deepcopy(api_body))
-            else:
-                patch_policy      = imm(self.type).compare_body_result(api_body, drive_groups[storage_policy][d.name])
-                api_body['pmoid'] = drive_groups[storage_policy][d.name].Moid
-                if patch_policy == True: kwargs.bulk_list.append(deepcopy(api_body))
-                else:
-                    pcolor.Cyan(f'{" "*6}* Skipping Org: {kwargs.org}; {parent_type}: `{storage_policy}`, DriveGroup: `{d.name}`.'\
-                        f'  Intersight Matches Configuration.  Moid: {drive_groups[storage_policy][d.name].Moid}')
-            return kwargs
-        #=====================================================================
-        # Create API Body for Storage Drive Groups
-        #=====================================================================
-        parent_type = 'Storage Policy'
-        for e in kwargs.resources:
-            ekeys = list(e.keys())
-            if 'drive_groups' in ekeys:
-                for d in e.drive_groups: kwargs = drive_group_function(e, d, kwargs)
-        #=====================================================================
-        # POST Bulk Request if Post List > 0
-        #=====================================================================
-        kwargs.parent_key = 'storage'
-        if len(kwargs.bulk_list) > 0:
-            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-            kwargs     = imm(self.type).create_bulk_request(kwargs)
+        kwargs = self.children_resources('drive_groups', kwargs)
         return kwargs
 
     #=========================================================================
@@ -1915,19 +1923,35 @@ class imm(object):
         
         def update_item_with_adjusted_name(item, key, old_name, new_name, is_ip_type=False):
             """Update item dictionary with adjusted resource name. Mutates item in place."""
+            CHILD_CONTAINER_KEYS = [
+                'vhbas', 'vhbas_from_template', 'vnics', 'vnics_from_template',
+                'port_channel_appliances', 'port_channel_ethernet_uplinks', 'port_channel_fcoe_uplinks',
+                'port_role_appliances', 'port_role_ethernet_uplinks', 'port_role_fcoe_uplinks',
+            ]
             if is_ip_type:
                 for ip_block_type in IP_BLOCK_TYPES:
                     if ip_block_type in item and isinstance(item[ip_block_type], list):
                         for x in range(len(item[ip_block_type])):
                             if item[ip_block_type][x].get(key) == old_name:
                                 item[ip_block_type][x][key] = new_name
-            else:
+            elif key in item:
                 if isinstance(item[key], list):
                     indx = next((i for i, d in enumerate(item[key]) if d == old_name), None)
                     if indx is not None:
                         item[key][indx] = new_name
                 else:
                     item[key] = new_name
+            else:
+                for container_key in CHILD_CONTAINER_KEYS:
+                    if container_key in item and isinstance(item[container_key], list):
+                        for child in item[container_key]:
+                            if key in child:
+                                if isinstance(child[key], list):
+                                    indx = next((i for i, d in enumerate(child[key]) if d == old_name), None)
+                                    if indx is not None:
+                                        child[key][indx] = new_name
+                                elif child[key] == old_name:
+                                    child[key] = new_name
         
         def resource_list(k, rname, rtype, item, kwargs):
             """Validate resource existence and register missing resources. Mutates item and kwargs."""
@@ -1941,6 +1965,7 @@ class imm(object):
             ckeys = list(kwargs.cp)
             if rtype not in ckeys:
                 kwargs.cp[rtype].names = []
+                kwargs.cp[rtype].category = r
             rkeys = list(kwargs.intersight_api[org][r][rtype].keys())
             if 'template' in k:
                 kwargs.cp[rtype].names.append(target_name)
@@ -1965,6 +1990,32 @@ class imm(object):
             if 'resource_groups' in item:
                 kwargs.resource_groups = item.resource_groups
                 kwargs = api('resource_groups').organizations(kwargs)
+        #=====================================================================
+        # Process LAN Connectivity Type - Extract Sub-Resources from vNICs
+        #=====================================================================
+        elif self.type == 'lan_connectivity':
+            vnic_sub_map = {
+                'ethernet_adapter_policy': 'ethernet_adapter_policy',
+                'ethernet_network_control_policy': 'ethernet_network_control_policy',
+                'ethernet_network_group_policies': 'ethernet_network_group_policy',
+                'ethernet_qos_policy': 'ethernet_qos_policy',
+                'mac_address_pool': 'mac'
+            }
+            for vnic_container_key in ['vnics', 'vnics_from_template']:
+                if vnic_container_key in item:
+                    for vnic_item in item[vnic_container_key]:
+                        for sub_key, rtype in vnic_sub_map.items():
+                            if sub_key in vnic_item and vnic_item[sub_key]:
+                                sub_value = vnic_item[sub_key]
+                                config_key = extract_ptype(rtype) if sub_key != 'mac_address_pool' else rtype
+                                if isinstance(sub_value, list):
+                                    for sub_resource in sub_value:
+                                        item, kwargs = resource_list(sub_key, sub_resource, config_key, item, kwargs)
+                                else:
+                                    item, kwargs = resource_list(sub_key, sub_value, config_key, item, kwargs)
+                        # For vnics_from_template, also extract vnic_template reference
+                        if vnic_container_key == 'vnics_from_template' and 'vnic_template' in vnic_item and vnic_item['vnic_template']:
+                            item, kwargs = resource_list('vnic_template', vnic_item['vnic_template'], 'vnic_template', item, kwargs)
         #=====================================================================
         # Process Port Type Specifically - Extract Sub-Resources
         #=====================================================================
@@ -1996,16 +2047,38 @@ class imm(object):
                                 else:
                                     item, kwargs = resource_list(sub_key, sub_value, config_key, item, kwargs)
         #=====================================================================
+        # Process SAN Connectivity Type - Extract Sub-Resources from vHBAs
+        #=====================================================================
+        elif self.type == 'san_connectivity':
+            vhba_sub_map = {
+                'fibre_channel_adapter_policy': 'fibre_channel_adapter_policy',
+                'fibre_channel_network_policy': 'fibre_channel_network_policy',
+                'fibre_channel_qos_policy': 'fibre_channel_qos_policy',
+                'wwpn_pool': 'wwpn'
+            }
+            for vhba_container_key in ['vhbas', 'vhbas_from_template']:
+                if vhba_container_key in item:
+                    for vhba_item in item[vhba_container_key]:
+                        for sub_key, rtype in vhba_sub_map.items():
+                            if sub_key in vhba_item and vhba_item[sub_key]:
+                                sub_value = vhba_item[sub_key]
+                                config_key = extract_ptype(rtype) if sub_key != 'wwpn_pool' else rtype
+                                if isinstance(sub_value, list):
+                                    for sub_resource in sub_value:
+                                        item, kwargs = resource_list(sub_key, sub_resource, config_key, item, kwargs)
+                                else:
+                                    item, kwargs = resource_list(sub_key, sub_value, config_key, item, kwargs)
+                        # For vhbas_from_template, also extract vhba_template reference
+                        if vhba_container_key == 'vhbas_from_template' and 'vhba_template' in vhba_item and vhba_item['vhba_template']:
+                            item, kwargs = resource_list('vhba_template', vhba_item['vhba_template'], 'vhba_template', item, kwargs)
+        #=====================================================================
         # Process All Other Types
         #=====================================================================
         else:
-            cp_keys = list(kwargs.cp.keys())
             for k, v in item.items():
                 if re.search(RESOURCE_PATTERN, k):
                     rtype = extract_ptype(k)
                     rtype = adjust_rtype(rtype)
-                    if rtype not in cp_keys:
-                        kwargs.cp[rtype].names = []
                     if isinstance(v, list):
                         for e in v:
                             item, kwargs = resource_list(k, e, rtype, item, kwargs)
@@ -2226,92 +2299,17 @@ class imm(object):
         return item
 
     #=========================================================================
-    # Function - Assign Users to Local User Policies
+    # Function - Assign LDAP Groups to LDAP Policies
     #=========================================================================
-    def ldap_groups(self, items, kwargs):
-        #=====================================================================
-        # Get Existing Users
-        #=====================================================================
-        ezdata = kwargs.ezdata[self.type]
-        kwargs.group_post_list = []; kwargs.server_post_list = []; role_names = []; kwargs.cp = DotMap()
-        np, ns = self.name_prefix_suffix('ldap', kwargs)
-        for i in kwargs.resources:
-            if i.get('ldap_groups'):
-                kwargs.parent_name = f'{np}{i.name}{ns}'
-                for e in i.ldap_groups: role_names.append(e.role)
-                kwargs.pmoid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
-                names  = [e.name for e in i.ldap_groups]
-                kwargs = self.api_get(True, names, self.type, kwargs)
-                kwargs.cp[kwargs.pmoid].group_moids  = kwargs.pmoids
-                kwargs.cp[kwargs.pmoid].group_results= kwargs.results
-                kwargs.pmoid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
-            if i.get('ldap_servers'):
-                names  = [e.server for e in i.ldap_servers]
-                kwargs = self.api_get(True, names, 'ldap.ldap_servers', kwargs)
-                kwargs.cp[kwargs.pmoid].server_moids  = kwargs.pmoids
-                kwargs.cp[kwargs.pmoid].server_results= kwargs.results
-        if len(role_names) > 0:
-            kwargs.names       = list(numpy.unique(numpy.array(role_names)))
-            kwargs.uri         = 'iam/EndPointRoles'
-            kwargs             = api('iam_role').calls(kwargs)
-            kwargs.role_moids  = kwargs.pmoids
-            kwargs.role_results= kwargs.results
-        #=====================================================================
-        # Construct API Body LDAP Policies
-        #=====================================================================
-        for i in kwargs.resources:
-            kwargs.parent_key  = self.type.split('.')[0]
-            kwargs.parent_name = f'{np}{i.name}{ns}'
-            kwargs.parent_type = 'LDAP Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
-            for e in i.ldap_groups:
-                #=============================================================
-                # Create API Body for User Role
-                #=============================================================
-                api_body = {'LdapPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'iam.LdapPolicy'},'ObjectType':ezdata.object_type}
-                # api_body = imm(self.type).build_api_body(api_body, ezdata, e, kwargs)
-                api_body['EndPointRole']['Moid'] = kwargs.role_moids[e.role].moid
-                #=============================================================
-                # Create or Patch the Policy via the Intersight API
-                #=============================================================
-                if kwargs.cp[kwargs.parent_moid].group_moids.get(e.name):
-                    indx = next((index for (index, d) in enumerate(kwargs.cp[kwargs.parent_moid].group_results) if d['Name'] == api_body['Name']), None)
-                    patch_policy = imm(self.type).compare_body_result(api_body, kwargs.cp[kwargs.parent_moid].group_results[indx])
-                    api_body['pmoid'] = kwargs.cp[kwargs.parent_moid].moids[e.name].moid
-                    if patch_policy == True: kwargs.group_post_list.append(deepcopy(api_body))
-                    else:
-                        pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {kwargs.parent_type}: `{kwargs.parent_name}`, Group: `{api_body['Name']}`."\
-                            f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-                else: kwargs.group_post_list.append(deepcopy(api_body))
-            for e in i.ldap_servers:
-                #=============================================================
-                # Create API Body for User Role
-                #=============================================================
-                api_body = {'LdapPolicy':{'Moid':kwargs.parent_moid,'ObjectType':'iam.LdapPolicy'},'ObjectType':kwargs.ezdata['ldap.ldap_servers'].object_type}
-                # api_body = imm('ldap.ldap_servers').build_api_body(api_body, ezdata, e, kwargs)
-                #=============================================================
-                # Create or Patch the Policy via the Intersight API
-                #=============================================================
-                if kwargs.cp[kwargs.parent_moid].server_moids.get(e.server):
-                    indx = next((index for (index, d) in enumerate(kwargs.cp[kwargs.parent_moid].server_results) if d['Name'] == api_body['Name']), None)
-                    patch_policy = imm(self.type).compare_body_result(api_body, kwargs.cp[kwargs.parent_moid].server_results[indx])
-                    api_body['pmoid'] = kwargs.cp[kwargs.parent_moid].moids[e.server].moid
-                    if patch_policy == True: kwargs.server_post_list.append(deepcopy(api_body))
-                    else:
-                        pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {kwargs.parent_type}: `{kwargs.parent_name}`, Group: `{api_body['Name']}`."\
-                            f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-                else: kwargs.server_post_list.append(deepcopy(api_body))
-        #=====================================================================
-        # POST Bulk Request if Post List > 0
-        #=====================================================================
-        if len(kwargs.group_post_list) > 0:
-            kwargs.bulk_list = kwargs.group_post_list
-            kwargs.uri       = ezdata.interight_uri
-            kwargs           = imm(self.type).create_bulk_request(kwargs)
-        if len(kwargs.server_post_list) > 0:
-            kwargs.bulk_list = kwargs.server_post_list
-            kwargs.uri       = ezdata.interight_uri
-            kwargs           = imm(self.type).create_bulk_request(kwargs)
+    def ldap_groups(self, kwargs):
+        kwargs = self.children_resources('ldap_groups', kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function - Assign LDAP Servers to LDAP Policies
+    #=========================================================================
+    def ldap_servers(self, kwargs):
+        kwargs = self.children_resources('ldap_servers', kwargs)
         return kwargs
 
     #=========================================================================
@@ -2609,7 +2607,7 @@ class imm(object):
         # Exist or if Running in Check Mode.
         #=====================================================================
         continue_count = 0
-        ikeys = list(kwargs.intersight_api[org]['policies']['port'].keys())
+        ikeys = list(kwargs.intersight_api[org].policies.port.keys())
         for item in kwargs.resources:
             policy_list = [f"{np}{e}{ns}" for e in item.names if f"{np}{e}{ns}" in ikeys]
             continue_count += len(policy_list)
@@ -2719,7 +2717,6 @@ class imm(object):
                                 process_port_attributes(pitem, policy, handler_type, x)
                             kwargs = create_and_commit_api(pitem, e, kwargs)
             if len(kwargs.bulk_list) > 0:
-                kwargs.parent_key = 'port'
                 kwargs.uri = kwargs.ezdata[f"intersight.port.{e}"].intersight_uri
                 kwargs     = imm(f'port.{e}', category=self.category).create_bulk_request(kwargs)
         return kwargs
@@ -3540,19 +3537,20 @@ class imm(object):
     #=========================================================================
     # Function - Storage Policy Modification
     #=========================================================================
-    def storage(self, api_body, item, kwargs):
-        item = item; kwargs = kwargs
-        if api_body.get('M2VirtualDrive'): api_body['M2VirtualDrive']['Enable'] = True
-        if api_body.get('Raid0Drive'):
-            if not api_body['Raid0Drive'].get('Enable'): api_body['Raid0Drive']['Enable'] = True
-            if not api_body['Raid0Drive'].get('VirtualDrivePolicy'):
-                api_body['Raid0Drive']['VirtualDrivePolicy'] = {'ObjectType':'storage.VirtualDrivePolicy'}
-                for k,v in kwargs.ezdata['storage.virtual_drive_policy'].properties.items():
-                    if api_body['Raid0Drive']['VirtualDrivePolicy'].get(k):
-                        api_body['Raid0Drive']['VirtualDrivePolicy'][v.intersight_api] = api_body['Raid0Drive']['VirtualDrivePolicy'][k]
-                    else: api_body['Raid0Drive']['VirtualDrivePolicy'][v.intersight_api] = v.default
-        if api_body.get('DriveGroup'): api_body.pop('DriveGroup')
-        return api_body
+    def storage(self, item, kwargs):
+        ikeys  = list(item.keys())
+        ptitle = ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
+        if 'storage_template' in ikeys:
+            templates = kwargs.ezdata[f'intersight.{self.type}.templates'].properties
+            template_name = item.storage_template
+            if template_name not in templates:
+                pcolor.Red(f'!!! ERROR !!! {ptitle} Template "{template_name}" was not found in "intersight.{self.type}.templates".')
+                pcolor.Red(f'Available templates are: {", ".join(sorted(list(templates.keys())))}')
+                sys.exit(1)
+            merged = deepcopy(templates[template_name].toDict())
+            merged = self.deep_merge_dicts(merged, item.toDict())
+            item = DotMap(merged)
+        return item
 
     #=========================================================================
     # Function - System QoS Policy Modification
@@ -3666,441 +3664,164 @@ class imm(object):
         return kwargs
 
     #=========================================================================
-    # Function - vHBA Specific settings
+    # Function - Assign vHBAs to SAN Connectivity Policies
     #=========================================================================
-    def vhba_settings(self, api_body, item, x, kwargs):
-        def zone_update(api_body, e, ptype, kwargs):
-            org, pname = imm(ptype).determine_resource_org(e.Moid, kwargs)
-            e['Moid']  = imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs)
-            return e
-        if api_body.get('FcZonePolicies'):
-            kwargs.zbody = deepcopy(api_body['FcZonePolicies'])
-            api_body['FcZonePolicies'] = []
-            if 'template' in self.type: name_length = 1
-            else: name_length = len(item.names)
-            if name_length == 2:
-                half = len(kwargs.zbody)//2
-                if x == 0: zlist = kwargs.zbody[half:]
-                else: zlist = kwargs.zbody[:half]
-                for e in zlist: api_body['FcZonePolicies'].append(zone_update(api_body, e, 'fc_zone', kwargs))
-            else:
-                for e in kwargs.zbody: api_body['FcZonePolicies'].append(zone_update(api_body, e, 'fc_zone', kwargs))
-        if api_body.get('StaticWwpnAddress'):
-            if 'template' in self.type: api_body.update({'WwpnAddressType': 'STATIC'})
-            else: api_body.update({'WwpnAddressType': 'STATIC','StaticWwpnAddress':api_body['StaticWwpnAddress'][x]})
-        return api_body
+    def vhbas(self, kwargs):
+        kwargs = self.vnics_compile('vhbas', kwargs)
+        return kwargs
 
     #=========================================================================
-    # Function - Build api_body for vHBA Templates
+    # Function - Assign vHBAs to SAN Connectivity Policies from Template
     #=========================================================================
-    def vhba_template(self, api_body, item, kwargs):
-        akeys = list(api_body.keys())
-        plist = []
-        for k,v in kwargs.ezdata[self.type].allOf[1].properties.items():
-            if re.search('_(polic(ies|y)|pool)$', k):
-                plist.append(f"{k}:{v.intersight_api.split(':')[1]}")
-        for p in plist:
-            i,e = p.split(':')
-            if e in akeys:
-                if type(api_body[e]['Moid']) == list:
-                    api_body[e]['Moid'] = []
-                    for d in api_body[e]['Moid']:
-                        ptype = re.search('([a-z\\_]+)_policies$', i).group(1)
-                        org, pname = imm(ptype).determine_resource_org(d, kwargs)
-                        api_body[e]['Moid'].append(imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs))
-                elif 'wwpn' in i:
-                    org, pname = imm('wwpn').determine_resource_org(api_body[e]['Moid'], kwargs)
-                    api_body[e]['Moid'] = imm(self.type).get_moid_from_isight_dict(api_body['Name'], 'wwpn', org, pname, kwargs)
-                else:
-                    ptype      = re.search('([a-z\\_]+)_policy$', i).group(1)
-                    org, pname = imm(ptype).determine_resource_org(api_body[e]['Moid'], kwargs)
-                    api_body[e]['Moid'] = imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs)
-        return api_body
-
-    #=========================================================================
-    # Function - Virtual Media Policy Modification
-    #=========================================================================
-    def virtual_media(self, api_body, item, kwargs):
-        item = item
-        if api_body.get('Mappings'):
-            for x in range(api_body['Mappings']):
-                if api_body['Mappings'][x].get('Password'):
-                    kwargs.sensitive_var = f"vmedia_password_{api_body['Mappings'][x]['Password']}"
-                    kwargs = ezfunctions.sensitive_var_value(kwargs)
-                    api_body['Mappings'][x]['Password'] = kwargs.var_value
-                if   api_body['Mappings'][x].get('FileLocation') and api_body['Mappings'][x].get('MountProtocol') == 'cifs':
-                    api_body['Mappings'][x]['MountProtocol'] = (api_body['Mappings'][x]['MountProtocol']).replace('cifs://', '')
-                elif api_body['Mappings'][x].get('FileLocation') and api_body['Mappings'][x].get('MountProtocol') == 'nfs':
-                    api_body['Mappings'][x]['MountProtocol'] = (api_body['Mappings'][x]['MountProtocol']).replace('nfs://', '')
-        return api_body
+    def vhbas_from_template(self, kwargs):
+        kwargs = self.vnics_compile('vhbas_from_template', kwargs)
+        return kwargs
 
     #=========================================================================
     # Function - Assign VLANs to VLAN Policies
     #=========================================================================
     def vlans(self, kwargs):
+        child_type = 'vlans'
+        continue_count = self.children_check_parent(child_type, kwargs)
+        if continue_count == 0: return kwargs
+        #=====================================================================
+        # Create API Body for Sub Items and Compare to Existing API Results.
+        # If Differences or No Existing Resource, Append to Bulk List for
+        # POST/PATCH.  If No Differences, Skip.
+        #=====================================================================
         org = kwargs.org
-        np, ns = self.name_prefix_suffix(org, kwargs)
-        ezdata = kwargs.ezdata[self.type]
-        #=====================================================================
-        # Loop Through VLAN Lists to Create api_body(s)
-        #=====================================================================
-        def configure_vlans(e, kwargs):
-            ezdata = kwargs.ezdata[self.type]
-            api_body = {'EthNetworkPolicy':{'Moid':kwargs.parent_moid, 'ObjectType':'fabric.EthNetworkPolicy'}, 'ObjectType':ezdata.object_type}
-            # api_body = imm(self.type).build_api_body(api_body, ezdata.properties, e, kwargs)
-            api_keys = list(api_body.keys())
-            for i in ['Organization', 'Tags', 'name_prefix']:
-                if i in api_keys: api_body.pop(i)
-            if not api_body.get('AutoAllowOnUplinks'): api_body.update({'AutoAllowOnUplinks':False})
-            org, pname = imm('multicast').determine_resource_org(e.multicast_policy, kwargs)
-            api_body['MulticastPolicy']['Moid'] = imm(self.type).get_moid_from_isight_dict(api_body['Name'], 'multicast', org, pname, kwargs)
-            if not api_body.get('IsNative'): api_body['IsNative'] = False
-            vkeys = list(e.keys())
-            if not 'name_prefix' in vkeys: name_prefix = True
-            else: name_prefix = e.name_prefix
-            vlans = ezfunctions.vlan_list_full(e.vlan_list)
-            for x in ezfunctions.vlan_list_full(e.vlan_list):
-                if type(x) == str: x = int(x)
-                if len(vlans) > 1 and name_prefix == True: api_body['Name'] = f"{e.name}{'0'*(4 - len(str(x)))}{x}"
-                api_body['VlanId'] = x
-                #=============================================================
-                # Create or Patch the VLANs via the Intersight API
-                #=============================================================
-                pkeys = list(kwargs.isight[kwargs.org].policies[self.type].keys())
-                if not str(x) in pkeys: kwargs.bulk_list.append(deepcopy(api_body))
-                else:
-                    indx = next((index for (index, d) in enumerate(kwargs.vlans_results) if d['VlanId'] == x), None)
-                    if not indx == None:
-                        patch_vlan = imm(self.type).compare_body_result(api_body, kwargs.vlans_results[indx])
-                        api_body['pmoid'] = kwargs.isight[kwargs.org].policies[self.type][str(x)]
-                        if patch_vlan == True: kwargs.bulk_list.append(deepcopy(api_body))
-                        else: pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; VLAN Policy: `{kwargs.parent_name}`, VLAN: `{x}`."\
-                                          f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-                        api_body.pop('pmoid')
-                    else: kwargs.bulk_list.append(deepcopy(api_body))
-            return kwargs
-        #=====================================================================
-        # Get Multicast Policies
-        #=====================================================================
-        mcast_names = []
-        for i in kwargs.resources:
-            if i.get('vlans'):
-                for e in i.vlans:
-                    org, policy = imm('multicast').determine_resource_org(e.multicast_policy, kwargs)
-                    pkeys       = list(kwargs.isight[org].policies['multicast'].keys())
-                    if not policy in pkeys: mcast_names.append(f'{org}/{policy}')
-        mcast_names = list(numpy.unique(numpy.array(mcast_names)))
-        kwargs      = self.api_get(False, mcast_names, 'multicast', kwargs)
-        #=====================================================================
-        # Loop Through VLAN Policies
-        #=====================================================================
+        np, ns = self.name_prefix_suffix(self.type, kwargs)
         kwargs.bulk_list = []
-        np, ns = self.name_prefix_suffix('vlan', kwargs)
-        for i in kwargs.resources:
-            kwargs.bulk_list = []
-            vnames           = []
-            kwargs.parent_key  = self.type.split('.')[0]
-            kwargs.parent_name = f'{np}{i.name}{ns}'
-            kwargs.parent_type = 'VLAN Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policies['vlan'][kwargs.parent_name]
-            kwargs.pmoid       = kwargs.parent_moid
-            kwargs.vlan_policy = kwargs.parent_name
-            if i.get('vlans'):
-                for e in i.vlans: vnames.extend(ezfunctions.vlan_list_full(e.vlan_list))
-                kwargs = self.api_get(True, vnames, self.type, kwargs)
-                kwargs.vlans_results = kwargs.results
-                for e in i.vlans: kwargs = configure_vlans(e, kwargs)
-            #=================================================================
-            # POST Bulk Request if Post List > 0
-            #=================================================================
-            if len(kwargs.bulk_list) > 0:
-                kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-                kwargs     = imm(self.type).create_bulk_request(kwargs)
+        for e in kwargs.resources:
+            ekeys = list(e.keys())
+            if child_type in ekeys:
+                for item in e[child_type]:
+                    ikeys = list(item.keys())
+                    item.parent = kwargs.intersight_api[org][self.category][self.type][np + e.name + ns].moid
+                    if not 'name_prefix' in ikeys: name_prefix = True
+                    else: name_prefix = item.name_prefix
+                    vlans = ezfunctions.vlan_list_full(item.vlan_list)
+                    original_name = item.name
+                    reserved_list = ezfunctions.vlan_list_full('4043-4047, 4094, 4095')
+                    for x in vlans:
+                        if type(x) == str: x = int(x)
+                        if x in reserved_list:
+                            pcolor.Yellow(f'!!! WARNING !!! VLAN ID {x} is a reserved VLAN and cannot be used.'\
+                                          f'  Skipping assignment of VLAN ID {x} under VLAN Policy `{np + e.name + ns}` in Org `{kwargs.org}`.')
+                            continue
+                        if len(vlans) > 1 and name_prefix == True:
+                            item.name = deepcopy(f"{original_name}{x}")
+                            # item.name = deepcopy(f"{original_name}{'0'*(4 - len(str(x)))}{x}")
+                        else: item.name = deepcopy(f"{original_name}")
+                        item.vlan_id = x
+                        api_body = imm(f'{self.type}.{child_type}', category=self.category).create_api_body(item, np, ns, kwargs)
+                        kwargs   = imm(f'{self.type}.{child_type}', category=self.category).children_compare_api_body(api_body, kwargs)
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = kwargs.ezdata[f"intersight.{self.type}.{child_type}.domain"].intersight_uri
+            kwargs     = imm(f'{self.type}.{child_type}', category=self.category).create_bulk_request(kwargs)
         return kwargs
 
     #=========================================================================
-    # Function - vNIC Placement Settings
+    # Function - Assign vNICs to LAN Connectivity Policies
     #=========================================================================
-    def vnic_placement(self, api_body, item, x, kwargs):
-        ikeys = list(item.keys())
-        if 'template' in self.type: switch_id = 'A'
-        else: switch_id = chr(ord('@')+x+1)
-        pdict = {'Placement':{'AutoPciLink':False,'AutoSlotId':False,'ObjectType':'vnic.PlacementSettings','SwitchId':switch_id,'Uplink':0}}
-        api_body.update(pdict)
-        if 'placement' in ikeys:
-            pkeys = list(item.placement.keys())
-            for p in ['automatic_pci_link_assignment', 'automatic_slot_id_assignment', 'pci_links', 'slot_ids', 'switch_ids', 'uplink_ports']:
-                if 'template' in self.type and re.search('ids|inks|ports', p): p = p[:-1]
-                if p in pkeys:
-                    if 'template' in self.type: pval = item[p]
-                    elif type(item['placement'][p]) == bool: pval = item['placement'][p]
-                    elif len(item['placement'][p]) == 2: pval = item['placement'][p][x]
-                    else: pval = item['placement'][p][0]
-                    api_body['Placement'][kwargs.ezdata[self.type].properties.placement.properties[p].intersight_api] = pval
-        plkeys = list(api_body['Placement'].keys())
-        if not 'Id' in plkeys: api_body['Placement'].update({'AutoSlotId':True,'Id':''})
-        if not 'PciLink' in plkeys: api_body['Placement'].update({'AutoPciLink':True,'PciLink':0})
-        return api_body
+    def vnics(self, kwargs):
+        kwargs = self.vnics_compile('vnics', kwargs)
+        return kwargs
 
     #=========================================================================
-    # Function - vNIC Settings
+    # Function - Assign vNICs to LAN Connectivity Policies from Template
     #=========================================================================
-    def vnic_settings(self, api_body, x, kwargs):
-        akeys = list(api_body.keys())
-        if not api_body.get('Cdn'): api_body.update({'Cdn':{'Value':api_body['Name'],'Source':'vnic','ObjectType':'vnic.Cdn'}})
-        if api_body.get('FabricEthNetworkGroupPolicy'):
-            api_body['FabricEthNetworkGroupPolicy'] = [api_body['FabricEthNetworkGroupPolicy']]
-        if api_body.get('StaticMacAddress'):
-            if 'template' in self.type: api_body.update({'MacAddressType': 'STATIC'})
-            else: api_body.update({'MacAddressType': 'STATIC','StaticMacAddress':api_body['StaticMacAddress'][x]})
-        #=====================================================================
-        # Usnic/Vmq Ethernet Adapter Policies
-        #=====================================================================
-        ptype = 'ethernet_adapter'
-        for p in ['UsnicSettings:UsnicAdapterPolicy', 'VmqSettings:VmmqAdapterPolicy']:
-            i,e = p.split(':')
-            if i in akeys:
-                skeys = list(api_body[i].keys())
-                if e in skeys and len(api_body[i][e]) > 0:
-                    org, pname     = imm(ptype).determine_resource_org(api_body[i][e], kwargs)
-                    api_body[i][e] = imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs)
-        return api_body
-
-    #=========================================================================
-    # Function - Build api_body for vNIC Templates
-    #=========================================================================
-    def vnic_template(self, api_body, item, kwargs):
-        akeys = list(api_body.keys())
-        plist = []
-        for k,v in kwargs.ezdata[self.type].allOf[1].properties.items():
-            if re.search('_(policy|pool)$', k):
-                plist.append(f"{k}:{v.intersight_api.split(':')[1]}")
-        for p in plist:
-            i,e = p.split(':')
-            if e in akeys:
-                if 'mac' in i: ptype = 'mac'
-                else: ptype = re.search('([a-z\\_]+)_policy$', i).group(1)
-                org, pname = imm(ptype).determine_resource_org(item[i], kwargs)
-                api_body[e]['Moid'] = imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs)
-        ptype = 'ethernet_adapter'
-        for p in ['UsnicSettings:UsnicAdapterPolicy', 'VmqSettings:VmmqAdapterPolicy']:
-            i,e = p.split(':')
-            if i in akeys:
-                skeys = list(api_body[i].keys())
-                if e in skeys and len(api_body[i][e]) > 0:
-                    org, pname     = imm(ptype).determine_resource_org(api_body[i][e], kwargs)
-                    api_body[i][e] = imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs)
-        if api_body.get('FabricEthNetworkGroupPolicy'): api_body['FabricEthNetworkGroupPolicy'] = [api_body['FabricEthNetworkGroupPolicy']]
-        return api_body
-
-    #=========================================================================
-    # Function - vHBA/vNICs from Template Merge Data
-    #=========================================================================
-    def vnic_template_settings(self, api_body, item, kwargs):
-        vtype = f"{re.search('(vhba|vnic)s_from_template', self.type).group(1)}_template"
-        indx  = next((index for (index, d) in enumerate(kwargs.template_results) if d['Moid'] == api_body['SrcTemplate']['Moid']), None)
-        if indx != None:
-            t = kwargs.template_results[indx]; policies = ['PinGroupName']
-            for k,v in kwargs.ezdata[self.type].properties.items():
-                if re.search('polic(ies|y)|pool', k): policies.append(re.search("ref:([a-zA-Z]+):", v.intersight_api).group(1))
-            if t['EnableOverride'] != True:
-                for d in policies:
-                    if type(t[d]) == kwargs.type_dotmap: api_body[d] = t[d].toDict()
-                    else: api_body[d] = t[d]
-                api_body['Placement']['SwitchId'] = t['SwitchId']
-                api_body['PinGroupName'] = t[d]
-            else:
-                for d in policies:
-                    if not api_body.get(d):
-                        if type(t[d]) == kwargs.type_dotmap: api_body[d] = t[d].toDict()
-                        else: api_body[d] = t[d]
-            tpolicies = []
-            if 'vnic' in self.type: tdata = kwargs.ezdata['vnic_template'].allOf[1].properties
-            else: tdata = kwargs.ezdata['vhba_template'].allOf[1].properties.items()
-            for k,v in tdata.items():
-                if 'policy' in k:
-                    p = re.search('ref:([a-zA-Z]+):', v.intersight_api).group(1)
-                    if not p in policies: tpolicies.append(p)
-            for d in tpolicies:
-                if not api_body.get(d):
-                    if type(t[d]) == list: api_body[d] = [f.toDict() for f in t[d]]
-                    else: api_body[d] = t[d].toDict()
-            if 'vnic' in self.type:
-                api_body['Cdn'] = t['Cdn'].toDict()
-                if api_body['Cdn']['Source'] == 'user': api_body['Cdn']['Value'] = item.cdn_value
-                else: api_body['Cdn']['Value'] = api_body['Name']
-                for d in ['FailoverEnabled']: api_body[d] = t[d]
-                def update_api_body_keys(api_body):
-                    for d in ['SriovSettings', 'UsnicSettings', 'VmqSettings']: api_body[d] = t[d].toDict()
-                    return api_body
-                if   t['SriovSettings']['Enabled'] == True: api_body = update_api_body_keys(api_body)
-                elif t['UsnicSettings']['Count'] > 0:       api_body = update_api_body_keys(api_body)
-                elif t['VmqSettings']['Enabled'] == True:   api_body = update_api_body_keys(api_body)
-            else:
-                for d in ['PersistentBindings', 'Type']: api_body[d] = t[d]
-        else:
-            np,ns = self.name_prefix_suffix(vtype, kwargs)
-            validating.error_policy_doesnt_exist(self.type, api_body['Name'], vtype, f'{np}{item[vtype]}{ns}')
-        return api_body
+    def vnics_from_template(self, kwargs):
+        kwargs = self.vnics_compile('vnics_from_template', kwargs)
+        return kwargs
 
     #=========================================================================
     # Function - Assign VNICs to LAN Connectivity Policies
     #=========================================================================
-    def vnics(self, kwargs):
-        ezdata             = kwargs.ezdata[self.type]
-        kwargs.bulk_list   = []
-        sts                = self.type.split('.')
-        kwargs.vpolicy     = (kwargs.ezdata[sts[0]].object_type).split('.')[1]
-        kwargs.parent_key  = self.type.split('.')[0]
-        kwargs.parent_type = (snakecase(kwargs.vpolicy).replace('_', ' ')).title()
-        vtype              = sts[1]
+    def vnics_compile(self, child_type, kwargs):
+        continue_count = self.children_check_parent(child_type, kwargs)
+        if continue_count == 0: return kwargs
         #=====================================================================
-        # Get Policies and Pools
+        # Create API Body for Sub Items and Compare to Existing API Results.
+        # If Differences or No Existing Resource, Append to Bulk List for
+        # POST/PATCH.  If No Differences, Skip.
         #=====================================================================
-        kwargs.cp = DotMap()
-        for item in kwargs.resources:
-            for i in item[vtype]:
-                kwargs = imm(self.type).existing_check(i, kwargs)
-        for e in list(kwargs.cp.keys()):
-            if len(kwargs.cp[e].names) > 0:
-                names  = list(numpy.unique(numpy.array(kwargs.cp[e].names)))
-                kwargs = self.api_get(False, names, e, kwargs)
-                if 'template' in e: kwargs.template_results = kwargs.results
+        # Normalize legacy scalar/list forms so compile logic can treat inputs consistently.
+        def normalize_child_item(item, x):
+            placement_key_map = {
+                'pci_links': 'pci_link',
+                'slot_ids': 'slot_id',
+                'switch_ids': 'switch_id',
+                'uplink_ports': 'uplink_port'
+            }
+            rename_key_map = {
+                'ethernet_network_group_policies': 'ethernet_network_group_policies',
+                'fc_zone_policies': 'fc_zone_policies',
+                'flow_monitor_policies': 'flow_monitor_policies',
+                'iscsi_boot_policies': 'iscsi_boot_policy',
+                'mac_address_pools': 'mac_address_pool',
+                'mac_addresses_static': 'mac_address_static'
+            }
+            if not 'template' in child_type:
+                if item.get('placement') and isinstance(item.placement, dict):
+                    for plural_key, singular_key  in placement_key_map.items():
+                        if plural_key in item.placement and type(item.placement[plural_key]) == list and len(item.placement[plural_key]) > 0:
+                            if len(item.placement[plural_key]) == len(item.names):
+                                item.placement[singular_key] = item.placement[plural_key][x]
+                            else: item.placement[singular_key] = item.placement[plural_key][0]
+                for original, new in rename_key_map.items():
+                    if original in item and type(item[original]) == list and len(item[original]) > 0:
+                        if len(item[original]) > len(item.names):
+                            half = int(len(item[original]) / 2)
+                            if x == 1: item[new] = item[original][half:]
+                            else: item[new] = item[original][:half]
+                        elif len(item[original]) == len(item.names):
+                            item[new] = item[original][x]
+                        else: item[new] = item[original][0]
+            return item
+        #=================================================================
+        # Function - vNIC Loop - Build API Body
+        #=================================================================
+        def vnic_loop(item, x, kwargs):
+            if 'template' in child_type:
+                cdict = child_type.replace('s_template', '_template')
+                torg  = item[cdict].split('/')[0]
+                tname = item[cdict].split('/')[1]
+                item.allow_override = kwargs.intersight_api[torg].policies[cdict][tname].result['AllowOverride']
+            else: item.name = item.names[x]
+            item     = normalize_child_item(item, x)
+            np = ''; ns = ''
+            api_body = imm(f'{self.type}.{child_type}', category=self.category).create_api_body(item, np, ns, kwargs)
+            kwargs   = imm(f'{self.type}.{child_type}', category=self.category).children_compare_api_body(api_body, kwargs)
+            return kwargs
         #=====================================================================
         # Create API Body for vHBAs/vNICs
         #=====================================================================
+        kwargs.bulk_list = []
         for item in kwargs.resources:
-            np, ns = self.name_prefix_suffix(self.type.split('.')[0], kwargs)
-            kwargs.parent_name = f'{np}{item.name}{ns}'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
-            kwargs.pmoid       = kwargs.parent_moid
-            names   = []
-            for i in item[vtype]: 
-                if 'template' in self.type: names.append(i.name)
-                else: names.extend(i.names)
-            kwargs       = self.api_get(True, names, self.type, kwargs)
-            vnic_results = kwargs.results
-            vnic_keys    = list(kwargs.isight[kwargs.org].policies[self.type].keys())
-            #=================================================================
-            # Function - vNIC Loop - Build API Body
-            #=================================================================
-            def vnic_loop(i, x, kwargs):
-                api_body = {kwargs.vpolicy:{'Moid':kwargs.parent_moid,'ObjectType':f'vnic.{kwargs.vpolicy}'}, 'ObjectType':ezdata.object_type}
-                # api_body = imm(self.type).build_api_body(api_body, ezdata.properties, i, kwargs)
-                if not 'template' in self.type: api_body.update({'Name':i.names[x]})
-                api_body.pop('Organization')
-                if 'template' in self.type: api_body['Order'] = i.placement.pci_order
-                else: api_body['Order'] = i.placement.pci_order[x]
-                #=============================================================
-                # Assign Pool/Policy/Template Moids
-                #=============================================================
-                for k, v in i.items():
-                    if re.search('(_polic(ies|y)|_pool(s)?|_template)$', k):
-                        ptype = (((k.replace('_policies', '')).replace('_address_pools', '')).replace('_pools', '')).replace('_policy', '')
-                        if type(v) == list:
-                            if len(v) >= 2: pname = v[x]
-                            else: pname = v[0]
-                        else: pname = v
-                        org, pname = imm(ptype).determine_resource_org(pname, kwargs)
-                        pmoid      = imm(self.type).get_moid_from_isight_dict(api_body['Name'], ptype, org, pname, kwargs)
-                        api_body[ezdata.properties[k].intersight_api.split(':')[1]]['Moid'] = pmoid
-                #=============================================================
-                # vHBA/vNIC specific settings
-                #=============================================================
-                if 'vnics' in self.type: api_body = imm(self.type).vnic_settings(api_body, x, kwargs)
-                else: api_body = imm(self.type).vhba_settings(api_body, i, x, kwargs)
-                #=============================================================
-                # Update Placement Settings
-                #=============================================================
-                api_body = imm(self.type).vnic_placement(api_body, i, x, kwargs)
-                #=============================================================
-                # vHBA/vNIC Template Specific Settings
-                #=============================================================
-                if 'template' in self.type: api_body = imm(self.type).vnic_template_settings(api_body, i, kwargs)
-                api_body = dict(sorted(api_body.items()))
-                #=========================================================
-                # Create or Patch the vHBA/vNICs via the Intersight API
-                #=========================================================
-                if api_body['Name'] in vnic_keys:
-                    indx              = next((index for (index, d) in enumerate(vnic_results) if d['Name'] == api_body['Name']), None)
-                    patch_vnics       = imm(self.type).compare_body_result(api_body, vnic_results[indx])
-                    api_body['pmoid'] = kwargs.isight[kwargs.org].policies[self.type][api_body['Name']]
-                    if patch_vnics == True: kwargs.bulk_list.append(deepcopy(api_body))
+            ikeys = list(item.keys())
+            if child_type in ikeys:
+                #=================================================================
+                # Loop Through vHBA/vNICs
+                #=================================================================
+                for i in item[child_type]:
+                    if 'template' in child_type: kwargs = vnic_loop(i, 99, kwargs)
                     else:
-                        pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; {kwargs.parent_type} `{kwargs.parent_name}`: VNIC: `{api_body['Name']}`."\
-                            f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-                else: kwargs.bulk_list.append(deepcopy(api_body))
-                return kwargs
-            #=================================================================
-            # Loop Through vHBA/vNICs
-            #=================================================================
-            for i in item[vtype]:
-                if 'template' in self.type: kwargs = vnic_loop(i, 99, kwargs)
-                else:
-                    for x in range(len(i.names)): kwargs = vnic_loop(i, x, kwargs)
-        #=====================================================================
-        # POST Bulk Request if Post List > 0
-        #=====================================================================
+                        original_items = deepcopy(i)
+                        for x in range(len(i.names)):
+                            kwargs = vnic_loop(deepcopy(original_items), x, kwargs)
         if len(kwargs.bulk_list) > 0:
-            kwargs.uri    = ezdata.intersight_uri
-            kwargs        = imm(self.type).create_bulk_request(kwargs)
+            kwargs.uri = kwargs.ezdata[f"intersight.{self.type}.{child_type}.domain"].intersight_uri
+            kwargs     = imm(f'{self.type}.{child_type}', category=self.category).create_bulk_request(kwargs)
         return kwargs
 
     #=========================================================================
     # Function - Assign VSANs to VSAN Policies
     #=========================================================================
     def vsans(self, kwargs):
-        #=====================================================================
-        # Loop Through VLAN Lists
-        #=====================================================================
-        def configure_vsans(e, kwargs):
-            ezdata = kwargs.ezdata[self.type]
-            api_body = {'FcNetworkPolicy':{'Moid':kwargs.parent_moid, 'ObjectType':'fabric.FcNetworkPolicy'}, 'ObjectType':ezdata.object_type}
-            # api_body = imm(self.type).build_api_body(api_body, ezdata.properties, e, kwargs)
-            api_body.pop('Organization'); api_body.pop('Tags')
-            if not api_body.get('VsanScope'): api_body['VsanScope'] = 'Uplink'
-            if not api_body.get('FcoeVlan'): api_body['FcoeVlan'] = api_body['VsanId']
-            #=================================================================
-            # Create or Patch the VLANs via the Intersight API
-            #=================================================================
-            if not str(api_body['VsanId']) in kwargs.vsans_keys: kwargs.bulk_list.append(deepcopy(api_body))
-            else:
-                indx = next((index for (index, d) in enumerate(kwargs.vsans_results) if d['VsanId'] == api_body['VsanId']), None)
-                patch_vsan = imm(self.type).compare_body_result(api_body, kwargs.vsans_results[indx])
-                api_body['pmoid']  = kwargs.isight[kwargs.org].policies[self.type][str(api_body['VsanId'])]
-                if patch_vsan == True: kwargs.bulk_list.append(deepcopy(api_body))
-                else: pcolor.Cyan(f"      * Skipping Org: {kwargs.org}; VSAN Policy: `{kwargs.parent_name}`, VSAN: `{api_body['VsanId']}`."\
-                                  f"  Intersight Matches Configuration.  Moid: {api_body['pmoid']}")
-            return kwargs
-        #=====================================================================
-        # Loop Through VSAN Policies
-        #=====================================================================
-        kwargs.bulk_list = []
-        np, ns = self.name_prefix_suffix('vsan', kwargs)
-        for i in kwargs.resources:
-            ikeys  = list(i.keys())
-            vnames = []
-            kwargs.parent_key  = self.type.split('.')[0]
-            kwargs.parent_name = f'{np}{i.name}{ns}'
-            kwargs.parent_type = 'VSAN Policy'
-            kwargs.parent_moid = kwargs.isight[kwargs.org].policies[self.type.split('.')[0]][kwargs.parent_name]
-            kwargs.pmoid       = kwargs.parent_moid
-            if 'vsans' in ikeys:
-                for e in i.vsans: vnames.append(e.vsan_id)
-                kwargs = self.api_get(True, vnames, self.type, kwargs)
-                kwargs.vsans_results= kwargs.results
-                kwargs.vsans_keys = list(kwargs.isight[kwargs.org].policies[self.type].keys())
-                #=============================================================
-                # Create API Body for VSANs
-                #=============================================================
-                for e in i.vsans: kwargs = configure_vsans(e, kwargs)
-        #=====================================================================
-        # POST Bulk Request if Post List > 0
-        #=====================================================================
-        if len(kwargs.bulk_list) > 0:
-            kwargs.uri = kwargs.ezdata[self.type].intersight_uri
-            kwargs     = imm(self.type).create_bulk_request(kwargs)
+        kwargs = self.children_resources('vsans', kwargs)
         return kwargs
+
 
 #=============================================================================
 # Software Repository Class

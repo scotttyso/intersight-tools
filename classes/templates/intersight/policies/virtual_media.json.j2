@@ -20,6 +20,7 @@
       "VolumeName": {{ mapping.name | default('remote_map') | tojson }}
     }{% if not loop.last %},{% endif %}
 {% endfor %}
+{% endif %}
   ],
   "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "vmedia.Policy",

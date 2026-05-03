@@ -141,7 +141,10 @@ def base_script_settings(kwargs):
     kwargs.intersight_object_map = DotMap()
     for k,v in kwargs.ezdata.items():
         vkeys = list(v.keys())
-        if 'intersight.' in k and 'object_type' in vkeys: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.', '')
+        if 'intersight.' in k and 'object_type' in vkeys:
+            if not kwargs.intersight_object_map.get(v.object_type):
+                kwargs.intersight_object_map[v.object_type] = k.replace('intersight.', '')
+    kwargs.intersight_object_map = DotMap(sorted(kwargs.intersight_object_map.toDict().items()))
     #=========================================================================
     # Get Intersight Configuration
     # - apikey

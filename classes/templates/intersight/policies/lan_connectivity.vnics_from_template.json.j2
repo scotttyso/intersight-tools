@@ -1,0 +1,61 @@
+{
+{% if item.ethernet_adapter_policy is defined and item.allow_override | default(false) == true %}
+{% set _name = item.ethernet_adapter_policy.split('/')[-1] %}
+{% set _org = item.ethernet_adapter_policy.split('/')[0] if item.ethernet_adapter_policy.split('/') | length > 1 else organization %}
+  "EthAdapterPolicy": {
+    "Moid": "{{ isight[_org]['policies']['ethernet_adapter'][_name].moid }}",
+    "ObjectType": "vnic.EthAdapterPolicy"
+  },
+{% endif %}
+{% if item.iscsi_boot_policy is defined and item.allow_override | default(false) == true %}
+{% set _name = item.iscsi_boot_policy.split('/')[-1] %}
+{% set _org = item.iscsi_boot_policy.split('/')[0] if item.iscsi_boot_policy.split('/') | length > 1 else organization %}
+  "IscsiBootPolicy": {
+    "Moid": "{{ isight[_org]['policies']['iscsi_boot'][_name].moid }}",
+    "ObjectType": "vnic.IscsiBootPolicy"
+  },
+{% else %}
+  "IscsiBootPolicy": null,
+{% endif %}
+  "LanConnectivityPolicy": {
+    "Moid": "{{ item.parent}}",
+    "ObjectType": "vnic.LanConnectivityPolicy"
+  },
+  "MacAddressType": {% if item.static_mac_address is defined and item.static_mac_address | length > 0 %}"STATIC"{% else %}"POOL"{% endif %},
+{% if item.mac_address_pool is defined and item.allow_override | default(false) == true %}
+{% set _name = item.mac_address_pool.split('/')[-1] %}
+{% set _org = item.mac_address_pool.split('/')[0] if item.mac_address_pool.split('/') | length > 1 else organization %}
+  "MacPool": {
+    "Moid": "{{ isight[_org]['pools']['mac'][_name].moid }}",
+    "ObjectType": "macpool.Pool"
+  },
+{% endif %}
+  "Name": "{{ item.name }}",
+  "ObjectType": "vnic.EthIf",
+  "Order": {{ (item.placement | default({})).get('pci_order', 0) | int }},
+  "Parent": {
+    "Moid": "{{ item.parent}}",
+    "ObjectType": "vnic.LanConnectivityPolicy"
+  },
+{% if item.allow_override | default(false) == true %}
+  "PinGroupName": "{{ item.pin_group_name | default('') }}",
+{% endif %}
+  "Placement": {
+    "AutoPciLink": {{ (item.placement | default({})).get('automatic_pci_link_assignment', false) | tojson }},
+    "AutoSlotId": {{ (item.placement | default({})).get('automatic_slot_id_assignment', false) | tojson }},
+{% if (item.placement | default({})).get('automatic_slot_id_assignment', false) %}
+    "Id": "",
+{% else %}
+    "Id": "{{ (item.placement | default({})).get('slot_id', 'MLOM') }}",
+{% endif %}
+    "ObjectType": "vnic.PlacementSettings",
+{% if (item.placement | default({})).get('automatic_pci_link_assignment', false) %}
+{% else %}
+    "PciLink": {{ (item.placement | default({})).get('pci_link', 0) | int }},
+{% endif %}
+    "PciLinkAssignmentMode": "Custom",
+    "SwitchId": {% if item.target_platform | default('Standalone') == 'FIAttached' %}"{{ (item.placement | default({})).get('switch_id', 'A') }}"{% else %}"None"{% endif %},
+    "Uplink": {{ (item.placement | default({})).get('uplink_port', 0) | int }}
+  },
+  "StaticMacAddress": "{{ item.static_mac_address | default('') }}"
+}

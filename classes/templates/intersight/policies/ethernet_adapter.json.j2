@@ -5,19 +5,19 @@
     "ObjectType": "vnic.ArfsSettings"
   },
   "CompletionQueueSettings": {
-    "Count": {{ (item.completion | default({})).get('queue_count') | default(5) | int }},
+    "Count": {{ (item.completion | default({})).get('queue_count', 5) | int }},
     "ObjectType": "vnic.CompletionQueueSettings",
-    "RingSize": {{ (item.completion | default({})).get('ring_size') | default(1) | int }}
+    "RingSize": {{ (item.completion | default({})).get('ring_size', 1) | int }}
   },
   "Description": "{{ item.description | default('') }}",
   "EtherChannelPinningEnabled": {{ item.enable_ether_channel_pinning | default(false) | tojson }},
   "GeneveEnabled": {{ item.enable_geneve_offload | default(false) | tojson }},
   "InterruptScaling": {{ item.enable_interrupt_scaling | default(false) | tojson }},
   "InterruptSettings": {
-    "CoalescingTime": {{ (item.interrupt_settings | default({})).get('timer') | default(125) | int }},
-    "CoalescingType": {{ (item.interrupt_settings | default({})).get('coalescing_type') | default('MIN') | tojson }},
-    "Count": {{ (item.interrupt_settings | default({})).get('interrupts') | default(8) | int }},
-    "Mode": {{ (item.interrupt_settings | default({})).get('mode') | default('MSIx') | tojson }},
+    "CoalescingTime": {{ (item.interrupt_settings | default({})).get('timer', 125) | int }},
+    "CoalescingType": {{ (item.interrupt_settings | default({})).get('coalescing_type', 'MIN') | tojson }},
+    "Count": {{ (item.interrupt_settings | default({})).get('interrupts', 8) | int }},
+    "Mode": {{ (item.interrupt_settings | default({})).get('mode', 'MSIx') | tojson }},
     "ObjectType": "vnic.EthInterruptSettings"
   },
   "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
@@ -35,46 +35,47 @@
     "ObjectType": "vnic.PtpSettings"
   },
   "RoceSettings": {
-    "ClassOfService": {{ (item.roce_settings | default({})).get('class_of_service') | default(5) | int }},
-    "Enabled": {{ (item.roce_settings | default({})).get('enable_rdma_over_converged_ethernet') | default(false) | tojson }},
-    "MemoryRegions": {{ (item.roce_settings | default({})).get('memory_regions') | default(131072) | int }},
+    "ClassOfService": {{ (item.roce_settings | default({})).get('class_of_service', 5) | int }},
+    "Enabled": {{ (item.roce_settings | default({})).get('enable_rdma_over_converged_ethernet', false) | tojson }},
+    "MemoryRegions": {{ (item.roce_settings | default({})).get('memory_regions', 131072) | int }},
     "ObjectType": "vnic.RoceSettings",
-    "QueuePairs": {{ (item.roce_settings | default({})).get('queue_pairs') | default(256) | int }},
-    "ResourceGroups": {{ (item.roce_settings | default({})).get('resource_groups') | default(2) | int }},
-    "Version": {{ (item.roce_settings | default({})).get('version') | default(1) | int }}
+    "QueuePairs": {{ (item.roce_settings | default({})).get('queue_pairs', 256) | int }},
+    "ResourceGroups": {{ (item.roce_settings | default({})).get('resource_groups', 2) | int }},
+    "Version": {{ (item.roce_settings | default({})).get('version', 1) | int }}
   },
 {% if item.receive_side_scaling_enable | default(true) | tojson %}
   "RssHashSettings": {
-    "Ipv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv4_hash') | default(true) | tojson }},
-    "Ipv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_extensions_hash') | default(false) | tojson }},
-    "Ipv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_hash') | default(true) | tojson }},
+    "Ipv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv4_hash', true) | tojson }},
+    "Ipv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_extensions_hash', false) | tojson }},
+    "Ipv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_hash', true) | tojson }},
     "ObjectType": "vnic.RssHashSettings",
-    "TcpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv4_hash') | default(true) | tojson }},
-    "TcpIpv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_extensions_hash') | default(false) | tojson }},
-    "TcpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_hash') | default(true) | tojson }},
-    "UdpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv4_hash') | default(false) | tojson }},
-    "UdpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv6_hash') | default(false) | tojson }}
+    "TcpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv4_hash', true) | tojson }},
+    "TcpIpv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_extensions_hash', false) | tojson }},
+    "TcpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_hash', true) | tojson }},
+    "UdpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv4_hash', false) | tojson }},
+    "UdpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv6_hash', false) | tojson }}
   },
 {% else %}
   "RssHashSettings": {
-    "Ipv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv4_hash') | default(false) | tojson }},
-    "Ipv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_extensions_hash') | default(false) | tojson }},
-    "Ipv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_hash') | default(false) | tojson }},
+    "Ipv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv4_hash', false) | tojson }},
+    "Ipv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_extensions_hash', false) | tojson }},
+    "Ipv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_hash', false) | tojson }},
     "ObjectType": "vnic.RssHashSettings",
-    "TcpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv4_hash') | default(false) | tojson }},
-    "TcpIpv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_extensions_hash') | default(false) | tojson }},
-    "TcpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_hash') | default(false) | tojson }},
-    "UdpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv4_hash') | default(false) | tojson }},
-    "UdpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv6_hash') | default(false) | tojson }}
+    "TcpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv4_hash', false) | tojson }},
+    "TcpIpv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_extensions_hash', false) | tojson }},
+    "TcpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_tcp_and_ipv6_hash', false) | tojson }},
+    "UdpIpv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv4_hash', false) | tojson }},
+    "UdpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv6_hash', false) | tojson }}
   },
 {% endif %}
 {% if item.receive_side_scaling_enable | default(true) | tojson %}
   "RssSettings": {{ item.receive_side_scaling_enable | default(true) | tojson }},
   "RxQueueSettings": {
-    "Count": {{ (item.receive | default({})).get('queue_count') | default(4) | int }},
+    "Count": {{ (item.receive | default({})).get('queue_count', 4) | int }},
     "ObjectType": "vnic.EthRxQueueSettings",
-    "RingSize": {{ (item.receive | default({})).get('ring_size') | default(512) | int }}
+    "RingSize": {{ (item.receive | default({})).get('ring_size', 512) | int }}
   },
+{% endif %}
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
@@ -94,16 +95,16 @@
   "Tags": [],
 {% endif %}
   "TcpOffloadSettings": {
-    "LargeReceive": {{ (item.tcp_offload | default({})).get('enable_large_receive_offload') | default(true) | tojson }},
-    "LargeSend": {{ (item.tcp_offload | default({})).get('enable_large_send_offload') | default(true) | tojson }},
+    "LargeReceive": {{ (item.tcp_offload | default({})).get('enable_large_receive_offload', true) | tojson }},
+    "LargeSend": {{ (item.tcp_offload | default({})).get('enable_large_send_offload', true) | tojson }},
     "ObjectType": "vnic.TcpOffloadSettings",
-    "RxChecksum": {{ (item.tcp_offload | default({})).get('enable_rx_checksum_offload') | default(true) | tojson }},
-    "TxChecksum": {{ (item.tcp_offload | default({})).get('enable_tx_checksum_offload') | default(true) | tojson }}
+    "RxChecksum": {{ (item.tcp_offload | default({})).get('enable_rx_checksum_offload', true) | tojson }},
+    "TxChecksum": {{ (item.tcp_offload | default({})).get('enable_tx_checksum_offload', true) | tojson }}
   },
   "TxQueueSettings": {
-    "Count": {{ (item.transmit | default({})).get('queue_count') | default(1) | int }},
+    "Count": {{ (item.transmit | default({})).get('queue_count', 1) | int }},
     "ObjectType": "vnic.EthTxQueueSettings",
-    "RingSize": {{ (item.transmit | default({})).get('ring_size') | default(256) | int }}
+    "RingSize": {{ (item.transmit | default({})).get('ring_size', 256) | int }}
   },
   "UplinkFailbackTimeout": {{ (item.uplink_failback_timeout | default(5)) | int }},
   "VxlanSettings": {

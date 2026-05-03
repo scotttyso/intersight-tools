@@ -1,6 +1,6 @@
 {
   "Description": {{ (item.description | default('', true)) | tojson }},
-  "EnableOverride": {{ item.allow_override | default(false) | bool }},
+  "EnableOverride": {{ item.allow_override | default(false) | tojson }},
 {% if item.fibre_channel_adapter_policy is defined %}
 {% set _name = item.fibre_channel_adapter_policy.split('/')[-1] %}
 {% set _org = item.fibre_channel_adapter_policy.split('/')[0] if item.fibre_channel_adapter_policy.split('/') | length > 1 else organization %}
@@ -49,11 +49,9 @@
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
-  "PeerVhbaName": "",
-  "PersistentBindings": false,
-  "PinGroupName": "",
-  "ScpUsageCount": 1,
-  "SwitchId": "A",
+  "PersistentBindings": {{ item.persistent_lun_bindings | default(false) | tojson }},
+  "PinGroupName": {{ item.pin_group_name | default('') | tojson }},
+  "SwitchId": {{ item.placement_switch_id | default('A') | tojson }},
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
@@ -72,12 +70,15 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "TemplateActions": [],
-  "Type": "fc-initiator",
-  "UpdateStatus": "OK",
-  "UsageCount": 1,
+  "Type": "{{ item.vhba_type | default('fc-initiator') }}",
+{% if item.wwpn_pool is defined %}
+{% set _name = item.wwpn_pool.split('/')[-1] %}
+{% set _org = item.wwpn_pool.split('/')[0] if item.wwpn_pool.split('/') | length > 1 else organization %}
   "WwpnPool": {
-    "Moid": "65d3788b69627531014e8cef",
+    "Moid": "{{ isight[_org]['pools']['wwpn'][_name].moid }}",
     "ObjectType": "fcpool.Pool"
   }
+{% else %}
+  "WwpnPool": null
+{% endif %}
 }

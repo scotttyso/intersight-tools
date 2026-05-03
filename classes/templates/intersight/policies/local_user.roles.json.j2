@@ -1,5 +1,5 @@
 {
-  "Enabled": {{ item.enabled | default(true) | bool }},
+  "Enabled": {{ item.enabled | default(true) | tojson }},
   "EndPointRole": [
     {
       "Moid": "{{ item.end_point_role }}",
