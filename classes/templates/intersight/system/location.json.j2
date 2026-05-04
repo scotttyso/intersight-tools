@@ -1,0 +1,62 @@
+{
+  "Account": {
+    "Moid": "{{ isight.account_moid }}",
+    "ObjectType": "iam.Account"
+  },
+{% if item.input_by == "Address" and item.address_details is defined and item.address_details is not none %}
+{% set address = item.address_details %}
+  "Address": {
+    "Address1": "{{ address.address1 }}",
+    "Address2": "{{ address.address2 }}",
+    "City": "{{ address.city }}",
+    "Country": "{{ address.country }}",
+    "ObjectType": "comm.PhysicalAddress",
+    "PostalCode": "{{ address.postal_code }}",
+    "StateProvince": "{{ address.state_province }}"
+  },
+{% else %}
+  "Address": {
+    "Address1": "",
+    "Address2": "",
+    "City": "",
+    "Country": "",
+    "ObjectType": "comm.PhysicalAddress",
+    "PostalCode": "",
+    "StateProvince": ""
+  },
+{% endif %}
+{% if item.input_by == "GPS Coordinates" and item.gps_coordinates is defined and item.gps_coordinates | length > 0 %}
+{% set gps = item.gps_coordinates.split(',') %}
+  "Coordinates": {
+    "Latitude": "{{ gps[0] }}",
+    "Longitude": "{{ gps[1] }}",
+    "ObjectType": "comm.GeoPoint"
+  },
+{% else %}
+  "Coordinates": {
+    "Latitude": "",
+    "Longitude": "",
+    "ObjectType": "comm.GeoPoint"
+  },
+{% endif %}
+  "Name": "{{ item.name}}",
+  "ObjectType": "asset.GeoLocation",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

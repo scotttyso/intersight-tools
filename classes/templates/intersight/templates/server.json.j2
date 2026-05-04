@@ -1,0 +1,59 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "EnableOverride": false,
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "server.ProfileTemplate",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "PolicyBucket": [
+{% if item.policy_bucket is defined and item.policy_bucket | length > 0 %}
+{% for k, v in item.policy_bucket.items() %}
+{% if k in item.allowed_policies %}
+{% set _name = v.split('/')[-1] %}
+{% set _org  = v.split('/')[0] if '/' in v else organization %}
+{% set otype = k | regex_replace('_policy$', '') %}
+{% set ptype = "policies" if "policy" in k else "pools" %}
+    {
+      "Moid": "{{ isight[_org][ptype][_name].moid }}",
+      "ObjectType": "{{ object_map[otype] }}"
+    }{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "ServerFamily": "{{ item.server_family | default('All') }}",
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('FIAttached') }}",
+  "Type": "instance",
+{% if item.uuid_pool is defined and item.uuid_pool | length > 0 %}
+{% set _name = item.uuid_pool.split('/')[-1] %}
+{% set _org  = item.uuid_pool.split('/')[0] if '/' in item.uuid_pool else organization %}
+  "UuidAddressType": "POOL",
+  "UuidPool": {
+    "Moid": "{{ isight[_org].pools.uuid[_name].moid }}",
+    "ObjectType": "uuidpool.Pool"
+  }
+{% else %}
+  "UuidAddressType": "NONE",
+  "UuidPool": null
+{% endif %}
+}

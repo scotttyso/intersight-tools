@@ -1,0 +1,72 @@
+{
+{% set _template = true if item.ucs_chassis_profile_template is defined and item.ucs_chassis_profile_template | length > 0 else false %}
+{% if item.serial_number is defined and item.serial_number | length > 0 %}
+  "AssignedChassis": {
+    "Moid": "{{ isight.serials[item.serial_number].moid }}",
+    "ObjectType": "equipment.Chassis"
+  },
+{% else %}
+  "AssignedChassis": null,
+{% endif %}
+{% if item.serial_number is defined and item.serial_number | length > 0 %}
+  "ChassisAssignmentMode": "Static",
+{% else %}
+  "ChassisAssignmentMode": "None",
+{% endif %}
+  "ChassisPreAssignBySerial": "{{ (item.pre_assign | default ({})).get('serial_number', '') }}",
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "chassis.Profile",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if _template == false %}
+  "PolicyBucket": [
+{% if item.policy_bucket is defined and item.policy_bucket | length > 0 %}
+{% for k, v in item.policy_bucket.items() %}
+{% if k in item.allowed_policies %}
+{% set _name = v.split('/')[-1] %}
+{% set _org  = v.split('/')[0] if '/' in v else organization %}
+{% set otype = k | regex_replace('_policy$', '') %}
+{% set ptype = "policies" if "policy" in k else "pools" %}
+    {
+      "Moid": "{{ isight[_org][ptype][_name].moid }}",
+      "ObjectType": "{{ object_map[otype] }}"
+    }{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% endif %}
+{% if _template == true %}
+{% set _name = item.ucs_chassis_profile_template.split('/')[-1] %}
+{% set _org = item.ucs_chassis_profile_template.split('/')[0] if '/' in item.ucs_chassis_profile_template else organization %}
+  "SrcTemplate": {
+    "Moid": "{{ isight[_org].templates.chassis[_name].moid }}",
+    "ObjectType": "chassis.ProfileTemplate"
+  },
+{% else %}
+  "SrcTemplate": null,
+{% endif %}
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "FIAttached",
+  "UserLabel": ""
+}

@@ -130,15 +130,17 @@ class api(object):
     #=========================================================================
     def build_intersight_api_dict(self, api_results, kwargs):
         api_dict = DotMap()
+        kkeys    = list(kwargs.keys())
         if not kwargs.build_skip == True and api_results.get('Results'):
-            def check_for_dotmap_key(kwargs):
-                kkeys = list(kwargs.keys())
+            def check_for_dotmap_key(i, kkeys, kwargs):
                 if not 'intersight_api' in kkeys:
                     kwargs.intersight_api = DotMap()
                     kwargs.intersight_api[kwargs.org] = DotMap()
+                    kwargs.intersight_api.account_moid = i.AccountMoid
                 return kwargs
             for i in api_results.Results:
                 if i.get('Body'): i = i.Body
+                if not 'account_moid' in kkeys: kwargs.account_moid = i.AccountMoid
                 ikeys = list(i.keys())
                 if 'Parent' in ikeys and type(kwargs.org) == str:
                     if 'PcId'           in ikeys: iname = str(i.PcId)
@@ -165,12 +167,12 @@ class api(object):
                         ptype = self.type
                     else:
                         ptype = kwargs.intersight_object_map[i.ObjectType]
-                    kwargs = check_for_dotmap_key(kwargs)
+                    kwargs = check_for_dotmap_key(i, kkeys, kwargs)
                     iname = i.Name
                     kwargs.intersight_api[kwargs.org][self.category][ptype][iname] = DotMap(moid = i.Moid, result = i, tags = i.Tags)
                     kwargs.intersight_api[kwargs.org][self.category][ptype][i.Moid] = iname
                     continue
-                if   'Name'           in ikeys: iname = i.Name
+                if   'Name'    in ikeys: iname = i.Name
                 elif i.ObjectType == 'asset.DeviceRegistration': iname = i.Serial[0]
                 elif 'Serial'  in ikeys: iname = i.Serial
                 elif 'Answers' in ikeys: iname = i.Answers.Hostname
@@ -1624,13 +1626,14 @@ class imm(object):
 
         render_item = item.toDict() if hasattr(item, 'toDict') else item
         rendered    = template_env.get_template(template_name).render(
-            item=render_item,
-            isight=kwargs.intersight_api,
-            name_prefix=np,
-            name_suffix=ns,
-            organization=kwargs.org,
-            org_moids=kwargs.org_moids,
-            rsg_moids=kwargs.rsg_moids
+            item         = render_item,
+            isight       = kwargs.intersight_api,
+            name_prefix  = np,
+            name_suffix  = ns,
+            object_map   = kwargs.intersight_object_map,
+            organization = kwargs.org,
+            org_moids    = kwargs.org_moids,
+            rsg_moids    = kwargs.rsg_moids
         )
         try:
             api_body = json.loads(rendered)

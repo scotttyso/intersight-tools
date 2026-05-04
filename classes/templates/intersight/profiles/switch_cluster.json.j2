@@ -1,0 +1,55 @@
+{
+{% set template_type = item.target_platform | default('UCS Domain') | lower | replace(' ', '_') ~ '_profile_template' %}
+{% set _template = true if item[template_type] is defined and item[template_type] | length > 0 else false %}
+{% if item.serial_number is defined and item.serial_number | length > 0 and item.target_platform | default('UCS Domain') == 'Unified Edge' %}
+  "AssignedEntity": {
+    "ClassId": "mo.MoRef",
+    "Moid": "{{ isight.serials[item.serial_number].moid }}",
+    "ObjectType": "equipment.Chassis"
+  },
+{% else %}
+  "AssignedEntity": null,
+{% endif %}
+{% if item.serial_number is defined and item.serial_number | length > 0 %}
+  "ChassisAssignmentMode": "Static",
+{% else %}
+  "ChassisAssignmentMode": "None",
+{% endif %}
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "fabric.SwitchClusterProfile",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% set _name = item[template_type].split('/')[-1] %}
+{% set _org = item[template_type].split('/')[0] if '/' in item[template_type] else organization %}
+  "SrcTemplate": {
+    "Moid": "{{ isight[_org].templates.switch_cluster_profile[_name].moid }}",
+    "ObjectType": "fabric.SwitchClusterProfileTemplate"
+  },
+{% else %}
+  "SrcTemplate": null,
+{% endif %}
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ],
+{% else %}
+  "Tags": [],
+{% endif %}
+  "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}",
+  "Type": "instance",
+  "UserLabel": "{{ item.user_label | default('') }}"
+}
