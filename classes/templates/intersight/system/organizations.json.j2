@@ -1,0 +1,33 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ item.name}}",
+  "ObjectType": "organization.Organization",
+  "ResourceGroups": [
+{% if item.resource_groups is defined and item.resource_groups | length > 0 %}
+{% for resource_group in item.resource_groups %}
+    {
+      "Moid": "{{ isight.system.resource_groups[resource_group].moid }}",
+      "ObjectType": "resource.Group"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

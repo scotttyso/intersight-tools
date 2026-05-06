@@ -1,21 +1,5 @@
 {
-  "Account": {
-    "Moid": "{{ isight.account_moid }}",
-    "ObjectType": "iam.Account"
-  },
-  "Key": "Richfield",
+  "Key": "{{ item.path_tag }}",
   "ObjectType": "comm.TagDefinition",
-{% if item.parent is defined and item.parent | length > 0 %}
-  "Parent": {
-    "Moid": "{{ item.parent }}",
-    "ObjectType": "comm.TagDefinition"
-  },
-  "ParentTag": {
-    "Moid": "{{ item.parent }}",
-    "ObjectType": "comm.TagDefinition"
-  },
-{% else %}
-  "ParentTag": null,
-{% endif %}
   "Type": "PathTag"
 }

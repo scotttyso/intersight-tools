@@ -229,7 +229,7 @@ class orgs(object):
             api_body = {"Description": kwargs.description, "Name":kwargs.org, "ObjectType":"organization.Organization",
                         "ResourceGroups":[{"Moid": rg_moid, "ObjectType":"resource.Group"}]}
             kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = deepcopy(kwargs.ezdata.organization.intersight_uri))
-            kwargs = isight.api('organization').calls(kwargs)
+            kwargs = isight.api('organizations').calls(kwargs)
             kwargs.org_moids[kwargs.org] = DotMap(moid = kwargs.pmoid)
         return kwargs
 
@@ -250,7 +250,7 @@ class orgs(object):
                 type        = 'boolean')
             kwargs.use_shared_org = ezfunctions.variable_prompt(kwargs)
         if kwargs.use_shared_org == True:
-            kwargs      = isight.api('organization').all_organizations(kwargs)
+            kwargs      = isight.api('organizations').all_organizations(kwargs)
             org_results = kwargs.results
             org_list = sorted([e.Name for e in org_results if e.get('SharedWithResources')], key=str.casefold)
             if len(org_list) == 0: org_list.append('Create New')
@@ -284,7 +284,7 @@ class orgs(object):
                 shared_sub_orgs = ezfunctions.variable_prompt(kwargs)
                 api_body = {"Description": kwargs.description, "Name": kwargs.shared_org, "ObjectType":"organization.Organization"}
                 kwargs = kwargs | DotMap(api_body = api_body, method = 'post', uri = deepcopy(kwargs.ezdata.organization.intersight_uri))
-                kwargs = isight.api('organization').calls(kwargs)
+                kwargs = isight.api('organizations').calls(kwargs)
                 kwargs.org_moids[kwargs.shared_org] = DotMap(moid = kwargs.pmoid)
                 kwargs.build_skip = True; kwargs.bulk_list  = []
                 for e in shared_sub_orgs:

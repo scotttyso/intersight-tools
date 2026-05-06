@@ -111,7 +111,7 @@ def bios_templates(kwargs):
     #=============================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     #=============================================================
     # Sorting BIOS Tokens from easy-imm.json
     #=============================================================
@@ -350,7 +350,7 @@ def main():
     #=============================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     # setup(kwargs)
     bios_keys(kwargs)
     bios_templates(kwargs)

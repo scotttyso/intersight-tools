@@ -143,7 +143,11 @@ def base_script_settings(kwargs):
         vkeys = list(v.keys())
         if 'intersight.' in k and 'object_type' in vkeys:
             if not kwargs.intersight_object_map.get(v.object_type):
-                kwargs.intersight_object_map[v.object_type] = k.replace('intersight.', '')
+                if 'templates'  in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.templates.', '')
+                elif 'policies' in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.policies.', '')
+                elif 'pools'    in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.pools.', '')
+                elif 'profiles' in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.profiles.', '')
+                elif 'system'   in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.system.', '')
     kwargs.intersight_object_map = DotMap(sorted(kwargs.intersight_object_map.toDict().items()))
     #=========================================================================
     # Get Intersight Configuration
@@ -838,14 +842,21 @@ def intersight_config(kwargs):
 # Function - Load Previous YAML Files
 #=============================================================================
 def load_configurations(kwargs):
+    def normalize_value(value):
+        if isinstance(value, dict):
+            return DotMap({key: normalize_value(item) for key, item in value.items()})
+        if isinstance(value, list):
+            return [normalize_value(item) for item in value]
+        return deepcopy(value)
+
     def deep_merge_dicts(dest, src):
         for key, value in src.items():
             if key in dest and isinstance(dest[key], dict) and isinstance(value, dict):
                 deep_merge_dicts(dest[key], value)
             elif key in dest and isinstance(dest[key], list) and isinstance(value, list):
-                dest[key].extend(deepcopy(value))
+                dest[key].extend(normalize_value(value))
             else:
-                dest[key] = deepcopy(value)
+                dest[key] = normalize_value(value)
         return dest
 
     def collect_ezai_files(root_dir):
@@ -875,11 +886,18 @@ def load_configurations(kwargs):
                 deep_merge_dicts(kwargs[top_key], data[top_key])
 
     # Backward compatibility for existing workflows that consume kwargs.imm_dict.orgs.
-    if kwargs.intersight.get('organizations') and isinstance(kwargs.intersight.organizations, dict):
+    if kwargs.intersight.get('config') and isinstance(kwargs.intersight.config, dict):
         if not kwargs.imm_dict.get('orgs'):
             kwargs.imm_dict.orgs = DotMap()
-        deep_merge_dicts(kwargs.imm_dict.orgs, kwargs.intersight.organizations)
-
+        deep_merge_dicts(kwargs.imm_dict.orgs, kwargs.intersight.config)
+    if kwargs.intersight.get('configure') and isinstance(kwargs.intersight.configure, dict):
+        if not kwargs.imm_dict.get('orgs'):
+            kwargs.imm_dict.orgs = DotMap()
+        deep_merge_dicts(kwargs.imm_dict.orgs, kwargs.intersight.configure)
+    if kwargs.intersight.get('system') and isinstance(kwargs.intersight.system, dict):
+        if not kwargs.imm_dict.get('system'):
+            kwargs.imm_dict.system = DotMap()
+        deep_merge_dicts(kwargs.imm_dict.system, kwargs.intersight.system)
     # Validate required sensitive environment variables referenced by the loaded model.
     try:
         validator_path = os.path.join(kwargs.script_path, 'classes', 'validate_sensitive_variables.py')

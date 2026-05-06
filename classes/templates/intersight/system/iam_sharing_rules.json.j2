@@ -1,0 +1,11 @@
+{
+  "ObjectType": "iam.SharingRule",
+  "SharedResource": {
+    "Moid": "{{ isight.system.organizations[item.name].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+  "SharedWithResource": {
+    "Moid": "{{ isight.system.organizations[item.shared_with].moid }}",
+    "ObjectType": "organization.Organization"
+  }
+}

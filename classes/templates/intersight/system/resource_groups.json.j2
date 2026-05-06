@@ -1,0 +1,34 @@
+{
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ item.name }}",
+  "ObjectType": "resource.Group",
+  "Qualifier": "Allow-Selectors",
+  "Selectors": [
+{% if item.selectors is defined and item.selectors | length > 0 %}
+{% for selector in item.selectors %}
+    {
+      "ObjectType": "resource.Selector",
+      "Selector": "{{ selector }}"
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

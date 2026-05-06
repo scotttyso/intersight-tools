@@ -1,8 +1,4 @@
 {
-  "Account": {
-    "Moid": "{{ isight.account_moid }}",
-    "ObjectType": "iam.Account"
-  },
 {% if item.input_by == "Address" and item.address_details is defined and item.address_details is not none %}
 {% set address = item.address_details %}
   "Address": {

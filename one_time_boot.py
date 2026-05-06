@@ -61,7 +61,7 @@ def hosts(kwargs):
     # Patch Virtual Media
     #=========================================================================
     kwargs.org = ydata.vmedia.organization
-    kwargs     = isight.api('organization').all_organizations(kwargs)
+    kwargs     = isight.api('organizations').all_organizations(kwargs)
     kwargs     = kwargs | DotMap(method = 'get', names = [ydata.vmedia.name], uri = 'vmedia/Policies')
     kwargs     = isight.api('virtual_media').calls(kwargs)
     api_body = {

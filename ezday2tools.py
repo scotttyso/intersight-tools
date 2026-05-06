@@ -79,7 +79,7 @@ def main():
     #=========================================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     #==============================================
     # Build Deployment Library
     #==============================================
@@ -97,7 +97,7 @@ def main():
             enum = ['add_policies', 'add_vlans', 'audit_logs', 'clone_policies', 'hcl_status', 'inventory', 'server_identities'],
             title = 'Day2Tools Process', type = 'string')
         kwargs.args.process = ezfunctions.variable_prompt(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     #==============================================
     # Send Notification Message
     #==============================================

@@ -32,7 +32,7 @@ def main():
     #=============================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     kwargs.org = 'default'
     for e in ['ChassisDescriptors', 'CpuEndpointDescriptors', 'GpuEndpointDescriptors', 'SwitchDescriptors']:
         pcolor.LightGray(f'\n{"="*20} {e} {"="*20}\n')

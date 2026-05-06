@@ -560,8 +560,8 @@ def _handle_menu_shortcuts(kwargs: Any) -> tuple[bool, Any]:
 
     if kwargs.deployment_type == 'Deploy':
         kwargs.orgs = list(kwargs.imm_dict.orgs.keys())
-        kwargs = isight.api('organization').organizations(kwargs)
-        return True, isight.imm('deployment').define_imm_functions_to_run(kwargs)
+        kwargs = isight.api('organizations').all_organizations(kwargs)
+        return True, isight.configure('deployment').functions_to_run(kwargs)
 
     return False, kwargs
 
@@ -577,7 +577,7 @@ def menu(kwargs: Any) -> Any:
     if handled:
         return kwargs
 
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     return _finalize_menu_setup(kwargs)
 
 #=============================================================================
@@ -610,7 +610,7 @@ def process_wizard(kwargs: Any) -> Any:
     #=========================================================================
     build.intersight.create_yaml_files(kwargs)
     if len(kwargs.imm_dict.orgs.keys()) > 0:
-        kwargs = isight.api('organization').organizations(kwargs)
+        kwargs = isight.api('organizations').all_organizations(kwargs)
     if kwargs.deployment_method == 'Terraform':
         #=====================================================================
         # Create Terraform Config and Workspaces

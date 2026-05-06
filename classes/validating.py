@@ -19,6 +19,7 @@ policy_regex = re.compile('(network_connectivity|ntp|port|snmp|switch_control|sy
 DESCRIPTION_WORD_MAP = {
     'Fiattached': 'FIAttached',
     'Fc': 'FC',
+    'Iam': 'IAM',
     'Id': 'ID',
     'Imc': 'IMC',
     'Ip': 'IP',
@@ -57,11 +58,6 @@ def begin_loop(ptype1, ptype2):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
-def begin_section(org, resource, resource_type):
-    ptype1 = mod_pol_description((' '.join(resource.split('_'))).title())
-    pcolor.LightGray(f'\n{"-"*108}\n')
-    pcolor.LightPurple(f"  Beginning {ptype1} {' '.join(resource_type.split('_')).title()} Deployments for Organization: `{org}`.\n")
-
 def completed_item(ptype, kwargs):
     iresults = DotMap(kwargs.api_results)
     ikeys = list(iresults.keys())
@@ -98,6 +94,18 @@ def completed_item(ptype, kwargs):
         users = DotMap()
         for k,v in kwargs.user_moids.items(): users[v.moid] = k
         name = list(users.values())[list(users.keys()).index(iresults.EndPointUser.Moid)]
+    regex = re.compile(r'^(comm.TagDefinition|iam.SharingRule|organization.Organization|resource.Group)$', re.IGNORECASE)
+    if re.search(regex, iresults.ObjectType):
+        if 'SharingRule' in iresults.ObjectType: resource = 'iam_sharing_rule'
+        else: resource = kwargs.intersight_object_map[iresults.ObjectType]
+        ptype = mod_pol_description(resource.replace('_', ' ').title())
+        if 'Key' in ikeys: name = f"{ptype}: `{iresults.Key}`"
+        else: name = f"{ptype}: `{iresults.Name}`"
+        if method == 'post':
+            pcolor.Green(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
+        else:
+            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
+        return 
     if name == None:
         print(json.dumps(iresults, indent=4))
         print(kwargs.ptype)
@@ -135,9 +143,28 @@ def deploy_notification(profile, profile_type):
 def end_loop(ptype1, ptype2):
     pcolor.LightPurple(f"\n   Completed {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.")
 
-def end_section(org, resource, resource_type):
-    ptype1 = mod_pol_description((' '.join(resource.split('_'))).title())
-    pcolor.LightPurple(f"\n  Completed {ptype1} {' '.join(resource_type.split('_')).title()} Deployments for Organization: `{org}`.")
+def section_begin(resource_type, resource):
+    ptype1  = ' '.join(resource_type.split('_')).title()
+    ptype2 = mod_pol_description((' '.join(resource.split('_'))).title())
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.LightPurple(f"  Beginning Intersight -> {ptype1} -> {ptype2} Deployments.\n")
+
+def section_end(resource_type, resource):
+    ptype1  = ' '.join(resource_type.split('_')).title()
+    ptype2 = mod_pol_description((' '.join(resource.split('_'))).title())
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.LightPurple(f"  Completed Intersight -> {ptype1} -> {ptype2} Deployments.\n")
+
+def section_begin_org(org, resource, resource_type):
+    ptype1  = ' '.join(resource_type.split('_')).title()
+    ptype2 = mod_pol_description((' '.join(resource.split('_'))).title())
+    pcolor.LightGray(f'\n{"-"*108}\n')
+    pcolor.LightPurple(f"  Beginning Intersight -> {ptype1} -> {ptype2} Deployments for Organization: `{org}`.\n")
+
+def section_end_org(org, resource, resource_type):
+    ptype1  = ' '.join(resource_type.split('_')).title()
+    ptype2 = mod_pol_description((' '.join(resource.split('_'))).title())
+    pcolor.LightPurple(f"\n  Completed Intersight -> {ptype1} -> {ptype2} Deployments for Organization: `{org}`.")
 
 #=============================================================================
 # Errors

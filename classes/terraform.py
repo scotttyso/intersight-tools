@@ -48,7 +48,7 @@ class state(object):
         child = pexpect.spawn(system_shell, encoding='utf-8', timeout=60, codec_errors='ignore')
         child.logfile_read = sys.stdout
         kwargs.host_prompt = '\\$ '
-        kwargs = isight.api('organization').all_organizations(kwargs)
+        kwargs = isight.api('organizations').all_organizations(kwargs)
         orgs   = list(kwargs.imm_dict.orgs.keys())
         for org in orgs:
             kwargs.org = org

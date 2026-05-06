@@ -46,7 +46,7 @@ def find_broken_refs(schema_path):
     return broken_refs
 
 # Usage
-directory = Path("./schemas")
+directory = Path("./schema")
 json_files = directory.glob("*.json")
 for json_file in json_files:
     print(f"Checking {json_file}...")

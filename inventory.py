@@ -33,7 +33,7 @@ def main():
     #=============================================================
     kwargs = cli_arguments()
     kwargs = ezfunctions.base_script_settings(kwargs)
-    kwargs = isight.api('organization').all_organizations(kwargs)
+    kwargs = isight.api('organizations').all_organizations(kwargs)
     #=============================================================
     # Chassis Inventory
     #=============================================================
