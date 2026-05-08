@@ -68,7 +68,7 @@
   "IscsiBootPolicy": null,
 {% endif %}
   "LanConnectivityPolicy": {
-    "Moid": "{{ item.parent}}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "vnic.LanConnectivityPolicy"
   },
   "MacAddressType": {% if item.static_mac_address is defined and item.static_mac_address | length > 0 %}"STATIC"{% else %}"POOL"{% endif %},
@@ -98,7 +98,7 @@
   "ObjectType": "vnic.EthIf",
   "Order": {{ (item.placement | default({})).get('pci_order', 0) | int }},
   "Parent": {
-    "Moid": "{{ item.parent}}",
+    "Moid": "{{ item.parent }}",
     "ObjectType": "vnic.LanConnectivityPolicy"
   },
   "PinGroupName": "{{ item.pin_group_name | default('') }}",
@@ -114,22 +114,38 @@
     "Uplink": 0
   },
 {% else %}
+{% set _placement = item.placement | default({}) %}
+{% set _auto_pci = true if _placement.get('automatic_pci_link_assignment', false) or _placement.get('pci_link') is none else false %}
+{% set _auto_slot = true if _placement.get('automatic_slot_id_assignment', false) or _placement.get('slot_id') is none else false %}
   "Placement": {
-    "AutoPciLink": {{ (item.placement | default({})).get('automatic_pci_link_assignment', false) | tojson }},
-    "AutoSlotId": {{ (item.placement | default({})).get('automatic_slot_id_assignment', false) | tojson }},
-{% if (item.placement | default({})).get('automatic_slot_id_assignment', false) %}
+{% if item.target_platform | default('Standalone') == 'FIAttached' %}
+{% if _auto_pci %}
+    "AutoPciLink": true,
+{% else %}
+    "AutoPciLink": false,
+    "PciLink": {{ _placement.get('pci_link', 0) | int }},
+{% endif %}
+{% if _auto_slot %}
+    "AutoSlotId": true,
     "Id": "",
 {% else %}
-    "Id": "{{ (item.placement | default({})).get('slot_id', 'MLOM') }}",
+    "AutoSlotId": false,
+    "Id": "{{ _placement.get('slot_id', 'MLOM') }}",
 {% endif %}
     "ObjectType": "vnic.PlacementSettings",
-{% if (item.placement | default({})).get('automatic_pci_link_assignment', false) %}
+    "PciLinkAssignmentMode": {% if _auto_pci %}"None"{% elif _placement.get('pci_link') is not none %}"Custom"{% else %}"Load-Balanced"{% endif %},
+    "SwitchId": "{{ _placement.get('switch_id', 'A') }}",
+    "Uplink": {{ _placement.get('uplink_port', 0) | int }}
 {% else %}
-    "PciLink": {{ (item.placement | default({})).get('pci_link', 0) | int }},
-{% endif %}
+    "AutoPciLink": false,
+    "AutoSlotId": false,
+    "Id": "{{ _placement.get('slot_id', 'MLOM') }}",
+    "ObjectType": "vnic.PlacementSettings",
+    "PciLink": {{ _placement.get('pci_link', 0) | int }},
     "PciLinkAssignmentMode": "Custom",
-    "SwitchId": {% if item.target_platform | default('Standalone') == 'FIAttached' %}"{{ (item.placement | default({})).get('switch_id', 'A') }}"{% else %}"None"{% endif %},
-    "Uplink": {{ (item.placement | default({})).get('uplink_port', 0) | int }}
+    "SwitchId": "None",
+    "Uplink": {{ _placement.get('uplink_port', 0) | int }}
+{% endif %}
   },
 {% endif %}
   "SriovSettings": {

@@ -75,6 +75,7 @@ def completed_item(ptype, kwargs):
     elif 'PcId' in ikeys:          name = f"{ptitle} - PortChannel `{iresults.PcId}`"
     elif 'PortId' in ikeys:        name = f"{ptitle} - Port `{iresults.PortId}`"
     elif 'PortIdStart' in ikeys:   name = f"{ptitle} - PortIdStart `{iresults.PortIdStart}`"
+    elif 'Server' in ikeys:        name = f"{ptitle} - `{iresults.Server}`"
     elif 'VirtualDrives' in ikeys: name = f"{ptitle} - DriveGroup `{iresults.Name}`"
     elif 'VlanId' in ikeys:        name = f"{ptitle} - VLAN `{iresults.VlanId}`"
     elif 'VsanId' in ikeys:        name = f"{ptitle} - VSAN `{iresults.VsanId}`"
@@ -105,7 +106,17 @@ def completed_item(ptype, kwargs):
             pcolor.Green(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
         else:
             pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
-        return 
+        return
+    if 'Parent' in ikeys:
+        parent_policy = kwargs.intersight_object_map[iresults.ObjectType].split('.')[0]
+        parent_type   = kwargs.ezdata[f'intersight.policies.{parent_policy}'].intersight_type
+        parent_name   = kwargs.intersight_api[kwargs.org][parent_type][parent_policy][iresults.Parent.Moid]
+        parent_title  = mod_pol_description((parent_policy.replace('_', ' ')).title())
+        if method == 'post':
+            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
+        else:
+            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
+        return
     if name == None:
         print(json.dumps(iresults, indent=4))
         print(kwargs.ptype)
@@ -113,15 +124,6 @@ def completed_item(ptype, kwargs):
         print(kwargs.parent_type)
         print('missing definition')
         len(False); sys.exit(1)
-    if 'Parent' in ikeys:
-        parent_policy = kwargs.intersight_object_map[iresults.ObjectType].split('.')[0]
-        parent_type   = kwargs.ezdata[f'intersight.{parent_policy}'].intersight_type
-        parent_name   = kwargs.intersight_api[kwargs.org][parent_type][parent_policy][iresults.Parent.Moid]
-        parent_title  = mod_pol_description((parent_policy.replace('_', ' ')).title())
-        if method == 'post':
-            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
-        else:
-            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
     elif re.search('^(Activating|Deploy)', name): pcolor.Cyan(f'      * {name}.')
     elif re.search('(eula|upgrade)', ptype) and ptype == 'firmware':
         if method == 'post': pcolor.Green(f'{" "*6}* Completed {method.upper()} for {ptype} {name}.')

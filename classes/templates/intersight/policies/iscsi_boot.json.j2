@@ -1,13 +1,13 @@
 {
-{% if item.ip_protocol | default ('IPv4') == 'IPv4' %}
-{% set _target = item.target_source_type | default('Static') == 'Auto' %}
+{% if item.target_source_type | default('Static') == 'Auto' %}
+{% set _target = 'Auto' %}
 {% else %}
 {% set _target = 'Static' %}
 {% endif %}
   "AutoTargetvendorName": {% if _target == 'Auto' %}{{ item.dhcp_vendor_id_iqn | default('', true) | tojson }}{% else %}""{% endif %},
-{% if _target == 'Static' and item.authentication | default('blank') == 'chap' and item.password is defined and item.password | length > 1 %}
+{% if _target == 'Static' and item.authentication | default('blank') == 'chap' and item.password is defined and item.username is defined %}
   "Chap": {
-    "Password": "{{ item.password }}",
+    "Password": "{{ sensitive_vars['iscsi_boot_password_' ~ item.password] }}",
     "ObjectType": "vnic.IscsiAuthProfile",
     "UserId": "{{ item.username | default('') }}"
   },
@@ -17,7 +17,7 @@
 {% set _name = item.initiator_ip_pool.split('/')[-1] %}
 {% set _org = item.initiator_ip_pool.split('/')[0] if item.initiator_ip_pool.split('/') | length > 1 else organization %}
   "InitiatorIpPool": {
-    "Moid": "{{ isight[_org]['pools']['ip'][_name] }}",
+    "Moid": "{{ isight[_org]['pools']['ip'][_name].moid }}",
     "ObjectType": "ippool.Pool"
   },
 {% else %}
@@ -52,16 +52,16 @@
 {% set _name = item.iscsi_adapter_policy.split('/')[-1] %}
 {% set _org = item.iscsi_adapter_policy.split('/')[0] if item.iscsi_adapter_policy.split('/') | length > 1 else organization %}
   "IscsiAdapterPolicy": {
-    "Moid": "{{ isight[_org]['policies']['iscsi_adapter'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['iscsi_adapter'][_name].moid }}",
     "ObjectType": "vnic.IscsiAdapterPolicy"
   },
 {% else %}
   "IscsiAdapterPolicy": null,
 {% endif %}
   "IscsiIpType": {{ item.ip_protocol | default('IPv4') | tojson }},
-{% if _target == 'Static' and item.authentication | default('blank') == 'mutual_chap' and item.password is defined and item.password | length > 1 %}
+{% if _target == 'Static' and item.authentication | default('blank') == 'mutual_chap' and item.password is defined and item.username is defined %}
   "MutualChap": {
-    "Password": "{{ item.password }}",
+    "Password": "{{ sensitive_vars['iscsi_boot_password_' ~ item.password] }}",
     "ObjectType": "vnic.IscsiAuthProfile",
     "UserId": "{{ item.username | default('') }}"
   },
@@ -76,7 +76,7 @@
 {% set _name = item.primary_target_policy.split('/')[-1] %}
 {% set _org = item.primary_target_policy.split('/')[0] if item.primary_target_policy.split('/') | length > 1 else organization %}
   "PrimaryTargetPolicy": {
-    "Moid": "{{ isight[_org]['policies']['iscsi_static_target'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['iscsi_static_target'][_name].moid }}",
     "ObjectType": "vnic.IscsiStaticTargetPolicy"
   },
 {% else %}
@@ -86,7 +86,7 @@
 {% set _name = item.secondary_target_policy.split('/')[-1] %}
 {% set _org = item.secondary_target_policy.split('/')[0] if item.secondary_target_policy.split('/') | length > 1 else organization %}
   "SecondaryTargetPolicy": {
-    "Moid": "{{ isight[_org]['policies']['iscsi_static_target'][_name] }}",
+    "Moid": "{{ isight[_org]['policies']['iscsi_static_target'][_name].moid }}",
     "ObjectType": "vnic.IscsiStaticTargetPolicy"
   },
 {% else %}

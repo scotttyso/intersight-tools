@@ -1,5 +1,5 @@
 {
-  "CdpEnabled": {{ item.cdp_enabled | default(false) | lower }},
+  "CdpEnabled": {{ item.cdp_enable | default(false) | lower }},
   "Description": "{{ item.description | default('') }}",
   "ForgeMac": "{{ item.mac_security_forge | default('allow') }}",
   "LldpSettings": {

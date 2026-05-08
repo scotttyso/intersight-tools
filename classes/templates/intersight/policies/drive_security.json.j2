@@ -1,0 +1,105 @@
+{
+{% set _mkey_check = true if item.manual_key is defined and item.manual_key is not none else false %}
+{% set _rkey_check = true if item.remote_key_management is defined and item.remote_key_management is not none else false %}
+  "Description": {{ (item.description | default('', true)) | tojson }},
+  "KeySetting": {
+    "KeyType": {% if _mkey_check %}"Manual"{% else %}"Kmip"{% endif %},
+{% if _mkey_check %}
+    "ManualKey": {
+{% if item.manual_key.current_security_key_passphrase is defined %}
+      "ExistingKey": "{{ sensitive_vars['drive_security_current_security_key_passphrase_' ~ item.manual_key.current_security_key_passphrase] }}",
+{% endif %}
+      "ObjectType": "storage.ManualKeySetting",
+      "NewKey": "{{ sensitive_vars[drive_security_new_security_key_passphrase_ ~ item.manual_key.new_security_key_passphrase] }}"
+    },
+{% else %}
+    "ManualKey": null,
+{% endif %}
+    "ObjectType": "storage.KeySetting",
+{% if _mkey_check == false and _rkey_check == true %}
+{% set _auth = item.remote_key_management.enable_authentication | default({}) %}
+{% set _pkey = item.remote_key_management.primary_server | default({}) %}
+{% set _rkey = item.remote_key_management | default ({}) %}
+{% set _skey = item.remote_key_management.secondary_server | default({}) %}
+    "RemoteKey": {
+      "AuthCredentials": {
+        "ObjectType": "storage.KmipAuthCredentials",
+{% if _auth.password is defined and _auth.password %}
+        "Password": {{ sensitive_vars['drive_security_authentication_password_' ~ _auth.password | default(0)] | tojson }},
+{% endif %}
+        "UseAuthentication": {% if _auth | length > 0 %}true{% else %}false{% endif %},
+        "Username": "{{ _auth.username | default('') }}"
+      },
+{% if _rkey.current_security_key_passphrase is defined %}
+      "ExistingKey": "{{ sensitive_vars['drive_security_current_security_key_passphrase_' ~ _rkey.current_security_key_passphrase] }}",
+{% endif %}
+      "ObjectType": "storage.RemoteKeySetting",
+      "PrimaryServer": {
+        "EnableDriveSecurity": {% if _pkey | length > 0 %}true{% else %}false{% endif %},
+        "IpAddress": "{{ _pkey.hostname_ip_address | default('') }}",
+        "ObjectType": "storage.KmipServer",
+        "Port": {{ _pkey.port | default(5696) | int }},
+        "Timeout": {{ _pkey.timeout | default(60) | int }}
+      },
+      "SecondaryServer": {
+        "EnableDriveSecurity": {% if _skey | length > 0 %}true{% else %}false{% endif %},
+        "IpAddress": "{{ _skey.hostname_ip_address | default('') }}",
+        "ObjectType": "storage.KmipServer",
+        "Port": {{ _skey.port | default(5696) | int }},
+        "Timeout": {{ _skey.timeout | default(60) | int }}
+      },
+      "ServerCertificate": "{{ _rkey.server_public_root_ca_certificate | default('') }}"
+    }
+  },
+{% else %}
+    "RemoteKey": {
+      "AuthCredentials": {
+        "ObjectType": "storage.KmipAuthCredentials",
+        "UseAuthentication": false,
+        "Username": ""
+      },
+      "IsExistingKeySet": false,
+      "ObjectType": "storage.RemoteKeySetting",
+      "PrimaryServer": {
+        "EnableDriveSecurity": false,
+        "IpAddress": "",
+        "ObjectType": "storage.KmipServer",
+        "Port": 5696,
+        "Timeout": 60
+      },
+      "SecondaryServer": {
+        "EnableDriveSecurity": false,
+        "IpAddress": "",
+        "ObjectType": "storage.KmipServer",
+        "Port": 5696,
+        "Timeout": 60
+      },
+      "ServerCertificate": ""
+    }
+  },
+{% endif %}
+  "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
+  "ObjectType": "storage.DriveSecurityPolicy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "PathTag"
+{% else %}
+      "Key": {{ tag.key | tojson }},
+      "Type": "KeyValue",
+      "Value": {{ tag.value | tojson }}
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

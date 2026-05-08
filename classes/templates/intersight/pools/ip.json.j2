@@ -17,7 +17,7 @@
 {% if block.id_mapping_policy is defined %}
 {% set _name = block.id_mapping_policy.split('/')[-1] %}
 {% set _org  = block.id_mapping_policy.split('/')[0] if block.id_mapping_policy.split('/') | length > 1 else organization %}
-      "IdMappingPolicyMoid": "{{ isight[_org]['pools']['id_mapping'][_name] }}",
+      "IdMappingPolicyMoid": "{{ isight[_org]['pools']['id_mapping'][_name].moid }}",
 {% else %}
       "IdMappingPolicyMoid": "",
 {% endif %}
@@ -53,7 +53,7 @@
 {% if block.id_mapping_policy is defined %}
 {% set _name = block.id_mapping_policy.split('/')[-1] %}
 {% set _org  = block.id_mapping_policy.split('/')[0] if block.id_mapping_policy.split('/') | length > 1 else organization %}
-      "IdMappingPolicyMoid": "{{ isight[_org]['pools']['id_mapping'][_name] }}",
+      "IdMappingPolicyMoid": "{{ isight[_org]['pools']['id_mapping'][_name].moid }}",
 {% else %}
       "IdMappingPolicyMoid": "",
 {% endif %}

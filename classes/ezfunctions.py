@@ -142,12 +142,11 @@ def base_script_settings(kwargs):
     for k,v in kwargs.ezdata.items():
         vkeys = list(v.keys())
         if 'intersight.' in k and 'object_type' in vkeys:
-            if not kwargs.intersight_object_map.get(v.object_type):
-                if 'templates'  in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.templates.', '')
-                elif 'policies' in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.policies.', '')
-                elif 'pools'    in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.pools.', '')
-                elif 'profiles' in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.profiles.', '')
-                elif 'system'   in k: kwargs.intersight_object_map[v.object_type] = k.replace('intersight.system.', '')
+            if re.search('^intersight\.(policies|pools|profiles|system|templates)\.', k):
+                ptype = re.search('^intersight\.([a-z_]+)\.', k).group(1)
+                if not kwargs.intersight_object_map.get(v.object_type):
+                    kwargs.intersight_object_map[v.object_type] = k.replace(f'intersight.{ptype}.', '')
+                    kwargs.intersight_object_map[k.replace(f'intersight.{ptype}.', '')] = v.object_type
     kwargs.intersight_object_map = DotMap(sorted(kwargs.intersight_object_map.toDict().items()))
     #=========================================================================
     # Get Intersight Configuration
@@ -913,12 +912,15 @@ def load_configurations(kwargs):
             'pure_storage': kwargs.pure_storage.toDict() if hasattr(kwargs.pure_storage, 'toDict') else kwargs.pure_storage,
         }
         schema_path = Path(os.path.join(kwargs.script_path, 'schema', 'cisco-ai-pods.json'))
-        success, missing_vars, error_messages = validator.validate_all_sensitive_variables(model, schema_path)
+        success, missing_vars, error_messages, sensitive_vars = validator.validate_all_sensitive_variables(model, schema_path)
         if not success:
             pcolor.Red(f'\n!!! ERROR !!! Missing {len(missing_vars)} sensitive environment variable(s).')
             for message in error_messages:
-                pcolor.Red(message)
+                # Preserve per-line formatting/colors from validator output.
+                print(message, file=sys.stderr)
             sys.exit(1)
+        else:
+            kwargs.sensitive_vars = DotMap(sensitive_vars)
     except Exception as error:
         pcolor.Red(f'\n!!! ERROR !!! validate_sensitive_variables failed during load_configurations: {error}')
         pcolor.Red(f'ezfunctions.py line 893')

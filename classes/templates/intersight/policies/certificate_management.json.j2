@@ -1,0 +1,54 @@
+{
+  "Certificates": [
+{% if item.certificates is defined and item.certificates | length > 0 %}
+{% for cert in item.certificates %}
+    {
+{% if cert.type | default('RootCA') == 'IMC' %}
+      "CertType": {% if cert.type | default('RootCA') == 'IMC' %}"{{ cert.cert_type | default('None') }}"{% else %}"None"{% endif %},
+{% endif %}
+      "Certificate": {
+        "ObjectType": "x509.Certificate",
+        "PemCertificate": "{{ cert.certificate_file }}"
+      },
+{% if cert.type | default('IMC') == 'RootCA' %}
+      "CertificateName": "{{ cert.name | default('default') }}",
+{% endif %}
+      "Enabled": {{ cert.enabled | default(true) | tojson }},
+{% if cert.private_key_file is defined and cert.private_key_file | length > 0 %}
+      "Privatekey": "{{ cert.private_key_file }}",
+{% endif %}
+{% if cert.type | default('IMC') == 'RootCA' %}
+      "ObjectType": "certificatemanagement.RootCaCertificate"
+{% else %}
+      "ObjectType": "certificatemanagement.Imc"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% endif %}
+  ],
+  "Description": "{{ item.description | default('') }}",
+  "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
+  "ObjectType": "certificatemanagement.Policy",
+  "Organization": {
+    "Moid": "{{ org_moids[organization].moid }}",
+    "ObjectType": "organization.Organization"
+  },
+{% if item.tags | length > 0 %}
+  "Tags": [
+{% for tag in item.tags %}
+    {
+{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
+      "Key": "{{ tag.key }}",
+      "Type": "PathTag"
+{% else %}
+      "Key": "{{ tag.key }}",
+      "Type": "KeyValue",
+      "Value": "{{ tag.value }}"
+{% endif %}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+{% else %}
+  "Tags": []
+{% endif %}
+}

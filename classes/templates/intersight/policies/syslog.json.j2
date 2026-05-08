@@ -18,11 +18,11 @@
     {
       "Enabled": {{ remote.enabled | default(true) | tojson }},
       "Facility": "",
-      "Hostname": "{{ remote.hostname }}",
-      "MinSeverity": "{{ remote.minimum_severity | default('warning') | tojson }}",
+      "Hostname": {{ remote.hostname | tojson }},
+      "MinSeverity": {{ remote.minimum_severity | default('warning') | tojson }},
       "ObjectType": "syslog.RemoteLoggingClient",
       "Port": {{ remote.port | default(514) }},
-      "Protocol": "{{ remote.protocol | default('udp') | tojson }}",
+      "Protocol": {{ remote.protocol | default('udp') | tojson }},
       "Protocol": "udp",
       "VrfName": ""
     }{% if not loop.last %},{% endif %}

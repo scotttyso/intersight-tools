@@ -5,9 +5,9 @@
   "DirectAttachedNvmeSlots": {{ (item.hybrid_slot_configuration | default({})).get('direct_attached_nvme_slots') | default('', true) | tojson }},
   "GlobalHotSpares": {{ item.global_hot_spares | default('', true) | tojson }},
   "M2VirtualDrive": {
-    "ControllerSlot": "{{ (item.m2_raid_configuration | default({})).get('slot') | default('MSTOR-RAID-1', true) | tojson }}",
+    "ControllerSlot": {{ (item.m2_raid_configuration | default({})).get('slot') | default('MSTOR-RAID-1', true) | tojson }},
     "Enable": {% if item.m2_raid_configuration is defined and item.m2_raid_configuration is not none %}true{% else %}false{% endif %},
-    "Name": "{{ (item.m2_raid_configuration | default({})).get('name') | default('', true) | tojson }}",
+    "Name": {{ (item.m2_raid_configuration | default({})).get('name') | default('MStorBootVd', true) | tojson }},
     "ObjectType": "storage.M2VirtualDriveConfig"
   },
   "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
@@ -18,17 +18,17 @@
   },
 {% set _vdp = (item.single_drive_raid0_configuration | default({})).get('virtual_drive_policy') | default({}, true) %}
   "Raid0Drive": {
-    "DriveSlots": "{{ (item.single_drive_raid0_configuration | default({})).get('drive_slots') | default('', true) | tojson }}",
+    "DriveSlots": {{ (item.single_drive_raid0_configuration | default({})).get('drive_slots') | default('', true) | tojson }},
     "DriveSlotsList": "",
     "Enable": {% if item.single_drive_raid0_configuration is defined and item.single_drive_raid0_configuration is not none %}true{% else %}false{% endif %},
     "ObjectType": "storage.R0Drive",
     "VirtualDrivePolicy": {
-      "AccessPolicy": "{{ _vdp.get('access_policy', 'Default') | tojson }}",
-      "DriveCache": "{{ _vdp.get('drive_cache', 'Default') | tojson }}",
+      "AccessPolicy": {{ _vdp.get('access_policy', 'Default') | tojson }},
+      "DriveCache": {{ _vdp.get('drive_cache', 'Default') | tojson }},
       "ObjectType": "storage.VirtualDrivePolicy",
-      "ReadPolicy": "{{ _vdp.get('read_policy', 'Default') | tojson }}",
+      "ReadPolicy": {{ _vdp.get('read_policy', 'Default') | tojson }},
       "StripSize": {{ _vdp.get('strip_size', 64) | tojson }},
-      "WritePolicy": "{{ _vdp.get('write_policy', 'Default') | tojson }}"
+      "WritePolicy": {{ _vdp.get('write_policy', 'Default') | tojson }}
     }
   },
   "RaidAttachedNvmeSlots": "",

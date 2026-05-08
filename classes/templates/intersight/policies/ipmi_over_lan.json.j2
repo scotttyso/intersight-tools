@@ -2,7 +2,7 @@
   "Description": "{{ item.description | default('') }}",
   "Enabled": {{ item.enabled | default(true) | lower }},
 {% if item.encryption_key is defined %}
-  "EncryptionKey": {{ item.encryption_key }},
+  "EncryptionKey": {{ sensitive_vars['ipmi_encryption_key_' ~ item.encryption_key] | tojson }},
 {% endif %}
   "Name": "{{ name_prefix ~ item.name ~ name_suffix }}",
   "ObjectType": "ipmioverlan.Policy",

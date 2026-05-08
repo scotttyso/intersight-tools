@@ -4,14 +4,14 @@
 {% if item.iqn_pool is defined%}
 {% set _name = item.iqn_pool.split('/')[-1] %}
 {% set _org  = item.iqn_pool.split('/')[0] if item.iqn_pool.split('/') | length > 1 else organization %}
-  "IqnAddressType": "Pool",
+  "IqnAllocationType": "Pool",
   "IqnPool": {
-    "Moid": "{{ isight[_org]['pools']['iqn'][_name] }}",
+    "Moid": "{{ isight[_org]['pools']['iqn'][_name].moid }}",
     "ObjectType": "iqnpool.Pool"
-  }
+  },
 {% else %}
-  "IqnAddressType": {% if item.iqn_static_identifier is defined %}"Static"{% else %}"None"{% endif %},
-  "IqnPool": null
+  "IqnAllocationType": {% if item.iqn_static_identifier is defined %}"Static"{% else %}"None"{% endif %},
+  "IqnPool": null,
 {% endif %}
   "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "vnic.LanConnectivityPolicy",

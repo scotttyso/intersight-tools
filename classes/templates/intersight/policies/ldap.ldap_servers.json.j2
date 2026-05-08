@@ -9,7 +9,7 @@
     "ObjectType": "iam.LdapPolicy"
   },
   "Port": {{ item.port | default(389) | int }},
-  "Server": "{{ item.server | default('ldap.example.com') | tojson }}",
+  "Server": {{ item.server | default('ldap.example.com') | tojson }},
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
@@ -28,5 +28,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "Vendor": "{{ item.vendor | default('OpenLDAP') | tojson }}"
+  "Vendor": {{ item.vendor | default('OpenLDAP') | tojson }}
 }

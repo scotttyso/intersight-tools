@@ -18,7 +18,7 @@
     {
       "ClassId": "mo.MoRef",
       "spq": "{{ spq }}",
-      "Moid": "{{ isight[_org]['policies']['server_pool_qualification'][_name] }}",
+      "Moid": "{{ isight[_org]['policies']['server_pool_qualification'][_name].moid }}",
       "ObjectType": "resourcepool.QualificationPolicy"
     }{% if not loop.last %},{% endif %}
 {% endfor %}

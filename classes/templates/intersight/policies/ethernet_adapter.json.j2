@@ -37,13 +37,13 @@
   "RoceSettings": {
     "ClassOfService": {{ (item.roce_settings | default({})).get('class_of_service', 5) | int }},
     "Enabled": {{ (item.roce_settings | default({})).get('enable_rdma_over_converged_ethernet', false) | tojson }},
-    "MemoryRegions": {{ (item.roce_settings | default({})).get('memory_regions', 131072) | int }},
+    "MemoryRegions": {{ (item.roce_settings | default({})).get('memory_regions', 0) | int }},
     "ObjectType": "vnic.RoceSettings",
-    "QueuePairs": {{ (item.roce_settings | default({})).get('queue_pairs', 256) | int }},
-    "ResourceGroups": {{ (item.roce_settings | default({})).get('resource_groups', 2) | int }},
+    "QueuePairs": {{ (item.roce_settings | default({})).get('queue_pairs', 0) | int }},
+    "ResourceGroups": {{ (item.roce_settings | default({})).get('resource_groups', 0) | int }},
     "Version": {{ (item.roce_settings | default({})).get('version', 1) | int }}
   },
-{% if item.receive_side_scaling_enable | default(true) | tojson %}
+{% if item.receive_side_scaling_enable | default(true) %}
   "RssHashSettings": {
     "Ipv4Hash": {{ (item.receive_side_scaling | default({})).get('enable_ipv4_hash', true) | tojson }},
     "Ipv6ExtHash": {{ (item.receive_side_scaling | default({})).get('enable_ipv6_extensions_hash', false) | tojson }},
@@ -68,14 +68,12 @@
     "UdpIpv6Hash": {{ (item.receive_side_scaling | default({})).get('enable_udp_and_ipv6_hash', false) | tojson }}
   },
 {% endif %}
-{% if item.receive_side_scaling_enable | default(true) | tojson %}
   "RssSettings": {{ item.receive_side_scaling_enable | default(true) | tojson }},
   "RxQueueSettings": {
     "Count": {{ (item.receive | default({})).get('queue_count', 4) | int }},
     "ObjectType": "vnic.EthRxQueueSettings",
     "RingSize": {{ (item.receive | default({})).get('ring_size', 512) | int }}
   },
-{% endif %}
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}

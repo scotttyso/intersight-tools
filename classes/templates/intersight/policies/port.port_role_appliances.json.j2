@@ -22,26 +22,6 @@
   "EthNetworkGroupPolicy": null,
 {% endif %}
   "Fec": {{ item.fec | default('Auto') | tojson }},
-{% if item.flow_control_policy is defined %}
-{% set _name = item.flow_control_policy.split('/')[-1] %}
-{% set _org = item.flow_control_policy.split('/')[0] if item.flow_control_policy.split('/') | length > 1 else organization %}
-  "FlowControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['flow_control'][_name].moid }}",
-    "ObjectType": "fabric.FlowControlPolicy"
-  },
-{% else %}
-  "FlowControlPolicy": null,
-{% endif %}
-{% if item.link_control_policy is defined %}
-{% set _name = item.link_control_policy.split('/')[-1] %}
-{% set _org = item.link_control_policy.split('/')[0] if item.link_control_policy.split('/') | length > 1 else organization %}
-  "LinkControlPolicy": {
-    "Moid": "{{ isight[_org]['policies']['link_control'][_name].moid }}",
-    "ObjectType": "fabric.LinkControlPolicy"
-  },
-{% else %}
-  "LinkControlPolicy": null,
-{% endif %}
   "Mode": {{ item.mode | default('access', true) | tojson }},
   "ObjectType": "fabric.ApplianceRole",
   "Parent": {

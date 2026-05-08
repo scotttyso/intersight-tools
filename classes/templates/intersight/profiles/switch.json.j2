@@ -31,10 +31,10 @@
 {% if k in item.allowed_policies %}
 {% set _name = v.split('/')[-1] %}
 {% set _org  = v.split('/')[0] if '/' in v else organization %}
-{% set otype = k | regex_replace('_policy$', '') %}
+{% set otype = k[:-7] if k.endswith('_policy') else k %}
 {% set ptype = "policies" if "policy" in k else "pools" %}
     {
-      "Moid": "{{ isight[_org][ptype][_name].moid }}",
+      "Moid": "{{ isight[_org][ptype][otype][_name].moid }}",
       "ObjectType": "{{ object_map[otype] }}"
     }{% if not loop.last %},{% endif %}
 {% endif %}

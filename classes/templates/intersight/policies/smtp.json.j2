@@ -1,12 +1,12 @@
 {
+{% set _family = item.server_family | default('UCSC2XX/4XX') %}
   "ApplianceAccount": null,
   "Certificate": null,
   "Description": {{ (item.description | default('', true)) | tojson }},
   "EnableAuth": false,
   "EnableTls": false,
   "Enabled": {{ item.enable_smtp | default(true) | tojson }},
-  "IsAuthPasswordSet": false,
-  "MinSeverity": {{ item.minimum_severity | default('critical', true) | tojson }},
+  "MinSeverity": {% if _family == 'UCSC2XX/4XX' %}{{ item.minimum_severity | default('critical', true) | tojson }}{% else %}"critical"{% endif %},
   "Name": {{ (name_prefix ~ item.name ~ name_suffix) | tojson }},
   "ObjectType": "smtp.Policy",
   "Organization": {

@@ -4,14 +4,13 @@
 {% for class in item.classes %}
     {
       "AdminState": "{{ class.state | default('Disabled') }}",
-      "BandwidthPercent": {{ class.bandwidth_percent | default(0) }},
-      "Cos": {{ class.cos | default(255) }},
-      "Mtu": {% if item.jumbo_mtu | default(false) %}9216{% else %}1500{% endif %},
+      "Cos": {{ class.cos | default(255) | int }},
+      "Mtu": {{ class.mtu | default(1500) | int }},
       "MulticastOptimize": {% if class.priority | default('Gold') == 'Silver' %}true{% else %}false{% endif %},
       "Name": "{{ class.priority | default('Best Effort') }}",
       "ObjectType": "fabric.QosClass",
       "PacketDrop": {% if class.priority | default('Gold') == 'Fc' %}false{% else %}{{ class.packet_drop | default(true) | lower }}{% endif %},
-      "Weight": {{ class.weight | default(5) }}
+      "Weight": {{ class.weight | default(5) | int }}
     }{% if not loop.last %},{% endif %}
 {% endfor %}
 {% endif %}

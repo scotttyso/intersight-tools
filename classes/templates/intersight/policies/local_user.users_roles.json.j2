@@ -1,0 +1,23 @@
+{
+  "Enabled": {{ item.enabled | default(true) | tojson }},
+  "EndPointRole": [
+    {
+      "Moid": "{{ iisight.system.iam_end_point_role[item.end_point_role].moid }}",
+      "ObjectType": "iam.EndPointRole"
+    }
+  ],
+  "EndPointUser": {
+    "Moid": "{{ iisight.[organization].local_users.users[item.name].moid }}",
+    "ObjectType": "iam.EndPointUser"
+  },
+  "EndPointUserPolicy": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.EndPointUserPolicy"
+  },
+  "ObjectType": "iam.EndPointUserRole",
+  "Password": {{ sensitive_vars['local_user_password_' ~ item.encryption_key] | tojson }},
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.EndPointUserPolicy"
+  }
+}

@@ -4,14 +4,14 @@
 {% if item.inband_ip_pool is defined %}
 {% set _inb_name = item.inband_ip_pool.split('/')[-1] %}
 {% set _inb_org = item.inband_ip_pool.split('/')[0] if item.inband_ip_pool.split('/') | length > 1 else organization %}
-{% set _inb_data = children[_inb_org]['pools']['ip'][_inb_name] %}
+{% set _inb_data = isight[_inb_org]['pools']['ip'][_inb_name].result %}
 {% set _inb_ipv4 = _inb_data.IpV4Blocks | length > 0 %}
 {% set _inb_ipv6 = _inb_data.IpV6Blocks | length > 0 %}
 {% endif %}
 {% if item.out_of_band_ip_pool is defined %}
 {% set _oob_name = item.out_of_band_ip_pool.split('/')[-1] %}
 {% set _oob_org = item.out_of_band_ip_pool.split('/')[0] if item.out_of_band_ip_pool.split('/') | length > 1 else organization %}
-{% set _oob_data = children[_oob_org]['pools']['ip'][_oob_name] %}
+{% set _oob_data = isight[_oob_org]['pools']['ip'][_oob_name].result %}
 {% set _oob_ipv4 = _oob_data.IpV4Blocks | length > 0 %}
 {% set _oob_ipv6 = _oob_data.IpV6Blocks | length > 0 %}
 {% endif %}
@@ -28,7 +28,7 @@
   "Description": {{ (item.description | default('', true)) | tojson }},
 {% if item.inband_ip_pool is defined %}
   "InbandIpPool": {
-    "Moid": "{{ isight[_inb_org]['pools']['ip'][_inb_name] }}",
+    "Moid": "{{ isight[_inb_org]['pools']['ip'][_inb_name].moid }}",
     "ObjectType": "ippool.Pool"
   },
 {% else %}
@@ -44,7 +44,7 @@
   },
 {% if item.out_of_band_ip_pool is defined %}
   "OutOfBandIpPool": {
-    "Moid": "{{ isight[_oob_org]['pools']['ip'][_oob_name] }}",
+    "Moid": "{{ isight[_oob_org]['pools']['ip'][_oob_name].moid }}",
     "ObjectType": "ippool.Pool"
   },
 {% else %}

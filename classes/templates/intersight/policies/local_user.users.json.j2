@@ -1,32 +1,12 @@
 {
-  "EndPointUserRole": [
-    {
-      "Moid": "{{ item.end_point_user_role }}",
-      "ObjectType": "iam.EndPointUserRole"
-    }
-  ],
-  "Name": "{{ item.name | default('admin') | tojson }}",
+  "Name": {{ item.name | default('admin') | tojson }},
   "ObjectType": "iam.EndPointUser",
+  "Parent": {
+    "Moid": "{{ item.parent }}",
+    "ObjectType": "iam.LdapPolicy"
+  },
   "Organization": {
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
-  },
-{% if item.tags | length > 0 %}
-  "Tags": [
-{% for tag in item.tags %}
-    {
-{% if tag.tag_type | default('KeyValue') == 'PathTag' %}
-      "Key": {{ tag.key | tojson }},
-      "Type": "PathTag"
-{% else %}
-      "Key": {{ tag.key | tojson }},
-      "Type": "KeyValue",
-      "Value": {{ tag.value | tojson }}
-{% endif %}
-    }{% if not loop.last %},{% endif %}
-{% endfor %}
-  ]
-{% else %}
-  "Tags": []
-{% endif %}
+  }
 }

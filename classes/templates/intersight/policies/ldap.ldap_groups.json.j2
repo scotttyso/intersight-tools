@@ -1,17 +1,17 @@
 {
-  "Domain": "{{ item.domain | default('') | tojson }}",
+  "Domain": {{ item.domain | default('') | tojson }},
   "EndPointRole": [
     {
-      "Moid": "{{ item.end_point_role }}",
+      "Moid": "{{ isight.system.iam_end_point_role[item.end_point_role].moid }}",
       "ObjectType": "iam.EndPointRole"
     }
   ],
-  "GroupDn": "{{ item.group_dn | default('CN=Administrators,OU=Users,DC=example,DC=com') | tojson }}",
+  "GroupDn": {{ item.group_dn | default('CN=Administrators,OU=Users,DC=example,DC=com') | tojson }},
   "LdapPolicy": {
     "Moid": "{{ item.parent }}",
     "ObjectType": "iam.LdapPolicy"
   },
-  "Name": "{{ item.name | default('administrators') | tojson }}",
+  "Name": {{ item.name | default('administrators') | tojson }},
   "ObjectType": "iam.LdapGroup",
   "Parent": {
     "Moid": "{{ item.parent }}",

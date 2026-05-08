@@ -29,5 +29,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "TunneledKvmEnabled": {{ item.tunneled_kvm_enabled | default(false) | lower }}
+  "TunneledKvmEnabled": {{ item.allow_tunneled_vkvm | default(false) | lower }}
 }

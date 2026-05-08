@@ -361,10 +361,10 @@
                 },
                 "ipmi_encryption_key": {
                     "default": "",
-                    "description": "IPMI Encryption Key for an IPMI Policy.",
+                    "description": "The encryption key to use for IPMI communication. It should have an even number of hexadecimal characters and not exceed 40 characters. Use “00” to disable encryption key use. This configuration is supported by all Standalone C-Series servers. FI-attached C-Series servers with firmware at minimum of 4.2.3a support this configuration. B/X-Series servers with firmware at minimum of 5.1.0.x support this configuration. IPMI commands using this key should append zeroes to the key to achieve a length of 40 characters.",
                     "maxLength": 40,
                     "minLength": 2,
-                    "pattern": "^[\\da-fA-F]{2,40}",
+                    "pattern": "^(?:[\\da-fA-F]{2}){1,20}$",
                     "title": "ipmi_encryption_key",
                     "type": "string"
                 },
@@ -460,7 +460,7 @@
                 },
                 "snmp_password": {
                     "default": "",
-                    "description": "SNMP Auth/Privacy Password.  Cisco Intersight SNMPv3 policies require SHA for authentication (auth) and AES-128 or AES-256 for privacy (priv). Passwords must be a minimum of 8 characters and can be up to 64 characters if in plain text. AuthPriv is the recommended, highly secure option, requiring unique passwords for both authentication and encryption. \n\nKey SNMPv3 Password and Policy Requirements:\nAuth Protocol: SHA (Secure Hash Algorithm) is required; MD5 is not supported.\nPriv Protocol: AES (Advanced Encryption Standard) 128-bit is supported and conforms with RFC 3826.\nPassword Length: Minimum 8 characters.\nSecurity Level: AuthPriv (Authentication and Privacy) is the recommended security level for encryption.\nUser Constraints: You can define a maximum of 15 trap users, and the username can be up to 32 characters.",
+                    "description": "SNMP Auth/Privacy Password.  Cisco Intersight SNMPv3 policies require (`SHA`|`SHA-256`|`SHA-384`|`SHA-512`) for authentication (auth) and `DES` or `AES` for privacy (priv). Passwords must be a minimum of 8 characters and can be up to 64 characters if in plain text. AuthPriv is the recommended, highly secure option, requiring unique passwords for both authentication and encryption. \n\nKey SNMPv3 Password and Policy Requirements:\nAuth Protocol: (`SHA`|`SHA-256`|`SHA-384`|`SHA-512`) is required; MD5 is not supported.\nPriv Protocol: (`DES`|`AES`) is required; AES (Advanced Encryption Standard) 128-bit is supported and conforms with RFC 3826.\nPassword Length: Minimum 8 characters.\nSecurity Level: AuthPriv (Authentication and Privacy) is the recommended security level for encryption.\nUser Constraints: You can define a maximum of 15 trap users, and the username can be up to 32 characters.",
                     "maxLength": 64,
                     "minLength": 8,
                     "pattern": "^[a-zA-Z0-9]{8,64}$",
@@ -4540,7 +4540,7 @@
                     "uniqueItems": true
                 },
                 "ipmi_over_lan": {
-                    "description": "Defines the protocols for interfacing with a service processor that is embedded in a server platform. The Intelligent Platform Management Interface (IPMI) enables an operating system to obtain information about the system health and control system hardware and directs the Cisco IMC to perform the required actions. You can create an IPMI Over LAN policy to manage the IPMI messages through Cisco Intersight. You can assign these user roles to an IPMI user per session:\n  * `admin` \u2014 IPMI users can perform all available actions. If you select this option, IPMI users with the `Administrator` user role can create admin, user, and read-only sessions on this server.\n  * `read-only` \u2014 Can view information but cannot make any changes. IPMI users with the `Administrator`, `Operator`, or `User` user roles can only create read-only IPMI sessions, regardless of their other IPMI privileges.\n  * `user` \u2014 IPMI users can perform some functions but cannot perform administrative tasks. If you select this option, IPMI users with the `Administrator` or `Operator` user role can create user and read-only sessions on this server.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `enabled`\n  * `privilege`\n  * `tags`",
+                    "description": "Defines the protocols for interfacing with a service processor that is embedded in a server platform. The Intelligent Platform Management Interface (IPMI) enables an operating system to obtain information about the system health and control system hardware and directs the Cisco IMC to perform the required actions. You can create an IPMI Over LAN policy to manage the IPMI messages through Cisco Intersight. You can assign these user roles to an IPMI user per session:\n  * `admin` \u2014 IPMI users can perform all available actions. If you select this option, IPMI users with the `Administrator` user role can create admin, user, and read-only sessions on this server.\n  * `read-only` \u2014 Can view information but cannot make any changes. IPMI users with the `Administrator`, `Operator`, or `User` user roles can only create read-only IPMI sessions, regardless of their other IPMI privileges.\n  * `user` \u2014 IPMI users can perform some functions but cannot perform administrative tasks. If you select this option, IPMI users with the `Administrator` or `Operator` user role can create user and read-only sessions on this server.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `description`\n  * `enabled`\n  * `encryption_key`\n  * `privilege`\n  * `tags`",
                     "intersight_uri": "ipmioverlan/Policies",
                     "items": {
                         "$ref": "#/definitions/intersight.policies.ipmi_over_lan"
@@ -4566,7 +4566,7 @@
                     "uniqueItems": true
                 },
                 "iscsi_boot": {
-                    "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy\u2014When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\nRequired Attributes:\n  * `name`\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `dhcp_vendor_id_iqn`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `initiator_static_ipv6_config`\n  * `tags`\n  * `target_source_type`",
+                    "description": "iSCSI boot support allows you to initialize the Operating System on FI-attached blade and rack servers from a remote disk across a Storage Area Network. The remote disk, known as the target, is accessed using TCP/IP and iSCSI boot firmware.\nPrerequisites - The following are required to configure the iSCSI boot device:\n\n  * iSCSI Static Target Policy\u2014When you select Static as the mode for configuring the iSCSI boot policy, you can use the iSCSI Static Target policy to specify the primary target details. You can also specify the details of a secondary target, if required.\n  * iSCSI Adapter Policy\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n  * Creating an IQN Pool\u2014Using this policy you can specify the TCP and DHCP Connection Timeout and the retry count when the logical unit number of the boot device is busy.\n\n########################################\n# If target_source_type is Auto\n########################################\n\nRequired Attributes:\n  * `dhcp_vendor_id_iqn`\n  * `name`\n  * `target_source_type`\n\nOptional Attributes:\n  * `description`\n  * `iscsi_adapter_policy`\n  * `tags`\n\n########################################\n# If target_source_type is Static\n########################################\n\nRequired Attributes:\n  * `name`\n  * `primary_iscsi_static_target`\n\n\nOptional Attributes:\n  * `authentication`\n  * `description`\n  * `initiator_ip_pool`\n  * `initiator_ip_source`\n  * `initiator_static_ipv4_config`\n  * `initiator_static_ipv6_config`\n  * `ip_protocol`\n  * `iscsi_adapter_policy`\n  * `password`\n  * `tags`\n  * `username`",
                     "intersight_uri": "vnic/IscsiBootPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.policies.iscsi_boot"
@@ -4845,7 +4845,7 @@
                     "uniqueItems": true
                 },
                 "smtp": {
-                    "description": "Sets the state of the SMTP client in the managed device. You can specify the preferred settings for outgoing communication and select the fault severity level to report and the mail recipients.\n\nRequired Attributes:\n  * `mail_alert_recipients`\n  * `name`\n  * `smtp_server_address`\n\nOptional Attributes:\n  * `description`\n  * `enable_smtp`\n  * `minimum_severity`\n  * `smtp_alert_sender_address`\n  * `smtp_port`\n  * `tags`",
+                    "description": "Sets the state of the SMTP client in the managed device. You can specify the preferred settings for outgoing communication and select the fault severity level to report and the mail recipients.\n\nRequired Attributes:\n  * `mail_alert_recipients`\n  * `name`\n  * `server_family`\n  * `smtp_server_address`\n\nOptional Attributes:\n  * `description`\n  * `enable_smtp`\n  * `minimum_severity`\n  * `smtp_alert_sender_address`\n  * `smtp_port`\n  * `tags`",
                     "intersight_uri": "smtp/Policies",
                     "items": {
                         "$ref": "#/definitions/intersight.policies.smtp"
@@ -13815,7 +13815,7 @@
                             "type": "boolean"
                         },
                         "certificates": {
-                            "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:\n  * `certificate_file`\n  * `private_key_file`\n  * `type`\n\nIMC Certificate Optional Attributes:\n  * `cert_type: KMIPClient - Set KMIP certificate on the selected end point`\n  * `enabled`\n\nRootCA Certificate Required Attributes are:\n  * `certificate_file`\n  * `name`\n  * `type`\n\nRootCA Certificate Optional Attributes:\n  * `enabled`",
+                            "description": "List of Certificates and their Properties.  Each certificate policy can only have one IMC certificate.  Multiple RootCA certificates are supported for each policy.\n\nIMC Certificate Required Attributes are:\n  * `certificate_file`\n  * `private_key_file`\n  * `type`\n\nIMC Certificate Optional Attributes:\n  * `enabled`\n\nRootCA Certificate Required Attributes are:\n  * `certificate_file`\n  * `name`\n  * `type`\n\nRootCA Certificate Optional Attributes:\n  * `enabled`",
                             "items": {
                                 "$ref": "#/definitions/intersight.policies.certificate_management.certificates"
                             },
@@ -13862,27 +13862,42 @@
                             "private_key_file"
                         ]
                     }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "RootCA"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "name"
+                        ],
+                        "not": {
+                            "anyOf": [
+                                {
+                                    "required": [
+                                        "private_key_file"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
                 }
             ],
             "description": "",
             "object_type": "not_applicable",
             "properties": {
-                "cert_type": {
-                    "default": "None",
-                    "description": "The default value is `None`.  Certificate Type for the certificate management.\n  * `None` - Set certificate on the selected end point .\n  * `KMIPClient` - Set KMIP certificate on the selected end point.",
-                    "enum": [
-                        "KMIPClient",
-                        "None"
-                    ],
-                    "intersight_api": "CertType",
-                    "title": "cert_type",
-                    "type": "string"
-                },
                 "certificate_file": {
                     "description": "Absolute path to the certificate file on the host. File must be in PEM format. Example: `/etc/pki/certs/server.crt` or `/opt/certs/certificate.pem`. For IMC type, both certificate_file and private_key_file are required. For RootCA type, only certificate_file is required.",
                     "examples": [
                         "/etc/pki/certs/server.crt"
                     ],
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "pattern": "^(?:(?:/(?:[^\\0/]+/)*[^\\0/]+)|(?:[A-Za-z]:[\\\\/](?:[^<>:\"|?*\\r\\n]+[\\\\/])*[^<>:\"|?*\\r\\n]+)|(?:\\.{1,2}[\\\\/])?(?:[^<>:\"|?*\\r\\n\\\\/]+[\\\\/])*[^<>:\"|?*\\r\\n\\\\/]+)$",
                     "title": "certificate_file",
                     "type": "string"
                 },
@@ -13911,6 +13926,9 @@
                     "examples": [
                         "/etc/pki/private/server.key"
                     ],
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "pattern": "^(?:(?:/(?:[^\\0/]+/)*[^\\0/]+)|(?:[A-Za-z]:[\\\\/](?:[^<>:\"|?*\\r\\n]+[\\\\/])*[^<>:\"|?*\\r\\n]+)|(?:\\.{1,2}[\\\\/])?(?:[^<>:\"|?*\\r\\n\\\\/]+[\\\\/])*[^<>:\"|?*\\r\\n\\\\/]+)$",
                     "title": "private_key_file",
                     "type": "string"
                 },
@@ -14084,13 +14102,16 @@
                     "$ref": "#/definitions/intersight.policies.drive_security.remote_key_management.secondary_server"
                 },
                 "server_public_root_ca_certificate": {
-                    "default": 1,
-                    "description": "The default value is `1`.  The server public root ca certificate sensitive variable identifier.  A number Between 1-64 to denote the variables drive_security_server_ca_certificate_[1-64].  i.e. `export drive_security_server_ca_certificate_1='cisco123'`.",
+                    "description": "Absolute or relative path to the server public root CA certificate file on the host. File must be in PEM format. Examples: `/etc/pki/certs/server.crt`, `/opt/certs/certificate.pem`, `certs/server.crt`, or `./certs/server.crt`.",
+                    "examples": [
+                        "/etc/pki/certs/server.crt"
+                    ],
                     "intersight_api": "ServerCertificate",
-                    "maximum": 64,
-                    "minimum": 1,
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "pattern": "^(?:(?:/(?:[^\\0/]+/)*[^\\0/]+)|(?:[A-Za-z]:[\\\\/](?:[^<>:\"|?*\\r\\n]+[\\\\/])*[^<>:\"|?*\\r\\n]+)|(?:\\.{1,2}[\\\\/])?(?:[^<>:\"|?*\\r\\n\\\\/]+[\\\\/])*[^<>:\"|?*\\r\\n\\\\/]+)$",
                     "title": "server_public_root_ca_certificate",
-                    "type": "integer"
+                    "type": "string"
                 }
             },
             "required": [
@@ -16866,39 +16887,20 @@
                         {
                             "if": {
                                 "properties": {
-                                    "ip_protocol": {
-                                        "const": "IPv4"
+                                    "target_source_type": {
+                                        "const": "Static"
                                     }
                                 },
-                                "required": [
-                                    "ip_protocol"
-                                ]
-                            },
-                            "then": {
                                 "required": [
                                     "target_source_type"
                                 ]
-                            }
-                        },
-                        {
-                            "if": {
-                                "properties": {
-                                    "ip_protocol": {
-                                        "const": "IPv6"
-                                    }
-                                },
-                                "required": [
-                                    "ip_protocol"
-                                ]
                             },
                             "then": {
+                                "required": [
+                                    "primary_target_policy"
+                                ],
                                 "not": {
                                     "anyOf": [
-                                        {
-                                            "required": [
-                                                "target_source_type"
-                                            ]
-                                        },
                                         {
                                             "required": [
                                                 "dhcp_vendor_id_iqn"
@@ -16911,19 +16913,19 @@
                         {
                             "if": {
                                 "properties": {
-                                    "ip_protocol": {
-                                        "const": "IPv4"
-                                    },
                                     "target_source_type": {
                                         "const": "Auto"
                                     }
                                 },
                                 "required": [
-                                    "ip_protocol",
                                     "target_source_type"
                                 ]
                             },
                             "then": {
+                                "required": [
+                                    "dhcp_vendor_id_iqn",
+                                    "target_source_type"
+                                ],
                                 "not": {
                                     "anyOf": [
                                         {
@@ -17139,7 +17141,8 @@
                         }
                     },
                     "required": [
-                        "name"
+                        "name",
+                        "target_source_type"
                     ],
                     "title": "iscsi_boot",
                     "type": "object"
@@ -17753,7 +17756,7 @@
                     "object_type": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "ethernet_network_policy": {
                     "default": "default",
@@ -18228,7 +18231,7 @@
                     "object_type": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "ethernet_network_policies": {
                     "description": "The Name(s) of the Ethernet Network Policies to Assign.  If it is a list of 1 then the policy will be used by both vNICs.  If the list is greater than 1, then the list must be an even number, and it will be split between the vNICs. If this policy is originating from a shared organization, include the organization name with the policy via `org_name/policy_name`.",
@@ -18458,7 +18461,7 @@
                     "object_type": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "ethernet_qos_policy": {
                     "default": "default",
@@ -19057,7 +19060,7 @@
                 },
                 "password": {
                     "default": 1,
-                    "description": "The default value is `1`.  The LDAP Binding Parameter Password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables binding_parameters_password_[1-64].  i.e. `export binding_parameters_password_1='cisco123'`.",
+                    "description": "The default value is `1`.  The LDAP Binding Parameter Password Sensitive Variable Identifier.  A number Between 1-64 to denote the variables ldap_binding_password_[1-64].  i.e. `export ldap_binding_password_1='cisco123'`.",
                     "intersight_api": "Password",
                     "maximum": 64,
                     "minimum": 1,
@@ -22896,7 +22899,7 @@
                     "objectType": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "fec": {
                     "default": "Auto",
@@ -23057,7 +23060,7 @@
                     "objectType": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "fec": {
                     "default": "Auto",
@@ -23660,7 +23663,7 @@
                     "objectType": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "fec": {
                     "default": "Auto",
@@ -23806,7 +23809,7 @@
                     "objectType": "fabric.EthNetworkGroupPolicy",
                     "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                     "type": "array",
-                    "uniqueItems": true
+                    "uniqueItems": false
                 },
                 "ethernet_network_group_policy": {
                     "default": "",
@@ -27557,6 +27560,27 @@
                     "$ref": "#/definitions/intersight.abstract.policy"
                 },
                 {
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "server_family": {
+                                        "const": "UCSC845A"
+                                    }
+                                },
+                                "required": [
+                                    "server_family"
+                                ]
+                            },
+                            "then": {
+                                "not": {
+                                    "required": [
+                                        "minimum_severity"
+                                    ]
+                                }
+                            }
+                        }
+                    ],
                     "description": "Name that identifies the SMTP Policy.",
                     "properties": {
                         "enable_smtp": {
@@ -27603,6 +27627,17 @@
                             "title": "minimum_severity",
                             "type": "string"
                         },
+                        "server_family": {
+                            "default": "All",
+                            "description": "The default valus is `All`.  The server family type applicable to a server profile when the target platform is Standalone. For all other platform types, the value should be All.\n\nOptions are:\n\n  * `UCSC845A` - Server Family type for UCS C845A servers.\n  * `UCSC2XX/4XX` - Server Family type for UCS C2XX/4XX servers.",
+                            "enum": [
+                                "UCSC845A",
+                                "UCSC2XX/4XX"
+                            ],
+                            "intersight_api": "ServerFamily",
+                            "title": "server_family",
+                            "type": "string"
+                        },
                         "smtp_alert_sender_address": {
                             "default": "intersight@example.com",
                             "description": "The default value is `intersight@example.com`.  The email address entered here will be displayed as the from address (mail received from address) of all the SMTP mail alerts that are received. If not configured, the hostname of the server is used in the from address field.",
@@ -27641,6 +27676,7 @@
                     },
                     "required": [
                         "mail_alert_recipients",
+                        "server_family",
                         "smtp_alert_sender_address",
                         "smtp_server_address"
                     ],
@@ -27806,7 +27842,7 @@
             "properties": {
                 "community_string": {
                     "default": 1,
-                    "description": "The default value is `1`.  A number Between 1-5 to denote to use one of the variables snmp_auth_password_[1-5].  Any other number means no community string.  A number Between 1-64 to denote the variables snmp_auth_password_[1-64].",
+                    "description": "The default value is `1`.  A number Between 1-64 to denote the variables snmp_trap_community_[1-64].  i.e. `export snmp_trap_community_1='cisco123'`.",
                     "intersight_api": "Community",
                     "maximum": 64,
                     "minimum": 1,
@@ -27839,6 +27875,9 @@
                     "intersight_api": "Port",
                     "maximum": 65535,
                     "minimum": 1,
+                    "not": {
+                        "enum": [22, 23, 80, 123, 389, 443, 623, 636, 2068, 3268, 3269]
+                    },
                     "title": "port",
                     "type": "integer"
                 },
@@ -27889,10 +27928,9 @@
                     "type": "integer"
                 },
                 "auth_type": {
-                    "default": "SHA",
-                    "description": "The default value is `SHA`.  Authorization protocol for authenticating the user.\n  * `NA` - Authentication protocol is not applicable.\n  * `MD5` - MD5 protocol is used to authenticate SNMP user.\n  * `SHA` - SHA protocol is used to authenticate SNMP user.\n  * `SHA-256` - SHA-256 protocol is used to authenticate SNMP user.\n  * `SHA-384` - SHA-384 protocol is used to authenticate SNMP user.\n  * `SHA-512` - SHA-512 protocol is used to authenticate SNMP user.",
+                    "default": "SHA-256",
+                    "description": "The default value is `SHA-256`.  Authorization protocol for authenticating the user.\n  * `SHA` - SHA protocol is used to authenticate SNMP user.\n  * `SHA-256` - SHA-256 protocol is used to authenticate SNMP user.\n  * `SHA-384` - SHA-384 protocol is used to authenticate SNMP user.\n  * `SHA-512` - SHA-512 protocol is used to authenticate SNMP user.",
                     "enum": [
-                        "MD5",
                         "SHA",
                         "SHA-256",
                         "SHA-384",
@@ -27926,9 +27964,8 @@
                 },
                 "privacy_type": {
                     "default": "AES",
-                    "description": "The default value is `AES`.  Privacy protocol for the user.\n  * `NA` - Privacy protocol is not applicable.\n  * `DES` - DES privacy protocol is used for SNMP user.\n  * `AES` - AES privacy protocol is used for SNMP user.",
+                    "description": "The default value is `AES`.  Privacy protocol for the user.\n  * `DES` - DES privacy protocol is used for SNMP user.\n  * `AES` - AES privacy protocol is used for SNMP user.",
                     "enum": [
-                        "NA",
                         "DES",
                         "AES"
                     ],
@@ -27938,10 +27975,9 @@
                 },
                 "security_level": {
                     "default": "AuthPriv",
-                    "description": "The default value is `AuthPriv`.  Security mechanism used for communication between agent and manager.\n  * `AuthPriv` - The user requires both an authorization password and a privacy password.\n  * `NoAuthNoPriv` - The user does not require an authorization or privacy password.\n  * `AuthNoPriv` - The user requires an authorization password but not a privacy password.",
+                    "description": "The default value is `AuthPriv`.  Security mechanism used for communication between agent and manager.\n  * `AuthPriv` - The user requires both an authorization password and a privacy password.\n  * `AuthNoPriv` - The user requires an authorization password but not a privacy password.",
                     "enum": [
                         "AuthPriv",
-                        "NoAuthNoPriv",
                         "AuthNoPriv"
                     ],
                     "intersight_api": "SecurityLevel",
@@ -31376,7 +31412,7 @@
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
                 },
                 "server": {
-                    "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nIMPORTANT:\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have assigned a Cisco Intersight Essentials License to the physical servers.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment with the targets:\n  * `domain_name`\n\nOptional Attributes\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_profile_template`\n\n\n#===========================================================\n# FIAttached and Unified Edge - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `persistent_memory_policy`\n  * `power_policy`\n  * `thermal_policy`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `device_connector_policy`\n  * `ipmi_over_lan_policy`\n  * `ldap_policy`\n  * `local_user_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy`\n  * `ssh_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
+                    "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nIMPORTANT:\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have assigned a Cisco Intersight Essentials License to the physical servers.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment with the targets:\n  * `domain_name`\n\nOptional Attributes\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_profile_template`\n\n\n#===========================================================\n# FIAttached and Unified Edge - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `persistent_memory_policy`\n  * `power_policy`\n  * `thermal_policy`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `device_connector_policy`\n  * `ipmi_over_lan_policy`\n  * `ldap_policy`\n  * `local_user_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy`\n  * `ssh_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                     "intersight_uri": "server/Profiles",
                     "items": {
                         "$ref": "#/definitions/intersight.profiles.server"
@@ -33731,7 +33767,7 @@
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
                 },
                 "server": {
-                    "description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n\n\n#===========================================================\n# FIAttached and Unified Edge - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `persistent_memory_policy`\n  * `power_policy`\n  * `thermal_policy`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `device_connector_policy`\n  * `ipmi_over_lan_policy`\n  * `ldap_policy`\n  * `local_user_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy`\n  * `ssh_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
+                    "description": "In Cisco Intersight, a Server Profile Template enables resource management by streamlining policy alignment, and server configuration. You can create Server Profile Templates using the UCS Server Profile Template wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profile Templates wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nRequired Attributes:\n  * `create_template`\n  * `name`\n  * `server_family` - Set to All unless Standalone\n  * `target_platform`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n\n\n#===========================================================\n# FIAttached and Unified Edge Server - Pools/Policies\n#===========================================================\n\n#===========================================\n# Compute Configuration\n#===========================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#===========================================\n# Management Configuration\n#===========================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#===========================================\n# Storage Configuration\n#===========================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#===========================================\n# Network Configuration\n#===========================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies -  C845A and UCSC2XX/4XX\n#===========================================================\n\n#===========================================\n# Compute Configuration\n#===========================================\n  * `bios_policy`\n  * `boot_order_policy`  - UCSC2XX/4XX Only\n  * `firmware_policy`\n  * `memory_policy` - UCSC2XX/4XX Only\n  * `persistent_memory_policy` - UCSC2XX/4XX Only\n  * `power_policy`\n  * `thermal_policy` - UCSC2XX/4XX Only\n  * `virtual_media_policy`\n\n#===========================================\n# Management Configuration\n#===========================================\n  * `certificate_management_policy`\n  * `device_connector_policy` - UCSC2XX/4XX Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - UCSC2XX/4XX Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - UCSC2XX/4XX Only\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy` - UCSC2XX/4XX Only\n  * `ssh_policy`\n  * `syslog_policy` - UCSC2XX/4XX Only\n  * `virtual_kvm_policy`\n\n#===========================================\n# Storage Configuration - UCSC2XX/4XX Only\n#===========================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#===========================================\n# Network Configuration - UCSC2XX/4XX Only\n#===========================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                     "intersight_uri": "server/ProfileTemplates",
                     "items": {
                         "$ref": "#/definitions/intersight.templates.server"
@@ -35214,7 +35250,7 @@
                             "object_type": "fabric.EthNetworkGroupPolicy",
                             "title": "ethernet_network_group_policies - Ethernet Network Group Policies",
                             "type": "array",
-                            "uniqueItems": true
+                            "uniqueItems": false
                         },
                         "ethernet_qos_policy": {
                             "default": "default",
