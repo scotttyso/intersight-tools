@@ -23,11 +23,18 @@
     "ObjectType": "organization.Organization"
   },
   "PfcWatchdog": {
+{% if item.target_platform | default('Unified Edge') == 'UCS Domain' %}
     "IsWatchdogEnabled": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_enabled', true) | tojson }},
     "ObjectType": "fabric.PfcWatchDog",
     "ShutdownMultiplier": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('shutdown_multiplier', 1) | int }},
     "WatchdogInterval": {{ (item.priority_flow_control_watchdog_configuration | default({})).get('watchdog_interval', 500) | int }}
+{% else %}
+    "IsWatchdogEnabled": false,
+    "ObjectType": "fabric.PfcWatchDog",
+    "ShutdownMultiplier": 1,
+    "WatchdogInterval": 500
   },
+{% endif %}
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}

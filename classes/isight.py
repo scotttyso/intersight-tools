@@ -150,12 +150,12 @@ class api(object):
                 kwargs.rsg_moids[i.Name] = DotMap(moid = i.Moid, tags = i.Tags)
                 kwargs.rsg_names[i.Moid] = i.Name
             return kwargs
+        preg  = re.compile(r'^(Parent|((Eth|Fc)Network|(L|S)anConnectivity|Ldap|Port|Storage)Policy)')
         if not kwargs.build_skip == True and api_results.get('Results'):
             def check_for_dotmap_key(i, kkeys, kwargs):
                 if not 'intersight_api' in kkeys:
                     kwargs.intersight_api = DotMap()
                     kwargs.intersight_api[kwargs.org] = DotMap()
-                    kwargs.intersight_api.account_moid = i.AccountMoid
                 return kwargs
             for i in api_results.Results:
                 if i.get('Body'): i = i.Body
@@ -176,7 +176,8 @@ class api(object):
                 elif 'organization.Organization' == i.ObjectType:
                     kwargs = function_org_moids(i, kwargs)
                     continue
-                elif 'Parent' in ikeys and type(kwargs.org) == str:
+                elif any(re.search(preg, e) for e in ikeys) and isinstance(kwargs.org, str):
+                    parent_match = next((e for e in ikeys if re.search(preg, e)), None)
                     if 'PcId'           in ikeys: iname = str(i.PcId)
                     elif 'PortId'       in ikeys: iname = str(i.PortId)
                     elif 'EndPointUser' in ikeys: iname = i.EndPointUser.Moid
@@ -187,9 +188,8 @@ class api(object):
                     elif 'Name'         in ikeys: iname = i.Name
                     else: iname = i.Moid
                     split_name  = kwargs.intersight_object_map[i.ObjectType].split('.')
-                    child_type  = split_name[1]
-                    parent_type = split_name[0]
-                    parent_name = kwargs.intersight_api[kwargs.org][self.category][parent_type][i.Parent.Moid]
+                    child_type  = split_name[1]; parent_type = split_name[0]
+                    parent_name = kwargs.intersight_api[kwargs.org][self.category][parent_type][i[parent_match].Moid]
                     kwargs.intersight_api[kwargs.org][self.category][parent_type][parent_name][child_type][iname] = DotMap(
                         moid   = i.Moid,
                         result = i,
@@ -199,10 +199,8 @@ class api(object):
                 if 'Name' in ikeys and type(self.category) == str and type(kwargs.org) == str:
                     # fcpool.Pool backs both wwnn and wwpn; keep the requested
                     # pool type to avoid collapsing both into a single key.
-                    if self.category == 'pools' and i.ObjectType == 'fcpool.Pool' and self.type in ['wwnn', 'wwpn']:
-                        ptype = self.type
-                    else:
-                        ptype = kwargs.intersight_object_map[i.ObjectType]
+                    if self.category == 'pools' and i.ObjectType == 'fcpool.Pool' and self.type in ['wwnn', 'wwpn']: ptype = self.type
+                    else: ptype = kwargs.intersight_object_map[i.ObjectType]
                     kwargs = check_for_dotmap_key(i, kkeys, kwargs)
                     iname = i.Name
                     kwargs.intersight_api[kwargs.org][self.category][ptype][iname] = DotMap(moid = i.Moid, result = i, tags = i.Tags)
@@ -398,7 +396,7 @@ class api(object):
                 if api_results.get('Responses'):
                     for e in api_results.Responses:
                         kwargs.api_results = e.Body
-                        validating.completed_item(self.type, kwargs)
+                        validating.completed_item(self.category, self.type, kwargs)
                 elif re.search('bulk.(Request|RestResult)', api_results.ObjectType):
                     for e in api_results.Results:
                         kwargs.api_results = e.Body
@@ -419,10 +417,10 @@ class api(object):
                             if not e.Body['ObjectType'] == 'iam.EndPointUserRole':
                                 indx = next((index for (index, d) in enumerate(kwargs.api_body['Requests']) if d['Body'][name_key] == e.Body[name_key]), None)
                                 kwargs.method = (kwargs.api_body['Requests'][indx]['Verb']).lower()
-                        validating.completed_item(self.type, kwargs)
+                        validating.completed_item(self.category, self.type, kwargs)
                 else:
                     kwargs.api_results = api_results
-                    validating.completed_item(self.type, kwargs)
+                    validating.completed_item(self.category, self.type, kwargs)
             return kwargs
         #=====================================================================
         # Pagenation for Get > 1000
@@ -430,6 +428,7 @@ class api(object):
         kwargs_keys = list(kwargs.keys())
         if kwargs.method == 'get':
             def build_api_args(kwargs_keys, kwargs):
+                scategory = self.category; stype = self.type
                 if not 'api_filter' in kwargs_keys:
                     regex1 = re.compile('moid_filter|registered_device|workflow_os_install')
                     regex2 = re.compile('(ip|iqn|mac|uuid|wwnn|wwpn)_leases')
@@ -437,10 +436,11 @@ class api(object):
                     else: names = "', '".join(kwargs.names).strip("', '")
                     if re.search('organizations|resource_groups', self.type): api_filter = f"Name in ('{names}')"
                     elif self.category == 'system':
+                        sregex = re.compile('^(blades|chassis|domain||rackmounts|server)')
                         if 'iam_end_point_role'  == self.type: api_filter = f"Name in ('{names}') and Type eq 'IMC'"
                         elif 'iam_sharing_rules' == self.type: api_filter = f"SharedResource/Moid in ('{names}')"
                         elif 'path_tags'         == self.type: api_filter = f"Key in ('{names}')"
-                        elif re.search('blades|rackmounts', self.type): api_filter = f"Serial in ('{names}')"
+                        elif re.search(sregex, self.type):     api_filter = f"Serial in ('{names}')"
                         else: api_filter = f"Name in ('{names}')"
                     elif 'ancestors'    == self.type:         api_filter = f"Ancestors/any(t:t/Moid in ('{names}'))"
                     elif 'asset_target' == self.type:         api_filter = f"TargetId in ('{names}')"
@@ -459,13 +459,12 @@ class api(object):
                     elif 'reservations' in self.type:         api_filter = f"Identity in ('{names}')"
                     elif 'serial_number' == self.type:        api_filter = f"Serial in ('{names}')"
                     elif 'storage.drive_groups' == self.type: api_filter = f"Parent/Moid in ('{names}')"
-                    elif 'switch' == self.type:               api_filter = f"Name in ('{names}') and SwitchClusterProfile.Moid eq '{kwargs.pmoid}'"
-                    elif 'switch_profiles' == self.type:      api_filter = f"SwitchClusterProfile.Moid in ('{names}')"
-                    elif 'sw_profile_templates' == self.type: api_filter = f"SwitchClusterProfileTemplate.Moid in ('{names}')"
-                    elif 'user_role' == self.type:            api_filter = f"EndPointUser.Moid in ('{names}') and EndPointUserPolicy.Moid eq '{kwargs.pmoid}'"
+                    elif '.switch' in self.type:              api_filter = f"SwitchClusterProfile/Moid in ('{names}')"
+                    elif '.switch' in stype and 'templates' == scategory: api_filter = f"SwitchClusterProfileTemplate/Moid in ('{names}')"
+                    elif 'user_role' == self.type:            api_filter = f"EndPointUser/Moid in ('{names}') and EndPointUserPolicy/Moid eq '{kwargs.pmoid}'"
                     elif re.search('v.an\.v.ans', self.type): api_filter = f"Parent/Moid in ('{names}')"
-                    elif 'wwnn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWNN' and AssignedToEntity.Moid in ('{names}')"
-                    elif 'wwpn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWPN' and AssignedToEntity.Moid in ('{names}')"
+                    elif 'wwnn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWNN' and AssignedToEntity/Moid in ('{names}')"
+                    elif 'wwpn_pool_leases' == self.type:     api_filter = f"PoolPurpose eq 'WWPN' and AssignedToEntity/Moid in ('{names}')"
                     else: api_filter = f"Name in ('{names}') and Organization.Moid eq '{org_moid}'"
                     if re.search('ww(n|p)n.(leases|reservations)', self.type): pass
                     elif re.search('ww(n|p)n', self.type): api_filter = api_filter + f" and PoolPurpose eq '{self.type.upper()}'"
@@ -1368,7 +1367,7 @@ class configure(object):
         elif 'vlans'        in self.type: pkey = 'VlanId'
         elif 'vsans'        in self.type: pkey = 'VsanId'
         elif 'ldap_servers' in self.type: pkey = 'Server'
-        elif re.search('groups|users|vnic|vhbas|ldap_groups', self.type): pkey = 'Name'
+        else: pkey = 'Name'
         akeys        = list(api_body.keys())
         check_flag   = getattr(kwargs.args, 'check', False)
         child_type   = self.type.split('.')[1]
@@ -1464,21 +1463,13 @@ class configure(object):
         differences = []
 
         def list_sort_key(value, path=''):
+            if path.endswith('Tags') and isinstance(value, dict):
+                tag_key = str(value.get('Key', value.get('key', ''))).strip().lower()
+                return (0, 0, tag_key)
             if self.type == 'system_qos' and path == 'Classes' and isinstance(value, dict):
-                priority_order = {
-                    'fc': 0,
-                    'platinum': 1,
-                    'gold': 2,
-                    'silver': 3,
-                    'bronze': 4,
-                    'best effort': 5,
-                    'besteffort': 5,
-                    'best_effort': 5,
-                }
-                pname = value.get('Priority', value.get('priority', value.get('Name', value.get('name'))))
-                if pname is not None:
-                    pkey = str(pname).strip().lower()
-                    return (0, priority_order.get(pkey, 99), pkey)
+                class_name = value.get('Name', value.get('name'))
+                if class_name is not None:
+                    return (0, 0, str(class_name).strip().lower())
             if isinstance(value, dict):
                 priority = value.get('Priority', value.get('priority'))
                 if priority is not None:
@@ -1569,6 +1560,23 @@ class configure(object):
                 if not isinstance(v2, list):
                     record_diff(path, v1, v2, 'type mismatch', key_name)
                     return True
+                # Compare tags by Key so extra API-managed tags do not shift index alignment.
+                if path.endswith('Tags') and all(isinstance(item, dict) for item in v1):
+                    v2_by_key = {
+                        str(tag.get('Key', tag.get('key'))): tag
+                        for tag in v2
+                        if isinstance(tag, dict) and (tag.get('Key') is not None or tag.get('key') is not None)
+                    }
+                    for tag in v1:
+                        tkey = str(tag.get('Key', tag.get('key')))
+                        tpath = f'{path}[Key={tkey}]'
+                        if tkey not in v2_by_key:
+                            record_diff(tpath, tag, None, 'missing tag key', 'Key')
+                            changed = True
+                            continue
+                        if values_differ(tag, v2_by_key[tkey], tpath, 'Key'):
+                            changed = True
+                    return changed
                 if len(v2) < len(v1):
                     record_diff(path, v1, v2, 'list length/type mismatch', key_name)
                     changed = True
@@ -1596,6 +1604,36 @@ class configure(object):
         return changed
 
     #=========================================================================
+    # Function - If Modified, Patch the Resource via the Intersight API
+    #=========================================================================
+    def compare_resources_to_api(self, api_body, ptitle, kwargs):
+        category   = self.category.replace('_', ' ').title()
+        kwargs.uri = kwargs.ezdata[f"intersight.{self.category}.{self.type}"].intersight_uri
+        check_flag = getattr(kwargs.args, 'check', False)
+        akeys      = list(api_body.keys())
+        if 'Description' in akeys and api_body['Description'] == '':
+            word = self.category
+            api_body['Description'] = f'{api_body["Name"]} {ptitle} {re.sub(r"s$", "", DESCRIPTION_WORD_MAP.get(word, word))}.'
+        if api_body['Name'] in kwargs.intersight_api[kwargs.org][self.category][self.type]:
+            intersight_api = kwargs.intersight_api[kwargs.org][self.category][self.type][api_body['Name']]
+            patch_resource = self.compare_body_result(api_body, intersight_api.result)
+            api_body['pmoid']  = intersight_api.moid
+            if patch_resource == True:
+                if check_flag == True:
+                    pcolor.Cyan(f"     * Running Check Mode: Organization: `{kwargs.org}`; Non-Check mode would update {category} -> {ptitle}: `{api_body['Name']}`."\
+                                f"  Moid: `{api_body['pmoid']}`")
+                else:
+                    kwargs.bulk_list.append(deepcopy(api_body))
+                    kwargs.pmoids[api_body['Name']].moid = api_body['pmoid']
+            else: pcolor.Cyan(f"     * Skipping Organization: `{kwargs.org}`; {category} -> {ptitle}: `{api_body['Name']}` - Moid: `{api_body['pmoid']}`."\
+                                f"  Intersight Matches Configuration.")
+        else:
+            if check_flag == True:
+                pcolor.Cyan(f"     * Running Check Mode: Organization: `{kwargs.org}`; Non-Check mode would create new {category} -> {ptitle}: `{api_body['Name']}`.")
+            else: kwargs.bulk_list.append(deepcopy(api_body))
+        return kwargs
+
+    #=========================================================================
     # Function - Compare Intersight API to IMM Dictionary `configure`
     #=========================================================================
     def configure(self, kwargs):
@@ -1612,8 +1650,10 @@ class configure(object):
             kwargs = self.firmware_authenticate(kwargs)
             validating.section_end_org(kwargs.org, ptitle, self.category.title())
             return kwargs
-        elif self.category and not re.search('(vnic|vhba)_template', self.type):
+        elif self.category == 'templates' and not re.search('(vnic|vhba)_template', self.type):
             reconcile_resources = list({v.name:v for v in rdict if v.get('create_template', False) is True}.values())
+        elif self.category == 'profiles' and re.search('(chassis|server)', self.type):
+            reconcile_resources = list({v.targets[0].name:v for v in rdict}.values())
         else: reconcile_resources = list({v.name:v for v in rdict}.values())
         kwargs.idata = idata
         #=====================================================================
@@ -1629,7 +1669,7 @@ class configure(object):
         # Validate the Sub Resources are defined or get Moids
         #=====================================================================
         regex1  = re.compile(r'id_mapping|imc_access|ip|iscsi_boot|(l|s)an_connectivity|organizations|port|resource|(vhba|vnic)_template|vlan', re.IGNORECASE)
-        regex2  = re.compile(r'(chassis|domain|server)', re.IGNORECASE)
+        regex2  = re.compile(r'(chassis|domain|server|unified_edge)', re.IGNORECASE)
         regcomb = re.compile('|'.join([regex1.pattern, regex2.pattern]), re.IGNORECASE)
         if re.search(regcomb, self.type):
             kwargs.cp = DotMap()
@@ -1645,37 +1685,9 @@ class configure(object):
                         category = kwargs.cp[e].get('category', self.category)
                         kwargs = configure(e, category=category).api_get(False, names, e, kwargs)
         #=====================================================================
-        # If Modified, Patch the Resource via the Intersight API
-        #=====================================================================
-        def compare_resources_to_api(api_body, ptitle, kwargs):
-            category   = self.category.replace('_', ' ').title()
-            kwargs.uri = kwargs.ezdata[f"intersight.{self.category}.{self.type}"].intersight_uri
-            check_flag = getattr(kwargs.args, 'check', False)
-            akeys      = list(api_body.keys())
-            if 'Description' in akeys and api_body['Description'] == '':
-                word = self.category
-                api_body['Description'] = f'{api_body["Name"]} {ptitle} {re.sub(r"s$", "", DESCRIPTION_WORD_MAP.get(word, word))}.'
-            if api_body['Name'] in kwargs.intersight_api[kwargs.org][self.category][self.type]:
-                intersight_api = kwargs.intersight_api[kwargs.org][self.category][self.type][api_body['Name']]
-                patch_resource = configure(self.type).compare_body_result(api_body, intersight_api.result)
-                api_body['pmoid']  = intersight_api.moid
-                if patch_resource == True:
-                    if check_flag == True:
-                        pcolor.Cyan(f"     * Running Check Mode: Organization: `{kwargs.org}`; Non-Check mode would update {category} -> {ptitle}: `{api_body['Name']}`."\
-                                    f"  Moid: `{api_body['pmoid']}`")
-                    else:
-                        kwargs.bulk_list.append(deepcopy(api_body))
-                        kwargs.pmoids[api_body['Name']].moid = api_body['pmoid']
-                else: pcolor.Cyan(f"     * Skipping Organization: `{kwargs.org}`; {category} -> {ptitle}: `{api_body['Name']}` - Moid: `{api_body['pmoid']}`."\
-                                  f"  Intersight Matches Configuration.")
-            else:
-                if check_flag == True:
-                    pcolor.Cyan(f"     * Running Check Mode: Organization: `{kwargs.org}`; Non-Check mode would create new {category} -> {ptitle}: `{api_body['Name']}`.")
-                else: kwargs.bulk_list.append(deepcopy(api_body))
-            return kwargs
-        #=====================================================================
         # Loop through Resource Items
         #=====================================================================
+        kwargs.resources = deepcopy(reconcile_resources)
         kwargs.bulk_list = []
         for item in reconcile_resources:
             if self.type == 'port':
@@ -1683,15 +1695,17 @@ class configure(object):
                     # Construct api_body Payload
                     item.name = item.names[x]
                     api_body  = self.create_api_body(item, np, ns, kwargs)
-                    kwargs    = compare_resources_to_api(api_body, ptitle, kwargs)
+                    kwargs    = self.compare_resources_to_api(api_body, ptitle, kwargs)
             elif self.category == 'profiles' and re.search(r'(chassis|server)', self.type):
                 kwargs = getattr(self, f'profiles_{self.type}')(item, kwargs)
+                return kwargs
             elif re.search(r'(domain|unified_edge)', self.type):
                 kwargs = getattr(self, f'{self.category}_{self.type}')(item, kwargs)
+                return kwargs
             else:
                 # Construct api_body Payload
                 api_body = self.create_api_body(item, np, ns, kwargs)
-                kwargs   = compare_resources_to_api(api_body, ptitle, kwargs)
+                kwargs   = self.compare_resources_to_api(api_body, ptitle, kwargs)
         #=====================================================================
         # POST Bulk Request if List > 0
         #=====================================================================
@@ -1701,7 +1715,7 @@ class configure(object):
         #=====================================================================
         # Loop Thru Sub-Items
         #=====================================================================
-        kwargs.resources = reconcile_resources
+        kwargs.resources = deepcopy(reconcile_resources)
         if 'port' == self.type: kwargs = self.policies_port_children(kwargs)
         elif 'snmp' == self.type: kwargs = self.policies_snmp(kwargs)
         elif re.search(r'^ldap|local_user||(l|s)an_connectivity|storage|v(l|s)an$', self.type):
@@ -1730,6 +1744,8 @@ class configure(object):
             item = getattr(self, f'policies_{self.type}')(item, kwargs)
         elif self.category == 'templates' and re.search('(chassis|server)', self.type):
             item = getattr(self, f'templates_{self.type}')(item, kwargs)
+        elif self.category == 'profiles' and re.search('(chassis|server)', self.type):
+            item = getattr(self, 'profiles_templates_create_policy_bucket')(item, kwargs)
 
         item  = self.merge_tags(item, kwargs)
         
@@ -2101,6 +2117,8 @@ class configure(object):
                 rtype = regex.search(k).group(1)
                 r     = regex.sub('', k)
                 if not '.' in r and v.get('object_type'): kwargs[f'{rtype}_list'].append(r)
+        if 'switch' in kwargs.profiles_list: kwargs.profiles_list.remove('switch')
+        if 'switch' in kwargs.templates_list: kwargs.templates_list.remove('switch')
         iboot_index = kwargs.policies_list.index('iscsi_boot') if 'iscsi_boot' in kwargs.policies_list else len(kwargs.policies_list)
         ip_index    = kwargs.pools_list.index('ip') if 'ip' in kwargs.pools_list else len(kwargs.pools_list)
         ptemplates  = ['id_mapping', 'server_pool_qualification']
@@ -2130,8 +2148,8 @@ class configure(object):
                 kwargs.org = 'default'
                 if ptype in list(kwargs.imm_dict.get('system', {}).keys()):
                     kwargs = getattr(system(type=f'{ptype}', category='system'), 'system')(kwargs)
-        for e in ['pools', 'policies', 'templates']:
-        # for e in ['pools', 'policies', 'templates', 'profiles']:
+        # for e in ['pools', 'policies', 'templates']:
+        for e in ['pools', 'policies', 'templates', 'profiles']:
             for ptype in kwargs[f'{e}_list']:
                 for org in orgs:
                     kwargs.org = org
@@ -2633,6 +2651,7 @@ class configure(object):
                             # item.name = deepcopy(f"{original_name}{'0'*(4 - len(str(x)))}{x}")
                         else: item.name = deepcopy(f"{original_name}")
                         item.vlan_id = x
+                        item.target_platform = e.get('target_platform', 'UCS Domain')
                         api_body = configure(f'{self.type}.{child_type}', category=self.category).create_api_body(item, np, ns, kwargs)
                         kwargs   = configure(f'{self.type}.{child_type}', category=self.category).children_compare_api_body(api_body, kwargs)
         if len(kwargs.bulk_list) > 0:
@@ -2763,6 +2782,114 @@ class configure(object):
         return kwargs
 
     #=========================================================================
+    # Function - Chassis Profiles Modification
+    #=========================================================================
+    def profiles_chassis(self, item, kwargs):
+        item = self.profiles_server(item, kwargs)
+        return item
+
+    #=========================================================================
+    # Function - Domain Profiles Modification
+    #=========================================================================
+    def profiles_domain(self, item, kwargs):
+        ptitle  = ezfunctions.mod_pol_description((self.type.replace('_', ' ').title()))
+        np, ns  = self.name_prefix_suffix(self.type, kwargs)
+        serials = []; names = []
+        org = kwargs.org
+        resources = deepcopy(kwargs.resources)
+        for e in resources:
+            ekeys = list(e.keys())
+            if self.category == 'profiles':
+                if 'serial_numbers' in ekeys:
+                    for s in e.serial_numbers:
+                        remove_count = 0
+                        if re.search(serial_regex, s): serials.append(s)
+                        else:
+                            remove_count += 1
+                            pcolor.Yellow(f'!!! WARNING !!! Serial number "{s}" does not match expected format and will be skipped for profile "{e.name}".')
+                    if remove_count > 0: kwargs.resources[kwargs.resources.index(e)].serial_numbers = []
+                elif 'serial_number' in ekeys:
+                    if re.search(serial_regex, e.serial_number): serials.append(e.serial_number)
+                    else:
+                        kwargs.resources[kwargs.resources.index(e)].serial_number = None
+                        pcolor.Yellow(f'!!! WARNING !!! Serial number "{e.serial_number}" does not match expected format and will be skipped for profile "{e.name}".')
+            names.append(f'{np}{e.name}{ns}')
+        if len(serials) > 0: kwargs = system(category='system', type=self.type).api_get(True, serials, kwargs)
+        kwargs.org = org
+        kwargs = self.api_get(True, names, self.type, kwargs)
+        pdict  = kwargs.intersight_api[org][self.category].domain
+        kwargs = configure(category=self.category, type='domain.switch').api_get(True, [pdict[e].moid for e in names if e in pdict], 'domain.switch', kwargs)
+        #=====================================================================
+        # Domain/Unified Edge Profile API Body Creation and Comparison Loop.
+        # If Differences or No Existing Resource, Append to Bulk List for POST/PATCH.  If No Differences, Skip.
+        #=====================================================================
+        kwargs.bulk_list = []
+        for item in kwargs.resources:
+            item.target_platform = self.type.replace('_', ' ').title()
+            api_body = configure(category=self.category, type='domain').create_api_body(item, np, ns, kwargs)
+            kwargs   = configure(category=self.category, type='domain').compare_resources_to_api(api_body, ptitle, kwargs)
+        # POST Bulk Request if List > 0
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = kwargs.ezdata[f"intersight.{self.category}.domain"].intersight_uri
+            kwargs     = configure(category=self.category, type='domain').create_bulk_request(kwargs)
+        #=====================================================================
+        # Function - Merge Template
+        #=====================================================================
+        def merge_template(item, template_name, kwargs):
+            templates = kwargs.imm_dict.orgs[kwargs.org].templates[self.type]
+            tkeys = list(templates.keys())
+            if template_name in tkeys:
+                merged = deepcopy(templates[template_name].toDict())
+                merged = self.deep_merge_dicts(merged, item.toDict())
+            else:
+                pcolor.Red(f'!!! ERROR !!! {ptitle} Template "{template_name}" was not found in "intersight/configure/templates/{self.category}".')
+                pcolor.Red(f'Available templates are: {", ".join(sorted(tkeys))}')
+                sys.exit(1)
+            return DotMap(merged)
+        #=====================================================================
+        # Domain/Unified Edge Switch Profile API Body Creation and Comparison Loop.
+        # If Differences or No Existing Resource, Append to Bulk List for POST/PATCH.  If No Differences, Skip.
+        #=====================================================================
+        policies = ['port_policies', 'vlan_policies', 'vsan_policies']
+        kwargs.bulk_list = []
+        if self.type == 'unified_edge': target_platform = 'Unified Edge'
+        else: target_platform = 'UCS Domain'
+        template = f'{target_platform.lower().replace(" ", "_")}_profile_template'
+        for item in kwargs.resources:
+            ikeys = list(item.keys())
+            item.name   = f"{np}{item.name}{ns}"
+            item.parent = kwargs.intersight_api[org][self.category].domain[item.name].moid
+            item.target_platform = target_platform
+            if self.category == 'profiles' and item.get('attach_template', True) is False and item.get(template, None) is not None:
+                item = merge_template(item, item[template], kwargs)
+            i_orginal   = deepcopy(item)
+            for s in ['A', 'B']:
+                item = deepcopy(i_orginal)
+                item.index = ord(s) - 65
+                item.switch_id = s
+                for p in policies:
+                    if p in ikeys:
+                        if len(item[p]) > 1:
+                            item[f'{p.replace("_policies", "_policy")}']   = item[p][item.index]
+                        else: item[f'{p.replace("_policies", "_policy")}'] = item[p][0]
+                        item.pop(p)
+                item = self.profiles_templates_create_policy_bucket(item, kwargs)
+                api_body = configure(category=self.category, type='domain.switch').create_api_body(item, np, ns, kwargs)
+                kwargs   = configure(category=self.category, type='domain.switch').children_compare_api_body(api_body, kwargs)
+        # POST Bulk Request if List > 0
+        if len(kwargs.bulk_list) > 0:
+            kwargs.uri = kwargs.ezdata[f"intersight.{self.category}.domain.switch"].intersight_uri
+            kwargs     = configure(category=self.category, type='domain.switch').create_bulk_request(kwargs)
+        return kwargs
+
+    #=========================================================================
+    # Function - Server Profiles Modification
+    #=========================================================================
+    def profiles_server(self, item, kwargs):
+        item = self.profiles_templates_create_policy_bucket(item, kwargs)
+        return item
+
+    #=========================================================================
     # Function - Identity Reservations
     #=========================================================================
     def profiles_server_identity_reservations(self, profiles, kwargs):
@@ -2887,27 +3014,6 @@ class configure(object):
         return kwargs
 
     #=========================================================================
-    # Function - Chassis Profiles Modification
-    #=========================================================================
-    def profiles_chassis(self, item, kwargs):
-        item = self.profiles_templates_create_policy_bucket(item, kwargs)
-        return item
-
-    #=========================================================================
-    # Function - Domain Profiles Modification
-    #=========================================================================
-    def profiles_domain(self, item, kwargs):
-        item = self.profiles_templates_create_policy_bucket(item, kwargs)
-        return item
-
-    #=========================================================================
-    # Function - Server Profiles Modification
-    #=========================================================================
-    def profiles_server(self, item, kwargs):
-        item = self.profiles_templates_create_policy_bucket(item, kwargs)
-        return item
-
-    #=========================================================================
     # Function - Server Profiles/Templates Modification
     #=========================================================================
     def profiles_templates_create_policy_bucket(self, item, kwargs):
@@ -2918,13 +3024,12 @@ class configure(object):
             'auditd_policy', 'certificate_management_policy', 'ldap_policy', 'netflow_configuration_policy', 'network_connectivity_policy',
             'ntp_policy', 'port_policy', 'snmp_policy', 'switch_control_policy', 'syslog_policy', 'system_qos_policy', 'vlan_policy', 'vsan_policy'
         ]
+        fi_only = ['drive_security_policy', 'pcie_connectivity_policy', 'san_connectivity_policy', 'sd_card_policy', 'thermal_policy']
         fi_unified_common = [
             'bios_policy', 'boot_order_policy', 'certificate_management_policy', 'firmware_policy', 'imc_access_policy', 'ipmi_over_lan_policy',
             'lan_connectivity_policy', 'local_user_policy', 'memory_policy', 'power_policy', 'scrub_policy', 'serial_over_lan_policy', 'snmp_policy',
             'storage_policy', 'syslog_policy', 'virtual_kvm_policy', 'virtual_media_policy'
         ]
-        fi_only = ['drive_security_policy', 'pcie_connectivity_policy', 'san_connectivity_policy', 'sd_card_policy', 'thermal_policy']
-
         standalone_common = [
             'bios_policy', 'certificate_management_policy', 'firmware_policy', 'ipmi_over_lan_policy', 'local_user_policy', 'power_policy',
             'serial_over_lan_policy', 'smtp_policy', 'ssh_policy', 'virtual_kvm_policy', 'virtual_media_policy',
@@ -2938,41 +3043,37 @@ class configure(object):
             'power_policy', 'thermal_policy', 'port_policy', 'switch_control_policy', 'system_qos_policy', 'vlan_policy',
             'local_user_policy', 'network_connectivity_policy', 'ntp_policy', 'syslog_policy'
         ]
-        multi_policy_alias = {
-            'port_policy': 'port_policies',
-            'vlan_policy': 'vlan_policies',
-            'vsan_policy': 'vsan_policies'
-        }
         target_platform = item.get('target_platform', 'FIAttached')
         server_family = item.get('server_family', 'All')
 
-        if   self.type == 'chassis': allowed_policies = chassis_
-        elif self.type == 'domain':  allowed_policies = domain_
-        elif self.type == 'unified_edge': allowed_policies = unified_edge_
-        elif   target_platform == 'FIAttached':        allowed_policies = fi_unified_common + fi_only
+        if   self.type == 'chassis' or target_platform == 'Chassis': allowed_policies = chassis_
+        elif self.type == 'domain'  or target_platform == 'UCS Domain':  allowed_policies = domain_
+        elif self.type == 'unified_edge' or target_platform == 'Unified Edge': allowed_policies = unified_edge_
+        elif target_platform == 'FIAttached':        allowed_policies = fi_unified_common + fi_only
         elif target_platform == 'UnifiedEdgeServer': allowed_policies = fi_unified_common
         elif target_platform == 'Standalone':
             if   server_family == 'UCSC845A':    allowed_policies = standalone_common
             elif server_family == 'UCSC2XX/4XX': allowed_policies = standalone_common + standalone_2xx_4xx_only
             else: allowed_policies = standalone_common + standalone_2xx_4xx_only
         else: allowed_policies = fi_unified_common + fi_only
-
         item.allowed_policies = list(dict.fromkeys(allowed_policies))
         item.policy_bucket = DotMap()
 
-        policy_like_keys = [k for k in ikeys if (k.endswith('_policy') or k.endswith('_policies')) and item.get(k)]
-        allowed_input_keys = set(item.allowed_policies + [multi_policy_alias.get(k) for k in item.allowed_policies if multi_policy_alias.get(k)])
+        # Find policy keys from input item, excluding internal control attributes
+        internal_keys = {'allowed_policies', 'policy_bucket', 'object_map', 'target_platform', 'server_family'}
+        policy_like_keys = [k for k in ikeys if k.endswith('_policy') and item.get(k) and k not in internal_keys]
+        allowed_input_keys = set(item.allowed_policies)
         skipped = [k for k in policy_like_keys if k not in allowed_input_keys]
         if len(skipped) > 0:
+            message_title = f'{target_platform}/{server_family}' if self.type == 'server' else f'{target_platform.title()}'
             pcolor.Yellow(
-                f"  * Skipping unsupported template policies for `{item.name}` ({target_platform}/{server_family}): "
+                f"  * Skipping unsupported template policies for `{item.name}` ({message_title}): "
                 f"{', '.join(sorted(skipped))}"
             )
         # Attach Allowed Policies to policy_bucket for downstream processing and API body construction.
         for key in item.allowed_policies:
-            source_key = multi_policy_alias.get(key, key)
-            if source_key in ikeys and item.get(source_key):
-                item.policy_bucket[key] = item[source_key]
+            if key in ikeys and item.get(key):
+                item.policy_bucket[key] = item[key]
         item.object_map = kwargs.intersight_object_map
         return item
 
@@ -2980,7 +3081,7 @@ class configure(object):
     # Function - Unified Edge Profiles Modification
     #=========================================================================
     def profiles_unified_edge(self, item, kwargs):
-        item = self.profiles_templates_create_policy_bucket(item, kwargs)
+        item = self.profiles_domain(item, kwargs)
         return item
 
     #=========================================================================
@@ -3150,15 +3251,14 @@ class system(object):
     def api_get(self, empty=False, names=None, kwargs=None):
         if names is None: names = []
         if kwargs is None: kwargs = DotMap()
-        category = self.category
         #=====================================================================
         # Function - Exit on Empty Results
         #=====================================================================
-        def empty_results(org, names, kwargs):
+        def empty_results(names, kwargs):
             pcolor.Red(f"The API Query Results were empty for {kwargs.uri}.");
             pcolor.Red(f"  Names: `{', '.join(names)}`");
             pcolor.Red(f"Exiting..."); sys.exit(1)
-        if re.search(r'blades|rackmounts', self.type):
+        if re.search(r'^(blades|rackmounts)$', self.type):
             kwargs = kwargs | DotMap(names = names, method = 'get', uri = 'compute/PhysicalSummaries')
         elif 'iam_sharing_rules' == self.type:
             kwargs = kwargs | DotMap(names = names, method = 'get', uri = 'iam/SharingRules')
@@ -3168,7 +3268,7 @@ class system(object):
             uri    = kwargs.ezdata[f"intersight.{self.category}.{self.type}"].intersight_uri
             kwargs = kwargs | DotMap(names = names, org = 'default', method = 'get', uri = uri)
         kwargs = api(self.type, category=self.category).calls(kwargs)
-        if empty == False and kwargs.results == []: empty_results('default', names,kwargs)
+        if empty == False and kwargs.results == []: empty_results(names, kwargs)
         elif empty == True and kwargs.results == []:
             pcolor.Yellow(f"  * API Query Results were empty for {kwargs.uri}")
             pcolor.Yellow(f"    - Names: `{', '.join(names)}`.  Continuing...")

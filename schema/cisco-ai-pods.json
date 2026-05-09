@@ -4923,7 +4923,7 @@
                     "uniqueItems": true
                 },
                 "system_qos": {
-                    "description": "A System Quality of Service (QoS) policy assigns a system class to the outgoing traffic. This system class determines the quality of service for the outgoing traffic.\n\nRequired Attributes:\n  * `name`\n  * `target_platform`\n\nOptional Attributes:\n  * `classes`\n  * `configure_default_classes`\n  * `configure_recommended_classes`\n  * `description`\n  * `jumbo_mtu` - only for UCS Domain\n  * `tags`",
+                    "description": "A System Quality of Service (QoS) policy assigns a system class to the outgoing traffic. This system class determines the quality of service for the outgoing traffic.\n\nRequired Attributes:\n  * `name`\n  * `target_platform`\n\nOptional Attributes:\n  * `classes`\n  * `configure_default_classes`\n  * `configure_recommended_classes`\n  * `description`\n  * `jumbo_mtu` - only for UCS Domain\n  * `priority_flow_control_watchdog_configuration` - only UCS Domain\n  * `tags`",
                     "intersight_uri": "fabric/SystemQosPolicies",
                     "items": {
                         "$ref": "#/definitions/intersight.policies.system_qos"
@@ -22644,6 +22644,7 @@
                                     "uniqueItems": true
                                 },
                                 "target_platform": {
+                                    "const": "UCS Domain",
                                     "default": "Unified Edge",
                                     "description": "The target platform type of the port policy.\n  * `UCS Domain` - Profile/policy type for network and management configuration on UCS Fabric Interconnect.\n  * `Unified Edge` - Profile/policy type for network, management and chassis configuration on Unified Edge.",
                                     "enum": [
@@ -22726,6 +22727,7 @@
                                     "uniqueItems": true
                                 },
                                 "target_platform": {
+                                    "const": "Unified Edge",
                                     "default": "Unified Edge",
                                     "description": "The default value is `Unified Edge`.  The target platform type of the port policy.\n  * `UCS Domain` - Profile/policy type for network and management configuration on UCS Fabric Interconnect.\n  * `Unified Edge` - Profile/policy type for network, management and chassis configuration on Unified Edge.",
                                     "enum": [
@@ -31428,7 +31430,7 @@
                     "description": "A Unified Edge Profile configures a the chassis and eCMC modules through reusable policies, allowing for configuration of the ports and port channels, and configures the VLANs in the network. It defines the characteristics of, and configures ports on the Unified Edge system. You can create a Unified Edge profile and associate it with a Unified Edge system. The related policies can be attached to the profile either at the time of creation or later. One Unified Edge profile can be assigned to one system.\n\nImportant:\n  * You can use a single port policy per Unified Edge profile or a port-policy per eCMC.\n  * Policies that are attached to a Unified Edge profile can be created ahead of creating a profile or during the creation of the profile.\n  * Policies that are attached to a Unified Edge and the global policies of all Unified Edge Profiles associated with a specific Unified Edge are shared.\n\nRequired Base Attributes:\n  * `action`\n  * `name`\n  * `serial_number`\n\nOptional Base Attributes:\n  * `attach_template`\n  * `description`\n  * `tags`\n  * `unified_edge_profile_template` - to assign to a template\n\n#=======================================\n# Chassis Configuration\n#=======================================\n  * `power_policy`\n  * `thermal_policy`\n\n#=======================================\n# Switch Configuration\n#=======================================\n  * `port_policies` - required (If not attached to a domain template)\n  * `switch_control_policy`\n  * `system_qos_policy` - required (If not attached to a domain template)\n  * `vlan_policies` - required (If not attached to a domain template) - A list of one or two VLAN policies.  A list of one will assign the same policy to both fabrics.\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `local_user_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `syslog_policy`",
                     "intersight_uri": "fabric/SwitchClusterProfiles",
                     "items": {
-                        "$ref": "#/definitions/intersight.profiles.domain"
+                        "$ref": "#/definitions/intersight.profiles.unified_edge"
                     },
                     "maxItems": 1024,
                     "minItems": 1,
@@ -31878,6 +31880,15 @@
             "switch_intersight_uri": "fabric/SwitchProfiles",
             "switch_object_type": "fabric.SwitchProfile",
             "title": "domain - Domain Profile - Intersight Uri: fabric/SwitchClusterProfiles",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.profiles.domain.switch": {
+            "description": "UCS Domain Profile - Switch Profile.",
+            "intersight_type": "profiles",
+            "intersight_uri": "fabric/SwitchProfiles",
+            "object_type": "fabric.SwitchProfile",
+            "title": "domain - Switch Profile - Intersight Uri: fabric/SwitchProfiles",
             "type": "object",
             "unevaluatedProperties": false
         },
@@ -32859,7 +32870,7 @@
                     },
                     "required": [
                         "action",
-                        "attach_template"
+                        "serial_number"
                     ],
                     "title": "domain",
                     "type": "object"
@@ -32969,6 +32980,18 @@
                 }
             },
             "title": "Intersight : System",
+            "type": "object"
+        },
+        "intersight.system.chassis": {
+            "description": "URL for Chassis Serial Numbers.",
+            "intersight_uri": "equipment/Chasses",
+            "title": "Chassis - Chassis Serial Numbers - Intersight Uri: equipment/Chasses",
+            "type": "object"
+        },
+        "intersight.system.domain": {
+            "description": "URL for Domain Serial Numbers.",
+            "intersight_uri": "network/Elements",
+            "title": "Domain - Domain Serial Numbers - Intersight Uri: network/Elements",
             "type": "object"
         },
         "intersight.system.locations": {
@@ -33647,6 +33670,19 @@
             "title": "Resource Group - Resource - Sub-Targets",
             "type": "object"
         },
+        "intersight.system.server": {
+            "description": "Server Physical Compute Serial Numbers.",
+            "intersight_uri": "compute/PhysicalSummaries",
+            "title": "server - Server Profile - Intersight Uri: compute/PhysicalSummaries",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.system.unified_edge": {
+            "description": "URL for Unified Edge Chassis Serial Numbers.",
+            "intersight_uri": "equipment/Chasses",
+            "title": "Unified Edge - Unified Edge Chassis Serial Numbers - Intersight Uri: equipment/Chasses",
+            "type": "object"
+        },
         "intersight.tags": {
             "description": "An arbitrary key and value pair that can be used to tag REST resources and organize managed objects by\nassigning meta-data tags to any object.\n\nRequired Attributes:\n  * `key`\n  * `value`",
             "items": {
@@ -34139,6 +34175,15 @@
             "switch_intersight_uri": "fabric/SwitchProfileTemplates",
             "switch_object_type": "fabric.SwitchProfileTemplate",
             "title": "domain_template - Templates > UCS Domain Profile Templates - Intersight Uri: fabric/SwitchClusterProfileTemplates",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.templates.domain.switch": {
+            "description": "UCS Domain Profile Template - Switch Profile Template.",
+            "intersight_type": "templates",
+            "intersight_uri": "fabric/SwitchProfileTemplates",
+            "object_type": "fabric.SwitchProfileTemplate",
+            "title": "domain - Switch Profile Template - Intersight Uri: fabric/SwitchProfileTemplates",
             "type": "object",
             "unevaluatedProperties": false
         },

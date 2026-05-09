@@ -1,6 +1,6 @@
 {
 {% set _template = true if item.ucs_server_profile_template is defined and item.ucs_server_profile_template | length > 0 else false %}
-{% if item.serial_number is defined and item.serial_number | length > 0 %}
+{% if item.serial_number is defined and item.serial_number  is not none %}
 {% set object_type = isight.serials[item.serial_number].result.SourceObjectType %}
   "AssignedServer": {
     "Moid": "{{ isight.serials[item.serial_number].moid }}",
@@ -20,7 +20,6 @@
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
-  "OverriddenList": [],
 {% if _template == false %}
   "PolicyBucket": [
 {% if item.policy_bucket is defined and item.policy_bucket | length > 0 %}
@@ -39,15 +38,15 @@
 {% endif %}
   ],
 {% endif %}
-{% if item.serial_number is defined and item.serial_number | length > 0 %}
+{% if item.serial_number is defined and item.serial_number is not none %}
   "ServerAssignmentMode": "Static",
-{% elif item.resource_pool is defined and item.resource_pool | length > 0 %}
+{% elif item.resource_pool is defined and item.resource_pool is not none %}
   "ServerAssignmentMode": "Pool",
 {% else %}
   "ServerAssignmentMode": "None",
 {% endif %}
   "ServerFamily": "{{ item.server_family | default('All') }}",
-{% if item.resource_pool is defined and item.resource_pool | length > 0 %}
+{% if item.resource_pool is defined and item.resource_pool is not none %}
 {% set _name = item.resource_pool.split('/')[-1] %}
 {% set _org = item.resource_pool.split('/')[0] if '/' in item.resource_pool else organization %}
   "ServerPool": {
@@ -95,13 +94,13 @@
 {% endif %}
   "TargetPlatform": "{{ item.target_platform | default('FIAttached') }}",
   "UserLabel": "{{ item.user_label | default('') }}"{% if _template == true %}{% else %},{% endif %}
-{% if item.uuid_pool is defined and item.uuid_pool | length > 0 and _template == false %}
+{% if item.uuid_pool is defined and item.uuid_pool is not none and _template == false %}
   "UuidAddressType": "POOL",
   "UuidPool": {
     "Moid": "{{ isight[_org].pools.uuid[_name].moid }}",
     "ObjectType": "uuidpool.Pool"
   }
-{% elif item.static_uuid_address is defined and item.static_uuid_address | length > 0 and _template == false %}
+{% elif item.static_uuid_address is defined and item.static_uuid_address  is not none and _template == false %}
   "UuidAddressType": "STATIC",
   "UuidPool": null
 {% elif _template == false %}

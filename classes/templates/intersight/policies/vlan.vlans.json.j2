@@ -1,11 +1,15 @@
 {
   "AutoAllowOnClusterLinks": {{ item.auto_allow_on_cluster_links | default(false) | tojson }},
-  "AutoAllowOnUplinks": {{ item.auto_allow_on_uplinks | default(true) | tojson }},
+{% if item.target_platform is defined and item.target_platform | default('UCS Domain') == 'Unified Edge' %}
+  "AutoAllowOnUplinks": true,
+{% else %}
+  "AutoAllowOnUplinks": {{ item.auto_allow_on_uplinks | default(false) | tojson }},
+{% endif %}
   "EthNetworkPolicy": {
     "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.EthNetworkPolicy"
   },
-  "IsNative": {{ item.is_native | default(false) | tojson }},
+  "IsNative": {{ item.native_vlan | default(false) | tojson }},
 {% if item.multicast_policy is defined %}
 {% set _name = item.multicast_policy.split('/')[-1] %}
 {% set _org = item.multicast_policy.split('/')[0] if item.multicast_policy.split('/') | length > 1 else organization %}

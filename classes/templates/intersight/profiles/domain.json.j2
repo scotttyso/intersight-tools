@@ -1,7 +1,8 @@
 {
-{% set template_type = item.target_platform | default('UCS Domain') | lower | replace(' ', '_') ~ '_profile_template' %}
+{% set _target = item.target_platform | default('UCS Domain') | lower | replace(' ', '_') %}
+{% set template_type = _target ~ '_profile_template' %}
 {% set _template = true if item[template_type] is defined and item[template_type] | length > 0 else false %}
-{% if item.serial_number is defined and item.serial_number | length > 0 and item.target_platform | default('UCS Domain') == 'Unified Edge' %}
+{% if item.serial_number is defined and item.serial_number is not none and item.target_platform | default('UCS Domain') == 'Unified Edge' %}
   "AssignedEntity": {
     "ClassId": "mo.MoRef",
     "Moid": "{{ isight.serials[item.serial_number].moid }}",
@@ -10,7 +11,9 @@
 {% else %}
   "AssignedEntity": null,
 {% endif %}
-{% if item.serial_number is defined and item.serial_number | length > 0 %}
+{% if item.serial_number is defined and item.serial_number  is not none %}
+  "ChassisAssignmentMode": "Static",
+{% elif item.serial_numbers is defined and item.serial_numbers | length == 2 %}
   "ChassisAssignmentMode": "Static",
 {% else %}
   "ChassisAssignmentMode": "None",
@@ -22,10 +25,11 @@
     "Moid": "{{ org_moids[organization].moid }}",
     "ObjectType": "organization.Organization"
   },
+{% if _template %}
 {% set _name = item[template_type].split('/')[-1] %}
 {% set _org = item[template_type].split('/')[0] if '/' in item[template_type] else organization %}
   "SrcTemplate": {
-    "Moid": "{{ isight[_org].templates.switch_cluster_profile[_name].moid }}",
+    "Moid": "{{ isight[_org].templates[_target][_name].moid }}",
     "ObjectType": "fabric.SwitchClusterProfileTemplate"
   },
 {% else %}

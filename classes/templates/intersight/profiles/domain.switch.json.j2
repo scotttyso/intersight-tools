@@ -1,15 +1,16 @@
 {
-{% set template_type = item.target_platform | default('UCS Domain') | lower | replace(' ', '_') ~ '_profile_template' %}
+{% set _target = item.target_platform | default('UCS Domain') | lower | replace(' ', '_') %}
+{% set template_type = _target ~ '_profile_template' %}
 {% set _template = true if item[template_type] is defined and item[template_type] | length > 0 else false %}
-{% if item.serial_number is defined and item.serial_number | length > 0 and item.target_platform | default('Unified Edge') == 'UCS Domain' %}
+{% set _indx = 1 if "-B" in item.name else 0 %}
+{% if item.serial_numbers is defined and item.serial_numbers | length == 2 and _target == 'ucs_domain' %}
   "AssignedSwitch": {
-    "Moid": "{{ isight.serials[item.serial_number].moid }}",
+    "Moid": "{{ isight.system.domain[item.serial_numbers[item.index]].moid }}",
     "ObjectType": "network.Element"
   },
-{% elif item.serial_number is defined and item.serial_number | length > 0 and item.target_platform | default('UCS Domain') == 'Unified Edge' %}
-{% set indx = 1 if item.switch_id == 'B' else 0 %}
+{% elif item.serial_number is defined and item.serial_number is not none and _target == 'unified_edge' %}
   "AssignedSwitch": {
-    "Moid": "{{ isight.serials[item.serial_number].result.NetworkElementList[indx].Moid }}",
+    "Moid": "{{ isight.system.unified_edge[item.serial_number].result.NetworkElementList[item.index].Moid }}",
     "ObjectType": "network.Element"
   },
 {% else %}
@@ -17,9 +18,8 @@
 {% endif %}
   "Description": "{{ item.description | default('') }}",
   "FabricPreAssignBySerial": "{{ (item.pre_assign | default ({})).get('serial_number', '') }}",
-  "Name": "{{ name_prefix ~ item.name ~ name_suffix ~ '-' ~ item.switch_id }}",
+  "Name": "{{ item.name ~ '-' ~ item.switch_id }}",
   "ObjectType": "fabric.SwitchProfile",
-  "OverriddenList": [],
   "Parent": {
     "Moid": "{{ item.parent }}",
     "ObjectType": "fabric.SwitchClusterProfile"
@@ -46,13 +46,15 @@
 {% set _name = item[template_type].split('/')[-1] %}
 {% set _org = item[template_type].split('/')[0] if '/' in item[template_type] else organization %}
   "SrcTemplate": {
-    "Moid": "{{ isight[_org].templates.switch_profile[_name].moid }}",
+    "Moid": "{{ isight[_org].templates[_target][_name].moid }}",
     "ObjectType": "fabric.SwitchProfileTemplate"
   },
 {% else %}
   "SrcTemplate": null,
 {% endif %}
-{% if item.serial_number is defined and item.serial_number | length > 0 %}
+{% if item.target_platform | default('UCS Domain') == 'Unified Edge' %}
+  "SwitchAssignmentMode": "Static",
+{% elif item.serial_numbers is defined and item.serial_numbers | length == 2 %}
   "SwitchAssignmentMode": "Static",
 {% else %}
   "SwitchAssignmentMode": "None",
@@ -80,6 +82,5 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}",
   "Type": "instance"
 }

@@ -6,7 +6,7 @@
 {% endif %}
   "Description": "{{ item.description | default('') }}",
   "EnableJumboFrame": {% if _platform == 'Unified Edge' %}{{ item.enable_jumbo_frame | default(false) | tojson }}{% else %}false{% endif %},
-  "EthernetSwitchingMode": {% if _platform == 'UCS Domain' %}"{{ item.switching_mode_ethernet | default('end-host') }}"{% else %}"end-host"{% endif %},
+  "EthernetSwitchingMode": {% if _platform == 'UCS Domain' %}"{{ item.switching_mode_ethernet | default('end-host') }}"{% else %}"switch"{% endif %},
   "FabricPcVhbaReset": {% if _platform == 'UCS Domain' %}"{{ item.fabric_port_channel_vhba_reset | default('Disabled') }}"{% else %}"Disabled"{% endif %},
   "FcSwitchingMode": {% if _platform == 'UCS Domain' %}"{{ item.switching_mode_fc | default('end-host') }}"{% else %}"end-host"{% endif %},
   "MacAgingSettings": {

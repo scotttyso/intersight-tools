@@ -30,10 +30,14 @@ DESCRIPTION_WORD_MAP = {
     'Ldap': 'LDAP',
     'Mac': 'MAC',
     'Ntp': 'NTP',
+    'Policies': 'Policy',
+    'Pools': 'Pool',
+    'Profiles': 'Profile',
     'San': 'SAN',
     'Sd': 'SD',
     'Smtp': 'SMTP',
     'Snmp': 'SNMP',
+    'Templates': 'Template',
     'Ssh': 'SSH',
     'Uuid': 'UUID',
     'Vhbas': 'vHBAs',
@@ -58,27 +62,53 @@ def begin_loop(ptype1, ptype2):
     pcolor.LightGray(f'\n{"-"*108}\n')
     pcolor.LightPurple(f"  Beginning {' '.join(ptype1.split('_')).title()} {ptype2} Deployment.\n")
 
-def completed_item(ptype, kwargs):
+def completed_item(category, ptype, kwargs):
     iresults = DotMap(kwargs.api_results)
     ikeys = list(iresults.keys())
     method = kwargs.method
-    name   = None
-    pmoid  = iresults.Moid
-    psplit = kwargs.intersight_object_map[iresults.ObjectType].split('.')
-    if len(psplit) > 2: policy_name = psplit[1]
-    else: policy_name = psplit[-1]
-    ptitle = mod_pol_description((' '.join(policy_name.split('_'))).title())
-    if   'vnic.EthIf' == iresults.ObjectType: name = f"vNIC {iresults.Name}"
-    elif 'vnic.FcIf' == iresults.ObjectType:  name = f"vHBA {iresults.Name}"
+    name  = None
+    pmoid = iresults.Moid
+    regex = re.compile(r'^(comm.TagDefinition|iam.SharingRule|organization.Organization|resource.Group)$', re.IGNORECASE)
+    preg  = re.compile(r'^(Parent|((Eth|Fc)Network|(L|S)anConnectivity|Ldap|Port|Storage)Policy)')
+    if any(re.search(preg, i) for i in ikeys):
+        parent_match = next((i for i in ikeys if re.search(preg, i)), None)
+        psplit = kwargs.intersight_object_map[iresults.ObjectType].split('.')
+        if len(psplit) > 2: policy_name = psplit[1]
+        else: policy_name = psplit[-1]
+        ptitle = mod_pol_description((' '.join(policy_name.split('_'))).title())
+        if   'vnic.EthIf' == iresults.ObjectType: name = f"vNIC {iresults.Name}"
+        elif 'vnic.FcIf' == iresults.ObjectType:  name = f"vHBA {iresults.Name}"
+        elif 'PcId' in ikeys:             name = f"{ptitle} - PortChannel `{iresults.PcId}`"
+        elif 'PortId' in ikeys:           name = f"{ptitle} - Port `{iresults.PortId}`"
+        elif 'PortIdStart' in ikeys:      name = f"{ptitle} - PortIdStart `{iresults.PortIdStart}`"
+        elif 'Server' in ikeys:           name = f"{ptitle} - `{iresults.Server}`"
+        elif 'ManualDriveGroup' in ikeys: name = f"{ptitle} - DriveGroup `{iresults.Name}`"
+        elif 'VlanId' in ikeys:           name = f"{ptitle} - VLAN `{iresults.VlanId}`"
+        elif 'VsanId' in ikeys:           name = f"{ptitle} - VSAN `{iresults.VsanId}`"
+        else: name = f"{ptitle} - `{iresults.Name}`"
+        rsplit = kwargs.intersight_object_map[iresults.ObjectType].split('.')
+        parent_policy = rsplit[0]
+        parent_name   = kwargs.intersight_api[kwargs.org][category][parent_policy][iresults[parent_match].Moid]
+        parent_title  = mod_pol_description((parent_policy.replace('_', ' ')).title())
+        rtype = DESCRIPTION_WORD_MAP.get(category.replace('_', ' ').title(), category.replace('_', ' ').title())
+        if method == 'post':
+            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} {rtype} `{parent_name}`: {name} - Moid: {pmoid}')
+        else:
+            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} {rtype} `{parent_name}`: {name} - Moid: {pmoid}')
+        return
+    elif re.search(regex, iresults.ObjectType):
+        if 'SharingRule' in iresults.ObjectType: resource = 'iam_sharing_rule'
+        else: resource = kwargs.intersight_object_map[iresults.ObjectType]
+        ptype = mod_pol_description(resource.replace('_', ' ').title())
+        if 'Key' in ikeys: name = f"{ptype}: `{iresults.Key}`"
+        else: name = f"{ptype}: `{iresults.Name}`"
+        if method == 'post':
+            pcolor.Green(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
+        else:
+            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
+        return
     elif 'asset.DeviceClaim' == iresults.ObjectType:  name = f"Claiming Server `{iresults.SerialNumber}` Registration"
     elif 'autosupport' == ptype:   name = "AutoSupport"
-    elif 'PcId' in ikeys:          name = f"{ptitle} - PortChannel `{iresults.PcId}`"
-    elif 'PortId' in ikeys:        name = f"{ptitle} - Port `{iresults.PortId}`"
-    elif 'PortIdStart' in ikeys:   name = f"{ptitle} - PortIdStart `{iresults.PortIdStart}`"
-    elif 'Server' in ikeys:        name = f"{ptitle} - `{iresults.Server}`"
-    elif 'VirtualDrives' in ikeys: name = f"{ptitle} - DriveGroup `{iresults.Name}`"
-    elif 'VlanId' in ikeys:        name = f"{ptitle} - VLAN `{iresults.VlanId}`"
-    elif 'VsanId' in ikeys:        name = f"{ptitle} - VSAN `{iresults.VsanId}`"
     elif 'user_role' in ptype:     name = f"Role for {ptype}"
     elif 'upgrade' in ptype:       name = f".  Performing Firmware Upgrade on {kwargs.serial} - {kwargs.server} Server Profile"
     elif 'UserId' in ikeys:        name = f"{iresults.UserId} CCO User Authentication"
@@ -95,28 +125,6 @@ def completed_item(ptype, kwargs):
         users = DotMap()
         for k,v in kwargs.user_moids.items(): users[v.moid] = k
         name = list(users.values())[list(users.keys()).index(iresults.EndPointUser.Moid)]
-    regex = re.compile(r'^(comm.TagDefinition|iam.SharingRule|organization.Organization|resource.Group)$', re.IGNORECASE)
-    if re.search(regex, iresults.ObjectType):
-        if 'SharingRule' in iresults.ObjectType: resource = 'iam_sharing_rule'
-        else: resource = kwargs.intersight_object_map[iresults.ObjectType]
-        ptype = mod_pol_description(resource.replace('_', ' ').title())
-        if 'Key' in ikeys: name = f"{ptype}: `{iresults.Key}`"
-        else: name = f"{ptype}: `{iresults.Name}`"
-        if method == 'post':
-            pcolor.Green(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
-        else:
-            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for System -> {name} - Moid: {pmoid}')
-        return
-    if 'Parent' in ikeys:
-        parent_policy = kwargs.intersight_object_map[iresults.ObjectType].split('.')[0]
-        parent_type   = kwargs.ezdata[f'intersight.policies.{parent_policy}'].intersight_type
-        parent_name   = kwargs.intersight_api[kwargs.org][parent_type][parent_policy][iresults.Parent.Moid]
-        parent_title  = mod_pol_description((parent_policy.replace('_', ' ')).title())
-        if method == 'post':
-            pcolor.Green(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
-        else:
-            pcolor.LightPurple(f'{" "*6}* Completed {method.upper()} for Organization: `{kwargs.org}` > {parent_title} Policy `{parent_name}`: {name} - Moid: {pmoid}')
-        return
     if name == None:
         print(json.dumps(iresults, indent=4))
         print(kwargs.ptype)

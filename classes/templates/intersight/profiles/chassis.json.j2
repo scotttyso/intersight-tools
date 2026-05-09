@@ -1,6 +1,6 @@
 {
 {% set _template = true if item.ucs_chassis_profile_template is defined and item.ucs_chassis_profile_template | length > 0 else false %}
-{% if item.serial_number is defined and item.serial_number | length > 0 %}
+{% if item.serial_number is defined and item.serial_number  is not none %}
   "AssignedChassis": {
     "Moid": "{{ isight.serials[item.serial_number].moid }}",
     "ObjectType": "equipment.Chassis"
@@ -8,7 +8,7 @@
 {% else %}
   "AssignedChassis": null,
 {% endif %}
-{% if item.serial_number is defined and item.serial_number | length > 0 %}
+{% if item.serial_number is defined and item.serial_number  is not none %}
   "ChassisAssignmentMode": "Static",
 {% else %}
   "ChassisAssignmentMode": "None",
