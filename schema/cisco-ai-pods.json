@@ -30558,6 +30558,22 @@
             "title": "ipv6_configuration - IPv6 Configuration Settings",
             "type": "object"
         },
+        "intersight.pools.ip.leases": {
+            "description": "IP Pool Leases Attributes.",
+            "intersight_uri": "ippool/IpLeases",
+            "object_type": "ippool.IpLease",
+            "title": "ip - IP Pool Leases - Intersight Uri: ippool/IpLeases",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.pools.ip.reservations": {
+            "description": "IP Pool Reservations Attributes.",
+            "intersight_uri": "ippool/Reservations",
+            "object_type": "ippool.Reservation",
+            "title": "ip - IP Pool Reservations - Intersight Uri: ippool/Reservations",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
         "intersight.pools.iqn": {
             "allOf": [
                 {
@@ -30668,6 +30684,22 @@
             "title": "Block",
             "type": "object"
         },
+        "intersight.pools.iqn.leases": {
+            "description": "IQN Pool Leases Attributes.",
+            "intersight_uri": "iqnpool/Leases",
+            "object_type": "iqnpool.Lease",
+            "title": "iqn - IQN Pool Leases - Intersight Uri: iqnpool/Leases",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.pools.iqn.reservations": {
+            "description": "IQN Pool Reservations Attributes.",
+            "intersight_uri": "iqnpool/Reservations",
+            "object_type": "iqnpool.Reservation",
+            "title": "iqn - IQN Pool Reservations - Intersight Uri: iqnpool/Reservations",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
         "intersight.pools.mac": {
             "allOf": [
                 {
@@ -30758,6 +30790,22 @@
             ],
             "title": "MAC Blocks",
             "type": "object"
+        },
+        "intersight.pools.mac.leases": {
+            "description": "MAC Pool Leases Attributes.",
+            "intersight_uri": "macpool/Leases",
+            "object_type": "macpool.Lease",
+            "title": "mac - MAC Pool Leases - Intersight Uri: macpool/Leases",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.pools.mac.reservations": {
+            "description": "MAC Pool Reservations Attributes.",
+            "intersight_uri": "macpool/Reservations",
+            "object_type": "macpool.Reservation",
+            "title": "mac - MAC Pool Reservations - Intersight Uri: macpool/Reservations",
+            "type": "object",
+            "unevaluatedProperties": false
         },
         "intersight.pools.name_prefix": {
             "additionalProperties": false,
@@ -31142,6 +31190,22 @@
             "type": "object",
             "unevaluatedProperties": false
         },
+        "intersight.pools.uuid.leases": {
+            "description": "UUID Pool Leases Attributes.",
+            "intersight_uri": "uuidpool/UuidLeases",
+            "object_type": "uuidpool.UuidLease",
+            "title": "uuid - UUID Pool Leases - Intersight Uri: uuidpool/UuidLeases",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.pools.uuid.reservations": {
+            "description": "UUID Pool Reservations Attributes.",
+            "intersight_uri": "uuidpool/Reservations",
+            "object_type": "uuidpool.Reservation",
+            "title": "uuid - UUID Pool Reservations - Intersight Uri: uuidpool/Reservations",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
         "intersight.pools.uuid.uuid_blocks": {
             "additionalProperties": false,
             "description": "",
@@ -31286,6 +31350,22 @@
             "title": "id_blocks",
             "type": "object"
         },
+        "intersight.pools.wwnn.leases": {
+            "description": "WWNN Pool Leases Attributes.",
+            "intersight_uri": "fcpool/Leases",
+            "object_type": "fcpool.Lease",
+            "title": "wwnn - WWNN Pool Leases - Intersight Uri: fcpool/Leases",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.pools.wwnn.reservations": {
+            "description": "WWNN Pool Reservations Attributes.",
+            "intersight_uri": "fcpool/Reservations",
+            "object_type": "fcpool.Reservation",
+            "title": "wwnn - WWNN Pool Reservations - Intersight Uri: fcpool/Reservations",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
         "intersight.pools.wwpn": {
             "allOf": [
                 {
@@ -31376,6 +31456,22 @@
             ],
             "title": "id_blocks",
             "type": "object"
+        },
+        "intersight.pools.wwpn.leases": {
+            "description": "WWPN Pool Leases Attributes.",
+            "intersight_uri": "fcpool/Leases",
+            "object_type": "fcpool.Lease",
+            "title": "wwpn - WWPN Pool Leases - Intersight Uri: fcpool/Leases",
+            "type": "object",
+            "unevaluatedProperties": false
+        },
+        "intersight.pools.wwpn.reservations": {
+            "description": "WWPN Pool Reservations Attributes.",
+            "intersight_uri": "fcpool/Reservations",
+            "object_type": "fcpool.Reservation",
+            "title": "wwpn - WWPN Pool Reservations - Intersight Uri: fcpool/Reservations",
+            "type": "object",
+            "unevaluatedProperties": false
         },
         "intersight.profiles": {
             "additionalProperties": false,
@@ -32514,7 +32610,7 @@
                             "$ref": "#/definitions/intersight.profiles.server.targets.pre_assign"
                         },
                         "reservations": {
-                            "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * `ip_type - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name`",
+                            "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC, iSCSI (IP) and WWPN Assignments.\n  * `ip_usage - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name`",
                             "items": {
                                 "$ref": "#/definitions/intersight.profiles.server.targets.reservations"
                             },
@@ -32616,6 +32712,83 @@
         },
         "intersight.profiles.server.targets.reservations": {
             "additionalProperties": false,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "identity_type": {
+                                "enum": [
+                                    "mac",
+                                    "wwpn"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "identity_type"
+                        ]
+                    },
+                    "then": {
+                        "required": [
+                            "interface"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "identity_type": {
+                                "const": "ip"
+                            }
+                        },
+                        "required": [
+                            "identity_type"
+                        ]
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "required": [
+                                    "ip_usage"
+                                ]
+                            },
+                            {
+                                "if": {
+                                    "properties": {
+                                        "ip_usage": {
+                                            "const": "Management"
+                                        }
+                                    },
+                                    "required": [
+                                        "ip_usage"
+                                    ]
+                                },
+                                "then": {
+                                    "required": [
+                                        "management_type"
+                                    ]
+                                }
+                            },
+                            {
+                                "if": {
+                                    "properties": {
+                                        "ip_usage": {
+                                            "const": "iSCSI"
+                                        }
+                                    },
+                                    "required": [
+                                        "ip_usage"
+                                    ]
+                                },
+                                "then": {
+                                    "required": [
+                                        "interface"
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
             "description": "A List of Identity (IP/IQN/MAC/UUID/WWNN/WWPN) Reservations to pre-assign to the server profile.\n\nRequired Attributes:\n  * `identity`\n  * `identity_type`\n  * `interface - vHBA/vNIC Name - Required for MAC and WWPN Assignments.\n  * `ip_type - For IP Reservations`\n  * `management_type - Required for IMC Access IP Assigment.  Not Required for iSCSI Boot Initiator Pool.\n  * `pool_name`",
             "object_type": "not_applicable",
             "properties": {
@@ -32652,21 +32825,19 @@
                     "title": "interface",
                     "type": "string"
                 },
-                "ip_type": {
-                    "description": "Type of IP to assign.  Options are:\n\n  * `IPv4`\n  * `IPv6` - Note: IPv6 is only supported for Inband",
+                "ip_usage": {
+                    "description": "What will the IP be used for.  Options are:\n\n  * `Management`\n  * `iSCSI`",
                     "enum": [
-                        "IPv4",
-                        "IPv6"
+                        "Management",
+                        "iSCSI"
                     ],
-                    "title": "ip_type",
+                    "title": "ip_usage",
                     "type": "string"
                 },
                 "management_type": {
                     "description": "Management Type for IMC Access Policy IP Assignment.  Options are:\n\n  * `Inband`\n  * `Outofband`",
                     "enum": [
                         "Inband",
-                        "InBand",
-                        "Outofband",
                         "OutOfBand"
                     ],
                     "title": "management_type",

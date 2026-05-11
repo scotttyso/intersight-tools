@@ -24,6 +24,6 @@
 {% else %}
   "Tags": [],
 {% endif %}
-  "TargetPlatform": "UCS Domain",
+  "TargetPlatform": "{{ item.target_platform | default('UCS Domain') }}",
   "Type": "instance"
 }

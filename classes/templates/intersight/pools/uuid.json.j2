@@ -27,8 +27,8 @@
   "Tags": [],
 {% endif %}
   "UuidSuffixBlocks": [
-{% if item.id_blocks is defined and item.id_blocks | length > 0 %}
-{% for block in item.id_blocks %}
+{% if item.uuid_blocks is defined and item.uuid_blocks | length > 0 %}
+{% for block in item.uuid_blocks %}
     {
       "From": "{{ block.from | default('0000-000000000000') }}",
       "ObjectType": "uuidpool.UuidBlock",

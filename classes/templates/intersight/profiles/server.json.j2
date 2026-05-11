@@ -1,9 +1,9 @@
 {
 {% set _template = true if item.ucs_server_profile_template is defined and item.ucs_server_profile_template | length > 0 else false %}
 {% if item.serial_number is defined and item.serial_number  is not none %}
-{% set object_type = isight.serials[item.serial_number].result.SourceObjectType %}
+{% set object_type = isight.system.serial_number[item.serial_number].result.SourceObjectType %}
   "AssignedServer": {
-    "Moid": "{{ isight.serials[item.serial_number].moid }}",
+    "Moid": "{{ isight.system.serial_number[item.serial_number].moid }}",
     "ObjectType": "{{ object_type }}"
   },
 {% else %}
@@ -73,7 +73,7 @@
 {% else %}
   "SrcTemplate": null,
 {% endif %}
-  "StaticUuidAddress": "",
+  "StaticUuidAddress": "{{ item.static_uuid_address | default('') }}",
 {% if item.tags | length > 0 %}
   "Tags": [
 {% for tag in item.tags %}
@@ -100,9 +100,8 @@
     "Moid": "{{ isight[_org].pools.uuid[_name].moid }}",
     "ObjectType": "uuidpool.Pool"
   }
-{% elif item.static_uuid_address is defined and item.static_uuid_address  is not none and _template == false %}
-  "UuidAddressType": "STATIC",
-  "UuidPool": null
+{% elif item.static_uuid_address is defined and item.static_uuid_address  is not none %}
+  "UuidAddressType": "STATIC"
 {% elif _template == false %}
   "UuidAddressType": "NONE",
   "UuidPool": null

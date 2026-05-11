@@ -69,7 +69,7 @@ def completed_item(category, ptype, kwargs):
     name  = None
     pmoid = iresults.Moid
     regex = re.compile(r'^(comm.TagDefinition|iam.SharingRule|organization.Organization|resource.Group)$', re.IGNORECASE)
-    preg  = re.compile(r'^(Parent|((Eth|Fc)Network|(L|S)anConnectivity|Ldap|Port|Storage)Policy)')
+    preg  = re.compile(r'^(Parent|((Eth|Fc)Network|(L|S)anConnectivity|Ldap|Port|Storage)Policy|SwitchClusterProfile(Template))')
     if any(re.search(preg, i) for i in ikeys):
         parent_match = next((i for i in ikeys if re.search(preg, i)), None)
         psplit = kwargs.intersight_object_map[iresults.ObjectType].split('.')
@@ -142,6 +142,8 @@ def completed_item(category, ptype, kwargs):
         if method == 'post': pcolor.Green(f'{" "*6}- Completed Bulk Merger {method.upper()} for Organization: `{kwargs.org}` > Name: {name} - Moid: {pmoid}')
         else: pcolor.LightPurple(f'{" "*4}- Completed Bulk Merger {method.upper()} for Organization: `{kwargs.org}` > Name: {name} - Moid: {pmoid}')
     else:
+        rcategory = DESCRIPTION_WORD_MAP.get(category.replace('_', ' ').title(), category.replace('_', ' ').title())
+        rtype = mod_pol_description(ptype.replace('_', ' ').title())
         if method == 'post': pcolor.Green(f'{" "*6}- Completed {method.upper()} for Organization: `{kwargs.org}` Name: {name} - Moid: {pmoid}')
         else: pcolor.LightPurple(f'{" "*6}- Completed {method.upper()} for Organization: `{kwargs.org}` > Name: {name} - Moid: {pmoid}')
 
