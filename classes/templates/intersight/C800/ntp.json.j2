@@ -1,0 +1,11 @@
+{# /redfish/v1/Managers/bmc/NetworkProtocol #}
+{
+    "NTP": {
+        "NTPServers": [
+{% for ntp_server in item.ntp_servers | default([]) %}
+            "{{ ntp_server }}"{% if not loop.last %},{% endif %}
+{% endfor %}
+        ],
+        "ProtocolEnabled": {{ item.enabled | default(true) | lower }}
+    }
+}

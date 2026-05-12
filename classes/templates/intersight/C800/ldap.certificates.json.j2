@@ -1,0 +1,11 @@
+{# /redfish/v1/AccountService/LDAP/Certificates #}
+{
+    "Members": [
+{% for cert in item.certificates %}
+        {
+            "CertificateString": "{{ cert.certificate }}",
+            "CertificateType": "PEM"
+        }{% if not loop.last %},{% endif %}
+{% endfor %}
+    ]
+}

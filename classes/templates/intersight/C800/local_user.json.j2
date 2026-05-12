@@ -1,0 +1,13 @@
+{# /redfish/v1/AccountService/Accounts #}
+{
+    "UserName": "{{ item.username }}",
+    "Password": "{{ sensitive_vars['local_user_password_' ~ item.encryption_key] }}",
+{% if item.role | default('readonly') == 'readonly' %}
+    "RoleId": "ReadOnly",
+{% elif item.role == 'admin' %}
+    "RoleId": "Administrator",
+{% else %}
+    "RoleId": "Operator",
+{% endif %}
+    "Enabled": {{ item.enabled | default(true) | lower }}
+}

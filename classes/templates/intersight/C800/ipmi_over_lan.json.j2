@@ -1,0 +1,5 @@
+{# /redfish/v1/Managers/bmc/NetworkProtocol #}
+"IPMI": {
+    "Port": 623,
+    "ProtocolEnabled": {{ item.enabled | default(true) | lower }}
+}

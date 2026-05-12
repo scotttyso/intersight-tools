@@ -4303,7 +4303,7 @@
                     "uniqueItems": true
                 },
                 "bios": {
-                    "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\n\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * `name`\n\nRecommended Attribute:\n\n  * `bios_template`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#+++++++++++++++++++++++++++++++\n# Advanced Section\n#+++++++++++++++++++++++++++++++\n  * `latency_optimized_mode`\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * `boot_option_num_retry`\n  * `boot_option_re_cool_down`\n  * `boot_option_retry`\n  * `ipv4http`\n  * `ipv4pxe`\n  * `ipv6http`\n  * `ipv6pxe`\n  * `network_stack`\n  * `onboard_scu_storage_support`\n  * `onboard_scu_storage_sw_stack`\n  * `pop_support`\n  * `psata`\n  * `sata_mode_select`\n  * `vmd_enable`\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * `intel_vt_for_directed_io`\n  * `intel_vtd_coherency_support`\n  * `intel_vtd_interrupt_remapping`\n  * `intel_vtd_pass_through_dma_support`\n  * `intel_vtdats_support`\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * `acs_control_gpu1state`\n  * `acs_control_gpu2state`\n  * `acs_control_gpu3state`\n  * `acs_control_gpu4state`\n  * `acs_control_gpu5state`\n  * `acs_control_gpu6state`\n  * `acs_control_gpu7state`\n  * `acs_control_gpu8state`\n  * `acs_control_slot11state`\n  * `acs_control_slot12state`\n  * `acs_control_slot13state`\n  * `acs_control_slot14state`\n  * `cdn_support`\n  * `edpc_en`\n  * `enable_clock_spread_spec`\n  * `lom_port0state`\n  * `lom_port1state`\n  * `lom_port2state`\n  * `lom_port3state`\n  * `lom_ports_all_state`\n  * `pch_pcie_pll_ssc`\n  * `pci_option_ro_ms`\n  * `pci_rom_clp`\n  * `pcie_ari_support`\n  * `pcie_pll_ssc`\n  * `pcie_slot_mraid1link_speed`\n  * `pcie_slot_mraid1option_rom`\n  * `pcie_slot_mraid2link_speed`\n  * `pcie_slot_mraid2option_rom`\n  * `pcie_slot_mstorraid_link_speed`\n  * `pcie_slot_mstorraid_option_rom`\n  * `pcie_slot_nvme1link_speed`\n  * `pcie_slot_nvme1option_rom`\n  * `pcie_slot_nvme2link_speed`\n  * `pcie_slot_nvme2option_rom`\n  * `pcie_slot_nvme3link_speed`\n  * `pcie_slot_nvme3option_rom`\n  * `pcie_slot_nvme4link_speed`\n  * `pcie_slot_nvme4option_rom`\n  * `pcie_slot_nvme5link_speed`\n  * `pcie_slot_nvme5option_rom`\n  * `pcie_slot_nvme6link_speed`\n  * `pcie_slot_nvme6option_rom`\n  * `slot10link_speed`\n  * `slot10state`\n  * `slot11link_speed`\n  * `slot11state`\n  * `slot12link_speed`\n  * `slot12state`\n  * `slot13state`\n  * `slot14state`\n  * `slot1link_speed`\n  * `slot1state`\n  * `slot2link_speed`\n  * `slot2state`\n  * `slot3link_speed`\n  * `slot3state`\n  * `slot4link_speed`\n  * `slot4state`\n  * `slot5link_speed`\n  * `slot5state`\n  * `slot6link_speed`\n  * `slot6state`\n  * `slot7link_speed`\n  * `slot7state`\n  * `slot8link_speed`\n  * `slot8state`\n  * `slot9link_speed`\n  * `slot9state`\n  * `slot_flom_link_speed`\n  * `slot_front_nvme1link_speed`\n  * `slot_front_nvme2link_speed`\n  * `slot_front_nvme2option_rom`\n  * `slot_front_nvme3link_speed`\n  * `slot_front_nvme3option_rom`\n  * `slot_front_nvme4link_speed`\n  * `slot_front_nvme4option_rom`\n  * `slot_front_nvme5link_speed`\n  * `slot_front_nvme5option_rom`\n  * `slot_front_nvme6link_speed`\n  * `slot_front_nvme6option_rom`\n  * `slot_front_nvme7link_speed`\n  * `slot_front_nvme7option_rom`\n  * `slot_front_nvme8link_speed`\n  * `slot_front_nvme8option_rom`\n  * `slot_front_nvme9link_speed`\n  * `slot_front_nvme9option_rom`\n  * `slot_front_nvme1option_rom`\n  * `slot_front_nvme10link_speed`\n  * `slot_front_nvme10option_rom`\n  * `slot_front_nvme11link_speed`\n  * `slot_front_nvme11option_rom`\n  * `slot_front_nvme12link_speed`\n  * `slot_front_nvme12option_rom`\n  * `slot_front_nvme13link_speed`\n  * `slot_front_nvme13option_rom`\n  * `slot_front_nvme14link_speed`\n  * `slot_front_nvme14option_rom`\n  * `slot_front_nvme15link_speed`\n  * `slot_front_nvme15option_rom`\n  * `slot_front_nvme16link_speed`\n  * `slot_front_nvme16option_rom`\n  * `slot_front_nvme17link_speed`\n  * `slot_front_nvme17option_rom`\n  * `slot_front_nvme18link_speed`\n  * `slot_front_nvme18option_rom`\n  * `slot_front_nvme19link_speed`\n  * `slot_front_nvme19option_rom`\n  * `slot_front_nvme20link_speed`\n  * `slot_front_nvme20option_rom`\n  * `slot_front_nvme21link_speed`\n  * `slot_front_nvme21option_rom`\n  * `slot_front_nvme22link_speed`\n  * `slot_front_nvme22option_rom`\n  * `slot_front_nvme23link_speed`\n  * `slot_front_nvme23option_rom`\n  * `slot_front_nvme24link_speed`\n  * `slot_front_nvme24option_rom`\n  * `slot_front_nvme25link_speed`\n  * `slot_front_nvme25option_rom`\n  * `slot_front_nvme26link_speed`\n  * `slot_front_nvme26option_rom`\n  * `slot_front_nvme27link_speed`\n  * `slot_front_nvme27option_rom`\n  * `slot_front_nvme28link_speed`\n  * `slot_front_nvme28option_rom`\n  * `slot_front_nvme29link_speed`\n  * `slot_front_nvme29option_rom`\n  * `slot_front_nvme30link_speed`\n  * `slot_front_nvme30option_rom`\n  * `slot_front_nvme31link_speed`\n  * `slot_front_nvme31option_rom`\n  * `slot_front_nvme32link_speed`\n  * `slot_front_nvme32option_rom`\n  * `slot_front_slot5link_speed`\n  * `slot_front_slot6link_speed`\n  * `slot_gpu1state`\n  * `slot_gpu2state`\n  * `slot_gpu3state`\n  * `slot_gpu4state`\n  * `slot_gpu5state`\n  * `slot_gpu6state`\n  * `slot_gpu7state`\n  * `slot_gpu8state`\n  * `slot_hba_link_speed`\n  * `slot_hba_state`\n  * `slot_lom1link`\n  * `slot_lom2link`\n  * `slot_mezz_state`\n  * `slot_mlom_link_speed`\n  * `slot_mlom_state`\n  * `slot_mraid_link_speed`\n  * `slot_mraid_state`\n  * `slot_n10state`\n  * `slot_n11state`\n  * `slot_n12state`\n  * `slot_n13state`\n  * `slot_n14state`\n  * `slot_n15state`\n  * `slot_n16state`\n  * `slot_n17state`\n  * `slot_n18state`\n  * `slot_n19state`\n  * `slot_n1state`\n  * `slot_n20state`\n  * `slot_n21state`\n  * `slot_n22state`\n  * `slot_n23state`\n  * `slot_n24state`\n  * `slot_n2state`\n  * `slot_n3state`\n  * `slot_n4state`\n  * `slot_n5state`\n  * `slot_n6state`\n  * `slot_n7state`\n  * `slot_n8state`\n  * `slot_n9state`\n  * `slot_raid_link_speed`\n  * `slot_raid_state`\n  * `slot_rear_nvme1link_speed`\n  * `slot_rear_nvme1state`\n  * `slot_rear_nvme2link_speed`\n  * `slot_rear_nvme2state`\n  * `slot_rear_nvme3link_speed`\n  * `slot_rear_nvme3state`\n  * `slot_rear_nvme4link_speed`\n  * `slot_rear_nvme4state`\n  * `slot_rear_nvme5state`\n  * `slot_rear_nvme6state`\n  * `slot_rear_nvme7state`\n  * `slot_rear_nvme8state`\n  * `slot_riser1link_speed`\n  * `slot_riser1slot1link_speed`\n  * `slot_riser1slot2link_speed`\n  * `slot_riser1slot3link_speed`\n  * `slot_riser2link_speed`\n  * `slot_riser2slot4link_speed`\n  * `slot_riser2slot5link_speed`\n  * `slot_riser2slot6link_speed`\n  * `slot_sas_state`\n  * `slot_ssd_slot1link_speed`\n  * `slot_ssd_slot2link_speed`\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * `gpu_direct_cpu1`\n  * `gpu_direct_cpu2`\n  * `gpu_direct_cpu3`\n  * `gpu_direct_cpu4`\n  * `pcie_slots_cdn_enable`\n  * `post_error_pause`\n  * `tpm_support`\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * `acpi_srat_sp_flag_en`\n  * `adaptive_refresh_mgmt_level`\n  * `advanced_mem_test`\n  * `bme_dma_mitigation`\n  * `burst_and_postponed_refresh`\n  * `cbs_cmn_cpu_sev_asid_space_limit`\n  * `cbs_cmn_cpu_smee`\n  * `cbs_cmn_gnb_nb_iommu`\n  * `cbs_cmn_mem_ctrl_bank_group_swap_ddr4`\n  * `cbs_cmn_mem_map_bank_interleave_ddr4`\n  * `cbs_cmn_mem_speed_ddr47xx2`\n  * `cbs_cmn_mem_speed_ddr47xx3`\n  * `cbs_dbg_cpu_snp_mem_cover`\n  * `cbs_dbg_cpu_snp_mem_size_cover`\n  * `cbs_df_cmn4link_max_xgmi_speed`\n  * `cbs_df_cmn_dram_nps`\n  * `cbs_df_cmn_dram_scrub_time`\n  * `cbs_df_cmn_mem_intlv`\n  * `cbs_df_cmn_mem_intlv_control`\n  * `cbs_df_cmn_mem_intlv_size`\n  * `cbs_gnb_dbg_pcie_tbt_support`\n  * `cbs_sev_snp_support`\n  * `cke_low_policy`\n  * `cr_qos`\n  * `crfastgo_config`\n  * `dcpmm_firmware_downgrade`\n  * `dram_refresh_rate`\n  * `dram_sw_thermal_throttling`\n  * `eadr_support`\n  * `enable_rmt`\n  * `error_check_scrub`\n  * `lv_ddr_mode`\n  * `memory_bandwidth_boost`\n  * `memory_refresh_rate`\n  * `memory_size_limit`\n  * `memory_thermal_throttling`\n  * `mirroring_mode`\n  * `mmioh_base`\n  * `mmioh_size`\n  * `numa_optimized`\n  * `nvmdimm_perform_config`\n  * `operation_mode`\n  * `panic_high_watermark`\n  * `partial_cache_line_sparing`\n  * `partial_mirror_mode_config`\n  * `partial_mirror_percent`\n  * `partial_mirror_value1`\n  * `partial_mirror_value2`\n  * `partial_mirror_value3`\n  * `partial_mirror_value4`\n  * `pc_ie_ras_support`\n  * `pre_boot_dma_protection`\n  * `post_package_repair`\n  * `runtime_post_package_repair`\n  * `select_memory_ras_configuration`\n  * `select_ppr_type`\n  * `sev`\n  * `smee`\n  * `snoopy_mode_for2lm`\n  * `snoopy_mode_for_ad`\n  * `sparing_mode`\n  * `tsme`\n  * `uefi_mem_map_sp_flag_en`\n  * `uma_based_clustering`\n  * `vol_memory_mode`\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * `aspm_support`\n  * `ioh_resource`\n  * `memory_mapped_io_above4gb`\n  * `mmcfg_base`\n  * `onboard10gbit_lom`\n  * `onboard_gbit_lom`\n  * `pc_ie_ssd_hot_plug_support`\n  * `resize_bar_support`\n  * `sr_iov`\n  * `vga_priority`\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * `c1auto_demotion`\n  * `c1auto_un_demotion`\n  * `cbs_cmn_cpu_cpb`\n  * `cbs_cmn_cpu_global_cstate_ctrl`\n  * `cbs_cmn_cpu_l1stream_hw_prefetcher`\n  * `cbs_cmn_cpu_l2stream_hw_prefetcher`\n  * `cbs_cmn_determinism_slider`\n  * `cbs_cmn_efficiency_mode_en`\n  * `cbs_cmn_efficiency_mode_en_rs`\n  * `cbs_cmn_gnb_smucppc`\n  * `cbs_cmnc_tdp_ctl`\n  * `cpu_perf_enhancement`\n  * `llc_alloc`\n  * `optimized_power_mode`\n  * `upi_link_enablement`\n  * `upi_power_management`\n  * `virtual_numa`\n  * `x2apic_opt_out`\n  * `xpt_remote_prefetch`\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * `adjacent_cache_line_prefetch`\n  * `altitude`\n  * `auto_cc_state`\n  * `autonumous_cstate_enable`\n  * `boot_performance_mode`\n  * `cbs_cmn_apbdis`\n  * `cbs_cmn_apbdis_df_pstate_rs`\n  * `cbs_cmn_cpu_avx512`\n  * `cbs_cmn_cpu_frequency_control`\n  * `cbs_cmn_cpu_gen_downcore_ctrl`\n  * `cbs_cmn_cpu_streaming_stores_ctrl`\n  * `cbs_cmn_edc_control_throttle`\n  * `cbs_cmn_fixed_soc_pstate`\n  * `cbs_cmn_gnb_smu_df_cstates`\n  * `cbs_cmn_gnb_smu_dffo_rs`\n  * `cbs_cmn_gnb_smu_dlwm_support`\n  * `cbs_cmn_mem_ctrller_pwr_dn_en_ddr`\n  * `cbs_cmn_preferred_io7xx2`\n  * `cbs_cmn_preferred_io7xx3`\n  * `cbs_cmnx_gmi_force_link_width_rs`\n  * `cbs_cpu_ccd_ctrl_ssp`\n  * `cbs_cpu_core_ctrl`\n  * `cbs_cpu_down_core_ctrl_bergamo`\n  * `cbs_cpu_down_core_ctrl_genoa`\n  * `cbs_cpu_smt_ctrl`\n  * `cbs_dbg_cpu_gen_cpu_wdt`\n  * `cbs_dbg_cpu_lapic_mode`\n  * `cbs_df_cmn_acpi_srat_l3numa`\n  * `cbs_df_dbg_xgmi_link_cfg`\n  * `channel_inter_leave`\n  * `cisco_xgmi_max_speed`\n  * `closed_loop_therm_throtl`\n  * `cmci_enable`\n  * `config_tdp`\n  * `config_tdp_level`\n  * `core_multi_processing`\n  * `cpu_energy_performance`\n  * `cpu_frequency_floor`\n  * `cpu_performance`\n  * `cpu_power_management`\n  * `demand_scrub`\n  * `dfx_osb_en`\n  * `direct_cache_access`\n  * `dram_clock_throttling`\n  * `energy_efficient_turbo`\n  * `eng_perf_tuning`\n  * `enhanced_intel_speed_step_tech`\n  * `epp_enable`\n  * `epp_profile`\n  * `execute_disable_bit`\n  * `extended_apic`\n  * `hardware_prefetch`\n  * `hwpm_enable`\n  * `imc_interleave`\n  * `intel_dynamic_speed_select`\n  * `intel_hyper_threading_tech`\n  * `intel_speed_select`\n  * `intel_turbo_boost_tech`\n  * `intel_virtualization_technology`\n  * `ioat_config_cpm`\n  * `ioh_error_enable`\n  * `ip_prefetch`\n  * `kti_prefetch`\n  * `llc_prefetch`\n  * `memory_inter_leave`\n  * `package_cstate_limit`\n  * `patrol_scrub`\n  * `patrol_scrub_duration`\n  * `prmrr_size`\n  * `processor_c1e`\n  * `processor_c3report`\n  * `processor_c6report`\n  * `processor_cstate`\n  * `pstate_coord_type`\n  * `pwr_perf_tuning`\n  * `qpi_link_speed`\n  * `rank_inter_leave`\n  * `single_pctl_enable`\n  * `smt_mode`\n  * `snc`\n  * `speculative_lock_enable`\n  * `streamer_prefetch`\n  * `svm_mode`\n  * `ufs_disable`\n  * `ufs_disable_io`\n  * `work_load_config`\n  * `xpt_prefetch`\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * `qpi_link_frequency`\n  * `qpi_snoop_mode`\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * `enable_tdx`\n  * `enable_tdx_seamldr`\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * `serial_port_aenable`\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * `assert_nmi_on_perr`\n  * `assert_nmi_on_serr`\n  * `baud_rate`\n  * `cdn_enable`\n  * `cisco_adaptive_mem_training`\n  * `cisco_debug_level`\n  * `cisco_oprom_launch_optimization`\n  * `console_redirection`\n  * `flow_control`\n  * `frb2enable`\n  * `legacy_os_redirection`\n  * `os_boot_watchdog_timer`\n  * `os_boot_watchdog_timer_policy`\n  * `os_boot_watchdog_timer_timeout`\n  * `out_of_band_mgmt_port`\n  * `putty_key_pad`\n  * `redirection_after_post`\n  * `serial_mux`\n  * `terminal_type`\n  * `ucsm_boot_order_rule`\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * `cpu_pa_limit`\n  * `enable_mktme`\n  * `dma_ctrl_opt_in`\n  * `enable_sgx`\n  * `enable_tme`\n  * `epoch_update`\n  * `sgx_auto_registration_agent`\n  * `sgx_epoch0`\n  * `sgx_epoch1`\n  * `sgx_factory_reset`\n  * `sgx_le_pub_key_hash0`\n  * `sgx_le_pub_key_hash1`\n  * `sgx_le_pub_key_hash2`\n  * `sgx_le_pub_key_hash3`\n  * `sgx_le_wr`\n  * `sgx_package_info_in_band_access`\n  * `sgx_qos`\n  * `sha1pcr_bank`\n  * `sha256pcr_bank`\n  * `sha384pcr_bank`\n  * `tpm_control`\n  * `tpm_pending_operation`\n  * `tpm_ppi_required`\n  * `txt_support`\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * `all_usb_devices`\n  * `legacy_usb_support`\n  * `make_device_non_bootable`\n  * `pch_usb30mode`\n  * `usb_emul6064`\n  * `usb_port_front`\n  * `usb_port_internal`\n  * `usb_port_kvm`\n  * `usb_port_rear`\n  * `usb_port_sd_card`\n  * `usb_port_vmedia`\n  * `usb_xhci_support`",
+                    "description": "A BIOS policy automates the configuration of BIOS settings on servers. You can create one or more BIOS policies that contain a specific grouping of BIOS settings, matching the needs of a server or a set of servers. If you do not specify a BIOS policy for a server, the BIOS settings will default to set of values for a brand new baremetal server or to a set of values previously configured using Cisco IMC. If a BIOS policy is specified, its values replace any previously configured values on the server.\n\nAll BIOS tokens are not applicable to all servers. If unsupported tokens are pushed to a server, those tokens are ignored.\n\nRequired Attributes:\n  * `name`\n\nRecommended Attribute:\n\n  * `bios_template`\n\nOptional Attributes:\n  * `description`\n  * `tags`\n#+++++++++++++++++++++++++++++++\n# Advanced Section\n#+++++++++++++++++++++++++++++++\n  * `latency_optimized_mode`\n#+++++++++++++++++++++++++++++++\n# Boot Options Section\n#+++++++++++++++++++++++++++++++\n  * `boot_option_num_retry`\n  * `boot_option_re_cool_down`\n  * `boot_option_retry`\n  * `ipv4http`\n  * `ipv4pxe`\n  * `ipv6http`\n  * `ipv6pxe`\n  * `network_stack`\n  * `onboard_scu_storage_support`\n  * `onboard_scu_storage_sw_stack`\n  * `pop_support`\n  * `psata`\n  * `sata_mode_select`\n  * `vmd_enable`\n#+++++++++++++++++++++++++++++++\n# Intel Directed IO Section\n#+++++++++++++++++++++++++++++++\n  * `intel_vt_for_directed_io`\n  * `intel_vtd_coherency_support`\n  * `intel_vtd_interrupt_remapping`\n  * `intel_vtd_pass_through_dma_support`\n  * `intel_vtdats_support`\n#+++++++++++++++++++++++++++++++\n# LOM and PCIe Slots Section\n#+++++++++++++++++++++++++++++++\n  * `acs_control_gpu1state`\n  * `acs_control_gpu2state`\n  * `acs_control_gpu3state`\n  * `acs_control_gpu4state`\n  * `acs_control_gpu5state`\n  * `acs_control_gpu6state`\n  * `acs_control_gpu7state`\n  * `acs_control_gpu8state`\n  * `acs_control_slot11state`\n  * `acs_control_slot12state`\n  * `acs_control_slot13state`\n  * `acs_control_slot14state`\n  * `cbs_cmn_pcie_cap_link_speed`\n  * `cdn_support`\n  * `edpc_en`\n  * `enable_clock_spread_spec`\n  * `lom_port0state`\n  * `lom_port1state`\n  * `lom_port2state`\n  * `lom_port3state`\n  * `lom_ports_all_state`\n  * `pch_pcie_pll_ssc`\n  * `pci_option_ro_ms`\n  * `pci_rom_clp`\n  * `pcie_ari_support`\n  * `pcie_pll_ssc`\n  * `pcie_slot_mraid1link_speed`\n  * `pcie_slot_mraid1option_rom`\n  * `pcie_slot_mraid2link_speed`\n  * `pcie_slot_mraid2option_rom`\n  * `pcie_slot_mstorraid_link_speed`\n  * `pcie_slot_mstorraid_option_rom`\n  * `pcie_slot_nvme1link_speed`\n  * `pcie_slot_nvme1option_rom`\n  * `pcie_slot_nvme2link_speed`\n  * `pcie_slot_nvme2option_rom`\n  * `pcie_slot_nvme3link_speed`\n  * `pcie_slot_nvme3option_rom`\n  * `pcie_slot_nvme4link_speed`\n  * `pcie_slot_nvme4option_rom`\n  * `pcie_slot_nvme5link_speed`\n  * `pcie_slot_nvme5option_rom`\n  * `pcie_slot_nvme6link_speed`\n  * `pcie_slot_nvme6option_rom`\n  * `slot10link_speed`\n  * `slot10state`\n  * `slot11link_speed`\n  * `slot11state`\n  * `slot12link_speed`\n  * `slot12state`\n  * `slot13state`\n  * `slot14state`\n  * `slot1link_speed`\n  * `slot1state`\n  * `slot2link_speed`\n  * `slot2state`\n  * `slot3link_speed`\n  * `slot3state`\n  * `slot4link_speed`\n  * `slot4state`\n  * `slot5link_speed`\n  * `slot5state`\n  * `slot6link_speed`\n  * `slot6state`\n  * `slot7link_speed`\n  * `slot7state`\n  * `slot8link_speed`\n  * `slot8state`\n  * `slot9link_speed`\n  * `slot9state`\n  * `slot_flom_link_speed`\n  * `slot_front_nvme1link_speed`\n  * `slot_front_nvme2link_speed`\n  * `slot_front_nvme2option_rom`\n  * `slot_front_nvme3link_speed`\n  * `slot_front_nvme3option_rom`\n  * `slot_front_nvme4link_speed`\n  * `slot_front_nvme4option_rom`\n  * `slot_front_nvme5link_speed`\n  * `slot_front_nvme5option_rom`\n  * `slot_front_nvme6link_speed`\n  * `slot_front_nvme6option_rom`\n  * `slot_front_nvme7link_speed`\n  * `slot_front_nvme7option_rom`\n  * `slot_front_nvme8link_speed`\n  * `slot_front_nvme8option_rom`\n  * `slot_front_nvme9link_speed`\n  * `slot_front_nvme9option_rom`\n  * `slot_front_nvme1option_rom`\n  * `slot_front_nvme10link_speed`\n  * `slot_front_nvme10option_rom`\n  * `slot_front_nvme11link_speed`\n  * `slot_front_nvme11option_rom`\n  * `slot_front_nvme12link_speed`\n  * `slot_front_nvme12option_rom`\n  * `slot_front_nvme13link_speed`\n  * `slot_front_nvme13option_rom`\n  * `slot_front_nvme14link_speed`\n  * `slot_front_nvme14option_rom`\n  * `slot_front_nvme15link_speed`\n  * `slot_front_nvme15option_rom`\n  * `slot_front_nvme16link_speed`\n  * `slot_front_nvme16option_rom`\n  * `slot_front_nvme17link_speed`\n  * `slot_front_nvme17option_rom`\n  * `slot_front_nvme18link_speed`\n  * `slot_front_nvme18option_rom`\n  * `slot_front_nvme19link_speed`\n  * `slot_front_nvme19option_rom`\n  * `slot_front_nvme20link_speed`\n  * `slot_front_nvme20option_rom`\n  * `slot_front_nvme21link_speed`\n  * `slot_front_nvme21option_rom`\n  * `slot_front_nvme22link_speed`\n  * `slot_front_nvme22option_rom`\n  * `slot_front_nvme23link_speed`\n  * `slot_front_nvme23option_rom`\n  * `slot_front_nvme24link_speed`\n  * `slot_front_nvme24option_rom`\n  * `slot_front_nvme25link_speed`\n  * `slot_front_nvme25option_rom`\n  * `slot_front_nvme26link_speed`\n  * `slot_front_nvme26option_rom`\n  * `slot_front_nvme27link_speed`\n  * `slot_front_nvme27option_rom`\n  * `slot_front_nvme28link_speed`\n  * `slot_front_nvme28option_rom`\n  * `slot_front_nvme29link_speed`\n  * `slot_front_nvme29option_rom`\n  * `slot_front_nvme30link_speed`\n  * `slot_front_nvme30option_rom`\n  * `slot_front_nvme31link_speed`\n  * `slot_front_nvme31option_rom`\n  * `slot_front_nvme32link_speed`\n  * `slot_front_nvme32option_rom`\n  * `slot_front_slot5link_speed`\n  * `slot_front_slot6link_speed`\n  * `slot_gpu1state`\n  * `slot_gpu2state`\n  * `slot_gpu3state`\n  * `slot_gpu4state`\n  * `slot_gpu5state`\n  * `slot_gpu6state`\n  * `slot_gpu7state`\n  * `slot_gpu8state`\n  * `slot_hba_link_speed`\n  * `slot_hba_state`\n  * `slot_lom1link`\n  * `slot_lom2link`\n  * `slot_mezz_state`\n  * `slot_mlom_link_speed`\n  * `slot_mlom_state`\n  * `slot_mraid_link_speed`\n  * `slot_mraid_state`\n  * `slot_n10state`\n  * `slot_n11state`\n  * `slot_n12state`\n  * `slot_n13state`\n  * `slot_n14state`\n  * `slot_n15state`\n  * `slot_n16state`\n  * `slot_n17state`\n  * `slot_n18state`\n  * `slot_n19state`\n  * `slot_n1state`\n  * `slot_n20state`\n  * `slot_n21state`\n  * `slot_n22state`\n  * `slot_n23state`\n  * `slot_n24state`\n  * `slot_n2state`\n  * `slot_n3state`\n  * `slot_n4state`\n  * `slot_n5state`\n  * `slot_n6state`\n  * `slot_n7state`\n  * `slot_n8state`\n  * `slot_n9state`\n  * `slot_raid_link_speed`\n  * `slot_raid_state`\n  * `slot_rear_nvme1link_speed`\n  * `slot_rear_nvme1state`\n  * `slot_rear_nvme2link_speed`\n  * `slot_rear_nvme2state`\n  * `slot_rear_nvme3link_speed`\n  * `slot_rear_nvme3state`\n  * `slot_rear_nvme4link_speed`\n  * `slot_rear_nvme4state`\n  * `slot_rear_nvme5state`\n  * `slot_rear_nvme6state`\n  * `slot_rear_nvme7state`\n  * `slot_rear_nvme8state`\n  * `slot_riser1link_speed`\n  * `slot_riser1slot1link_speed`\n  * `slot_riser1slot2link_speed`\n  * `slot_riser1slot3link_speed`\n  * `slot_riser2link_speed`\n  * `slot_riser2slot4link_speed`\n  * `slot_riser2slot5link_speed`\n  * `slot_riser2slot6link_speed`\n  * `slot_sas_state`\n  * `slot_ssd_slot1link_speed`\n  * `slot_ssd_slot2link_speed`\n#+++++++++++++++++++++++++++++++\n# Main Section\n#+++++++++++++++++++++++++++++++\n  * `gpu_direct_cpu1`\n  * `gpu_direct_cpu2`\n  * `gpu_direct_cpu3`\n  * `gpu_direct_cpu4`\n  * `pcie_slots_cdn_enable`\n  * `post_error_pause`\n  * `tpm_support`\n#+++++++++++++++++++++++++++++++\n# Memory Section\n#+++++++++++++++++++++++++++++++\n  * `acpi_srat_sp_flag_en`\n  * `adaptive_refresh_mgmt_level`\n  * `advanced_mem_test`\n  * `bme_dma_mitigation`\n  * `burst_and_postponed_refresh`\n  * `cbs_cmn_cpu_sev_asid_space_limit`\n  * `cbs_cmn_cpu_smee`\n  * `cbs_cmn_gnb_nb_iommu`\n  * `cbs_cmn_mem_cs_interleave_ddr`\n  * `cbs_cmn_mem_ctrl_bank_group_swap_ddr4`\n  * `cbs_cmn_mem_ctrller_bank_swap_mode_ddr`\n  * `cbs_cmn_mem_dram_refresh_rate`\n  * `cbs_cmn_mem_healing_bist_enable_bit_mask_ddr`\n  * `cbs_cmn_mem_map_bank_interleave_ddr4`\n  * `cbs_cmn_mem_speed_ddr47xx2`\n  * `cbs_cmn_mem_speed_ddr47xx3`\n  * `cbs_dbg_cpu_snp_mem_cover`\n  * `cbs_dbg_cpu_snp_mem_size_cover`\n  * `cbs_df_cmn4link_max_xgmi_speed`\n  * `cbs_df_cmn_dram_nps`\n  * `cbs_df_cmn_dram_scrub_time`\n  * `cbs_df_cmn_mem_intlv`\n  * `cbs_df_cmn_mem_intlv_control`\n  * `cbs_df_cmn_mem_intlv_size`\n  * `cbs_gnb_dbg_pcie_tbt_support`\n  * `cbs_sev_snp_support`\n  * `cke_low_policy`\n  * `cr_qos`\n  * `crfastgo_config`\n  * `dcpmm_firmware_downgrade`\n  * `dram_refresh_rate`\n  * `dram_sw_thermal_throttling`\n  * `eadr_support`\n  * `enable_rmt`\n  * `error_check_scrub`\n  * `lv_ddr_mode`\n  * `memory_bandwidth_boost`\n  * `memory_refresh_rate`\n  * `memory_size_limit`\n  * `memory_thermal_throttling`\n  * `mirroring_mode`\n  * `mmioh_base`\n  * `mmioh_size`\n  * `numa_optimized`\n  * `nvmdimm_perform_config`\n  * `operation_mode`\n  * `panic_high_watermark`\n  * `partial_cache_line_sparing`\n  * `partial_mirror_mode_config`\n  * `partial_mirror_percent`\n  * `partial_mirror_value1`\n  * `partial_mirror_value2`\n  * `partial_mirror_value3`\n  * `partial_mirror_value4`\n  * `pc_ie_ras_support`\n  * `pre_boot_dma_protection`\n  * `post_package_repair`\n  * `runtime_post_package_repair`\n  * `select_memory_ras_configuration`\n  * `select_ppr_type`\n  * `sev`\n  * `smee`\n  * `snoopy_mode_for2lm`\n  * `snoopy_mode_for_ad`\n  * `sparing_mode`\n  * `tsme`\n  * `uefi_mem_map_sp_flag_en`\n  * `uma_based_clustering`\n  * `vol_memory_mode`\n#+++++++++++++++++++++++++++++++\n# PCI Section\n#+++++++++++++++++++++++++++++++\n  * `aspm_support`\n  * `ioh_resource`\n  * `memory_mapped_io_above4gb`\n  * `mmcfg_base`\n  * `onboard10gbit_lom`\n  * `onboard_gbit_lom`\n  * `pc_ie_ssd_hot_plug_support`\n  * `resize_bar_support`\n  * `sr_iov`\n  * `vga_priority`\n#+++++++++++++++++++++++++++++++\n# Power and Performance Section\n#+++++++++++++++++++++++++++++++\n  * `c1auto_demotion`\n  * `c1auto_un_demotion`\n  * `cbs_cmn_cpu_cpb`\n  * `cbs_cmn_cpu_global_cstate_ctrl`\n  * `cbs_cmn_cpu_l1_burst_prefetch_mode`\n  * `cbs_cmn_cpu_l1stream_hw_prefetcher`\n  * `cbs_cmn_cpu_l2stream_hw_prefetcher`\n  * `cbs_cmn_determinism_slider`\n  * `cbs_cmn_efficiency_mode_en`\n  * `cbs_cmn_efficiency_mode_en_rs`\n  * `cbs_cmn_gnb_smucppc`\n  * `cbs_cmnc_tdp_ctl`\n  * `cpu_perf_enhancement`\n  * `llc_alloc`\n  * `optimized_power_mode`\n  * `upi_link_enablement`\n  * `upi_power_management`\n  * `virtual_numa`\n  * `x2apic_opt_out`\n  * `xpt_remote_prefetch`\n#+++++++++++++++++++++++++++++++\n# Processor Section\n#+++++++++++++++++++++++++++++++\n  * `adjacent_cache_line_prefetch`\n  * `altitude`\n  * `auto_cc_state`\n  * `autonumous_cstate_enable`\n  * `boot_performance_mode`\n  * `cbs_cmn_apbdis`\n  * `cbs_cmn_apbdis_df_pstate_rs`\n  * `cbs_cmn_cpu_avx512`\n  * `cbs_cmn_cpu_frequency_control`\n  * `cbs_cmn_cpu_gen_downcore_ctrl`\n  * `cbs_cmn_cpu_streaming_stores_ctrl`\n  * `cbs_cmn_edc_control_throttle`\n  * `cbs_cmn_fixed_soc_pstate`\n  * `cbs_cmn_gnb_smu_df_cstates`\n  * `cbs_cmn_gnb_smu_dffo_rs`\n  * `cbs_cmn_gnb_smu_dlwm_support`\n  * `cbs_cmn_mem_ctrller_pwr_dn_en_ddr`\n  * `cbs_cmn_preferred_io7xx2`\n  * `cbs_cmn_preferred_io7xx3`\n  * `cbs_cmnx_gmi_force_link_width_rs`\n  * `cbs_cpu_ccd_ctrl_ssp`\n  * `cbs_cpu_core_ctrl`\n  * `cbs_cpu_down_core_ctrl_bergamo`\n  * `cbs_cpu_down_core_ctrl_genoa`\n  * `cbs_cpu_smt_ctrl`\n  * `cbs_dbg_cpu_gen_cpu_wdt`\n  * `cbs_dbg_cpu_lapic_mode`\n  * `cbs_df_cmn_acpi_srat_l3numa`\n  * `cbs_df_dbg_xgmi_link_cfg`\n  * `channel_inter_leave`\n  * `cisco_xgmi_max_speed`\n  * `closed_loop_therm_throtl`\n  * `cmci_enable`\n  * `config_tdp`\n  * `config_tdp_level`\n  * `core_multi_processing`\n  * `cpu_energy_performance`\n  * `cpu_frequency_floor`\n  * `cpu_performance`\n  * `cpu_power_management`\n  * `demand_scrub`\n  * `dfx_osb_en`\n  * `direct_cache_access`\n  * `dram_clock_throttling`\n  * `energy_efficient_turbo`\n  * `eng_perf_tuning`\n  * `enhanced_intel_speed_step_tech`\n  * `epp_enable`\n  * `epp_profile`\n  * `execute_disable_bit`\n  * `extended_apic`\n  * `hardware_prefetch`\n  * `hwpm_enable`\n  * `imc_interleave`\n  * `intel_dynamic_speed_select`\n  * `intel_hyper_threading_tech`\n  * `intel_speed_select`\n  * `intel_turbo_boost_tech`\n  * `intel_virtualization_technology`\n  * `ioat_config_cpm`\n  * `ioh_error_enable`\n  * `ip_prefetch`\n  * `kti_prefetch`\n  * `llc_prefetch`\n  * `memory_inter_leave`\n  * `package_cstate_limit`\n  * `patrol_scrub`\n  * `patrol_scrub_duration`\n  * `prmrr_size`\n  * `processor_c1e`\n  * `processor_c3report`\n  * `processor_c6report`\n  * `processor_cstate`\n  * `pstate_coord_type`\n  * `pwr_perf_tuning`\n  * `qpi_link_speed`\n  * `rank_inter_leave`\n  * `single_pctl_enable`\n  * `smt_mode`\n  * `snc`\n  * `speculative_lock_enable`\n  * `streamer_prefetch`\n  * `svm_mode`\n  * `ufs_disable`\n  * `ufs_disable_io`\n  * `work_load_config`\n  * `xpt_prefetch`\n#+++++++++++++++++++++++++++++++\n# QPI Section\n#+++++++++++++++++++++++++++++++\n  * `qpi_link_frequency`\n  * `qpi_snoop_mode`\n#+++++++++++++++++++++++++++++++\n# Security Section\n#+++++++++++++++++++++++++++++++\n  * `enable_tdx`\n  * `enable_tdx_seamldr`\n#+++++++++++++++++++++++++++++++\n# Serial Port Section\n#+++++++++++++++++++++++++++++++\n  * `serial_port_aenable`\n#+++++++++++++++++++++++++++++++\n# Server Management Section\n#+++++++++++++++++++++++++++++++\n  * `assert_nmi_on_perr`\n  * `assert_nmi_on_serr`\n  * `baud_rate`\n  * `cdn_enable`\n  * `cisco_adaptive_mem_training`\n  * `cisco_debug_level`\n  * `cisco_oprom_launch_optimization`\n  * `console_redirection`\n  * `flow_control`\n  * `frb2enable`\n  * `legacy_os_redirection`\n  * `os_boot_watchdog_timer`\n  * `os_boot_watchdog_timer_policy`\n  * `os_boot_watchdog_timer_timeout`\n  * `out_of_band_mgmt_port`\n  * `putty_key_pad`\n  * `redirection_after_post`\n  * `serial_mux`\n  * `terminal_type`\n  * `ucsm_boot_order_rule`\n#+++++++++++++++++++++++++++++++\n# Trusted Platform Section\n#+++++++++++++++++++++++++++++++\n  * `cpu_pa_limit`\n  * `enable_mktme`\n  * `dma_ctrl_opt_in`\n  * `enable_sgx`\n  * `enable_tme`\n  * `epoch_update`\n  * `sgx_auto_registration_agent`\n  * `sgx_epoch0`\n  * `sgx_epoch1`\n  * `sgx_factory_reset`\n  * `sgx_le_pub_key_hash0`\n  * `sgx_le_pub_key_hash1`\n  * `sgx_le_pub_key_hash2`\n  * `sgx_le_pub_key_hash3`\n  * `sgx_le_wr`\n  * `sgx_package_info_in_band_access`\n  * `sgx_qos`\n  * `sha1pcr_bank`\n  * `sha256pcr_bank`\n  * `sha384pcr_bank`\n  * `tpm_control`\n  * `tpm_pending_operation`\n  * `tpm_ppi_required`\n  * `txt_support`\n#+++++++++++++++++++++++++++++++\n# USB Section\n#+++++++++++++++++++++++++++++++\n  * `all_usb_devices`\n  * `legacy_usb_support`\n  * `make_device_non_bootable`\n  * `pch_usb30mode`\n  * `usb_emul6064`\n  * `usb_port_front`\n  * `usb_port_internal`\n  * `usb_port_kvm`\n  * `usb_port_rear`\n  * `usb_port_sd_card`\n  * `usb_port_vmedia`\n  * `usb_xhci_support`\n\n#+++++++++++++++++++++++++++++++\n# C885A - BIOS Tokens\n#+++++++++++++++++++++++++++++++\n\n  * `svm_mode` -> SVM Mode\n  * `cbs_cmn_apbdis` -> APBDIS\n  * `cbs_cmn_cpu_avx512` -> AVX512\n  * `cbs_cmn_cpu_cpb` -> Core Performance Boost\n  * `cbs_cmn_cpu_global_cstate_ctrl` -> Global C-state Control\n  * `cbs_cmn_cpu_l1_burst_prefetch_mode` -> L1 Burst Prefetch Mode\n  * `cbs_cmn_cpu_l1stream_hw_prefetcher` -> L1 Stream HW Prefetcher\n  * `cbs_cmn_cpu_l2stream_hw_prefetcher` -> L2 Stream HW Prefetcher\n  * `cbs_cmn_cpu_smee` -> SMEE\n  * `cbs_cmn_cpu_streaming_stores_ctrl` -> Streaming Stores Control\n  * `cbs_cmn_gnb_nb_iommu` -> IOMMU\n  * `post_package_repair` -> DRAM Boot Time Post Package Repair\n  * `cbs_cmn_mem_cs_interleave_ddr` -> Chipselect Interleaving\n  * `cbs_cmn_mem_ctrller_bank_swap_mode_ddr` -> BankSwapMode\n  * `cbs_cmn_mem_ctrller_pwr_dn_en_ddr` -> Power Down Enable\n  * `cbs_cmn_mem_dram_refresh_rate` -> DRAM Refresh Rate\n  * `cbs_df_cmn_dram_scrub_time` -> DRAM Scrub Time\n  * `cbs_cmn_mem_healing_bist_enable_bit_mask_ddr` -> DDR Healing BIST\n  * `runtime_post_package_repair` -> DRAM Runtime Post Package Repair\n  * `tsme` -> TSME\n  * `cbs_cmn_pcie_cap_link_speed` -> PCIE Link Speed Capability\n  * `cbs_cpu_ccd_ctrl_ssp` -> CCD Control\n  * `cbs_cpu_smt_ctrl` -> SMT Control\n  * `cbs_dbg_cpu_lapic_mode` -> Local APIC Mode\n  * `cbs_df_cmn4link_max_xgmi_speed` -> 3-link xGMI max speed\n  * `cbs_df_cmn_acpi_srat_l3numa` -> ACPI SRAT L3 Cache As NUMA Domain\n  * `cbs_df_cmn_dram_nps` -> NUMA nodes per socket\n  * `cbs_df_cmn_mem_intlv_control` -> Memory interleaving\n  * `cbs_sev_snp_support` -> SEV-SNP Support\n  * `os_boot_watchdog_timer` -> OS Watchdog Timer\n  * `os_boot_watchdog_timer_timeout` -> OS Wtd Timer Timeout\n  * `os_boot_watchdog_timer_policy` -> OS Wtd Timer Policy\n  * `pop_support` -> Password protection of Runtime Variables\n  * `ipv4pxe` -> IPv4 PXE Support\n  * `ipv6pxe` -> IPv6 PXE Support\n  * `ipv4http` -> IPv4 HTTP Support\n  * `ipv6http` -> IPv6 HTTP Support\n  * `sr_iov` -> SR-IOV Support\n  * `bme_dma_mitigation` -> BME DMA Mitigation\n  * `tpm_pending_operation` -> Pending operation\n  * `console_redirection` -> Console Redirection\n  * `baud_rate` -> Bits per second\n  * `terminal_type` -> Terminal Type\n  * `flow_control` -> Flow Control",
                     "intersight_uri": "bios/Policies",
                     "items": {
                         "$ref": "#/definitions/intersight.policies.bios"
@@ -5510,14 +5510,17 @@
                         },
                         "baud_rate": {
                             "default": "platform-default",
-                            "description": "The default value is `platform-default`.  BIOS Token for setting Baud Rate configuration.  Sets the baud rate for the serial console redirection interface.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `9600` - Value - 9600 for configuring BaudRate token.\n  * `19200` - Value - 19200 for configuring BaudRate token.\n  * `38400` - Value - 38400 for configuring BaudRate token.\n  * `57600` - Value - 57600 for configuring BaudRate token.\n  * `115200` - Value - 115200 for configuring BaudRate token.",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting Baud Rate configuration.  Sets the baud rate for the serial console redirection interface.  `230400`, `460800`, `921600` are only supported by C885A\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `9600` - Value - 9600 for configuring BaudRate token.\n  * `19200` - Value - 19200 for configuring BaudRate token.\n  * `38400` - Value - 38400 for configuring BaudRate token.\n  * `57600` - Value - 57600 for configuring BaudRate token.\n  * `115200` - Value - 115200 for configuring BaudRate token.",
                             "enum": [
                                 "platform-default",
                                 "9600",
                                 "19200",
                                 "38400",
                                 "57600",
-                                "115200"
+                                "115200",
+                                "230400",
+                                "460800",
+                                "921600"
                             ],
                             "intersight_api": "BaudRate",
                             "title": "baud_rate",
@@ -5525,7 +5528,7 @@
                         },
                         "bios_template": {
                             "default": "",
-                            "description": "The default value is ``.  Name of a BIOS Template to Configure.\n\n  * `AnalyticalDatabaseSystems-M6-Intel(-Tpm)` - BIOS Tuning Policy for Analytical Database Systems on Cisco UCS M6 Servers with Intel processors.\n  * `AnalyticalDatabaseSystems-M7-Intel(-Tpm)` - BIOS Tuning Policy for Analytical Database Systems on Cisco UCS M7 Servers with Intel processors.\n  * `Analytics-M8-AMD(-Tpm)` - BIOS Tuning Policy for Analytical Database Systems on Cisco UCS M8 Servers with AMD processors.\n  * `AnalyticsDatabaseSystems-M5-Intel(-Tpm)` - BIOS Tuning Policy for Analytics Database Decision-Support System on Cisco UCS M5 Servers with Intel processors.\n  * `ComputationIntensive-M6-AMD(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M6 Servers with AMD processors.\n  * `CPUInference-M8-AMD(-Tpm)` - BIOS Tuning Policy for CPU-based AI Inference on Cisco UCS M8 Servers with AMD processors. Optimizes for CPU-based inference with low-latency tuning. Enables Core Performance Boost, Determinism Slider set to Performance, LLC prefetch, and ACPI SRAT L3 Cache as NUMA Domain.\n  * `CPUInference-M8-Intel(-Tpm)` - BIOS Tuning Policy for CPU-based AI Inference on Cisco UCS M8 Servers with Intel processors. Optimizes for CPU-based inference with low-latency tuning. Enables hardware P-states in Native Mode, Intel Turbo Boost, LLC prefetch, XPT prefetch, and NUMA optimization.\n  * `CPUIntensive-M6-Intel(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M6 Servers with Intel processors.\n  * `CPUIntensive-M7-Intel(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M7 Servers with Intel processors.\n  * `CPUIntensive-M8-AMD(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M8 Servers with AMD processors.\n  * `DataAnalytics-M6-Intel(-Tpm)` - BIOS Tuning Policy for Data Analytics on Cisco UCS M6 Servers with Intel processors.\n  * `DataAnalytics-M7-Intel(-Tpm)` - BIOS Tuning Policy for Data Analytics on Cisco UCS M7 Servers with Intel processors.\n  * `EdgeAI-M8-AMD(-Tpm)` - BIOS Tuning Policy for Edge AI on Cisco UCS M8 Servers with AMD processors. Optimizes for Cisco Unified Edge nodes with power-aware AI tuning. Balances performance with power efficiency using Determinism Slider set to Power, Efficiency Mode, CPPC enabled, and NUMA optimization suitable for edge deployment constraints.\n  * `EdgeAI-M8-Intel(-Tpm)` - BIOS Tuning Policy for Edge AI on Cisco UCS M8 Servers with Intel processors. Optimizes for Cisco Unified Edge nodes with power-aware AI tuning. Balances performance with power efficiency using Energy Efficient Turbo, hardware P-states in Native Mode, and NUMA optimization suitable for edge deployment constraints.\n  * `EnergyEfficiency-M5-Intel(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M5 Servers with Intel processors.\n  * `EnergyEfficiency-M6-AMD(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M6 Servers with AMD processors.\n  * `EnergyEfficiency-M6-Intel(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M6 Servers with Intel processors.\n  * `EnergyEfficiency-M8-AMD(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M8 Servers with AMD processors.\n  * `EnergyEfficient-M7-Intel(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M7 Servers with Intel processors.\n  * `GPUInference-M8-AMD(-Tpm)` - BIOS Tuning Policy for GPU-based AI Inference on Cisco UCS M8 Servers with AMD processors. Optimizes for maximum GPU throughput with low-latency memory access. Sets GPU ACS control enabled, ACPI SRAT L3 Cache as NUMA Domain, DF C-States disabled for consistent GPU latency, Determinism Slider set to Performance, and SR-IOV enabled.\n  * `GPUInference-M8-Intel(-Tpm)` - BIOS Tuning Policy for GPU-based AI Inference on Cisco UCS M8 Servers with Intel processors. Optimizes for maximum GPU throughput with low-latency memory access. Sets GPU ACS control enabled, NUMA optimized, Autonomous C-State and Package C-State Limit disabled for consistent performance, hardware P-states disabled, XPT prefetch, and SR-IOV enabled.\n  * `GPUTraining-M8-AMD(-Tpm)` - BIOS Tuning Policy for GPU-based AI Training on Cisco UCS M8 Servers with AMD processors. Optimizes for large-scale GPU training workloads with maximum memory bandwidth. Includes all GPUInference-M8-AMD settings plus Workload Configuration set to Balanced for sustained throughput.\n  * `GPUTraining-M8-Intel(-Tpm)` - BIOS Tuning Policy for GPU-based AI Training on Cisco UCS M8 Servers with Intel processors. Optimizes for large-scale GPU training workloads with maximum memory bandwidth. Includes all GPUInference-M8-Intel settings plus Workload Configuration set to Balanced for sustained throughput.\n  * `HighPerformanceComputing-M5-Intel(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M5 Servers with Intel processors.\n  * `HighPerformanceComputing-M6-AMD(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M6 Servers with AMD processors.\n  * `HighPerformanceComputing-M6-Intel(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M6 Servers with Intel processors.\n  * `HighPerformanceComputing-M7-Intel(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M7 Servers with Intel processors.\n  * `HPC-M8-AMD(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M8 Servers with AMD processors.\n  * `IOIntensive-M6-AMD(-Tpm)` - BIOS Tuning Policy for IO Intensive on Cisco UCS M6 Servers with AMD processors.\n  * `IOIntensive-M6-Intel(-Tpm)` - BIOS Tuning Policy for IO Intensive on Cisco UCS M6 Servers with Intel processors.\n  * `IOIntensive-M8-AMD(-Tpm)` - BIOS Tuning Policy for IO Intensive on Cisco UCS M8 Servers with AMD processors.\n  * `JavaApplicationServer-M5-Intel(-Tpm)` - BIOS Tuning Policy for Java Application Server on Cisco UCS M5 Servers with Intel processors.\n  * `LowLatency-M5-Intel(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M5 Servers with Intel processors.\n  * `LowLatency-M6-AMD(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M6 Servers with AMD processors.\n  * `LowLatency-M6-Intel(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M6 Servers with Intel processors.\n  * `LowLatency-M7-Intel(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M7 Servers with Intel processors.\n  * `LowLatency-M8-AMD(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M8 Servers with AMD processors.\n  * `M5-amd-virtual(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M5 Servers with AMD processors.\n  * `M5-intel-virtual(-Tpm)` - (Depricated - Use Virtualization-M5-Intel(-Tpm)) - BIOS Tuning Policy for Virtualization on Cisco UCS M5 Servers with Intel processors.\n  * `M6-amd-virtual(-Tpm)` - (Depricated - Use Virtualization-M6-AMD(-Tpm)) - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with AMD processors.\n  * `M6-intel-virtual(-Tpm)` - (Depricated - Use Virtualization-M6-Intel(-Tpm)) - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with Intel processors.\n  * `MaximumPerformance-M5-Intel(-Tpm)` - BIOS Tuning Policy for Maximum Performance on Cisco UCS M5 Servers with Intel processors.\n  * `MLPerf-Inference-C845A-M8-AMD` - BIOS Tuning Policy based off of https://www.cisco.com/c/en/us/products/collateral/servers-unified-computing/ucs-c-series-rack-servers/mlperf-ucs-c885a-h100-h200-wp.html.\n  * `OnlineTransactionProcessing-M5-Intel(-Tpm)` - BIOS Tuning Policy for Online Transaction Processing on Cisco UCS M5 Servers with Intel processors.\n  * `RDBMS-M8-AMD(-Tpm)` - BIOS Tuning Policy for Relational Database Systems on Cisco UCS M8 Servers with AMD processors.\n  * `RelationalDatabaseSystems-M6-Intel(-Tpm)` - BIOS Tuning Policy for Relational Database Systems on Cisco UCS M6 Servers with Intel processors.\n  * `RelationalDatabaseSystems-M7-Intel(-Tpm)` - BIOS Tuning Policy for Relational Database Systems on Cisco UCS M7 Servers with Intel processors.\n  * `VDI-M6-AMD(-Tpm)` - BIOS Tuning Policy for VDI on Cisco UCS M6 Servers with AMD processors.\n  * `Virtualization-M5-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M5 Servers with Intel processors.\n  * `Virtualization-M6-AMD(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with AMD processors.\n  * `Virtualization-M6-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with Intel processors.\n  * `Virtualization-M7-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M7 Servers with Intel processors.\n  * `Virtualization-M8-AMD(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M8 Servers with AMD processors.\n  * `Virtualization-M8-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M8 Servers with AMD processors.",
+                            "description": "The default value is ``.  Name of a BIOS Template to Configure.\n\n  * `AnalyticalDatabaseSystems-M6-Intel(-Tpm)` - BIOS Tuning Policy for Analytical Database Systems on Cisco UCS M6 Servers with Intel processors.\n  * `AnalyticalDatabaseSystems-M7-Intel(-Tpm)` - BIOS Tuning Policy for Analytical Database Systems on Cisco UCS M7 Servers with Intel processors.\n  * `Analytics-M8-AMD(-Tpm)` - BIOS Tuning Policy for Analytical Database Systems on Cisco UCS M8 Servers with AMD processors.\n  * `AnalyticsDatabaseSystems-M5-Intel(-Tpm)` - BIOS Tuning Policy for Analytics Database Decision-Support System on Cisco UCS M5 Servers with Intel processors.\n  * `ComputationIntensive-M6-AMD(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M6 Servers with AMD processors.\n  * `CPUInference-M8-AMD(-Tpm)` - BIOS Tuning Policy for CPU-based AI Inference on Cisco UCS M8 Servers with AMD processors. Optimizes for CPU-based inference with low-latency tuning. Enables Core Performance Boost, Determinism Slider set to Performance, LLC prefetch, and ACPI SRAT L3 Cache as NUMA Domain.\n  * `CPUInference-M8-Intel(-Tpm)` - BIOS Tuning Policy for CPU-based AI Inference on Cisco UCS M8 Servers with Intel processors. Optimizes for CPU-based inference with low-latency tuning. Enables hardware P-states in Native Mode, Intel Turbo Boost, LLC prefetch, XPT prefetch, and NUMA optimization.\n  * `CPUIntensive-M6-Intel(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M6 Servers with Intel processors.\n  * `CPUIntensive-M7-Intel(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M7 Servers with Intel processors.\n  * `CPUIntensive-M8-AMD(-Tpm)` - BIOS Tuning Policy for CPU Intensive on Cisco UCS M8 Servers with AMD processors.\n  * `DataAnalytics-M6-Intel(-Tpm)` - BIOS Tuning Policy for Data Analytics on Cisco UCS M6 Servers with Intel processors.\n  * `DataAnalytics-M7-Intel(-Tpm)` - BIOS Tuning Policy for Data Analytics on Cisco UCS M7 Servers with Intel processors.\n  * `EdgeAI-M8-AMD(-Tpm)` - BIOS Tuning Policy for Edge AI on Cisco UCS M8 Servers with AMD processors. Optimizes for Cisco Unified Edge nodes with power-aware AI tuning. Balances performance with power efficiency using Determinism Slider set to Power, Efficiency Mode, CPPC enabled, and NUMA optimization suitable for edge deployment constraints.\n  * `EdgeAI-M8-Intel(-Tpm)` - BIOS Tuning Policy for Edge AI on Cisco UCS M8 Servers with Intel processors. Optimizes for Cisco Unified Edge nodes with power-aware AI tuning. Balances performance with power efficiency using Energy Efficient Turbo, hardware P-states in Native Mode, and NUMA optimization suitable for edge deployment constraints.\n  * `EnergyEfficiency-M5-Intel(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M5 Servers with Intel processors.\n  * `EnergyEfficiency-M6-AMD(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M6 Servers with AMD processors.\n  * `EnergyEfficiency-M6-Intel(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M6 Servers with Intel processors.\n  * `EnergyEfficiency-M8-AMD(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M8 Servers with AMD processors.\n  * `EnergyEfficient-M7-Intel(-Tpm)` - BIOS Tuning Policy for Energy Efficiency on Cisco UCS M7 Servers with Intel processors.\n  * `GPUInference-M8-AMD(-Tpm)` - BIOS Tuning Policy for GPU-based AI Inference on Cisco UCS M8 Servers with AMD processors. Optimizes for maximum GPU throughput with low-latency memory access. Sets GPU ACS control enabled, ACPI SRAT L3 Cache as NUMA Domain, DF C-States disabled for consistent GPU latency, Determinism Slider set to Performance, and SR-IOV enabled.\n  * `GPUInference-M8-Intel(-Tpm)` - BIOS Tuning Policy for GPU-based AI Inference on Cisco UCS M8 Servers with Intel processors. Optimizes for maximum GPU throughput with low-latency memory access. Sets GPU ACS control enabled, NUMA optimized, Autonomous C-State and Package C-State Limit disabled for consistent performance, hardware P-states disabled, XPT prefetch, and SR-IOV enabled.\n  * `GPUTraining-M8-AMD(-Tpm)` - BIOS Tuning Policy for GPU-based AI Training on Cisco UCS M8 Servers with AMD processors. Optimizes for large-scale GPU training workloads with maximum memory bandwidth. Includes all GPUInference-M8-AMD settings plus Workload Configuration set to Balanced for sustained throughput.\n  * `GPUTraining-M8-Intel(-Tpm)` - BIOS Tuning Policy for GPU-based AI Training on Cisco UCS M8 Servers with Intel processors. Optimizes for large-scale GPU training workloads with maximum memory bandwidth. Includes all GPUInference-M8-Intel settings plus Workload Configuration set to Balanced for sustained throughput.\n  * `HighPerformanceComputing-M5-Intel(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M5 Servers with Intel processors.\n  * `HighPerformanceComputing-M6-AMD(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M6 Servers with AMD processors.\n  * `HighPerformanceComputing-M6-Intel(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M6 Servers with Intel processors.\n  * `HighPerformanceComputing-M7-Intel(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M7 Servers with Intel processors.\n  * `HPC-M8-AMD(-Tpm)` - BIOS Tuning Policy for High-Performance Computing on Cisco UCS M8 Servers with AMD processors.\n  * `IOIntensive-M6-AMD(-Tpm)` - BIOS Tuning Policy for IO Intensive on Cisco UCS M6 Servers with AMD processors.\n  * `IOIntensive-M6-Intel(-Tpm)` - BIOS Tuning Policy for IO Intensive on Cisco UCS M6 Servers with Intel processors.\n  * `IOIntensive-M8-AMD(-Tpm)` - BIOS Tuning Policy for IO Intensive on Cisco UCS M8 Servers with AMD processors.\n  * `JavaApplicationServer-M5-Intel(-Tpm)` - BIOS Tuning Policy for Java Application Server on Cisco UCS M5 Servers with Intel processors.\n  * `LowLatency-M5-Intel(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M5 Servers with Intel processors.\n  * `LowLatency-M6-AMD(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M6 Servers with AMD processors.\n  * `LowLatency-M6-Intel(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M6 Servers with Intel processors.\n  * `LowLatency-M7-Intel(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M7 Servers with Intel processors.\n  * `LowLatency-M8-AMD(-Tpm)` - BIOS Tuning Policy for Low Latency on Cisco UCS M8 Servers with AMD processors.\n  * `M5-amd-virtual(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M5 Servers with AMD processors.\n  * `M5-intel-virtual(-Tpm)` - (Depricated - Use Virtualization-M5-Intel(-Tpm)) - BIOS Tuning Policy for Virtualization on Cisco UCS M5 Servers with Intel processors.\n  * `M6-amd-virtual(-Tpm)` - (Depricated - Use Virtualization-M6-AMD(-Tpm)) - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with AMD processors.\n  * `M6-intel-virtual(-Tpm)` - (Depricated - Use Virtualization-M6-Intel(-Tpm)) - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with Intel processors.\n  * `MaximumPerformance-M5-Intel(-Tpm)` - BIOS Tuning Policy for Maximum Performance on Cisco UCS M5 Servers with Intel processors.\n  * `MLPerf-Inference-C885A-M8-AMD` - BIOS Tuning Policy based off of https://www.cisco.com/c/en/us/products/collateral/servers-unified-computing/ucs-c-series-rack-servers/mlperf-ucs-c885a-h100-h200-wp.html.\n  * `OnlineTransactionProcessing-M5-Intel(-Tpm)` - BIOS Tuning Policy for Online Transaction Processing on Cisco UCS M5 Servers with Intel processors.\n  * `RDBMS-M8-AMD(-Tpm)` - BIOS Tuning Policy for Relational Database Systems on Cisco UCS M8 Servers with AMD processors.\n  * `RelationalDatabaseSystems-M6-Intel(-Tpm)` - BIOS Tuning Policy for Relational Database Systems on Cisco UCS M6 Servers with Intel processors.\n  * `RelationalDatabaseSystems-M7-Intel(-Tpm)` - BIOS Tuning Policy for Relational Database Systems on Cisco UCS M7 Servers with Intel processors.\n  * `VDI-M6-AMD(-Tpm)` - BIOS Tuning Policy for VDI on Cisco UCS M6 Servers with AMD processors.\n  * `Virtualization-M5-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M5 Servers with Intel processors.\n  * `Virtualization-M6-AMD(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with AMD processors.\n  * `Virtualization-M6-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M6 Servers with Intel processors.\n  * `Virtualization-M7-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M7 Servers with Intel processors.\n  * `Virtualization-M8-AMD(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M8 Servers with AMD processors.\n  * `Virtualization-M8-Intel(-Tpm)` - BIOS Tuning Policy for Virtualization on Cisco UCS M8 Servers with AMD processors.",
                             "enum": [
                                 "AnalyticalDatabaseSystems-M6-Intel",
                                 "AnalyticalDatabaseSystems-M6-Intel-Tpm",
@@ -5625,7 +5628,7 @@
                                 "M6-intel-virtual-tpm",
                                 "MaximumPerformance-M5-Intel",
                                 "MaximumPerformance-M5-Intel-Tpm",
-                                "MLPerf-Inference-C845A-M8-AMD",
+                                "MLPerf-Inference-C885A-M8-AMD",
                                 "OnlineTransactionProcessing-M5-Intel",
                                 "OnlineTransactionProcessing-M5-Intel-Tpm",
                                 "RDBMS-M8-AMD",
@@ -5854,6 +5857,19 @@
                             "title": "cbs_cmn_cpu_global_cstate_ctrl",
                             "type": "string"
                         },
+                        "cbs_cmn_cpu_l1_burst_prefetch_mode": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting L1 Burst Prefetch Mode.  AMD CBS: Enables or disables the CPU's L1 cache prefetch behavior, specifically the L1 Burst Prefetch Mode\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring CbsCmnCpuL1BurstPrefetchMode token.\n  * `disabled` - Value - disabled for configuring CbsCmnCpuL1BurstPrefetchMode token.\n  * `enabled` - Value - enabled for configuring CbsCmnCpuL1BurstPrefetchMode token.",
+                            "enum": [
+                                "platform-default",
+                                "Auto",
+                                "disable",
+                                "enable"
+                            ],
+                            "intersight_api": "CbsCmnCpuL1BurstPrefetchMode",
+                            "title": "cbs_cmn_cpu_l1_burst_prefetch_mode",
+                            "type": "string"
+                        },
                         "cbs_cmn_cpu_l1stream_hw_prefetcher": {
                             "default": "platform-default",
                             "description": "The default value is `platform-default`.  BIOS Token for setting L1 Stream HW Prefetcher configuration.  AMD CBS: Enables or disables the L1 stream hardware prefetcher for predictive data loading.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring CbsCmnCpuL1streamHwPrefetcher token.\n  * `disabled` - Value - disabled for configuring CbsCmnCpuL1streamHwPrefetcher token.\n  * `enabled` - Value - enabled for configuring CbsCmnCpuL1streamHwPrefetcher token.",
@@ -6054,6 +6070,31 @@
                             "title": "cbs_cmn_gnb_smucppc",
                             "type": "string"
                         },
+                        "cbs_cmn_mem_cs_interleave_ddr": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting Chipselect Interleaving configuration.  AMD CBS: Controls chip-select interleaving of memory blocks (for node 0), which can improve memory parallelism/bandwidth patterns.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring CbsCmnMemCsInterleaveDdr token.\n  * `Disabled` - Value - Disabled for configuring CbsCmnMemCsInterleaveDdr token.",
+                            "enum": [
+                                "platform-default",
+                                "Auto",
+                                "Disabled"
+                            ],
+                            "intersight_api": "CbsCmnMemCsInterleaveDdr",
+                            "title": "cbs_cmn_mem_cs_interleave_ddr",
+                            "type": "string"
+                        },
+                        "cbs_cmn_mem_ctrller_bank_swap_mode_ddr": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting Chipselect Interleaving configuration.  AMD CBS: Controls memory controller bank-swap behavior (0=Disabled, 1=SwapCPU), which changes address mapping behavior.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.\n  * `Disabled` - Value - Disabled for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.\n  * `Swap CPU` - Value - Swap CPU for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.",
+                            "enum": [
+                                "platform-default",
+                                "Auto",
+                                "Disabled",
+                                "Swap CPU"
+                            ],
+                            "intersight_api": "CbsCmnMemCCtrllerBankSwapModeDdr",
+                            "title": "cbs_cmn_mem_ctrller_bank_swap_mode_ddr",
+                            "type": "string"
+                        },
                         "cbs_cmn_mem_ctrl_bank_group_swap_ddr4": {
                             "default": "platform-default",
                             "description": "The default value is `platform-default`.  BIOS Token for setting Bank Group Swap configuration.  AMD CBS: Controls DDR4 bank group swapping to optimize memory access patterns for specific workloads.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Auto` - Value - Auto for configuring CbsCmnMemCtrlBankGroupSwapDdr4 token.\n  * `disabled` - Value - disabled for configuring CbsCmnMemCtrlBankGroupSwapDdr4 token.\n  * `enabled` - Value - enabled for configuring CbsCmnMemCtrlBankGroupSwapDdr4 token.",
@@ -6078,6 +6119,31 @@
                             ],
                             "intersight_api": "CbsCmnMemCtrllerPwrDnEnDdr",
                             "title": "cbs_cmn_mem_ctrller_pwr_dn_en_ddr",
+                            "type": "string"
+                        },
+                        "cbs_cmn_mem_dram_refresh_rate": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting DRAM Refresh Rate configuration.  AMD CBS: Sets DRAM refresh interval.\nDefault: 3.9 usec\nTypical values: 1.95 usec, 3.9 usec\nNote: lower interval (1.95 usec) means more frequent refresh.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `1.95 usec` - Value - 1.95 usec for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.\n  * `3.9 usec` - Value - 3.9 usec for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.",
+                            "enum": [
+                                "platform-default",
+                                "1.95 usec",
+                                "3.9 usec"
+                            ],
+                            "intersight_api": "CbsCmnMemCCtrllerBankSwapModeDdr",
+                            "title": "cbs_cmn_mem_dram_refresh_rate",
+                            "type": "string"
+                        },
+                        "cbs_cmn_mem_healing_bist_enable_bit_mask_ddr": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting DDR Healing BIST configuration.  AMD CBS: Enables full memory test/healing options (separate from interface/data-eye MBIST). Includes PMU-based BIST, DRAM self-healing BIST, or both.\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `PMU Mem BIST` - Value - PMU Mem BIST for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.\n  * `PMU and Self-Healing Mem BIST` - Value - PMU and Self-Healing Mem BIST for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.\n  * `Self-Healing Mem BIST` - Value - Self-Healing Mem BIST for configuring CbsCmnMemCCtrllerBankSwapModeDdr token.",
+                            "enum": [
+                                "platform-default",
+                                "PMU Mem BIST",
+                                "PMU and Self-Healing Mem BIST",
+                                "Self-Healing Mem BIST"
+                            ],
+                            "intersight_api": "CbsCmnMemCCtrllerBankSwapModeDdr",
+                            "title": "cbs_cmn_mem_healing_bist_enable_bit_mask_ddr",
                             "type": "string"
                         },
                         "cbs_cmn_mem_map_bank_interleave_ddr4": {
@@ -6135,6 +6201,22 @@
                             ],
                             "intersight_api": "CbsCmnMemSpeedDdr47xx3",
                             "title": "cbs_cmn_mem_speed_ddr47xx3",
+                            "type": "string"
+                        },
+                        "cbs_cmn_pcie_cap_link_speed": {
+                            "default": "platform-default",
+                            "description": "The default value is `platform-default`.  BIOS Token for setting PCIE Link Speed Capability configuration.  AMD CBS: Sets PCIe port speed capability cap (global maximum generation allowed).\n  * `platform-default` - Default value used by the platform for the BIOS setting.\n  * `Gen1` - Value - Gen1 for configuring CbsCmnPcieCAPLinkSpeed token.\n  * `Gen2` - Value - Gen2 for configuring CbsCmnPcieCAPLinkSpeed token.\n  * `GEN3` - Value - GEN3 for configuring CbsCmnPcieCAPLinkSpeed token.\n  * `GEN4` - Value - GEN4 for configuring CbsCmnPcieCAPLinkSpeed token.\n  * `GEN5` - Value - GEN5 for configuring CbsCmnPcieCAPLinkSpeed token.\n  * `Maximum Speed` - Value - Maximum Speed for configuring CbsCmnPcieCAPLinkSpeed token.",
+                            "enum": [
+                                "platform-default",
+                                "Gen1",
+                                "Gen2",
+                                "GEN3",
+                                "GEN4",
+                                "GEN5",
+                                "Maximum Speed"
+                            ],
+                            "intersight_api": "CbsCmnPcieCAPLinkSpeed",
+                            "title": "cbs_cmn_pcie_cap_link_speed",
                             "type": "string"
                         },
                         "cbs_cmn_preferred_io7xx2": {
@@ -12578,7 +12660,7 @@
                     "processor_c6report": "enabled",
                     "txt_support": "enabled"
                 },
-                "MLPerf-Inference-C845A-M8-AMD": {
+                "MLPerf-Inference-C885A-M8-AMD": {
                     "cbs_cmn_apbdis": "1",
                     "cbs_cmn_cpu_global_cstate_ctrl": "Auto",
                     "cbs_cmn_determinism_slider": "Power",
@@ -31510,7 +31592,7 @@
                     "$ref": "#/definitions/intersight.profiles.name.prefix_suffix"
                 },
                 "server": {
-                    "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nIMPORTANT:\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have assigned a Cisco Intersight Essentials License to the physical servers.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment with the targets:\n  * `domain_name`\n\nOptional Attributes\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_profile_template`\n\n\n#===========================================================\n# FIAttached and Unified Edge - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies\n#===========================================================\n\n#=======================================\n# Compute Configuration\n#=======================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `persistent_memory_policy`\n  * `power_policy`\n  * `thermal_policy`\n  * `virtual_media_policy`\n\n#=======================================\n# Management Configuration\n#=======================================\n  * `certificate_management_policy`\n  * `device_connector_policy`\n  * `ipmi_over_lan_policy`\n  * `ldap_policy`\n  * `local_user_policy`\n  * `network_connectivity_policy`\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy`\n  * `ssh_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#=======================================\n# Storage Configuration\n#=======================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#=======================================\n# Network Configuration\n#=======================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
+                    "description": "In Cisco Intersight, a Server Profile enables resource management by streamlining policy alignment, and server configuration. You can create Server Profiles using the Server Profile wizard or you can import the configuration details of C-series servers in standalone mode and FI-attached servers in Intersight Managed Mode (IMM), directly from Cisco IMC. You can create Server Profiles using the Server Profile wizard to provision servers, create policies to ensure smooth deployment of servers, and eliminate failures that are caused by inconsistent configuration. The Server Profiles wizard groups the server policies into the following four categories to provide a quick Summary View of the policies that are attached to a profile:\n  * Compute Policies \u2014 BIOS, Boot Order, Firmware, Power, Thermal, UUID Pool, and Virtual Media.\n  * Management Policies \u2014 Certificate Management, Device Connector, IMC Access, IPMI Over LAN, LDAP, Local User, Network Connectivity, SMTP, SNMP, SSH, Serial over LAN, Syslog, NTP, and Virtual KVM policies\n  * Network Policies \u2014 Adapter Configuration, LAN Connectivity, and SAN Connectivity policies.\n     - The LAN Connectivity policy requires you to create an Ethernet Adapter Policy, Ethernet Network Policy (Standalone only), and Ethernet QoS Policy. When you attach a LAN Connectivity policy to a server profile, the addresses of the MAC address Pool, or the static MAC address, are automatically assigned.\n     - Note: A LAN Connectivity policy that has a static MAC address can be attached to only one server profile.\n     - The SAN Connectivity policy requires you to create an Fibre Channel Adapter Policy, Fibre Channel Network Policy, and Fiber Channel QoS Policy. When you attach a SAN Connectivity policy to a server profile, the addresses of the WWPN and WWNN Pools, or the static WWPN and WWNN addresses, are automatically assigned.\n     - Note:  A SAN Connectivity policy that has a static WWPN, or a static WWNN can be attached to only one server profile.\n  * Storage Policies \u2014 Drive Security, SD Card, and Storage policies.\n\nIMPORTANT:\n  * The server profile feature is available in Cisco Intersight only if:\n     - You have assigned a Cisco Intersight Essentials License to the physical servers.\n\nRequired Base Attributes:\n  * `action`\n  * `attach_template`\n  * `targets`\n  * `server_family` - Only required for Standalone\n  * `target_platform`\n\nRequired for FIAttached when using pre-assignment with the targets:\n  * `domain_name`\n\nOptional Attributes\n  * `detach_template`\n  * `ignore_reservations`\n  * `resource_pool`\n  * `tags`\n  * `ucs_server_profile_template`\n\n\n#===========================================================\n# FIAttached and Unified Edge Server - Pools/Policies\n#===========================================================\n\n#===========================================\n# Compute Configuration\n#===========================================\n  * `bios_policy`\n  * `boot_order_policy`\n  * `firmware_policy`\n  * `memory_policy`\n  * `pcie_connectivity_policy` - FIAttached\n  * `power_policy`\n  * `scrub_policy\n  * `thermal_policy` - FIAttached\n  * `uuid_pool`\n  * `virtual_media_policy`\n\n#===========================================\n# Management Configuration\n#===========================================\n  * `certificate_management_policy`\n  * `imc_access_policy`\n  * `ipmi_over_lan_policy`\n  * `local_user_policy`\n  * `serial_over_lan_policy`\n  * `snmp_policy`\n  * `syslog_policy`\n  * `virtual_kvm_policy`\n\n#===========================================\n# Storage Configuration\n#===========================================\n  * `drive_security_policy` - FIAttached\n  * `sd_card_policy` - FIAttached\n  * `storage_policy`\n\n#===========================================\n# Network Configuration\n#===========================================\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy` - FIAttached\n\n\n#===========================================================\n# Standalone - Policies -  C845A/C885A and UCSC2XX/4XX\n#===========================================================\n\n#===========================================\n# Compute Configuration\n#===========================================\n  * `bios_policy`\n  * `boot_order_policy`  - UCSC2XX/4XX Only\n  * `firmware_policy`\n  * `memory_policy` - UCSC2XX/4XX Only\n  * `persistent_memory_policy` - UCSC2XX/4XX Only\n  * `power_policy`\n  * `thermal_policy` - UCSC2XX/4XX Only\n  * `virtual_media_policy`\n\n#===========================================\n# Management Configuration\n#===========================================\n  * `certificate_management_policy`\n  * `device_connector_policy` - UCSC2XX/4XX Only\n  * `ipmi_over_lan_policy`\n  * `ldap_policy` - UCSC2XX/4XX Only\n  * `local_user_policy`\n  * `network_connectivity_policy` - UCSC2XX/4XX Only\n  * `ntp_policy`\n  * `serial_over_lan_policy`\n  * `smtp_policy`\n  * `snmp_policy` - UCSC2XX/4XX Only\n  * `ssh_policy`\n  * `syslog_policy` - UCSC2XX/4XX Only\n  * `virtual_kvm_policy`\n\n#===========================================\n# Storage Configuration - UCSC2XX/4XX Only\n#===========================================\n  * `drive_security_policy`\n  * `sd_card_policy`\n  * `storage_policy`\n\n#===========================================\n# Network Configuration - UCSC2XX/4XX Only\n#===========================================\n  * `adapter_configuration_policy`\n  * `lan_connectivity_policy`\n  * `san_connectivity_policy`",
                     "intersight_uri": "server/Profiles",
                     "items": {
                         "$ref": "#/definitions/intersight.profiles.server"
@@ -32066,6 +32148,254 @@
             "allOf": [
                 {},
                 {
+                    "anyOf": [
+                        {
+                            "properties": {
+                                "server_family": {
+                                    "const": "All"
+                                },
+                                "target_platform": {
+                                    "const": "FIAttached"
+                                }
+                            },
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "adapter_configuration_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "device_connector_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ldap_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "network_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ntp_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "persistent_memory_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "smtp_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ssh_policy"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "properties": {
+                                "server_family": {
+                                    "const": "All"
+                                },
+                                "target_platform": {
+                                    "const": "UnifiedEdgeServer"
+                                }
+                            },
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "adapter_configuration_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "device_connector_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "drive_security_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ldap_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "network_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ntp_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "pcie_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "persistent_memory_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "san_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "sd_card_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "smtp_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ssh_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "thermal_policy"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "properties": {
+                                "server_family": {
+                                    "const": "UCSC2XX/4XX"
+                                },
+                                "target_platform": {
+                                    "const": "Standalone"
+                                }
+                            },
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "imc_access_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "pcie_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "scrub_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "uuid_pool"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "properties": {
+                                "server_family": {
+                                    "enum": ["UCSC845A", "UCSC885A"]
+                                },
+                                "target_platform": {
+                                    "const": "Standalone"
+                                }
+                            },
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "boot_order_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "device_connector_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "imc_access_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "ldap_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "memory_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "network_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "persistent_memory_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "pcie_connectivity_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "scrub_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "snmp_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "syslog_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "thermal_policy"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "uuid_pool"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ],
                     "description": "Definition of the list of properties defined in 'server.Profile', excluding properties defined in parent classes.",
                     "properties": {
                         "action": {
@@ -32372,6 +32702,19 @@
                             "minLength": 1,
                             "pattern": "^(([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]\\/)?([a-zA-Z0-9][a-zA-Z0-9_\\.:-]{0,62})?[a-zA-Z0-9]$",
                             "title": "scrub_policy",
+                            "type": "string"
+                        },
+                        "server_family": {
+                            "default": "All",
+                            "description": "The default valus is `All`.  The server family type applicable to a server profile when the target platform is Standalone. For all other platform types, the value should be All.\n\nOptions are:\n\n  * `All` - All server family types are included under this category.\n  * `UCSC845A` - Server Family type for UCS C845A servers.\n  * `UCSC885A` - Server Family type for UCS C885A servers.\n  * `UCSC2XX/4XX` - Server Family type for UCS C2XX/4XX servers.",
+                            "enum": [
+                                "All",
+                                "UCSC845A",
+                                "UCSC885A",
+                                "UCSC2XX/4XX"
+                            ],
+                            "intersight_api": "ServerFamily",
+                            "title": "server_family",
                             "type": "string"
                         },
                         "sd_card_policy": {
@@ -34364,7 +34707,6 @@
                     "$ref": "#/definitions/intersight.abstract.profile"
                 },
                 {
-                    "description": "Definition of the list of properties defined in 'server.ProfileTemplate', excluding properties defined in parent classes.",
                     "anyOf": [
                         {
                             "properties": {
@@ -34613,6 +34955,7 @@
                             }
                         }
                     ],
+                    "description": "Definition of the list of properties defined in 'server.ProfileTemplate', excluding properties defined in parent classes.",
                     "properties": {
                         "adapter_configuration_policy": {
                             "default": "default",

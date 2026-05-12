@@ -1,0 +1,44 @@
+{# /redfish/v1/AccountService/ #}
+{
+{% set _base = item.base_settings | default({}) %}
+{% set _search = item.search_parameters | default({}) %}
+    "{{ 'ActiveDirectory' if item.ldap_servers[0].vendor == 'MSAD' else 'LDAP' }}": {
+        "Authentication": {
+            "Username": "{{ ldap.binding_parameters.bind_dn }}",
+            "Password": "{{ sensitive_vars['ldap_binding_parameters_password_' ~ bind_password] }}"
+        },
+        "LDAPService": {
+            "SearchSettings": {
+                "BaseDistinguishedNames": [
+                    "DC={{ ',DC='.join(_base.domain_name.split('.')) }}"
+                ],
+                "GroupAttribute": "{{ _search.group_attribute | default('memberOf') }}",
+                "UsernameAttribute": "{{ _search.user_attribute | default('sAMAccountName') }}"
+            }
+        },
+        "RemoteRoleMapping": [
+{% for group in item.ldap_groups | default([]) %}
+            {
+{% if group.end_point_role | default('readonly') == 'readonly' %}
+                "LocalRole": "ReadOnly",
+{% elif group.end_point_role == 'admin' %}
+                "LocalRole": "Administrator",
+{% else %}
+                "LocalRole": "Operator",
+{% endif %}
+                "RemoteGroup": "{{ group.group_dn }}"
+            }{% if not loop.last %},{% endif %}
+{% endfor %}
+        ],
+        "ServiceEnabled": {{ item.enable_ldap | default(false) | lower }},
+        "ServiceAddresses": [
+{% for ldap_server in item.ldap_servers | default([]) %}
+{% if ldap_server.port | int == 636 %}
+            "ldaps://{{ ldap_server.server }}:{{ ldap_server.port }}"{% if not loop.last %},{% endif %}
+{% else %}
+            "ldap://{{ ldap_server.server }}:{{ ldap_server.port }}"{% if not loop.last %},{% endif %}
+{% endif %}
+{% endfor %}
+        ]
+    }
+}

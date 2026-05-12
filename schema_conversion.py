@@ -85,13 +85,13 @@ def main():
     ezdata = DotMap(json.load(open(os.path.join(kwargs.script_path, 'variables', 'easy-imm.json'), 'r', encoding='utf8')))
     # print(json.dumps(ezdata.components.schemas['ip.ipv4_blocks'], indent=4))
     for key, value in ezdata.components.schemas.items():
-        value_keys = list(value.keys())
+        value_keys = list(value.keys()) if hasattr(value, 'keys') else []
         if 'type' in value_keys and 'properties' in value_keys and value.type == 'object':
             descr = value.description
             req   = value.required
             title = value.title
-            for k, v in v.properties.items():
-                vkeys = list()
+            for k, v in value.properties.items():
+                vkeys = list(v.keys()) if hasattr(v, 'keys') else []
 
 if __name__ == '__main__':
     main()

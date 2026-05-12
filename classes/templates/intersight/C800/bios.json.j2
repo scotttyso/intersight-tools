@@ -1,0 +1,273 @@
+{# /redfish/v1/Systems/system/Bios #}
+{
+    "Attributes": {
+        "CPU005":
+        {% if item.svm_mode | default('platform-default') == 'platform-default' %}
+            "Enabled"
+        {% else %}
+            "{{ item.svm_mode | default('Enabled') | capitalize }}"
+        {% endif %},
+        "CbsCmnApbdis":
+        {% if item.cbs_cmn_apbdis | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_apbdis | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnCpuAvx512":
+        {% if item.cbs_cmn_cpu_avx512 | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_avx512 | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnCpuCpb":
+        {% if item.cbs_cmn_cpu_cpb | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_cpb | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnCpuGlobalCstateCtrl":
+        {% if item.cbs_cmn_cpu_global_cstate_ctrl | default('platform-default') == 'platform-default' %}
+            "Disabled"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_global_cstate_ctrl | default('Disabled') | capitalize }}"
+        {% endif %},
+        "CbsCmnCpuL1BurstPrefetchMode":
+        {% if item.cbs_cmn_cpu_l1_burst_prefetch_mode | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_l1_burst_prefetch_mode | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnCpuL1StreamHwPrefetcher":
+        {% if item.cbs_cmn_cpu_l1stream_hw_prefetcher | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_l1stream_hw_prefetcher | default('Auto') | replace('disabled', 'Disable') | replace('enabled', 'Enable') }}"
+        {% endif %},
+        "CbsCmnCpuL2StreamHwPrefetcher":
+        {% if item.cbs_cmn_cpu_l2stream_hw_prefetcher | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_l2stream_hw_prefetcher | default('Auto') | replace('disabled', 'Disable') | replace('enabled', 'Enable') }}"
+        {% endif %},
+        "CbsCmnCpuSmee":
+        {% if item.cbs_cmn_cpu_smee | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_smee | default('Auto') | replace('disabled', 'Disable') | replace('enabled', 'Enable') }}"
+        {% endif %},
+        "CbsCmnCpuStreamingStoresCtrl":
+        {% if item.cbs_cmn_cpu_streaming_stores_ctrl | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_cpu_streaming_stores_ctrl | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnGnbNbIOMMU":
+        {% if item.cbs_cmn_gnb_nb_iommu | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_gnb_nb_iommu | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnMemBootTimePostPackageRepair":
+        {% if item.post_package_repair | default('platform-default') == 'platform-default' %}
+            "Disable"
+        {% else %}
+            "{{ item.post_package_repair | default('Disable') | capitalize | replace('Disabled', 'Disable') | replace('Hard PPR', 'Enable') }}"
+        {% endif %},
+        "CbsCmnMemCsInterleaveDdr":
+        {% if item.cbs_cmn_mem_cs_interleave_ddr | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_mem_cs_interleave_ddr | default('Auto') }}"
+        {% endif %},
+        "CbsCmnMemCtrllerBankSwapModeDdr":
+        {% if item.cbs_cmn_mem_ctrller_bank_swap_mode_ddr | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_mem_ctrller_bank_swap_mode_ddr | default('Auto') }}"
+        {% endif %},
+        "CbsCmnMemCtrllerPwrDnEnDdr":
+        {% if item.cbs_cmn_mem_ctrller_pwr_dn_en_ddr | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_mem_ctrller_pwr_dn_en_ddr | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnMemDramRefreshRate":
+        {% if item.cbs_cmn_mem_dram_refresh_rate | default('platform-default') == 'platform-default' %}
+            "3.9 usec"
+        {% else %}
+            "{{ item.cbs_cmn_mem_dram_refresh_rate | default('3.9 usec') }}"
+        {% endif %},
+        "CbsCmnMemDramScrubTime":
+        {% if item.cbs_df_cmn_dram_scrub_time | default('platform-default') == 'platform-default' %}
+            "24 hours"
+        {% else %}
+            "{{ item.cbs_df_cmn_dram_scrub_time | default('24 hours') }}"
+        {% endif %},
+        "CbsCmnMemHealingBistEnableBitMaskDdr":
+        {% if item.cbs_cmn_mem_healing_bist_enable_bit_mask_ddr | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_mem_healing_bist_enable_bit_mask_ddr | default('Disabled') }}"
+        {% endif %},
+        "CbsCmnMemRuntimePostPackageRepair":
+        {% if item.runtime_post_package_repair | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.runtime_post_package_repair | default('Disable') | replace('disabled', 'Disable') | replace('enabled', 'Enable') }}"
+        {% endif %},
+        "CbsCmnMemTsmeEnableDdr":
+        {% if item.tsme | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.tsme | default('Auto') | capitalize }}"
+        {% endif %},
+        "CbsCmnPcieCAPLinkSpeed":
+        {% if item.cbs_cmn_pcie_cap_link_speed | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cmn_pcie_cap_link_speed | default('Auto') }}"
+        {% endif %},
+        "CbsCpuCcdCtrl":
+        {% if item.cbs_cpu_ccd_ctrl_ssp | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cpu_ccd_ctrl_ssp | default('Auto') }}"
+        {% endif %},
+        "CbsCpuSmtCtrl":
+        {% if item.cbs_cpu_smt_ctrl | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_cpu_smt_ctrl | default('Auto') | replace('disabled', 'Disable') | replace('enabled', 'Enable') }}"
+        {% endif %},
+        "CbsDbgCpuLApicMode":
+        {% if item.cbs_dbg_cpu_lapic_mode | default('platform-default') == 'platform-default' or item.cbs_dbg_cpu_lapic_mode == 'Compatibility' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_dbg_cpu_lapic_mode | default('Auto') | replace('X', 'x') }}"
+        {% endif %},
+        "CbsDfCmn3LinkMaxXgmiSpeed":
+        {% if item.cbs_df_cmn4link_max_xgmi_speed | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_df_cmn4link_max_xgmi_speed | default('Auto') }}"
+        {% endif %},
+        "CbsDfCmnAcpiSratL3Numa":
+        {% if item.cbs_df_cmn_acpi_srat_l3numa | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_df_cmn_acpi_srat_l3numa | default('Auto') }}"
+        {% endif %},
+        "CbsDfCmnDramNps":
+        {% if item.cbs_df_cmn_dram_nps | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_df_cmn_dram_nps | default('Auto') }}"
+        {% endif %},
+        "CbsDfCmnMemIntlv":
+        {% if item.cbs_df_cmn_mem_intlv_control | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_df_cmn_mem_intlv_control | default('Auto') }}"
+        {% endif %},
+        "CbsSevSnpSupport":
+        {% if item.cbs_sev_snp_support | default('platform-default') == 'platform-default' %}
+            "Auto"
+        {% else %}
+            "{{ item.cbs_sev_snp_support | default('Auto') | replace('disabled', 'Disable') | replace('enabled', 'Enable') }}"
+        {% endif %},
+        "IPMI103":
+        {% if item.os_boot_watchdog_timer | default('platform-default') == 'platform-default' %}
+            "Disabled"
+        {% else %}
+            "{{ item.os_boot_watchdog_timer | default('Disabled') | capitalize }}"
+        {% endif %},
+        "IPMI104":
+        {% if item.os_boot_watchdog_timer_timeout | default('platform-default') == 'platform-default' %}
+            10
+        {% else %}
+            {{ item.os_boot_watchdog_timer_timeout | default(10) | replace('-minutes', '') | int }}
+        {% endif %},
+        "IPMI105":
+        {% if item.os_boot_watchdog_timer_policy | default('platform-default') == 'platform-default' %}
+            "Reset"
+        {% else %}
+            "{{ item.os_boot_watchdog_timer_policy | default('Reset') | replace('-', ' ') | title | replace('Off', 'Down') }}"
+        {% endif %},
+        "NVLCK002":
+        {% if item.pop_support | default('platform-default') == 'platform-default' %}
+            "Enabled"
+        {% else %}
+            "{{ item.pop_support | default('Enabled') | capitalize }}"
+        {% endif %},
+        "NWSK001":
+        {% if item.ipv4pxe | default('platform-default') == 'platform-default' %}
+            "Enabled"
+        {% else %}
+            "{{ item.ipv4pxe | default('Enabled') | capitalize }}"
+        {% endif %},
+        "NWSK002":
+        {% if item.ipv6pxe | default('platform-default') == 'platform-default' %}
+            "Disabled"
+        {% else %}
+            "{{ item.ipv6pxe | default('Disabled') | capitalize }}"
+        {% endif %},
+        "NWSK006":
+        {% if item.ipv4http | default('platform-default') == 'platform-default' %}
+            "Enabled"
+        {% else %}
+            "{{ item.ipv4http | default('Enabled') | capitalize }}"
+        {% endif %},
+        "NWSK007":
+        {% if item.ipv6http | default('platform-default') == 'platform-default' %}
+            "Disabled"
+        {% else %}
+            "{{ item.ipv6http | default('Disabled') | capitalize }}"
+        {% endif %},
+        {# memory_mapped_io_above4gb #}
+        "PCID001": "Enabled",
+        "PCID002":
+        {% if item.sr_iov | default('platform-default') == 'platform-default' %}
+            "Enabled"
+        {% else %}
+            "{{ item.sr_iov | default('Enabled') | capitalize }}"
+        {% endif %},
+        "PCID003":
+        {% if item.bme_dma_mitigation | default('platform-default') == 'platform-default' %}
+            "Disabled"
+        {% else %}
+            "{{ item.bme_dma_mitigation | default('Disabled') | capitalize }}"
+        {% endif %},
+        "TCG006":
+        {% if item.tpm_pending_operation | default('platform-default') == 'platform-default' %}
+            "None"
+        {% else %}
+            "{{ item.tpm_pending_operation | default('None') | replace('TpmClear', 'TPM Clear') }}"
+        {% endif %},
+        "TER002":
+        {% if item.console_redirection | default('platform-default') == 'platform-default' %}
+            "Enabled"
+        {% elif item.console_redirection in ['enabled', 'disabled'] %}
+            "{{ item.console_redirection | capitalize }}"
+        {% else %}
+            "Enabled"
+        {% endif %},
+        "TER0022":
+        {% if item.baud_rate | default('platform-default') == 'platform-default' %}
+            115200
+        {% else %}
+            {{ item.baud_rate | default(115200) | int }}
+        {% endif %},
+        "TER013":
+        {% if item.terminal_type | default('platform-default') == 'platform-default' %}
+            "ANSI"
+        {% else %}
+            "{{ item.terminal_type | default('ANSI') | upper | replace('-PLUS', 'Plus') | replace('PC-', '') }}"
+        {% endif %},
+        "TER05E":
+        {% if item.flow_control | default('platform-default') == 'platform-default' %}
+            "None"
+        {% else %}
+            "{{ item.flow_control | default('None') | replace('none', 'None') | replace('rts-cts', 'Hardware RTS/CTS') }}"
+        {% endif %}
+    }
+}

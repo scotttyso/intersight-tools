@@ -1,0 +1,998 @@
+{
+  "inputs": {
+    "template": "/home/tyscott@rich.ciscolabs.com/scotttyso/intersight-tools/classes/templates/intersight/C800/bios.json.j2",
+    "registry": "/home/tyscott@rich.ciscolabs.com/scotttyso/intersight-tools/QA/885/885_bios_registry_filtered.json",
+    "schema": "/home/tyscott@rich.ciscolabs.com/scotttyso/intersight-tools/schema/cisco-ai-pods.json"
+  },
+  "counts": {
+    "template_keys": 44,
+    "registry_matches": 44,
+    "schema_matches": 43
+  },
+  "rows": [
+    {
+      "key": "CPU005",
+      "display_name": "SVM Mode",
+      "default_value": "Enabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/disable CPU Virtualization",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "svm_mode",
+      "schema_intersight_api": "SvmMode",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "svm_mode"
+    },
+    {
+      "key": "CbsCmnApbdis",
+      "display_name": "APBDIS",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "0 = not APBDIS (mission mode)  1 = APBDIS",
+      "redfish_allowed_values": [
+        "0",
+        "1",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_apbdis",
+      "schema_intersight_api": "CbsCmnApbdis",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "0",
+        "1",
+        "Auto"
+      ],
+      "template_item_value": "cbs_cmn_apbdis"
+    },
+    {
+      "key": "CbsCmnCpuAvx512",
+      "display_name": "AVX512",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/Disable AVX512.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_avx512",
+      "schema_intersight_api": "CbsCmnCpuAvx512",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_avx512"
+    },
+    {
+      "key": "CbsCmnCpuCpb",
+      "display_name": "Core Performance Boost",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Disable CPB",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_cpb",
+      "schema_intersight_api": "CbsCmnCpuCpb",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_cpb"
+    },
+    {
+      "key": "CbsCmnCpuGlobalCstateCtrl",
+      "display_name": "Global C-state Control",
+      "default_value": "Disabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Controls IO based C-state generation and DF C-states.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_global_cstate_ctrl",
+      "schema_intersight_api": "CbsCmnCpuGlobalCstateCtrl",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_global_cstate_ctrl"
+    },
+    {
+      "key": "CbsCmnCpuL1BurstPrefetchMode",
+      "display_name": "L1 Burst Prefetch Mode",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Option to Enable | Disable L1 Burst Prefetch Mode",
+      "redfish_allowed_values": [
+        "Disable",
+        "Enable",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_l1_burst_prefetch_mode",
+      "schema_intersight_api": "CbsCmnCpuL1BurstPrefetchMode",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disable",
+        "enable"
+      ],
+      "template_item_value": "cbs_cmn_cpu_l1_burst_prefetch_mode"
+    },
+    {
+      "key": "CbsCmnCpuL1StreamHwPrefetcher",
+      "display_name": "L1 Stream HW Prefetcher",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Option to Enable | Disable L1 Stream HW Prefetcher",
+      "redfish_allowed_values": [
+        "Disable",
+        "Enable",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_l1stream_hw_prefetcher",
+      "schema_intersight_api": "CbsCmnCpuL1streamHwPrefetcher",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_l1stream_hw_prefetcher"
+    },
+    {
+      "key": "CbsCmnCpuL2StreamHwPrefetcher",
+      "display_name": "L2 Stream HW Prefetcher",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Option to Enable | Disable L2 Stream HW Prefetcher",
+      "redfish_allowed_values": [
+        "Disable",
+        "Enable",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_l2stream_hw_prefetcher",
+      "schema_intersight_api": "CbsCmnCpuL2streamHwPrefetcher",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_l2stream_hw_prefetcher"
+    },
+    {
+      "key": "CbsCmnCpuSmee",
+      "display_name": "SMEE",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Control secure memory encryption enable  Enabling both SMEE and SME-MK is not supported. Results in #GP",
+      "redfish_allowed_values": [
+        "Disable",
+        "Enable",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_smee",
+      "schema_intersight_api": "CbsCmnCpuSmee",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_smee"
+    },
+    {
+      "key": "CbsCmnCpuStreamingStoresCtrl",
+      "display_name": "Streaming Stores Control",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enables or disables the streaming stores functionality",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_cpu_streaming_stores_ctrl",
+      "schema_intersight_api": "CbsCmnCpuStreamingStoresCtrl",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_cpu_streaming_stores_ctrl"
+    },
+    {
+      "key": "CbsCmnGnbNbIOMMU",
+      "display_name": "IOMMU",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/Disable IOMMU",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_gnb_nb_iommu",
+      "schema_intersight_api": "CbsCmnGnbNbIommu",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_gnb_nb_iommu"
+    },
+    {
+      "key": "CbsCmnMemBootTimePostPackageRepair",
+      "display_name": "DRAM Boot Time Post Package Repair",
+      "default_value": "Disable",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable or Disable DRAM Boot Time Post Package Repair.  ",
+      "redfish_allowed_values": [
+        "Enable",
+        "Disable"
+      ],
+      "schema_property": "post_package_repair",
+      "schema_intersight_api": "PostPackageRepair",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Disabled",
+        "Hard PPR"
+      ],
+      "template_item_value": "post_package_repair"
+    },
+    {
+      "key": "CbsCmnMemCsInterleaveDdr",
+      "display_name": "Chipselect Interleaving",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Interleave memory blocks across the DRAM chip selects for node 0.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_mem_cs_interleave_ddr",
+      "schema_intersight_api": "CbsCmnMemCsInterleaveDdr",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "Disabled"
+      ],
+      "template_item_value": "cbs_cmn_mem_cs_interleave_ddr"
+    },
+    {
+      "key": "CbsCmnMemCtrllerBankSwapModeDdr",
+      "display_name": "BankSwapMode",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "BankSwapMode value: 0=Disabled, 1=SwapCPU",
+      "redfish_allowed_values": [
+        "Auto",
+        "Disabled",
+        "Swap CPU"
+      ],
+      "schema_property": "cbs_cmn_mem_ctrller_bank_swap_mode_ddr",
+      "schema_intersight_api": "CbsCmnMemCCtrllerBankSwapModeDdr",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "Disabled",
+        "Swap CPU"
+      ],
+      "template_item_value": "cbs_cmn_mem_ctrller_bank_swap_mode_ddr"
+    },
+    {
+      "key": "CbsCmnMemCtrllerPwrDnEnDdr",
+      "display_name": "Power Down Enable",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable or disable DDR power down mode",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_mem_ctrller_pwr_dn_en_ddr",
+      "schema_intersight_api": "CbsCmnMemCtrllerPwrDnEnDdr",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cmn_mem_ctrller_pwr_dn_en_ddr"
+    },
+    {
+      "key": "CbsCmnMemDramRefreshRate",
+      "display_name": "DRAM Refresh Rate",
+      "default_value": "3.9 usec",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "DRAM refresh rate: 1.95us or 3.9us (default)",
+      "redfish_allowed_values": [
+        "3.9 usec",
+        "1.95 usec"
+      ],
+      "schema_property": "cbs_cmn_mem_dram_refresh_rate",
+      "schema_intersight_api": "CbsCmnMemCCtrllerBankSwapModeDdr",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "1.95 usec",
+        "3.9 usec"
+      ],
+      "template_item_value": "cbs_cmn_mem_dram_refresh_rate"
+    },
+    {
+      "key": "CbsCmnMemDramScrubTime",
+      "display_name": "DRAM Scrub Time",
+      "default_value": "24 hours",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Provide a value that is the number of hours to scrub memory.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "1 hour",
+        "4 hours",
+        "6 hours",
+        "8 hours",
+        "12 hours",
+        "16 hours",
+        "24 hours",
+        "48 hours"
+      ],
+      "schema_property": "cbs_df_cmn_dram_scrub_time",
+      "schema_intersight_api": "CbsDfCmnDramScrubTime",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "1 hour",
+        "4 hours",
+        "6 hours",
+        "8 hours",
+        "12 hours",
+        "16 hours",
+        "24 hours",
+        "48 hours",
+        "Auto",
+        "Disabled"
+      ],
+      "template_item_value": "cbs_df_cmn_dram_scrub_time"
+    },
+    {
+      "key": "CbsCmnMemHealingBistEnableBitMaskDdr",
+      "display_name": "DDR Healing BIST",
+      "default_value": "Disabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "This item enables a full memory test. Please note that this is a memory content test and is separate and distinct from the MBIST test of Interface and Data Eye.  PMU Mem BIST: this uses PMU firmware to test memory on all channels simultaneously. Failing memory will be repaired using soft or hard PPR depending on the PPR configuration.  Self-Healing Mem BIST: this runs the JEDEC DRAM self healing, if the device and DIMM support the feature. The DRAM will do a hard repair for failing memory.  PMU and Self-Healing Mem BIST: this option runs the PMU Mem BIST then the Self-Healing Mem BIST tests sequentially.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "PMU Mem BIST",
+        "Self-Healing Mem BIST",
+        "PMU and Self-Healing Mem BIST"
+      ],
+      "schema_property": "cbs_cmn_mem_healing_bist_enable_bit_mask_ddr",
+      "schema_intersight_api": "CbsCmnMemCCtrllerBankSwapModeDdr",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "PMU Mem BIST",
+        "PMU and Self-Healing Mem BIST",
+        "Self-Healing Mem BIST"
+      ],
+      "template_item_value": "cbs_cmn_mem_healing_bist_enable_bit_mask_ddr"
+    },
+    {
+      "key": "CbsCmnMemRuntimePostPackageRepair",
+      "display_name": "DRAM Runtime Post Package Repair",
+      "default_value": "Disable",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable or Disable DRAM Run Time Post Package Repair.  ",
+      "redfish_allowed_values": [
+        "Enable",
+        "Disable"
+      ],
+      "schema_property": "runtime_post_package_repair",
+      "schema_intersight_api": "RuntimePostPackageRepair",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "runtime_post_package_repair"
+    },
+    {
+      "key": "CbsCmnMemTsmeEnableDdr",
+      "display_name": "TSME",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Transparent SME",
+      "redfish_allowed_values": [
+        "Auto",
+        "Enabled",
+        "Disabled"
+      ],
+      "schema_property": "tsme",
+      "schema_intersight_api": "Tsme",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "tsme"
+    },
+    {
+      "key": "CbsCmnPcieCAPLinkSpeed",
+      "display_name": "PCIE Link Speed Capability",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Set all PCIe port speed capability",
+      "redfish_allowed_values": [
+        "Maximum speed",
+        "Gen1",
+        "Gen2",
+        "GEN3",
+        "GEN4",
+        "GEN5",
+        "Auto"
+      ],
+      "schema_property": "cbs_cmn_pcie_cap_link_speed",
+      "schema_intersight_api": "CbsCmnPcieCAPLinkSpeed",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Gen1",
+        "Gen2",
+        "GEN3",
+        "GEN4",
+        "GEN5",
+        "Maximum Speed"
+      ],
+      "template_item_value": "cbs_cmn_pcie_cap_link_speed"
+    },
+    {
+      "key": "CbsCpuCcdCtrl",
+      "display_name": "CCD Control",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Sets the number of active CCDs.  Once this option has been used to remove any CCDs, a POWER CYCLE is required in order for future selections to take effect.",
+      "redfish_allowed_values": [
+        "Auto",
+        "2 CCDs",
+        "4 CCDs",
+        "6 CCDs",
+        "8 CCDs",
+        "10 CCDs",
+        "12 CCDs",
+        "14 CCDs"
+      ],
+      "schema_property": "cbs_cpu_ccd_ctrl_ssp",
+      "schema_intersight_api": "CbsCpuCcdCtrlSsp",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "2 CCDs",
+        "3 CCDs",
+        "4 CCDs",
+        "6 CCDs",
+        "8 CCDs",
+        "10 CCDs",
+        "12 CCDs",
+        "14 CCDs",
+        "Auto"
+      ],
+      "template_item_value": "cbs_cpu_ccd_ctrl_ssp"
+    },
+    {
+      "key": "CbsCpuSmtCtrl",
+      "display_name": "SMT Control",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Can be used to disable symmetric multithreading. To re-enable SMT, a POWER CYCLE is needed after selecting the 'Enable' option. Select 'Auto' based on BIOS PCD (PcdAmdSmtMode) default setting. WARNING - S3 is NOT SUPPORTED on systems where SMT is disabled.",
+      "redfish_allowed_values": [
+        "Disable",
+        "Enable",
+        "Auto"
+      ],
+      "schema_property": "cbs_cpu_smt_ctrl",
+      "schema_intersight_api": "CbsCpuSmtCtrl",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_cpu_smt_ctrl"
+    },
+    {
+      "key": "CbsDbgCpuLApicMode",
+      "display_name": "Local APIC Mode",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Select local APIC operation modes",
+      "redfish_allowed_values": [
+        "xAPIC",
+        "x2APIC",
+        "Auto"
+      ],
+      "schema_property": "cbs_dbg_cpu_lapic_mode",
+      "schema_intersight_api": "CbsDbgCpuLapicMode",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "Compatibility",
+        "X2APIC",
+        "XAPIC"
+      ],
+      "template_item_value": "cbs_dbg_cpu_lapic_mode"
+    },
+    {
+      "key": "CbsDfCmn3LinkMaxXgmiSpeed",
+      "display_name": "3-link xGMI max speed",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Specifies the max frequency used for XGMI PState in a 3-link topology.",
+      "redfish_allowed_values": [
+        "20Gbps",
+        "25Gbps",
+        "32Gbps",
+        "Auto"
+      ],
+      "schema_property": "cbs_df_cmn4link_max_xgmi_speed",
+      "schema_intersight_api": "CbsDfCmn4linkMaxXgmiSpeed",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "20Gbps",
+        "25Gbps",
+        "32Gbps",
+        "Auto"
+      ],
+      "template_item_value": "cbs_df_cmn4link_max_xgmi_speed"
+    },
+    {
+      "key": "CbsDfCmnAcpiSratL3Numa",
+      "display_name": "ACPI SRAT L3 Cache As NUMA Domain",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enabled: Each CCX in the system will be declared as a separate NUMA domain.  Disabled: Memory Addressing  NUMA nodes per socket will be declared.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_df_cmn_acpi_srat_l3numa",
+      "schema_intersight_api": "CbsDfCmnAcpiSratL3numa",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_df_cmn_acpi_srat_l3numa"
+    },
+    {
+      "key": "CbsDfCmnDramNps",
+      "display_name": "NUMA nodes per socket",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Specifies the number of desired NUMA nodes per socket.  Zero will attempt to interleave the two sockets together.",
+      "redfish_allowed_values": [
+        "NPS0",
+        "NPS1",
+        "NPS2",
+        "NPS4",
+        "Auto"
+      ],
+      "schema_property": "cbs_df_cmn_dram_nps",
+      "schema_intersight_api": "CbsDfCmnDramNps",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "NPS0",
+        "NPS1",
+        "NPS2",
+        "NPS4"
+      ],
+      "template_item_value": "cbs_df_cmn_dram_nps"
+    },
+    {
+      "key": "CbsDfCmnMemIntlv",
+      "display_name": "Memory interleaving",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Allows for disabling memory interleaving.  Note that NUMA nodes per socket will be honored regardless of this setting.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled",
+        "Auto"
+      ],
+      "schema_property": "cbs_df_cmn_mem_intlv_control",
+      "schema_intersight_api": "CbsDfCmnMemIntlvControl",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_df_cmn_mem_intlv_control"
+    },
+    {
+      "key": "CbsSevSnpSupport",
+      "display_name": "SEV-SNP Support",
+      "default_value": "Auto",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enables support for Secure Encrypted Virtualization and Secure Nested Paging",
+      "redfish_allowed_values": [
+        "Disable",
+        "Enable",
+        "Auto"
+      ],
+      "schema_property": "cbs_sev_snp_support",
+      "schema_intersight_api": "CbsSevSnpSupport",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "Auto",
+        "disabled",
+        "enabled"
+      ],
+      "template_item_value": "cbs_sev_snp_support"
+    },
+    {
+      "key": "IPMI103",
+      "display_name": "OS Watchdog Timer",
+      "default_value": "Disabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "If enabled, starts a BIOS timer which can only be shut off by Management Software after the OS loads.  Helps determine that the OS successfully loaded or follows the OS Boot Watchdog Timer policy.",
+      "redfish_allowed_values": [
+        "Enabled",
+        "Disabled"
+      ],
+      "schema_property": "os_boot_watchdog_timer",
+      "schema_intersight_api": "OsBootWatchdogTimer",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "os_boot_watchdog_timer"
+    },
+    {
+      "key": "IPMI104",
+      "display_name": "OS Wtd Timer Timeout",
+      "default_value": "10",
+      "redfish_type": "Integer",
+      "redfish_help_text": "Enter the value Between 1 to 30 min for OS Boot Watchdog Timer Expiration. Not available if OS Boot Watchdog Timer is disabled.",
+      "redfish_allowed_values": [
+        "range[1,30]"
+      ],
+      "schema_property": "os_boot_watchdog_timer_timeout",
+      "schema_intersight_api": "OsBootWatchdogTimerTimeout",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "5-minutes",
+        "10-minutes",
+        "15-minutes",
+        "20-minutes"
+      ],
+      "template_item_value": "os_boot_watchdog_timer_timeout"
+    },
+    {
+      "key": "IPMI105",
+      "display_name": "OS Wtd Timer Policy",
+      "default_value": "Reset",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Configure how the system should respond if the OS Boot Watchdog Timer expires. Not available if OS Boot Watchdog Timer is disabled.",
+      "redfish_allowed_values": [
+        "Do Nothing",
+        "Reset",
+        "Power Down",
+        "Power Cycle"
+      ],
+      "schema_property": "os_boot_watchdog_timer_policy",
+      "schema_intersight_api": "OsBootWatchdogTimerPolicy",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "do-nothing",
+        "power-off",
+        "reset"
+      ],
+      "template_item_value": "os_boot_watchdog_timer_policy"
+    },
+    {
+      "key": "NVLCK002",
+      "display_name": "Password protection of Runtime Variables",
+      "default_value": "Enabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Control the NVRAM Runtime Variable protection through System Admin Password",
+      "redfish_allowed_values": [
+        "Enabled",
+        "Disabled"
+      ],
+      "schema_property": "pop_support",
+      "schema_intersight_api": "PopSupport",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "pop_support"
+    },
+    {
+      "key": "NWSK001",
+      "display_name": "IPv4 PXE Support",
+      "default_value": "Enabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/Disable IPv4 PXE boot support. If disabled, IPv4 PXE boot support will not be available.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "ipv4pxe",
+      "schema_intersight_api": "Ipv4pxe",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "ipv4pxe"
+    },
+    {
+      "key": "NWSK002",
+      "display_name": "IPv6 PXE Support",
+      "default_value": "Disabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/Disable IPv6 PXE boot support. If disabled, IPv6 PXE boot support will not be available.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "ipv6pxe",
+      "schema_intersight_api": "Ipv6pxe",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "ipv6pxe"
+    },
+    {
+      "key": "NWSK006",
+      "display_name": "IPv4 HTTP Support",
+      "default_value": "Enabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/Disable IPv4 HTTP boot support. If disabled, IPv4 HTTP boot support will not be available.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "ipv4http",
+      "schema_intersight_api": "Ipv4http",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "ipv4http"
+    },
+    {
+      "key": "NWSK007",
+      "display_name": "IPv6 HTTP Support",
+      "default_value": "Disabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Enable/Disable IPv6 HTTP boot support. If disabled, IPv6 HTTP boot support will not be available.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "ipv6http",
+      "schema_intersight_api": "Ipv6http",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "ipv6http"
+    },
+    {
+      "key": "PCID002",
+      "display_name": "SR-IOV Support",
+      "default_value": "Enabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "If system has SR-IOV capable PCIe Devices, this option Enables or Disables Single Root IO Virtualization Support.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "sr_iov",
+      "schema_intersight_api": "SrIov",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "sr_iov"
+    },
+    {
+      "key": "PCID003",
+      "display_name": "BME DMA Mitigation",
+      "default_value": "Disabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Re-enable Bus Master Attribute disabled during Pci enumeration for PCI Bridges after SMM Locked ",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "bme_dma_mitigation",
+      "schema_intersight_api": "BmeDmaMitigation",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "enabled",
+        "disabled"
+      ],
+      "template_item_value": "bme_dma_mitigation"
+    },
+    {
+      "key": "TCG006",
+      "display_name": "Pending operation",
+      "default_value": "None",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Schedule an Operation for the Security Device. NOTE: Your Computer will reboot during restart in order to change State of Security Device.",
+      "redfish_allowed_values": [
+        "None",
+        "TPM Clear"
+      ],
+      "schema_property": "tpm_pending_operation",
+      "schema_intersight_api": "TpmPendingOperation",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "None",
+        "TpmClear"
+      ],
+      "template_item_value": "tpm_pending_operation"
+    },
+    {
+      "key": "TER002",
+      "display_name": "Console Redirection",
+      "default_value": "Enabled",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Console Redirection Enable or Disable.",
+      "redfish_allowed_values": [
+        "Disabled",
+        "Enabled"
+      ],
+      "schema_property": "console_redirection",
+      "schema_intersight_api": "ConsoleRedirection",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "com-0",
+        "com-1",
+        "disabled",
+        "enabled",
+        "serial-port-a"
+      ],
+      "template_item_value": "console_redirection"
+    },
+    {
+      "key": "TER0022",
+      "display_name": "Bits per second",
+      "default_value": "115200",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Selects serial port transmission speed. The speed must be matched on the other side. Long or noisy lines may require lower speeds.",
+      "redfish_allowed_values": [
+        "9600",
+        "19200",
+        "38400",
+        "57600",
+        "115200",
+        "230400",
+        "460800",
+        "921600"
+      ],
+      "schema_property": "baud_rate",
+      "schema_intersight_api": "BaudRate",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "9600",
+        "19200",
+        "38400",
+        "57600",
+        "115200",
+        "230400",
+        "460800",
+        "921600"
+      ],
+      "template_item_value": "baud_rate"
+    },
+    {
+      "key": "TER013",
+      "display_name": "Terminal Type",
+      "default_value": "ANSI",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Emulation: ANSI: Extended ASCII char set. VT100: ASCII char set. VT100Plus: Extends VT100 to support color, function keys, etc. VT-UTF8: Uses UTF8 encoding to map Unicode chars onto 1 or more bytes.",
+      "redfish_allowed_values": [
+        "VT100",
+        "VT100Plus",
+        "VT-UTF8",
+        "ANSI"
+      ],
+      "schema_property": "terminal_type",
+      "schema_intersight_api": "TerminalType",
+      "schema_match_type": "template_item",
+      "schema_enum_values": [
+        "platform-default",
+        "pc-ansi",
+        "vt100",
+        "vt100-plus",
+        "vt-utf8"
+      ],
+      "template_item_value": "terminal_type"
+    },
+    {
+      "key": "TER05E",
+      "display_name": "Flow Control",
+      "default_value": "None",
+      "redfish_type": "Enumeration",
+      "redfish_help_text": "Flow control can prevent data loss from buffer overflow. When sending data, if the receiving buffers are full, a 'stop' signal can be sent to stop the data flow. Once the buffers are empty, a 'start' signal can be sent to re-start the flow. Hardware flow control uses two wires to send start/stop signals.",
+      "redfish_allowed_values": [
+        "None",
+        "Hardware RTS/CTS"
+      ],
+      "schema_property": "",
+      "schema_intersight_api": "",
+      "schema_match_type": "",
+      "schema_enum_values": [],
+      "template_item_value": "ter05_e"
+    }
+  ]
+}

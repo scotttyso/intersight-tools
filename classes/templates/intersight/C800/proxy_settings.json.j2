@@ -1,0 +1,12 @@
+{
+    "AuthenticationEnabled": {% if item.proxy_username | default('') != '' %}true{% else %}false{% endif %},
+    "HostProperties": {
+        "ProxyHost": "{{ item.proxy_hostname }}",
+        "ProxyPort": {{ item.proxy_port | default(8080) | int }}
+    },
+    "ProxyHost": "{{ item.proxy_hostname }}",
+    "ProxyPassword": "",
+    "ProxyPort": {{ item.proxy_port | default(8080) | int }},
+    "ProxyType": "Manual",
+    "ProxyUsername": "{{ item.proxy_username | default('') }}",
+}
