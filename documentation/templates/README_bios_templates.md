@@ -3,6 +3,75 @@
 This document describes each BIOS template available in `intersight.policies.bios.templates`,
 listing all BIOS tokens configured by that template along with a brief description of what each token controls.
 
+## Table of Contents
+
+- [AnalyticalDatabaseSystems-M6-Intel](#analyticaldatabasesystems-m6-intel)
+- [AnalyticalDatabaseSystems-M7-Intel](#analyticaldatabasesystems-m7-intel)
+- [Analytics-M8-AMD](#analytics-m8-amd)
+- [Analytics-M8-Intel](#analytics-m8-intel)
+- [AnalyticsDatabaseSystems-M5-Intel](#analyticsdatabasesystems-m5-intel)
+- [AzureStack-M6-Intel](#azurestack-m6-intel)
+- [AzureStack-M7-Intel](#azurestack-m7-intel)
+- [CPUInference-M8-AMD](#cpuinference-m8-amd)
+- [CPUInference-M8-Intel](#cpuinference-m8-intel)
+- [CPUIntensive-M6-Intel](#cpuintensive-m6-intel)
+- [CPUIntensive-M7-Intel](#cpuintensive-m7-intel)
+- [CPUIntensive-M8-AMD](#cpuintensive-m8-amd)
+- [CPUIntensive-M8-Intel](#cpuintensive-m8-intel)
+- [ComputationIntensive-M6-AMD](#computationintensive-m6-amd)
+- [DataAnalytics-M6-Intel](#dataanalytics-m6-intel)
+- [DataAnalytics-M7-Intel](#dataanalytics-m7-intel)
+- [EdgeAI-M8-AMD](#edgeai-m8-amd)
+- [EdgeAI-M8-Intel](#edgeai-m8-intel)
+- [EnergyEfficiency-M5-Intel](#energyefficiency-m5-intel)
+- [EnergyEfficiency-M6-AMD](#energyefficiency-m6-amd)
+- [EnergyEfficiency-M6-Intel](#energyefficiency-m6-intel)
+- [EnergyEfficiency-M8-AMD](#energyefficiency-m8-amd)
+- [EnergyEfficiency-M8-Intel](#energyefficiency-m8-intel)
+- [EnergyEfficient-M7-Intel](#energyefficient-m7-intel)
+- [GPUInference-M8-AMD](#gpuinference-m8-amd)
+- [GPUInference-M8-Intel](#gpuinference-m8-intel)
+- [GPUTraining-M8-AMD](#gputraining-m8-amd)
+- [GPUTraining-M8-Intel](#gputraining-m8-intel)
+- [HPC-M8-AMD](#hpc-m8-amd)
+- [HPC-M8-Intel](#hpc-m8-intel)
+- [HighPerformanceComputing-M5-Intel](#highperformancecomputing-m5-intel)
+- [HighPerformanceComputing-M6-AMD](#highperformancecomputing-m6-amd)
+- [HighPerformanceComputing-M6-Intel](#highperformancecomputing-m6-intel)
+- [HighPerformanceComputing-M7-Intel](#highperformancecomputing-m7-intel)
+- [IOIntensive-M6-AMD](#iointensive-m6-amd)
+- [IOIntensive-M6-Intel](#iointensive-m6-intel)
+- [IOIntensive-M8-AMD](#iointensive-m8-amd)
+- [JavaApplicationServer-M5-Intel](#javaapplicationserver-m5-intel)
+- [LowLatency-M5-Intel](#lowlatency-m5-intel)
+- [LowLatency-M6-AMD](#lowlatency-m6-amd)
+- [LowLatency-M6-Intel](#lowlatency-m6-intel)
+- [LowLatency-M7-Intel](#lowlatency-m7-intel)
+- [LowLatency-M8-AMD](#lowlatency-m8-amd)
+- [LowLatency-M8-Intel](#lowlatency-m8-intel)
+- [M5-amd-virtual](#m5-amd-virtual)
+- [M5-intel-virtual](#m5-intel-virtual)
+- [M6-amd-virtual](#m6-amd-virtual)
+- [M6-intel-virtual](#m6-intel-virtual)
+- [MLPerf-Inference-C885A-M8-AMD](#mlperf-inference-c885a-m8-amd)
+- [MaximumPerformance-M5-Intel](#maximumperformance-m5-intel)
+- [OnlineTransactionProcessing-M5-Intel](#onlinetransactionprocessing-m5-intel)
+- [RDBMS-M8-AMD](#rdbms-m8-amd)
+- [RDBMS-M8-Intel](#rdbms-m8-intel)
+- [RelationalDatabaseSystems-M6-Intel](#relationaldatabasesystems-m6-intel)
+- [RelationalDatabaseSystems-M7-Intel](#relationaldatabasesystems-m7-intel)
+- [SystemDefault](#systemdefault)
+- [UnifiedEdgeBios](#unifiededgebios)
+- [VDI-M6-AMD](#vdi-m6-amd)
+- [Virtualization-M5-Intel](#virtualization-m5-intel)
+- [Virtualization-M6-AMD](#virtualization-m6-amd)
+- [Virtualization-M6-Intel](#virtualization-m6-intel)
+- [Virtualization-M7-Intel](#virtualization-m7-intel)
+- [Virtualization-M8-AMD](#virtualization-m8-amd)
+- [Virtualization-M8-Intel](#virtualization-m8-intel)
+- [tpm](#tpm)
+- [tpm_disabled](#tpm_disabled)
+
 ---
 
 ## AnalyticalDatabaseSystems-M6-Intel
@@ -19,6 +88,8 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
+
 ---
 
 ## AnalyticalDatabaseSystems-M7-Intel
@@ -29,6 +100,8 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
+
+[⬆ Back to Top](#table-of-contents)
 
 ---
 
@@ -55,6 +128,8 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `cpu_perf_enhancement` | `Disabled` | Enables Enhanced CPU Performance mode, applying additional microarchitecture optimizations for throughput |
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 
+[⬆ Back to Top](#table-of-contents)
+
 ---
 
 ## Analytics-M8-Intel
@@ -73,6 +148,8 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `select_memory_ras_configuration` | `adddc-sparing` | Selects the memory RAS configuration (JBOD, Mirror, Lockstep, Sparing) for fault tolerance |
 | `snc` | `enabled` | Enables Intel Sub-NUMA Clustering (SNC2 or SNC4), splitting the LLC and memory into sub-NUMA domains to reduce average m |
 
+[⬆ Back to Top](#table-of-contents)
+
 ---
 
 ## AnalyticsDatabaseSystems-M5-Intel
@@ -84,6 +161,8 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `processor_c1e` | `disabled` | Enables processor C1E (Enhanced Halt State) to reduce voltage and frequency when cores are halted |
 | `processor_c6report` | `disabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
+
+[⬆ Back to Top](#table-of-contents)
 
 ---
 
@@ -168,6 +247,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `xpt_prefetch` | `Auto` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 | `xpt_remote_prefetch` | `Auto` | Enables Intel XPT remote prefetch specifically for cross-socket remote memory access patterns |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## AzureStack-M7-Intel
@@ -251,6 +331,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `xpt_prefetch` | `Auto` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 | `xpt_remote_prefetch` | `Auto` | Enables Intel XPT remote prefetch specifically for cross-socket remote memory access patterns |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## CPUInference-M8-AMD
@@ -267,6 +348,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `cpu_power_management` | `performance` | Sets the overall CPU power management policy (performance, energy-efficient, custom) controlling P-state and C-state beh |
 | `llc_prefetch` | `enabled` | Enables LLC prefetching from L2 to L3 cache to improve data availability for memory-bandwidth-intensive workloads |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## CPUInference-M8-Intel
@@ -282,6 +364,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `numa_optimized` | `enabled` | Enables NUMA optimization in the BIOS, ensuring memory is allocated to the NUMA node closest to the requesting CPU |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## CPUIntensive-M6-Intel
@@ -305,6 +388,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## CPUIntensive-M7-Intel
@@ -323,6 +407,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `upi_power_management` | `enabled` | Enables Intel UPI link power management to reduce idle power consumption on inter-socket links |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## CPUIntensive-M8-AMD
@@ -349,6 +434,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## CPUIntensive-M8-Intel
@@ -371,6 +457,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `xpt_prefetch` | `disabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 | `xpt_remote_prefetch` | `disabled` | Enables Intel XPT remote prefetch specifically for cross-socket remote memory access patterns |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## ComputationIntensive-M6-AMD
@@ -393,6 +480,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## DataAnalytics-M6-Intel
@@ -407,6 +495,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## DataAnalytics-M7-Intel
@@ -417,6 +506,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EdgeAI-M8-AMD
@@ -434,6 +524,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `cpu_power_management` | `energy-efficient` | Sets the overall CPU power management policy (performance, energy-efficient, custom) controlling P-state and C-state beh |
 | `llc_prefetch` | `enabled` | Enables LLC prefetching from L2 to L3 cache to improve data availability for memory-bandwidth-intensive workloads |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EdgeAI-M8-Intel
@@ -449,6 +540,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `llc_prefetch` | `enabled` | Enables LLC prefetching from L2 to L3 cache to improve data availability for memory-bandwidth-intensive workloads |
 | `numa_optimized` | `enabled` | Enables NUMA optimization in the BIOS, ensuring memory is allocated to the NUMA node closest to the requesting CPU |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EnergyEfficiency-M5-Intel
@@ -461,6 +553,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `package_cstate_limit` | `C6 Retention` | Sets the maximum C-state the processor package is allowed to enter; restricting to C0/C1 prevents deep sleep for low-lat |
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EnergyEfficiency-M6-AMD
@@ -483,6 +576,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EnergyEfficiency-M6-Intel
@@ -500,6 +594,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `streamer_prefetch` | `disabled` | Enables the Intel DCU streamer prefetcher, which detects forward sequential access patterns and prefetches into L1 cache |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EnergyEfficiency-M8-AMD
@@ -526,6 +621,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EnergyEfficiency-M8-Intel
@@ -543,6 +639,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `streamer_prefetch` | `disabled` | Enables the Intel DCU streamer prefetcher, which detects forward sequential access patterns and prefetches into L1 cache |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## EnergyEfficient-M7-Intel
@@ -556,6 +653,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## GPUInference-M8-AMD
@@ -584,6 +682,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `llc_prefetch` | `enabled` | Enables LLC prefetching from L2 to L3 cache to improve data availability for memory-bandwidth-intensive workloads |
 | `sr_iov` | `enabled` | Enables PCI SR-IOV (Single Root I/O Virtualization) to allow a single PCIe device to appear as multiple virtual function |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## GPUInference-M8-Intel
@@ -613,6 +712,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `sr_iov` | `enabled` | Enables PCI SR-IOV (Single Root I/O Virtualization) to allow a single PCIe device to appear as multiple virtual function |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## GPUTraining-M8-AMD
@@ -642,6 +742,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `sr_iov` | `enabled` | Enables PCI SR-IOV (Single Root I/O Virtualization) to allow a single PCIe device to appear as multiple virtual function |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## GPUTraining-M8-Intel
@@ -672,6 +773,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## HPC-M8-AMD
@@ -697,6 +799,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `cpu_perf_enhancement` | `Auto` | Enables Enhanced CPU Performance mode, applying additional microarchitecture optimizations for throughput |
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## HPC-M8-Intel
@@ -713,6 +816,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pwr_perf_tuning` | `bios` | Controls whether BIOS, OS, or PECI manages power/performance tuning bias |
 | `select_memory_ras_configuration` | `adddc-sparing` | Selects the memory RAS configuration (JBOD, Mirror, Lockstep, Sparing) for fault tolerance |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## HighPerformanceComputing-M5-Intel
@@ -725,6 +829,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## HighPerformanceComputing-M6-AMD
@@ -747,6 +852,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `disabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## HighPerformanceComputing-M6-Intel
@@ -766,6 +872,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## HighPerformanceComputing-M7-Intel
@@ -779,6 +886,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## IOIntensive-M6-AMD
@@ -801,6 +909,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## IOIntensive-M6-Intel
@@ -813,6 +922,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `streamer_prefetch` | `disabled` | Enables the Intel DCU streamer prefetcher, which detects forward sequential access patterns and prefetches into L1 cache |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## IOIntensive-M8-AMD
@@ -839,6 +949,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## JavaApplicationServer-M5-Intel
@@ -852,6 +963,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c1e` | `disabled` | Enables processor C1E (Enhanced Halt State) to reduce voltage and frequency when cores are halted |
 | `processor_c6report` | `disabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## LowLatency-M5-Intel
@@ -867,6 +979,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `disabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## LowLatency-M6-AMD
@@ -889,6 +1002,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## LowLatency-M6-Intel
@@ -905,6 +1019,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## LowLatency-M7-Intel
@@ -918,6 +1033,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## LowLatency-M8-AMD
@@ -944,6 +1060,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `disabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## LowLatency-M8-Intel
@@ -960,6 +1077,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `streamer_prefetch` | `disabled` | Enables the Intel DCU streamer prefetcher, which detects forward sequential access patterns and prefetches into L1 cache |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## M5-amd-virtual
@@ -974,6 +1092,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `disabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `processor_cstate` | `disabled` | Enables CPU C-state support globally, allowing processors to enter low-power states when idle |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## M5-intel-virtual
@@ -989,6 +1108,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_cstate` | `disabled` | Enables CPU C-state support globally, allowing processors to enter low-power states when idle |
 | `txt_support` | `enabled` | Enables Intel Trusted Execution Technology (TXT/TPM), providing hardware-based measured launch environment for server at |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## M6-amd-virtual
@@ -1000,6 +1120,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `cbs_df_cmn_dram_nps` | `NPS4` | Sets NUMA Nodes Per Socket (NPS) to control how DRAM is presented as NUMA domains; NPS1=single domain, NPS4=four domains per socket |
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## M6-intel-virtual
@@ -1014,6 +1135,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `txt_support` | `enabled` | Enables Intel Trusted Execution Technology (TXT/TPM), providing hardware-based measured launch environment for server at |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## MLPerf-Inference-C885A-M8-AMD
@@ -1032,6 +1154,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `sha384pcr_bank` | `Enabled` | Enables the SHA-384 PCR bank in the TPM for higher-security measured boot |
 | `terminal_type` | `VT-UTF8` | Sets the terminal emulation type for serial console redirection (VT100, VT100+, VT-UTF8, PC-ANSI) |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## MaximumPerformance-M5-Intel
@@ -1048,6 +1171,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `snc` | `enabled` | Enables Intel Sub-NUMA Clustering (SNC2 or SNC4), splitting the LLC and memory into sub-NUMA domains to reduce average m |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## OnlineTransactionProcessing-M5-Intel
@@ -1059,6 +1183,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `processor_c1e` | `disabled` | Enables processor C1E (Enhanced Halt State) to reduce voltage and frequency when cores are halted |
 | `processor_c6report` | `disabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## RDBMS-M8-AMD
@@ -1084,6 +1209,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `cpu_perf_enhancement` | `Disabled` | Enables Enhanced CPU Performance mode, applying additional microarchitecture optimizations for throughput |
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## RDBMS-M8-Intel
@@ -1104,6 +1230,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `select_memory_ras_configuration` | `adddc-sparing` | Selects the memory RAS configuration (JBOD, Mirror, Lockstep, Sparing) for fault tolerance |
 | `snc` | `enabled` | Enables Intel Sub-NUMA Clustering (SNC2 or SNC4), splitting the LLC and memory into sub-NUMA domains to reduce average m |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## RelationalDatabaseSystems-M6-Intel
@@ -1121,6 +1248,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `upi_power_management` | `enabled` | Enables Intel UPI link power management to reduce idle power consumption on inter-socket links |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## RelationalDatabaseSystems-M7-Intel
@@ -1134,6 +1262,7 @@ listing all BIOS tokens configured by that template along with a brief descripti
 | `snc` | `Auto` | Enables Intel Sub-NUMA Clustering (SNC2 or SNC4), splitting the LLC and memory into sub-NUMA domains to reduce average m |
 | `xpt_prefetch` | `enabled` | Enables Intel XPT (Cross Package Transfer) prefetch to speculatively fetch data across NUMA domains for remote memory ac |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## SystemDefault
@@ -1168,6 +1297,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## Virtualization-M5-Intel
@@ -1179,6 +1309,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `processor_c1e` | `disabled` | Enables processor C1E (Enhanced Halt State) to reduce voltage and frequency when cores are halted |
 | `processor_c6report` | `disabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## Virtualization-M6-AMD
@@ -1201,6 +1332,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 | `svm_mode` | `enabled` | Enables AMD SVM (Secure Virtual Machine) hardware virtualization extensions required by hypervisors on AMD platforms |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## Virtualization-M6-Intel
@@ -1213,6 +1345,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `processor_c1e` | `enabled` | Enables processor C1E (Enhanced Halt State) to reduce voltage and frequency when cores are halted |
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## Virtualization-M7-Intel
@@ -1223,6 +1356,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `processor_c6report` | `enabled` | Enables the processor to report C6 state to the OS, allowing deep power reduction when cores are idle |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## Virtualization-M8-AMD
@@ -1248,6 +1382,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `cpu_perf_enhancement` | `Disabled` | Enables Enhanced CPU Performance mode, applying additional microarchitecture optimizations for throughput |
 | `pcie_slots_cdn_enable` | `enabled` | Enables Consistent Device Naming for PCIe expansion slots |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## Virtualization-M8-Intel
@@ -1263,6 +1398,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `select_memory_ras_configuration` | `adddc-sparing` | Selects the memory RAS configuration (JBOD, Mirror, Lockstep, Sparing) for fault tolerance |
 | `work_load_config` | `Balanced` | Sets the platform workload configuration hint (Balanced, I/O Sensitive, NUMA, UMA) to tune CPU-to-memory topology |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## tpm
@@ -1275,6 +1411,7 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `tpm_ppi_required` | `enabled` | Controls whether physical presence confirmation is required for TPM operations |
 | `tpm_support` | `enabled` | Enables Security Device (TPM) support, making the TPM visible to the OS and UEFI Secure Boot |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## tpm_disabled
@@ -1284,3 +1421,4 @@ _No BIOS tokens are overridden (system defaults apply)._
 | `tpm_control` | `disabled` | Enables or disables the Trusted Platform Module (TPM) security chip |
 | `tpm_support` | `disabled` | Enables Security Device (TPM) support, making the TPM visible to the OS and UEFI Secure Boot |
 
+[⬆ Back to Top](#table-of-contents)

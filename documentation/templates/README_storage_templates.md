@@ -3,6 +3,13 @@
 Each template lists the storage settings it configures.
 Settings not listed are left at policy defaults.
 
+## Table of Contents
+
+- [edge_compact](#edge_compact)
+- [inference_optimized](#inference_optimized)
+- [model_cache](#model_cache)
+- [training_data](#training_data)
+
 ---
 
 ## edge_compact
@@ -23,6 +30,7 @@ _Recommended storage settings for Unified Edge nodes._
 | `unused_disks_state` | `NoChange` | State to set for drives not used by this policy. |
 | `use_jbod_for_vd_creation` | `False` | Allow JBOD-state drives to be used for virtual drive creation. |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## inference_optimized
@@ -41,6 +49,7 @@ _Recommended storage settings for inference optimized workloads._
 | `unused_disks_state` | `NoChange` | State to set for drives not used by this policy. |
 | `use_jbod_for_vd_creation` | `False` | Allow JBOD-state drives to be used for virtual drive creation. |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## model_cache
@@ -56,6 +65,7 @@ _Recommended storage settings for fast NVMe cache tier for model artifacts._
 | `unused_disks_state` | `NoChange` | State to set for drives not used by this policy. |
 | `use_jbod_for_vd_creation` | `False` | Allow JBOD-state drives to be used for virtual drive creation. |
 
+[⬆ Back to Top](#table-of-contents)
 ---
 
 ## training_data
@@ -76,3 +86,4 @@ _Recommended storage settings for large dataset access during training._
 | `unused_disks_state` | `UnconfiguredGood` | State to set for drives not used by this policy. |
 | `use_jbod_for_vd_creation` | `False` | Allow JBOD-state drives to be used for virtual drive creation. |
 
+[⬆ Back to Top](#table-of-contents)
